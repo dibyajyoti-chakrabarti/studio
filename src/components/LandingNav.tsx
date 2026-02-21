@@ -10,9 +10,10 @@ export function LandingNav() {
           <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <Link href="#services" className="hover:text-secondary transition-colors">Services</Link>
-          <Link href="#how-it-works" className="hover:text-secondary transition-colors">How it Works</Link>
-          <Link href="#vendors" className="hover:text-secondary transition-colors">MechMasters</Link>
+          <Link href="/#services" className="hover:text-secondary transition-colors">Services</Link>
+          <Link href="/#how-it-works" className="hover:text-secondary transition-colors">How it Works</Link>
+          <Link href="/#vendors" className="hover:text-secondary transition-colors">MechMasters</Link>
+          <Link href="/admin" className="hover:text-secondary transition-colors font-bold text-primary">Admin Panel</Link>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
