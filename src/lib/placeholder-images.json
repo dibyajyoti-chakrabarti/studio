@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Abstract industrial background",
+      "imageUrl": "https://images.unsplash.com/photo-1760365533771-165b72d2f331?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpbmR1c3RyaWFsJTIwZmFjdG9yeXxlbnwwfHx8fDE3NzE2MDQ1NTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "industrial factory"
+    },
+    {
+      "id": "vendor-1",
+      "description": "Precision Machining Workshop",
+      "imageUrl": "https://images.unsplash.com/photo-1738162837619-5d0b158abcec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjbmMlMjB3b3Jrc2hvcHxlbnwwfHx8fDE3NzE3MDk0MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cnc workshop"
+    },
+    {
+      "id": "vendor-2",
+      "description": "Laser Cutting Facility",
+      "imageUrl": "https://images.unsplash.com/photo-1657897392470-2fbc02127098?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bGFzZXIlMjBjdXR0aW5nfGVufDB8fHx8MTc3MTcwOTQwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laser cutting"
+    },
+    {
+      "id": "vendor-3",
+      "description": "Fabrication Unit",
+      "imageUrl": "https://images.unsplash.com/photo-1598302936664-407d6c250e2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWxkaW5nJTIwd29ya2VyfGVufDB8fHx8MTc3MTcwOTQwMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "welding worker"
+    },
+    {
+      "id": "vendor-4",
+      "description": "Sheet Metal Works",
+      "imageUrl": "https://images.unsplash.com/photo-1645793314240-a63ac598c103?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtZXRhbCUyMHNoZWV0c3xlbnwwfHx8fDE3NzE3MDk0MDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "metal sheets"
+    }
+  ]
 }
