@@ -11,6 +11,16 @@ service cloud.firestore {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // --- User Sandbox (User's Requested Rule Pattern) ---
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      
+      // RFQs and any other nested data are covered by this recursive match
+      match /{allPaths=**} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
     // --- Consultation Requests ---
     match /consultationRequests/{requestId} {
       allow get, list: if isAdmin();
@@ -18,37 +28,7 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // --- RFQs (Manufacturing Requests) ---
-    match /rfqs/{rfqId} {
-      // Allow users to list and get their own RFQs based on the userId field.
-      // We use 'in resource.data' to safely handle documents that might be missing the field,
-      // which prevents rule evaluation errors that lead to permission denials.
-      allow list: if isAdmin() || (
-        isSignedIn() && 
-        resource != null && 
-        'userId' in resource.data && 
-        request.auth.uid == resource.data.userId
-      );
-      
-      allow get: if isAdmin() || (
-        isSignedIn() && 
-        resource != null && 
-        'userId' in resource.data && 
-        request.auth.uid == resource.data.userId
-      );
-      
-      // Allow creation for any user (the app assigns the userId field)
-      allow create: if true; 
-      
-      // Only owner or admin can update/delete
-      allow update, delete: if isAdmin() || (
-        isSignedIn() && 
-        resource != null && 
-        'userId' in resource.data && 
-        request.auth.uid == resource.data.userId
-      );
-    }
-
+    // --- Admin Metadata ---
     match /admins/{uid} {
       allow read: if isSignedIn();
       allow write: if false; 

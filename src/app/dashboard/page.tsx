@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useUser, useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   FileText, 
   Clock, 
@@ -31,12 +31,11 @@ export default function UserDashboard() {
   const router = useRouter();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  // Memoize the query to fetch user-specific RFQs
+  // Memoize the query to fetch user-specific RFQs from their private subcollection
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
-      collection(db, 'rfqs'),
-      where('userId', '==', user.uid),
+      collection(db, 'users', user.uid, 'rfqs'),
       orderBy('createdAt', 'desc')
     );
   }, [db, user?.uid]);

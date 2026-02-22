@@ -32,7 +32,8 @@ export default function LoginPage() {
           ...JSON.parse(pendingRfq),
           userId: user.uid,
         };
-        addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+        // Save to the user's private subcollection
+        addDocumentNonBlocking(collection(db, 'users', user.uid, 'rfqs'), rfqData);
         localStorage.removeItem('pendingRfqToSubmit');
         localStorage.removeItem('pendingRfqDetails');
         toast({

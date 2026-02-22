@@ -68,7 +68,8 @@ export default function MatchingPage() {
     setIsSubmitting(true);
     try {
       if (db) {
-        addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+        // Save to the user's private subcollection for better security and path matching
+        addDocumentNonBlocking(collection(db, 'users', user.uid, 'rfqs'), rfqData);
         localStorage.removeItem('pendingRfqDetails');
         toast({
           title: "RFQ Submitted!",

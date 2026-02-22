@@ -50,47 +50,21 @@
         "requestDate"
       ]
     },
-    "ConsultationFile": {
+    "RFQ": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ConsultationFile",
+      "title": "RFQ",
       "type": "object",
-      "description": "Represents an uploaded design file associated with a consultation request.",
+      "description": "Represents a manufacturing request for quotation sent to multiple MechMasters.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the ConsultationFile entity."
-        },
-        "consultationRequestId": {
-          "type": "string",
-          "description": "Reference to the ConsultationRequest this file belongs to. (Relationship: ConsultationRequest 1:N ConsultationFile)"
-        },
-        "fileName": {
-          "type": "string",
-          "description": "The original name of the uploaded design file."
-        },
-        "fileType": {
-          "type": "string",
-          "description": "The MIME type or file extension of the uploaded design file (e.g., 'application/step', 'image/jpeg')."
-        },
-        "fileUrl": {
-          "type": "string",
-          "description": "The secure URL where the design file is stored in cloud storage.",
-          "format": "uri"
-        },
-        "uploadDate": {
-          "type": "string",
-          "description": "The date and time when the design file was uploaded.",
-          "format": "date-time"
-        }
+        "userId": { "type": "string" },
+        "projectName": { "type": "string" },
+        "process": { "type": "string" },
+        "material": { "type": "string" },
+        "quantity": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "consultationRequestId",
-        "fileName",
-        "fileType",
-        "fileUrl",
-        "uploadDate"
-      ]
+      "required": ["userId", "projectName", "process", "createdAt"]
     }
   },
   "auth": {
@@ -103,13 +77,33 @@
   "firestore": {
     "structure": [
       {
+        "path": "/users/{userId}/rfqs/{rfqId}",
+        "definition": {
+          "entityName": "RFQ",
+          "schema": {
+            "$ref": "#/backend/entities/RFQ"
+          },
+          "description": "Stores user-specific manufacturing requests within their private subcollection.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who owns the RFQs."
+            },
+            {
+              "name": "rfqId",
+              "description": "The unique identifier for a specific RFQ."
+            }
+          ]
+        }
+      },
+      {
         "path": "/consultationRequests/{consultationRequestId}",
         "definition": {
           "entityName": "ConsultationRequest",
           "schema": {
             "$ref": "#/backend/entities/ConsultationRequest"
           },
-          "description": "Stores individual requests for expert manufacturing consultation submitted via the public form. Accessible primarily by administrators.",
+          "description": "Stores individual requests for expert manufacturing consultation submitted via the public form.",
           "params": [
             {
               "name": "consultationRequestId",
@@ -117,28 +111,7 @@
             }
           ]
         }
-      },
-      {
-        "path": "/consultationRequests/{consultationRequestId}/files/{fileId}",
-        "definition": {
-          "entityName": "ConsultationFile",
-          "schema": {
-            "$ref": "#/backend/entities/ConsultationFile"
-          },
-          "description": "Stores references to design files uploaded as part of a specific consultation request. Accessible primarily by administrators, as a sub-resource of the parent request.",
-          "params": [
-            {
-              "name": "consultationRequestId",
-              "description": "The unique identifier of the parent consultation request this file belongs to."
-            },
-            {
-              "name": "fileId",
-              "description": "The unique identifier for a specific consultation design file."
-            }
-          ]
-        }
       }
-    ],
-    "reasoning": "The recommended Firestore structure for consultation requests follows a simple hierarchical model, optimizing for administrative access and debuggability. All consultation requests are stored in a top-level collection `/consultationRequests/{consultationRequestId}`. Any design files uploaded as part of a request are stored in a subcollection `/consultationRequests/{consultationRequestId}/files/{fileId}`.\n\n**Authorization Independence:** This structure achieves Authorization Independence because both `ConsultationRequest` and `ConsultationFile` entities are designed for admin-only access. There are no user-specific ownership or collaboration fields (like `ownerId` or `members` map) required for these entities based on the provided schema and user story. Authorization rules will directly check if `request.auth.uid` belongs to an administrator role (e.g., by checking a separate `/roles_admin/{uid}` collection). This avoids any `get()` operations on parent documents for authorization purposes within the `ConsultationFile` subcollection, as the parent's (ConsultationRequest's) authorization is implicitly handled by the admin role check at the top level. The documents themselves do not carry denormalized authorization context for multi-user access because it is not required for this admin-centric feature.\n\n**QAPs (Rules are not Filters):** This design fully supports Query-as-Permission (QAPs). For an administrator, listing documents in `/consultationRequests` will retrieve all consultation requests without the need for client-side filtering or complex rule logic. The security rule will simply verify `if isAdmin()` for `list` operations. Similarly, for `/consultationRequests/{consultationRequestId}/files`, an administrator can list all files associated with a specific request, again without filtering, by confirming `if isAdmin()`. The homogeneous security posture (admin-only) for both collections ensures that `list` operations are always QAP-compliant, returning all accessible documents without requiring additional filtering logic in the rules."
+    ]
   }
 }
