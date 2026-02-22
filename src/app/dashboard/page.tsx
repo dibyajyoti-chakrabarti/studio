@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,22 +64,23 @@ export default function UserDashboard() {
   const router = useRouter();
   const [selectedOrder, setSelectedOrder] = useState(MOCK_ORDERS[0]);
 
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
   const handleSignOut = () => {
     signOut(auth);
     router.push('/');
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
-  }
-
-  if (!user) {
-    router.push('/login');
-    return null;
   }
 
   return (
