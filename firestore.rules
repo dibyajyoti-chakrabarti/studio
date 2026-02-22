@@ -24,14 +24,16 @@ service cloud.firestore {
 
     // --- RFQs (Manufacturing Requests) ---
     match /rfqs/{rfqId} {
-      // Users can see their own RFQs, admins can see all
-      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Allow users to list and get their own RFQs based on the userId field
+      // For list operations, the query must be filtered by userId
+      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100 && request.auth.uid == resource.data.userId);
+      allow get: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
       
-      // Allow creation if user is signed in or it's a pending submission
+      // Allow creation for any user (handled by logic in the app to assign userId)
       allow create: if true; 
       
-      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Only owner or admin can update/delete
+      allow update, delete: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
     }
 
     match /admins/{uid} {
