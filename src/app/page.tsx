@@ -48,8 +48,8 @@ import Link from 'next/link';
 import { MOCK_VENDORS } from './lib/mock-data';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
@@ -80,29 +80,29 @@ export default function Home() {
       phone: formData.get('phone') as string,
       email: formData.get('email') as string,
       message: formData.get('message') as string,
-      consultationOptions: [], // Could be expanded to handle checkbox selections
+      consultationOptions: [],
       requestDate: new Date().toISOString(),
     };
 
-    const consultationRef = collection(db, 'consultationRequests');
+    // Use setDocumentNonBlocking with the generated ID to satisfy Firestore security rules
+    const docRef = doc(db, 'consultationRequests', id);
     
-    addDocumentNonBlocking(consultationRef, requestData)
-      .then(() => {
-        setIsSubmitted(true);
-        setIsSubmitting(false);
-        setTimeout(() => {
-          setDialogOpen(false);
-          setIsSubmitted(false);
-        }, 2000);
-      })
-      .catch((err) => {
-        setIsSubmitting(false);
-        toast({
-          title: "Submission failed",
-          description: "Something went wrong while sending your request.",
-          variant: "destructive",
-        });
+    try {
+      setDocumentNonBlocking(docRef, requestData, { merge: true });
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+      setTimeout(() => {
+        setDialogOpen(false);
+        setIsSubmitted(false);
+      }, 2000);
+    } catch (err) {
+      setIsSubmitting(false);
+      toast({
+        title: "Submission failed",
+        description: "Something went wrong while sending your request.",
+        variant: "destructive",
       });
+    }
   }
 
   return (
@@ -419,20 +419,20 @@ export default function Home() {
                       <form onSubmit={handleConsultationSubmit} className="space-y-4 mt-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
+                            <label htmlFor="name" className="text-sm font-medium">Name</label>
                             <Input id="name" name="name" required className="bg-background" suppressHydrationWarning />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="phone">Phone</Label>
+                            <label htmlFor="phone" className="text-sm font-medium">Phone</label>
                             <Input id="phone" name="phone" required className="bg-background" suppressHydrationWarning />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
+                          <label htmlFor="email" className="text-sm font-medium">Email</label>
                           <Input id="email" name="email" type="email" required className="bg-background" suppressHydrationWarning />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="message">Message</Label>
+                          <label htmlFor="message" className="text-sm font-medium">Message</label>
                           <Textarea id="message" name="message" required className="bg-background min-h-[100px]" suppressHydrationWarning />
                         </div>
                         <div className="border-2 border-dashed border-white/10 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
@@ -467,7 +467,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                {logo?.imageUrl && (
+                {logo?.imageUrl && (logo.imageUrl.startsWith('http') || logo.imageUrl.startsWith('/')) && (
                   <div className="relative w-8 h-8 overflow-hidden rounded">
                     <Image
                       src={logo.imageUrl}
@@ -517,13 +517,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  );
-}
-
-function Label({ htmlFor, children, className }: { htmlFor: string, children: React.ReactNode, className?: string }) {
-  return (
-    <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>
-      {children}
-    </label>
   );
 }

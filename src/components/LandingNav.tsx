@@ -14,7 +14,7 @@ export function LandingNav() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
-            {logo?.imageUrl && (
+            {logo?.imageUrl && (logo.imageUrl.startsWith('http') || logo.imageUrl.startsWith('/')) && (
               <Image
                 src={logo.imageUrl}
                 alt="MechHub Logo"
