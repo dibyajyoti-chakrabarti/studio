@@ -15,7 +15,6 @@ import {
   DialogDescription, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger 
 } from '@/components/ui/dialog';
 import { useUser, useAuth, useFirestore, useCollection, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -50,8 +49,9 @@ export default function UserDashboard() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
+  const [hasSubmittedOnboarding, setHasSubmittedOnboarding] = useState(false);
 
-  // Fetch user profile
+  // Fetch user profile from the dedicated /users/{userId} path
   const userProfileRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid);
@@ -59,7 +59,7 @@ export default function UserDashboard() {
   
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Memoize the query to fetch user-specific RFQs
+  // Fetch user-specific RFQs
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
@@ -70,24 +70,30 @@ export default function UserDashboard() {
 
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
 
+  // Set initial selected RFQ
   useEffect(() => {
     if (rfqs && rfqs.length > 0 && !selectedOrderId) {
       setSelectedOrderId(rfqs[0].id);
     }
   }, [rfqs, selectedOrderId]);
 
-  // Trigger onboarding if profile is missing or not onboarded
+  // Trigger onboarding ONLY if profile is missing/not onboarded AND we haven't just finished submitting
   useEffect(() => {
-    if (!isProfileLoading && user && (!profile || !profile.onboarded)) {
-      setIsOnboardingOpen(true);
+    if (!isProfileLoading && user && !hasSubmittedOnboarding) {
+      if (!profile || !profile.onboarded) {
+        setIsOnboardingOpen(true);
+      } else {
+        setIsOnboardingOpen(false);
+      }
     }
-  }, [isProfileLoading, profile, user]);
+  }, [isProfileLoading, profile, user, hasSubmittedOnboarding]);
 
   const handleSignOut = () => {
     signOut(auth);
@@ -110,25 +116,23 @@ export default function UserDashboard() {
     };
 
     const userRef = doc(db, 'users', user.uid);
-    try {
-      setDocumentNonBlocking(userRef, profileData, { merge: true });
-      toast({
-        title: "Welcome onboard!",
-        description: `Glad to have you with us, ${profileData.displayName}.`,
-      });
-      setIsOnboardingOpen(false);
-    } catch (err) {
-      toast({
-        title: "Profile setup failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingProfile(false);
-    }
+    
+    // Set local state immediately to prevent the useEffect from re-opening the dialog
+    // while Firestore syncs the background write
+    setHasSubmittedOnboarding(true);
+    setIsOnboardingOpen(false);
+
+    setDocumentNonBlocking(userRef, profileData, { merge: true });
+    
+    toast({
+      title: "Welcome onboard!",
+      description: `Glad to have you with us, ${profileData.displayName}.`,
+    });
+    
+    setIsSubmittingProfile(false);
   };
 
-  if (isUserLoading || isProfileLoading || !user) {
+  if (isUserLoading || (isProfileLoading && !hasSubmittedOnboarding) || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -222,7 +226,7 @@ export default function UserDashboard() {
                 <Card className="bg-card border-white/5">
                   <CardHeader>
                     <CardTitle className="font-headline text-2xl">Innovator Profile</CardTitle>
-                    <CardDescription>Your public and private professional details.</CardDescription>
+                    <CardDescription>Your public and private professional details stored in your personal user database.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -356,8 +360,8 @@ export default function UserDashboard() {
 
       {/* Onboarding Dialog */}
       <Dialog open={isOnboardingOpen} onOpenChange={(open) => {
-        // Only allow closing if already onboarded
-        if (profile?.onboarded) setIsOnboardingOpen(open);
+        // Prevent closing unless profile is onboarded or just submitted
+        if (profile?.onboarded || hasSubmittedOnboarding) setIsOnboardingOpen(open);
       }}>
         <DialogContent className="sm:max-w-[500px] bg-card text-foreground">
           <DialogHeader>
