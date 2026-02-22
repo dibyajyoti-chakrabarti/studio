@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -11,10 +12,14 @@ import { MOCK_VENDORS } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function MatchingPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
+  const db = useFirestore();
   const [loading, setLoading] = useState(true);
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +35,7 @@ export default function MatchingPage() {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedVendors.length < 3) {
       toast({
         title: "Selection Required",
@@ -40,11 +45,46 @@ export default function MatchingPage() {
       return;
     }
 
+    const details = JSON.parse(localStorage.getItem('pendingRfqDetails') || '{}');
+    const rfqData = {
+      ...details,
+      vendorIds: selectedVendors,
+      status: 'Quotation Pending',
+      createdAt: new Date().toISOString(),
+      userId: user?.uid || null,
+    };
+
+    if (!user) {
+      // If not logged in, store the RFQ and redirect to login
+      localStorage.setItem('pendingRfqToSubmit', JSON.stringify(rfqData));
+      toast({
+        title: "One last step",
+        description: "Please sign in to submit your RFQ and track progress.",
+      });
+      router.push('/login?redirect=/dashboard');
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 1500);
+    try {
+      if (db) {
+        addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+        localStorage.removeItem('pendingRfqDetails');
+        toast({
+          title: "RFQ Submitted!",
+          description: "MechMasters have been notified. Check your dashboard for updates.",
+        });
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      toast({
+        title: "Submission failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -95,6 +135,7 @@ export default function MatchingPage() {
                     alt={vendor.name} 
                     fill 
                     className="object-cover"
+                    unoptimized
                   />
                   <div className="absolute top-3 left-3">
                     <Checkbox checked={selectedVendors.includes(vendor.id)} className="w-6 h-6 border-white bg-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />

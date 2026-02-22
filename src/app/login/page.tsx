@@ -1,9 +1,10 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth, useUser, useFirestore, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,9 +16,34 @@ import { Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const auth = useAuth();
+  const { user } = useUser();
+  const db = useFirestore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+
+  // Effect to handle post-login RFQ submission
+  useEffect(() => {
+    if (user && db) {
+      const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
+      if (pendingRfq) {
+        const rfqData = {
+          ...JSON.parse(pendingRfq),
+          userId: user.uid,
+        };
+        addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+        localStorage.removeItem('pendingRfqToSubmit');
+        localStorage.removeItem('pendingRfqDetails');
+        toast({
+          title: "RFQ Submitted Successfully!",
+          description: "Welcome back. Redirecting to your dashboard...",
+        });
+      }
+      const redirectPath = searchParams.get('redirect') || '/dashboard';
+      router.push(redirectPath);
+    }
+  }, [user, db, router, searchParams, toast]);
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,18 +54,12 @@ export default function LoginPage() {
 
     try {
       initiateEmailSignIn(auth, email, password);
-      toast({
-        title: "Welcome back!",
-        description: "Checking your credentials...",
-      });
-      setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error: any) {
       toast({
         title: "Sign in failed",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -53,18 +73,12 @@ export default function LoginPage() {
 
     try {
       initiateEmailSignUp(auth, email, password);
-      toast({
-        title: "Account created!",
-        description: "Welcome to MechHub. Redirecting to dashboard...",
-      });
-      setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error: any) {
       toast({
         title: "Sign up failed",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -73,19 +87,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       initiateGoogleSignIn(auth);
-      toast({
-        title: "Google Sign In",
-        description: "Connecting to your Google account...",
-      });
-      // Success is handled by onAuthStateChanged in FirebaseProvider
-      setTimeout(() => router.push('/dashboard'), 2000);
     } catch (error: any) {
       toast({
         title: "Google sign in failed",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -113,19 +120,19 @@ export default function LoginPage() {
                       <Label htmlFor="email">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required suppressHydrationWarning />
+                        <Input id="email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="password">Password</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required suppressHydrationWarning />
+                        <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required />
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full h-11" disabled={loading} suppressHydrationWarning>
+                    <Button type="submit" className="w-full h-11" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
                       Sign In
                     </Button>
@@ -139,7 +146,7 @@ export default function LoginPage() {
                       </div>
                     </div>
 
-                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading} suppressHydrationWarning>
+                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading}>
                       <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
                         <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
                       </svg>
@@ -162,19 +169,19 @@ export default function LoginPage() {
                       <Label htmlFor="reg-email">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="reg-email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required suppressHydrationWarning />
+                        <Input id="reg-email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="reg-password">Password</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="reg-password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required suppressHydrationWarning />
+                        <Input id="reg-password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required />
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full h-11" disabled={loading} suppressHydrationWarning>
+                    <Button type="submit" className="w-full h-11" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                       Create Account
                     </Button>
@@ -188,7 +195,7 @@ export default function LoginPage() {
                       </div>
                     </div>
 
-                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading} suppressHydrationWarning>
+                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading}>
                       <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
                         <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
                       </svg>

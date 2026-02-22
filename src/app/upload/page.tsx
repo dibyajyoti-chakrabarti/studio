@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, FileText, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
+import { Upload, FileText, ChevronRight, Loader2 } from 'lucide-react';
 import { MANUFACTURING_PROCESSES } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
 
@@ -19,15 +20,29 @@ export default function UploadPage() {
 
   const handleUpload = () => {
     setIsUploading(true);
-    // Simulate upload delay
     setTimeout(() => {
       setIsUploading(false);
       setStep(2);
     }, 1500);
   };
 
-  const handleDetailsSubmit = (e: React.FormEvent) => {
+  const handleDetailsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const details = {
+      projectName: formData.get('projectName'),
+      process: formData.get('process'),
+      material: formData.get('material'),
+      quantity: formData.get('quantity'),
+      surfaceFinish: formData.get('surfaceFinish'),
+      tolerance: formData.get('tolerance'),
+      deliveryDate: formData.get('deliveryDate'),
+      budget: formData.get('budget'),
+      location: formData.get('location'),
+    };
+    
+    // Store details temporarily to pass to the matching page
+    localStorage.setItem('pendingRfqDetails', JSON.stringify(details));
     router.push('/matching');
   };
 
@@ -36,7 +51,6 @@ export default function UploadPage() {
       <LandingNav />
       <div className="container mx-auto px-4 max-w-4xl">
         
-        {/* Progress Tracker */}
         <div className="flex items-center justify-center gap-4 mb-12">
           <div className={`flex items-center gap-2 ${step >= 1 ? 'text-secondary' : 'text-muted-foreground'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${step >= 1 ? 'bg-secondary text-background' : 'bg-muted'}`}>1</div>
@@ -110,9 +124,14 @@ export default function UploadPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleDetailsSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Project Name</Label>
+                  <Input name="projectName" placeholder="e.g. Robot Arm Rev 2" required className="bg-background border-white/10" />
+                </div>
+
                 <div className="space-y-2">
                   <Label>Manufacturing Process</Label>
-                  <Select required>
+                  <Select name="process" required>
                     <SelectTrigger className="bg-background border-white/10">
                       <SelectValue placeholder="Select process" />
                     </SelectTrigger>
@@ -126,37 +145,37 @@ export default function UploadPage() {
 
                 <div className="space-y-2">
                   <Label>Material</Label>
-                  <Input placeholder="e.g. Aluminum 6061-T6, SS304" required className="bg-background border-white/10" />
+                  <Input name="material" placeholder="e.g. Aluminum 6061-T6, SS304" required className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Quantity</Label>
-                  <Input type="number" placeholder="Number of units" required className="bg-background border-white/10" />
+                  <Input name="quantity" type="number" placeholder="Number of units" required className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Surface Finish (Optional)</Label>
-                  <Input placeholder="e.g. Powder Coated, Anodized" className="bg-background border-white/10" />
+                  <Input name="surfaceFinish" placeholder="e.g. Powder Coated, Anodized" className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Tolerance Requirement</Label>
-                  <Input placeholder="e.g. +/- 0.05mm" required className="bg-background border-white/10" />
+                  <Input name="tolerance" placeholder="e.g. +/- 0.05mm" required className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Required Delivery Date</Label>
-                  <Input type="date" required className="bg-background border-white/10" />
+                  <Input name="deliveryDate" type="date" required className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Budget Range (Optional)</Label>
-                  <Input placeholder="e.g. ₹10,000 - ₹50,000" className="bg-background border-white/10" />
+                  <Input name="budget" placeholder="e.g. ₹10,000 - ₹50,000" className="bg-background border-white/10" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Delivery Location (City + Pincode)</Label>
-                  <Input placeholder="e.g. Pune, 411001" required className="bg-background border-white/10" />
+                  <Input name="location" placeholder="e.g. Pune, 411001" required className="bg-background border-white/10" />
                 </div>
 
                 <div className="md:col-span-2 pt-6">
