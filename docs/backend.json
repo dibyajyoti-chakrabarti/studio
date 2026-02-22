@@ -1,0 +1,142 @@
+{
+  "entities": {
+    "ConsultationRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ConsultationRequest",
+      "type": "object",
+      "description": "Represents a user's request for expert manufacturing guidance and consultation services.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ConsultationRequest entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the user requesting consultation."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the user for contact purposes."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user for communication.",
+          "format": "email"
+        },
+        "message": {
+          "type": "string",
+          "description": "A detailed message from the user describing their consultation needs."
+        },
+        "consultationOptions": {
+          "type": "array",
+          "description": "A list of selected consultation options (e.g., Design Optimization, DFM Analysis).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "The date and time when the consultation request was submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "phone",
+        "email",
+        "message",
+        "requestDate"
+      ]
+    },
+    "ConsultationFile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ConsultationFile",
+      "type": "object",
+      "description": "Represents an uploaded design file associated with a consultation request.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ConsultationFile entity."
+        },
+        "consultationRequestId": {
+          "type": "string",
+          "description": "Reference to the ConsultationRequest this file belongs to. (Relationship: ConsultationRequest 1:N ConsultationFile)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "The original name of the uploaded design file."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "The MIME type or file extension of the uploaded design file (e.g., 'application/step', 'image/jpeg')."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "The secure URL where the design file is stored in cloud storage.",
+          "format": "uri"
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "The date and time when the design file was uploaded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "consultationRequestId",
+        "fileName",
+        "fileType",
+        "fileUrl",
+        "uploadDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/consultationRequests/{consultationRequestId}",
+        "definition": {
+          "entityName": "ConsultationRequest",
+          "schema": {
+            "$ref": "#/backend/entities/ConsultationRequest"
+          },
+          "description": "Stores individual requests for expert manufacturing consultation submitted via the public form. Accessible primarily by administrators.",
+          "params": [
+            {
+              "name": "consultationRequestId",
+              "description": "The unique identifier for a specific consultation request."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/consultationRequests/{consultationRequestId}/files/{fileId}",
+        "definition": {
+          "entityName": "ConsultationFile",
+          "schema": {
+            "$ref": "#/backend/entities/ConsultationFile"
+          },
+          "description": "Stores references to design files uploaded as part of a specific consultation request. Accessible primarily by administrators, as a sub-resource of the parent request.",
+          "params": [
+            {
+              "name": "consultationRequestId",
+              "description": "The unique identifier of the parent consultation request this file belongs to."
+            },
+            {
+              "name": "fileId",
+              "description": "The unique identifier for a specific consultation design file."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for consultation requests follows a simple hierarchical model, optimizing for administrative access and debuggability. All consultation requests are stored in a top-level collection `/consultationRequests/{consultationRequestId}`. Any design files uploaded as part of a request are stored in a subcollection `/consultationRequests/{consultationRequestId}/files/{fileId}`.\n\n**Authorization Independence:** This structure achieves Authorization Independence because both `ConsultationRequest` and `ConsultationFile` entities are designed for admin-only access. There are no user-specific ownership or collaboration fields (like `ownerId` or `members` map) required for these entities based on the provided schema and user story. Authorization rules will directly check if `request.auth.uid` belongs to an administrator role (e.g., by checking a separate `/roles_admin/{uid}` collection). This avoids any `get()` operations on parent documents for authorization purposes within the `ConsultationFile` subcollection, as the parent's (ConsultationRequest's) authorization is implicitly handled by the admin role check at the top level. The documents themselves do not carry denormalized authorization context for multi-user access because it is not required for this admin-centric feature.\n\n**QAPs (Rules are not Filters):** This design fully supports Query-as-Permission (QAPs). For an administrator, listing documents in `/consultationRequests` will retrieve all consultation requests without the need for client-side filtering or complex rule logic. The security rule will simply verify `if isAdmin()` for `list` operations. Similarly, for `/consultationRequests/{consultationRequestId}/files`, an administrator can list all files associated with a specific request, again without filtering, by confirming `if isAdmin()`. The homogeneous security posture (admin-only) for both collections ensures that `list` operations are always QAP-compliant, returning all accessible documents without requiring additional filtering logic in the rules."
+  }
+}

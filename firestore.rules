@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset implements an "Admin-Managed Submission" model. It allows for public/anonymous 
+     * data entry (lead generation) while restricting all data retrieval and management to 
+     * authenticated administrator accounts.
+     *
+     * DATA STRUCTURE
+     * Data is organized into a top-level `/consultationRequests` collection. Each request can 
+     * have associated files stored in a `/files` subcollection.
+     *
+     * KEY SECURITY DECISIONS
+     * 1. Public Submission: Anyone (including anonymous users) can submit a consultation request 
+     *    and upload file references. This supports the "Public Form" requirement.
+     * 2. Admin-Only Access: Read, update, and delete permissions are strictly reserved for 
+     *    administrators. This is verified by checking for a document in the `/admins/` collection 
+     *    matching the user's UID.
+     * 3. Relational Integrity: On creation, the rules enforce that internal ID fields match 
+     *    the Firestore document path to ensure data consistency for administrative tools.
+     * 4. Prototyping Flexibility: Data types and non-relational fields are not validated to 
+     *    allow for rapid UI/UX iteration.
+     */
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the user is authenticated with Firebase Auth.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user has an entry in the 'admins' collection.
+     * This avoids costly get() calls on the secured documents themselves by using a dedicated 
+     * role-based collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    /**
+     * @description Combines admin check with a verify-existence check for destructive operations.
+     */
+    function isExistingAdmin() {
+      return isAdmin() && resource != null;
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for consultation requests submitted via the public form.
+     * @path /consultationRequests/{requestId}
+     * @allow (create) if any user submits a request with matching internal ID.
+     * @allow (list) if the user is an administrator.
+     * @deny (get) if the user is not an administrator.
+     * @principle Public creation with administrative-only management and visibility.
+     */
+    match /consultationRequests/{requestId} {
+      allow get, list: if isAdmin();
+      
+      // Allow public creation but enforce ID consistency for relational integrity
+      allow create: if request.resource.data.id == requestId;
+      
+      // Only admins can modify or remove submitted requests
+      allow update, delete: if isExistingAdmin();
+
+      /**
+       * @description Rules for design files associated with a consultation request.
+       * @path /consultationRequests/{requestId}/files/{fileId}
+       * @allow (create) if any user submits a file associated with the correct parent ID.
+       * @allow (update) if an admin modifies a file record.
+       * @deny (list) if the requester is not an admin.
+       * @principle Subcollection access restricted via global admin role check.
+       */
+      match /files/{fileId} {
+        allow get, list: if isAdmin();
+        
+        // Enforce that the file record correctly points to the parent requestId in the path
+        allow create: if request.resource.data.id == fileId 
+                      && request.resource.data.consultationRequestId == requestId;
+        
+        allow update, delete: if isExistingAdmin();
+      }
+    }
+
+    /**
+     * @description Placeholder for the admin roles collection.
+     * Documents in this collection should be named by the user's UID.
+     * @path /admins/{uid}
+     */
+    match /admins/{uid} {
+      // Typically, only a Super Admin or Cloud Function would manage this collection.
+      allow read: if isSignedIn();
+      allow write: if false; 
+    }
+  }
+}
