@@ -7,10 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useUser, useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { useUser, useAuth, useFirestore, useCollection, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { 
   FileText, 
   Clock, 
@@ -21,17 +31,35 @@ import {
   Settings,
   LogOut,
   Plus,
-  Loader2
+  Loader2,
+  User as UserIcon,
+  Building2,
+  Phone,
+  Sparkles,
+  Check
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function UserDashboard() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
+  
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
 
-  // Memoize the query to fetch user-specific RFQs from their private subcollection
+  // Fetch user profile
+  const userProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+  
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
+  // Memoize the query to fetch user-specific RFQs
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
@@ -54,20 +82,62 @@ export default function UserDashboard() {
     }
   }, [rfqs, selectedOrderId]);
 
+  // Trigger onboarding if profile is missing or not onboarded
+  useEffect(() => {
+    if (!isProfileLoading && user && (!profile || !profile.onboarded)) {
+      setIsOnboardingOpen(true);
+    }
+  }, [isProfileLoading, profile, user]);
+
   const handleSignOut = () => {
     signOut(auth);
     router.push('/');
   };
 
-  if (isUserLoading || !user) {
+  const handleOnboardingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!db || !user) return;
+
+    setIsSubmittingProfile(true);
+    const formData = new FormData(e.currentTarget);
+    const profileData = {
+      displayName: formData.get('displayName') as string,
+      phoneNumber: formData.get('phoneNumber') as string,
+      organization: formData.get('organization') as string,
+      email: user.email,
+      onboarded: true,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const userRef = doc(db, 'users', user.uid);
+    try {
+      setDocumentNonBlocking(userRef, profileData, { merge: true });
+      toast({
+        title: "Welcome onboard!",
+        description: `Glad to have you with us, ${profileData.displayName}.`,
+      });
+      setIsOnboardingOpen(false);
+    } catch (err) {
+      toast({
+        title: "Profile setup failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingProfile(false);
+    }
+  };
+
+  if (isUserLoading || isProfileLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
+  const welcomeName = profile?.displayName || user.email?.split('@')[0] || 'Innovator';
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -75,14 +145,14 @@ export default function UserDashboard() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
           <div>
-            <h1 className="font-headline text-3xl font-bold">Welcome, {user.email?.split('@')[0]} 👋</h1>
+            <h1 className="font-headline text-3xl font-bold">Welcome, {welcomeName} 👋</h1>
             <p className="text-muted-foreground">Manage your custom manufacturing requests and track production status.</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" size="icon" onClick={() => router.push('/upload')}>
               <Plus className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" onClick={() => {}}>
               <Settings className="w-4 h-4" />
             </Button>
             <Button variant="destructive" size="sm" onClick={handleSignOut}>
@@ -97,6 +167,7 @@ export default function UserDashboard() {
             <Tabs defaultValue="my-orders" className="space-y-6">
               <TabsList className="bg-card border border-white/5 p-1">
                 <TabsTrigger value="my-orders">My Requests</TabsTrigger>
+                <TabsTrigger value="profile">My Profile</TabsTrigger>
                 <TabsTrigger value="active-production">In Production</TabsTrigger>
               </TabsList>
 
@@ -145,6 +216,52 @@ export default function UserDashboard() {
                     <Button className="mt-4" onClick={() => router.push('/upload')}>Start First Project</Button>
                   </Card>
                 )}
+              </TabsContent>
+
+              <TabsContent value="profile" className="space-y-4">
+                <Card className="bg-card border-white/5">
+                  <CardHeader>
+                    <CardTitle className="font-headline text-2xl">Innovator Profile</CardTitle>
+                    <CardDescription>Your public and private professional details.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Full Name</Label>
+                        <div className="flex items-center gap-2 font-medium">
+                          <UserIcon className="w-4 h-4 text-primary" />
+                          {profile?.displayName || 'Not provided'}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Organization / Team / College</Label>
+                        <div className="flex items-center gap-2 font-medium">
+                          <Building2 className="w-4 h-4 text-primary" />
+                          {profile?.organization || 'Not provided'}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Phone Number</Label>
+                        <div className="flex items-center gap-2 font-medium">
+                          <Phone className="w-4 h-4 text-primary" />
+                          {profile?.phoneNumber || 'Not provided'}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Email Address</Label>
+                        <div className="flex items-center gap-2 font-medium">
+                          <Package className="w-4 h-4 text-primary" />
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-4 border-t border-white/5">
+                      <Button variant="outline" onClick={() => setIsOnboardingOpen(true)}>
+                        Update Profile Information
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -236,6 +353,82 @@ export default function UserDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Dialog */}
+      <Dialog open={isOnboardingOpen} onOpenChange={(open) => {
+        // Only allow closing if already onboarded
+        if (profile?.onboarded) setIsOnboardingOpen(open);
+      }}>
+        <DialogContent className="sm:max-w-[500px] bg-card text-foreground">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-secondary mb-2">
+              <Sparkles className="w-5 h-5" />
+              <span className="text-xs font-bold uppercase tracking-widest">Profile Setup</span>
+            </div>
+            <DialogTitle className="font-headline text-2xl">Hey Innovator, Let's know you a little</DialogTitle>
+            <DialogDescription>
+              Complete your profile to get personalized recommendations and track your manufacturing projects.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleOnboardingSubmit} className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Enter your full name</Label>
+              <div className="relative">
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="displayName" 
+                  name="displayName" 
+                  defaultValue={profile?.displayName || ''} 
+                  required 
+                  className="pl-10 bg-background" 
+                  placeholder="e.g. Rahul Sharma"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Phone number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="phoneNumber" 
+                  name="phoneNumber" 
+                  defaultValue={profile?.phoneNumber || ''} 
+                  required 
+                  className="pl-10 bg-background" 
+                  placeholder="e.g. +91 98765 43210"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="organization">College / Team / Startup Name</Label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="organization" 
+                  name="organization" 
+                  defaultValue={profile?.organization || ''} 
+                  required 
+                  className="pl-10 bg-background" 
+                  placeholder="e.g. IIT Madras RoboTeam"
+                />
+              </div>
+            </div>
+            <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmittingProfile}>
+              {isSubmittingProfile ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Saving Profile...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-5 w-5" />
+                  Welcome onboard
+                </>
+              )}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

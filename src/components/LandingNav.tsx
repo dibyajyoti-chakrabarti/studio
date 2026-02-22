@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useUser, useAuth } from '@/firebase';
-import { LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react';
+import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { LogOut, User as UserIcon, LayoutDashboard, Settings } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { 
   DropdownMenu, 
@@ -16,15 +16,27 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { doc } from 'firebase/firestore';
 
 export function LandingNav() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const db = useFirestore();
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
+
+  // Fetch profile to get display name
+  const userProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+  
+  const { data: profile } = useDoc(userProfileRef);
 
   const handleSignOut = () => {
     signOut(auth);
   };
+
+  const displayName = profile?.displayName || user?.email?.split('@')[0] || 'Account';
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
@@ -60,18 +72,24 @@ export function LandingNav() {
                       <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                         <UserIcon className="w-4 h-4 text-primary" />
                       </div>
-                      <span className="hidden sm:inline-block max-w-[100px] truncate">{user.email?.split('@')[0]}</span>
+                      <span className="hidden sm:inline-block max-w-[120px] truncate font-medium">{displayName}</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-card border-white/10">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuContent align="end" className="bg-card border-white/10 w-56">
+                    <DropdownMenuLabel className="font-headline">My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-white/5" />
                     <Link href="/dashboard">
                       <DropdownMenuItem className="cursor-pointer gap-2">
                         <LayoutDashboard className="w-4 h-4" /> Dashboard
                       </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem className="cursor-pointer gap-2 text-destructive" onClick={handleSignOut}>
+                    <Link href="/dashboard?tab=profile">
+                      <DropdownMenuItem className="cursor-pointer gap-2">
+                        <UserIcon className="w-4 h-4" /> My Profile
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuSeparator className="bg-white/5" />
+                    <DropdownMenuItem className="cursor-pointer gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={handleSignOut}>
                       <LogOut className="w-4 h-4" /> Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
