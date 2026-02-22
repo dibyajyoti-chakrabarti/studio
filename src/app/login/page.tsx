@@ -28,18 +28,22 @@ export default function LoginPage() {
     if (user && db) {
       const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
       if (pendingRfq) {
-        const rfqData = {
-          ...JSON.parse(pendingRfq),
-          userId: user.uid,
-        };
-        // Save to the user's private subcollection
-        addDocumentNonBlocking(collection(db, 'users', user.uid, 'rfqs'), rfqData);
-        localStorage.removeItem('pendingRfqToSubmit');
-        localStorage.removeItem('pendingRfqDetails');
-        toast({
-          title: "RFQ Submitted Successfully!",
-          description: "Welcome back. Redirecting to your dashboard...",
-        });
+        try {
+          const rfqData = {
+            ...JSON.parse(pendingRfq),
+            userId: user.uid,
+          };
+          // Save to the user's private subcollection as per security rules
+          addDocumentNonBlocking(collection(db, 'users', user.uid, 'rfqs'), rfqData);
+          localStorage.removeItem('pendingRfqToSubmit');
+          localStorage.removeItem('pendingRfqDetails');
+          toast({
+            title: "Project Submitted!",
+            description: "Your design has been added to your dashboard.",
+          });
+        } catch (e) {
+          console.error("Failed to process pending RFQ:", e);
+        }
       }
       const redirectPath = searchParams.get('redirect') || '/dashboard';
       router.push(redirectPath);
@@ -53,16 +57,9 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    try {
-      initiateEmailSignIn(auth, email, password);
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
+    initiateEmailSignIn(auth, email, password);
+    // Success is handled by onAuthStateChanged in the provider
+    // Loading state reset is handled by unmounting or the redirect effect
   };
 
   const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,30 +69,12 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    try {
-      initiateEmailSignUp(auth, email, password);
-    } catch (error: any) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
+    initiateEmailSignUp(auth, email, password);
   };
 
   const handleGoogleSignIn = () => {
     setLoading(true);
-    try {
-      initiateGoogleSignIn(auth);
-    } catch (error: any) {
-      toast({
-        title: "Google sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      setLoading(false);
-    }
+    initiateGoogleSignIn(auth);
   };
 
   return (

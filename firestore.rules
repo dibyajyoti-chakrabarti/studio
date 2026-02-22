@@ -33,5 +33,14 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if false; 
     }
+
+    // --- Legacy / Compatibility Rules ---
+    // Ensuring any root-level RFQs that might still exist don't cause permission crashes
+    match /rfqs/{rfqId} {
+      allow read, write: if isSignedIn() && (
+        (resource != null && resource.data.userId == request.auth.uid) ||
+        (request.resource != null && request.resource.data.userId == request.auth.uid)
+      );
+    }
   }
 }
