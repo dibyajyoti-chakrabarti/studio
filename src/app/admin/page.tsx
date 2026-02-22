@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -40,14 +39,16 @@ export default function AdminPanel() {
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card">
         <div className="flex items-center gap-3">
           <div className="relative w-8 h-8 overflow-hidden rounded">
-            <Image
-              src={logo?.imageUrl || ''}
-              alt="MechHub Logo"
-              width={32}
-              height={32}
-              className="object-cover"
-              data-ai-hint={logo?.imageHint}
-            />
+            {logo?.imageUrl && (
+              <Image
+                src={logo.imageUrl}
+                alt="MechHub Logo"
+                width={32}
+                height={32}
+                className="object-cover"
+                data-ai-hint={logo?.imageHint}
+              />
+            )}
           </div>
           <span className="font-headline font-bold text-lg">MechHub Admin</span>
         </div>
@@ -152,7 +153,7 @@ export default function AdminPanel() {
                   </TableHeader>
                   <TableBody>
                     {MOCK_RFQS.map((rfq) => (
-                      <TableRow key={rfq.id} className="border-white/5 hover:bg-white/5">
+                      <TableRow key={rfq.id} className="border-b border-white/5 hover:bg-white/5">
                         <TableCell className="font-bold">{rfq.id}</TableCell>
                         <TableCell>
                           <div className="font-medium">{rfq.user}</div>
