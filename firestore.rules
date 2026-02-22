@@ -21,15 +21,32 @@ service cloud.firestore {
     // --- RFQs (Manufacturing Requests) ---
     match /rfqs/{rfqId} {
       // Allow users to list and get their own RFQs based on the userId field.
-      // The client query must filter by 'userId' to satisfy this rule.
-      allow list: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
-      allow get: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
+      // We use 'in resource.data' to safely handle documents that might be missing the field,
+      // which prevents rule evaluation errors that lead to permission denials.
+      allow list: if isAdmin() || (
+        isSignedIn() && 
+        resource != null && 
+        'userId' in resource.data && 
+        request.auth.uid == resource.data.userId
+      );
+      
+      allow get: if isAdmin() || (
+        isSignedIn() && 
+        resource != null && 
+        'userId' in resource.data && 
+        request.auth.uid == resource.data.userId
+      );
       
       // Allow creation for any user (the app assigns the userId field)
       allow create: if true; 
       
       // Only owner or admin can update/delete
-      allow update, delete: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
+      allow update, delete: if isAdmin() || (
+        isSignedIn() && 
+        resource != null && 
+        'userId' in resource.data && 
+        request.auth.uid == resource.data.userId
+      );
     }
 
     match /admins/{uid} {
