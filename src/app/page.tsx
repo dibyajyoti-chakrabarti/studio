@@ -56,12 +56,12 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/upload">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white h-14 px-10 text-lg group">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white h-14 px-10 text-lg group" suppressHydrationWarning>
                   Upload Your Design
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-white/20 hover:bg-white/5">
+              <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-white/20 hover:bg-white/5" suppressHydrationWarning>
                 Become a MechMaster
               </Button>
             </div>
@@ -211,17 +211,17 @@ export default function Home() {
               </div>
               <div className="p-10 bg-card">
                 <form className="space-y-4">
-                  <Input placeholder="Company Name" className="bg-background border-white/10" />
+                  <Input placeholder="Company Name" className="bg-background border-white/10" suppressHydrationWarning />
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="Phone" className="bg-background border-white/10" />
-                    <Input placeholder="Email" className="bg-background border-white/10" />
+                    <Input placeholder="Phone" className="bg-background border-white/10" suppressHydrationWarning />
+                    <Input placeholder="Email" className="bg-background border-white/10" suppressHydrationWarning />
                   </div>
-                  <Textarea placeholder="Tell us about your project..." className="bg-background border-white/10 min-h-[100px]" />
+                  <Textarea placeholder="Tell us about your project..." className="bg-background border-white/10 min-h-[100px]" suppressHydrationWarning />
                   <div className="border-2 border-dashed border-white/10 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
                     <Upload className="mx-auto mb-2 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Upload drawing (PDF/STEP)</span>
                   </div>
-                  <Button className="w-full h-12 text-lg">Send Enquiry</Button>
+                  <Button className="w-full h-12 text-lg" suppressHydrationWarning>Send Enquiry</Button>
                 </form>
               </div>
             </div>
@@ -244,6 +244,7 @@ export default function Home() {
                       height={32}
                       className="object-cover"
                       data-ai-hint={logo?.imageHint}
+                      suppressHydrationWarning
                     />
                   )}
                 </div>
@@ -278,7 +279,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <div>© {currentYear || '...'} MechHub. All rights reserved.</div>
+            <div>© {currentYear || ''} MechHub. All rights reserved.</div>
             <div className="font-bold text-white/50">A Unit of Synchubb Innovations Pvt Ltd</div>
           </div>
         </div>

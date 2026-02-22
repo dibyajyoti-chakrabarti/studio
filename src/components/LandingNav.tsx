@@ -21,6 +21,7 @@ export function LandingNav() {
                 height={32}
                 className="object-cover"
                 data-ai-hint={logo?.imageHint}
+                suppressHydrationWarning
               />
             )}
           </div>
@@ -33,10 +34,10 @@ export function LandingNav() {
         </div>
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
-            <Button variant="ghost" className="hidden sm:inline-flex">Sign In</Button>
+            <Button variant="ghost" className="hidden sm:inline-flex" suppressHydrationWarning>Sign In</Button>
           </Link>
           <Link href="/upload">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-6">Get Started</Button>
+            <Button className="bg-primary hover:bg-primary/90 text-white px-6" suppressHydrationWarning>Get Started</Button>
           </Link>
         </div>
       </div>
