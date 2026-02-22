@@ -21,7 +21,13 @@ import {
   Search,
   CheckCircle2,
   Star,
-  MapPin
+  MapPin,
+  TrendingUp,
+  ShieldCheck,
+  CircleDollarSign,
+  FastForward,
+  Users2,
+  Lock
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_VENDORS } from './lib/mock-data';
@@ -185,6 +191,73 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why Join MechHub Section */}
+      <section className="py-24 bg-background relative overflow-hidden">
+        <div className="blueprint-grid opacity-5" />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-secondary/20 text-secondary border-none">For Manufacturers</Badge>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-4">Why Join MechHub?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Empowering local MechMasters with global opportunities and streamlined operations.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
+            {[
+              {
+                title: 'More Orders',
+                desc: 'Receive RFQs from serious engineering teams and startups.',
+                icon: TrendingUp
+              },
+              {
+                title: 'No Marketing Cost',
+                desc: 'We bring the customers to you, saving your outreach budget.',
+                icon: ShieldCheck
+              },
+              {
+                title: 'No Monthly Fees',
+                desc: 'Only a small commission on confirmed and completed orders.',
+                icon: CircleDollarSign
+              },
+              {
+                title: 'Faster Payments',
+                desc: 'Structured payment process designed to avoid traditional delays.',
+                icon: FastForward
+              },
+              {
+                title: 'No Middlemen',
+                desc: 'Enjoy direct communication and maintain transparent pricing.',
+                icon: Users2
+              }
+            ].map((benefit, i) => (
+              <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <benefit.icon className="text-secondary w-7 h-7" />
+                </div>
+                <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="max-w-3xl mx-auto bg-primary/5 border border-primary/10 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8">
+            <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
+              <Lock className="text-secondary w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                We protect your IP
+                <ShieldCheck className="w-5 h-5 text-secondary" />
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Innovation is your greatest asset. We sign a strictly binding NDA with all our MechMasters to ensure your designs and intellectual property are fully protected at every stage.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bulk Enquiry */}
       <section className="py-24 border-t border-white/5">
         <div className="container mx-auto px-4">
@@ -236,7 +309,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
+                <div className="relative w-8 h-8 overflow-hidden rounded">
                   {logo?.imageUrl && (
                     <Image
                       src={logo.imageUrl}
