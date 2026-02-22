@@ -11,10 +11,6 @@ service cloud.firestore {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
     // --- Consultation Requests ---
     match /consultationRequests/{requestId} {
       allow get, list: if isAdmin();
@@ -24,12 +20,12 @@ service cloud.firestore {
 
     // --- RFQs (Manufacturing Requests) ---
     match /rfqs/{rfqId} {
-      // Allow users to list and get their own RFQs based on the userId field
-      // For list operations, the query must be filtered by userId
-      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100 && request.auth.uid == resource.data.userId);
+      // Allow users to list and get their own RFQs based on the userId field.
+      // The client query must filter by 'userId' to satisfy this rule.
+      allow list: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
       allow get: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.userId);
       
-      // Allow creation for any user (handled by logic in the app to assign userId)
+      // Allow creation for any user (the app assigns the userId field)
       allow create: if true; 
       
       // Only owner or admin can update/delete
