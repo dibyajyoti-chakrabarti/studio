@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { RotatingGears } from '@/components/Gears';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,12 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
@@ -272,7 +278,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <div>© {new Date().getFullYear()} MechHub. All rights reserved.</div>
+            <div>© {currentYear || '...'} MechHub. All rights reserved.</div>
             <div className="font-bold text-white/50">A Unit of Synchubb Innovations Pvt Ltd</div>
           </div>
         </div>
