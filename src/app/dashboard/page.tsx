@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -6,17 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import { 
   FileText, 
   Clock, 
   Package, 
-  CheckCircle, 
   ChevronRight, 
   ExternalLink,
-  MessageSquare,
-  XCircle,
   TrendingUp,
-  Settings
+  Settings,
+  LogOut,
+  Plus
 } from 'lucide-react';
 
 const MOCK_ORDERS = [
@@ -56,20 +59,48 @@ const MOCK_ORDERS = [
 ];
 
 export default function UserDashboard() {
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
   const [selectedOrder, setSelectedOrder] = useState(MOCK_ORDERS[0]);
+
+  const handleSignOut = () => {
+    signOut(auth);
+    router.push('/');
+  };
+
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push('/login');
+    return null;
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-12">
       <LandingNav />
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
           <div>
-            <h1 className="font-headline text-3xl font-bold">Welcome Innovator 👋</h1>
+            <h1 className="font-headline text-3xl font-bold">Welcome, {user.email?.split('@')[0]} 👋</h1>
             <p className="text-muted-foreground">Manage your custom manufacturing requests and track production status.</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" size="icon"><Settings className="w-4 h-4" /></Button>
-            <Button className="bg-primary hover:bg-primary/90">New Design Upload</Button>
+            <Button variant="outline" size="icon" onClick={() => router.push('/upload')} suppressHydrationWarning>
+              <Plus className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="icon" suppressHydrationWarning>
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button variant="destructive" size="sm" onClick={handleSignOut} suppressHydrationWarning>
+              <LogOut className="w-4 h-4 mr-2" /> Sign Out
+            </Button>
           </div>
         </div>
 
@@ -108,7 +139,7 @@ export default function UserDashboard() {
                             </div>
                           </div>
                         </div>
-                        <Button variant="ghost" className="md:ml-auto group">
+                        <Button variant="ghost" className="md:ml-auto group" suppressHydrationWarning>
                           View Details 
                           <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
@@ -165,10 +196,10 @@ export default function UserDashboard() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button className="bg-primary">Accept</Button>
-                    <Button variant="outline">Negotiate</Button>
+                    <Button className="bg-primary" suppressHydrationWarning>Accept</Button>
+                    <Button variant="outline" suppressHydrationWarning>Negotiate</Button>
                   </div>
-                  <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5">Reject Quotation</Button>
+                  <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5" suppressHydrationWarning>Reject Quotation</Button>
                 </CardContent>
               </Card>
             )}
@@ -183,14 +214,14 @@ export default function UserDashboard() {
                     <FileText className="w-4 h-4 text-primary" />
                     <span className="text-xs truncate max-w-[150px]">Main_Part_RevA.step</span>
                   </div>
-                  <Button variant="ghost" size="sm"><ExternalLink className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="sm" suppressHydrationWarning><ExternalLink className="w-3 h-3" /></Button>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-background rounded border border-white/5">
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
                     <span className="text-xs truncate max-w-[150px]">Tolerance_Specs.pdf</span>
                   </div>
-                  <Button variant="ghost" size="sm"><ExternalLink className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="sm" suppressHydrationWarning><ExternalLink className="w-3 h-3" /></Button>
                 </div>
               </CardContent>
             </Card>

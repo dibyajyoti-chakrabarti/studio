@@ -5,9 +5,26 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useUser, useAuth } from '@/firebase';
+import { LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 export function LandingNav() {
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
+
+  const handleSignOut = () => {
+    signOut(auth);
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
@@ -34,9 +51,38 @@ export function LandingNav() {
           <Link href="/#vendors" className="hover:text-secondary transition-colors">MechMasters</Link>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="hidden sm:inline-flex" suppressHydrationWarning>Sign In</Button>
-          </Link>
+          {!isUserLoading && (
+            <>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-2 px-2" suppressHydrationWarning>
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <UserIcon className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="hidden sm:inline-block max-w-[100px] truncate">{user.email?.split('@')[0]}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-card border-white/10">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-white/5" />
+                    <Link href="/dashboard">
+                      <DropdownMenuItem className="cursor-pointer gap-2">
+                        <LayoutDashboard className="w-4 h-4" /> Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem className="cursor-pointer gap-2 text-destructive" onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link href="/login">
+                  <Button variant="ghost" className="hidden sm:inline-flex" suppressHydrationWarning>Sign In</Button>
+                </Link>
+              )}
+            </>
+          )}
           <Link href="/upload">
             <Button className="bg-primary hover:bg-primary/90 text-white px-6" suppressHydrationWarning>Get Started</Button>
           </Link>
