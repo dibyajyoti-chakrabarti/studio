@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -38,7 +39,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card">
         <div className="flex items-center gap-3">
-          <div className="relative w-8 h-8 overflow-hidden rounded">
+          <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
             {logo?.imageUrl && (
               <Image
                 src={logo.imageUrl}
@@ -47,6 +48,7 @@ export default function AdminPanel() {
                 height={32}
                 className="object-cover"
                 data-ai-hint={logo?.imageHint}
+                suppressHydrationWarning
               />
             )}
           </div>
@@ -55,9 +57,9 @@ export default function AdminPanel() {
         <div className="flex items-center gap-6">
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="w-64 pl-10 h-9 bg-background border-white/10" placeholder="Search RFQs, Users..." />
+            <Input className="w-64 pl-10 h-9 bg-background border-white/10" placeholder="Search RFQs, Users..." suppressHydrationWarning />
           </div>
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative" suppressHydrationWarning>
             <Bell className="w-5 h-5" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
           </Button>
@@ -72,6 +74,7 @@ export default function AdminPanel() {
             variant={activeTab === 'dashboard' ? 'secondary' : 'ghost'} 
             className="w-full justify-start gap-3" 
             onClick={() => setActiveTab('dashboard')}
+            suppressHydrationWarning
           >
             <LayoutDashboard className="w-4 h-4" /> Dashboard
           </Button>
@@ -79,6 +82,7 @@ export default function AdminPanel() {
             variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} 
             className="w-full justify-start gap-3" 
             onClick={() => setActiveTab('rfqs')}
+            suppressHydrationWarning
           >
             <ClipboardList className="w-4 h-4" /> RFQ Management
           </Button>
@@ -86,6 +90,7 @@ export default function AdminPanel() {
             variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} 
             className="w-full justify-start gap-3" 
             onClick={() => setActiveTab('vendors')}
+            suppressHydrationWarning
           >
             <Users className="w-4 h-4" /> MechMasters
           </Button>
@@ -93,6 +98,7 @@ export default function AdminPanel() {
             variant={activeTab === 'analytics' ? 'secondary' : 'ghost'} 
             className="w-full justify-start gap-3" 
             onClick={() => setActiveTab('analytics')}
+            suppressHydrationWarning
           >
             <BarChart3 className="w-4 h-4" /> Analytics
           </Button>
@@ -108,7 +114,7 @@ export default function AdminPanel() {
                   <p className="text-muted-foreground">Review incoming requests and send quotations to users.</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="gap-2"><Download className="w-4 h-4" /> Export CSV</Button>
+                  <Button variant="outline" size="sm" className="gap-2" suppressHydrationWarning><Download className="w-4 h-4" /> Export CSV</Button>
                 </div>
               </div>
 
@@ -168,10 +174,10 @@ export default function AdminPanel() {
                         <TableCell>{rfq.date}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>
+                            <Button variant="ghost" size="icon" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }} suppressHydrationWarning>
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" suppressHydrationWarning>
                               <MoreVertical className="w-4 h-4" />
                             </Button>
                           </div>
@@ -215,11 +221,11 @@ export default function AdminPanel() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Total Price (INR)</Label>
-                  <Input type="number" placeholder="e.g. 24500" className="bg-background border-white/10" />
+                  <Input type="number" placeholder="e.g. 24500" className="bg-background border-white/10" suppressHydrationWarning />
                 </div>
                 <div className="space-y-2">
                   <Label>Lead Time</Label>
-                  <Input placeholder="e.g. 7 Days" className="bg-background border-white/10" />
+                  <Input placeholder="e.g. 7 Days" className="bg-background border-white/10" suppressHydrationWarning />
                 </div>
               </div>
               <div className="space-y-2">
@@ -227,10 +233,10 @@ export default function AdminPanel() {
                 <textarea className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px] text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Details about material availability or process specific notes..." />
               </div>
               <div className="pt-4 flex gap-3">
-                <Button className="flex-1 gap-2" onClick={() => setShowQuoteModal(false)}>
+                <Button className="flex-1 gap-2" onClick={() => setShowQuoteModal(false)} suppressHydrationWarning>
                   <Send className="w-4 h-4" /> Send to User
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)}>Cancel</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)} suppressHydrationWarning>Cancel</Button>
               </div>
             </CardContent>
           </Card>

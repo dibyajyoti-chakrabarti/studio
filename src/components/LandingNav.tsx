@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,7 +13,7 @@ export function LandingNav() {
     <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative w-8 h-8 overflow-hidden rounded">
+          <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
             {logo?.imageUrl && (
               <Image
                 src={logo.imageUrl}

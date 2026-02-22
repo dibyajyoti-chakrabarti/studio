@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -235,7 +236,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                <div className="relative w-8 h-8 overflow-hidden rounded">
+                <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
                   {logo?.imageUrl && (
                     <Image
                       src={logo.imageUrl}
