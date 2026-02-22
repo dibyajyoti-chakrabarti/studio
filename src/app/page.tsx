@@ -11,6 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { 
   Settings, 
   Zap, 
   Flame, 
@@ -30,23 +38,75 @@ import {
   Users2,
   Lock,
   LayoutDashboard,
-  ClipboardCheck
+  ClipboardCheck,
+  MessageSquare,
+  FileText,
+  Loader2,
+  Check
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_VENDORS } from './lib/mock-data';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const db = useFirestore();
+
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
+  async function handleConsultationSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!db) return;
+
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    const id = Math.random().toString(36).substring(2, 11);
+    
+    const requestData = {
+      id,
+      name: formData.get('name') as string,
+      phone: formData.get('phone') as string,
+      email: formData.get('email') as string,
+      message: formData.get('message') as string,
+      consultationOptions: [], // Could be expanded to handle checkbox selections
+      requestDate: new Date().toISOString(),
+    };
+
+    const consultationRef = collection(db, 'consultationRequests');
+    
+    addDocumentNonBlocking(consultationRef, requestData)
+      .then(() => {
+        setIsSubmitted(true);
+        setIsSubmitting(false);
+        setTimeout(() => {
+          setDialogOpen(false);
+          setIsSubmitted(false);
+        }, 2000);
+      })
+      .catch((err) => {
+        setIsSubmitting(false);
+        toast({
+          title: "Submission failed",
+          description: "Something went wrong while sending your request.",
+          variant: "destructive",
+        });
+      });
+  }
+
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
       <LandingNav />
       
       {/* Hero Section */}
@@ -308,45 +368,93 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Bulk Enquiry */}
-      <section className="py-24 border-t border-white/5">
+      {/* Expert Consultation Section */}
+      <section className="py-24 bg-white text-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-            <div className="grid md:grid-cols-2">
-              <div className="p-10 bg-primary/5 flex flex-col justify-center">
-                <h2 className="font-headline text-3xl font-bold mb-6">Bulk Custom Parts Enquiry</h2>
-                <p className="text-muted-foreground mb-8">
-                  Looking for large scale manufacturing or regular supply? Our dedicated team will handle your bulk requirements with exclusive pricing.
+          <div className="max-w-5xl mx-auto border-l-4 border-primary pl-8 md:pl-16 py-8">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Need Expert Manufacturing Guidance?</h2>
+                <p className="text-lg text-muted-foreground mb-10">
+                  Get your design reviewed, optimized, or fully engineered by our experts.
                 </p>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold">✓</div>
-                    Volume discounts up to 30%
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold">✓</div>
-                    Priority manufacturing slots
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold">✓</div>
-                    Dedicated account manager
-                  </div>
+                <div className="grid grid-cols-2 gap-6 mb-10">
+                  {[
+                    "Design Optimization",
+                    "Cost Reduction Suggestions",
+                    "DFM Analysis",
+                    "Complete Design Support"
+                  ].map((option, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="text-sm font-medium">{option}</span>
+                    </div>
+                  ))}
                 </div>
+
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="h-14 px-10 text-lg bg-primary hover:bg-primary/90 text-white" suppressHydrationWarning>
+                      Book Consultation
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px] bg-card text-foreground">
+                    <DialogHeader>
+                      <DialogTitle className="font-headline text-2xl">Expert Consultation</DialogTitle>
+                      <DialogDescription>
+                        Share your project details and our experts will get back to you.
+                      </DialogDescription>
+                    </DialogHeader>
+                    {isSubmitted ? (
+                      <div className="py-12 flex flex-col items-center justify-center text-center">
+                        <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                          <Check className="w-8 h-8 text-green-500" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">Request Sent!</h3>
+                        <p className="text-muted-foreground">Our experts will contact you shortly.</p>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleConsultationSubmit} className="space-y-4 mt-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">Name</Label>
+                            <Input id="name" name="name" required className="bg-background" suppressHydrationWarning />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input id="phone" name="phone" required className="bg-background" suppressHydrationWarning />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" name="email" type="email" required className="bg-background" suppressHydrationWarning />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="message">Message</Label>
+                          <Textarea id="message" name="message" required className="bg-background min-h-[100px]" suppressHydrationWarning />
+                        </div>
+                        <div className="border-2 border-dashed border-white/10 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                          <Upload className="mx-auto mb-2 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Upload design (optional)</span>
+                        </div>
+                        <Button type="submit" className="w-full h-12" disabled={isSubmitting} suppressHydrationWarning>
+                          {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Request"}
+                        </Button>
+                      </form>
+                    )}
+                  </DialogContent>
+                </Dialog>
               </div>
-              <div className="p-10 bg-card">
-                <form className="space-y-4">
-                  <Input placeholder="Company Name" className="bg-background border-white/10" suppressHydrationWarning />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="Phone" className="bg-background border-white/10" suppressHydrationWarning />
-                    <Input placeholder="Email" className="bg-background border-white/10" suppressHydrationWarning />
-                  </div>
-                  <Textarea placeholder="Tell us about your project..." className="bg-background border-white/10 min-h-[100px]" suppressHydrationWarning />
-                  <div className="border-2 border-dashed border-white/10 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                    <Upload className="mx-auto mb-2 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Upload drawing (PDF/STEP)</span>
-                  </div>
-                  <Button className="w-full h-12 text-lg" suppressHydrationWarning>Send Enquiry</Button>
-                </form>
+              <div className="hidden md:block relative h-[400px]">
+                <Image 
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800"
+                  alt="Engineering Consultation"
+                  fill
+                  className="object-cover rounded-2xl grayscale"
+                  data-ai-hint="engineering design"
+                />
               </div>
             </div>
           </div>
@@ -409,5 +517,13 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function Label({ htmlFor, children, className }: { htmlFor: string, children: React.ReactNode, className?: string }) {
+  return (
+    <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>
+      {children}
+    </label>
   );
 }
