@@ -3,13 +3,13 @@
     {
       "id": "mechhub-logo",
       "description": "MechHub Official Logo - Mechanical M Design",
-      "imageUrl": "https://images.unsplash.com/photo-1747174506461-8c59fd850eeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtZWNoYW5pY2FsJTIwbG9nb3xlbnwwfHx8fDE3NzE3NTU5ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1766119406794-7fc589b4dc2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtZWNoYW5pY2FsJTIwbG9nb3xlbnwwfHx8fDE3NzE3NTU5ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "mechanical logo"
     },
     {
       "id": "hero-bg",
       "description": "Abstract industrial background",
-      "imageUrl": "https://images.unsplash.com/photo-1760365533771-165b72d2f331?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpbmR1c3RyaWFsJTIwZmFjdG9yeXxlbnwwfHx8fDE3NzE2MDQ1NTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1760365533771-165b72d2f331?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxpbmR1c3RyaWFsJTIwZmFjdG9yeXxlbnwwfHx8fDE3NzE2MDQ1NTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "industrial factory"
     },
     {
