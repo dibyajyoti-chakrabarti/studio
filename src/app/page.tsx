@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Settings, 
   Zap, 
@@ -27,7 +28,9 @@ import {
   CircleDollarSign,
   FastForward,
   Users2,
-  Lock
+  Lock,
+  LayoutDashboard,
+  ClipboardCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { MOCK_VENDORS } from './lib/mock-data';
@@ -48,7 +51,7 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-40 overflow-hidden">
-        <div className="blueprint-grid opacity-20" />
+        <div className="blueprint-grid opacity-20" suppressHydrationWarning />
         <RotatingGears />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
@@ -191,54 +194,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Join MechHub Section */}
+      {/* Why MechHub Section with Toggle */}
       <section className="py-24 bg-background relative overflow-hidden">
-        <div className="blueprint-grid opacity-5" />
+        <div className="blueprint-grid opacity-5" suppressHydrationWarning />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <Badge className="mb-4 bg-secondary/20 text-secondary border-none">For Manufacturers</Badge>
-            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-4">Why Join MechHub?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Empowering local MechMasters with global opportunities and streamlined operations.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
-            {[
-              {
-                title: 'More Orders',
-                desc: 'Receive RFQs from serious engineering teams and startups.',
-                icon: TrendingUp
-              },
-              {
-                title: 'No Marketing Cost',
-                desc: 'We bring the customers to you, saving your outreach budget.',
-                icon: ShieldCheck
-              },
-              {
-                title: 'No Monthly Fees',
-                desc: 'Only a small commission on confirmed and completed orders.',
-                icon: CircleDollarSign
-              },
-              {
-                title: 'Faster Payments',
-                desc: 'Structured payment process designed to avoid traditional delays.',
-                icon: FastForward
-              },
-              {
-                title: 'No Middlemen',
-                desc: 'Enjoy direct communication and maintain transparent pricing.',
-                icon: Users2
-              }
-            ].map((benefit, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                  <benefit.icon className="text-secondary w-7 h-7" />
-                </div>
-                <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6">Why Join MechHub?</h2>
+            
+            <Tabs defaultValue="innovators" className="w-full">
+              <div className="flex justify-center mb-16">
+                <TabsList className="bg-card border border-white/10 p-1 h-12">
+                  <TabsTrigger value="innovators" className="px-8 font-bold data-[state=active]:bg-primary">For Innovators</TabsTrigger>
+                  <TabsTrigger value="manufacturers" className="px-8 font-bold data-[state=active]:bg-primary">For Manufacturers</TabsTrigger>
+                </TabsList>
               </div>
-            ))}
+
+              <TabsContent value="innovators">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
+                  {[
+                    {
+                      title: 'Faster Quotation',
+                      desc: 'No more chasing vendors on WhatsApp. Get quotes in record time.',
+                      icon: Zap
+                    },
+                    {
+                      title: 'Verified Vendors',
+                      desc: 'Every MechMaster is screened for capability, quality, and delivery consistency.',
+                      icon: ShieldCheck
+                    },
+                    {
+                      title: 'Structured Pricing',
+                      desc: 'Clear cost breakdown with no hidden surprises. Compare options easily.',
+                      icon: CircleDollarSign
+                    },
+                    {
+                      title: 'Quality Layer',
+                      desc: 'Production updates, QC checklists, and part inspection images before delivery.',
+                      icon: ClipboardCheck
+                    },
+                    {
+                      title: 'End-to-End Tracking',
+                      desc: 'From upload to delivery, manage everything in one integrated dashboard.',
+                      icon: LayoutDashboard
+                    }
+                  ].map((benefit, i) => (
+                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                        <benefit.icon className="text-secondary w-7 h-7" />
+                      </div>
+                      <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="manufacturers">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
+                  {[
+                    {
+                      title: 'More Orders',
+                      desc: 'Receive RFQs from serious engineering teams and startups.',
+                      icon: TrendingUp
+                    },
+                    {
+                      title: 'No Marketing Cost',
+                      desc: 'We bring the customers to you, saving your outreach budget.',
+                      icon: ShieldCheck
+                    },
+                    {
+                      title: 'No Monthly Fees',
+                      desc: 'Only a small commission on confirmed and completed orders.',
+                      icon: CircleDollarSign
+                    },
+                    {
+                      title: 'Faster Payments',
+                      desc: 'Structured payment process designed to avoid traditional delays.',
+                      icon: FastForward
+                    },
+                    {
+                      title: 'No Middlemen',
+                      desc: 'Enjoy direct communication and maintain transparent pricing.',
+                      icon: Users2
+                    }
+                  ].map((benefit, i) => (
+                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                        <benefit.icon className="text-secondary w-7 h-7" />
+                      </div>
+                      <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="max-w-3xl mx-auto bg-primary/5 border border-primary/10 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8">
@@ -309,8 +359,8 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                <div className="relative w-8 h-8 overflow-hidden rounded">
-                  {logo?.imageUrl && (
+                {logo?.imageUrl && (
+                  <div className="relative w-8 h-8 overflow-hidden rounded">
                     <Image
                       src={logo.imageUrl}
                       alt="MechHub Logo"
@@ -320,8 +370,8 @@ export default function Home() {
                       data-ai-hint={logo?.imageHint}
                       suppressHydrationWarning
                     />
-                  )}
-                </div>
+                  </div>
+                )}
                 <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
               </Link>
               <p className="text-muted-foreground text-sm max-w-sm">
