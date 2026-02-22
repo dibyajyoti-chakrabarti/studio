@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -19,7 +20,8 @@ import {
   Download,
   Eye
 } from 'lucide-react';
-import { LandingNav } from '@/components/LandingNav';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MOCK_RFQS = [
   { id: 'RFQ-8291', user: 'Rahul Sharma', phone: '+91 98765 43210', process: 'CNC Machining', date: '2023-11-20', status: 'Under Review' },
@@ -31,12 +33,22 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('rfqs');
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
+  const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center font-bold">M</div>
+        <div className="flex items-center gap-3">
+          <div className="relative w-8 h-8 overflow-hidden rounded">
+            <Image
+              src={logo?.imageUrl || ''}
+              alt="MechHub Logo"
+              width={32}
+              height={32}
+              className="object-cover"
+              data-ai-hint={logo?.imageHint}
+            />
+          </div>
           <span className="font-headline font-bold text-lg">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-6">

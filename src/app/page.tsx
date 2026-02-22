@@ -1,3 +1,6 @@
+
+'use client';
+
 import { LandingNav } from '@/components/LandingNav';
 import { RotatingGears } from '@/components/Gears';
 import { Button } from '@/components/ui/button';
@@ -22,8 +25,11 @@ import {
 import Link from 'next/link';
 import { MOCK_VENDORS, MANUFACTURING_PROCESSES } from './lib/mock-data';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
+  const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
+
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       <LandingNav />
@@ -223,8 +229,17 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
-              <Link href="/" className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center font-bold text-xl">M</div>
+              <Link href="/" className="flex items-center gap-3 mb-6">
+                <div className="relative w-8 h-8 overflow-hidden rounded">
+                  <Image
+                    src={logo?.imageUrl || ''}
+                    alt="MechHub Logo"
+                    width={32}
+                    height={32}
+                    className="object-cover"
+                    data-ai-hint={logo?.imageHint}
+                  />
+                </div>
                 <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
               </Link>
               <p className="text-muted-foreground text-sm max-w-sm">
