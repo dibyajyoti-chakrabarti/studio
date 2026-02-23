@@ -27,7 +27,9 @@ import {
   Truck,
   MessageSquare,
   FileText,
-  DollarSign
+  DollarSign,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -123,7 +125,7 @@ export default function AdminPanel() {
     };
 
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData)
-      .then((quoteRes) => {
+      .then(() => {
         updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
           status: 'quotation_sent',
           vendorId: vendorId,
@@ -133,6 +135,15 @@ export default function AdminPanel() {
         setShowQuoteModal(false);
       })
       .finally(() => setIsSubmittingQuote(false));
+  };
+
+  const downloadFile = (dataUrl: string, fileName: string) => {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
@@ -298,8 +309,8 @@ export default function AdminPanel() {
       )}
 
       {showDetailsModal && selectedRfq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6 my-8">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-headline font-bold">{selectedRfq.projectName}</h2>
@@ -318,10 +329,23 @@ export default function AdminPanel() {
                     <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Finish:</span><span>{selectedRfq.surfaceFinish || 'Standard'}</span></div>
                   </div>
                 </div>
-                <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Client Contact</h3>
-                  <p className="font-medium">{selectedRfq.userName}</p>
-                  <p className="text-muted-foreground">{selectedRfq.userEmail}</p>
-                  <p className="text-muted-foreground">{selectedRfq.userPhone}</p>
+                <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Technical Documents</h3>
+                  {selectedRfq.designFileUrl ? (
+                    <div className="p-3 bg-background border border-white/5 rounded-lg flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-8 h-8 text-primary" />
+                        <div className="overflow-hidden max-w-[150px]">
+                          <p className="font-bold truncate">{selectedRfq.designFileName || 'Design_File'}</p>
+                          <p className="text-[10px] text-muted-foreground">Engineering Drawing</p>
+                        </div>
+                      </div>
+                      <Button size="icon" variant="ghost" className="hover:text-secondary" onClick={() => downloadFile(selectedRfq.designFileUrl, selectedRfq.designFileName || 'design.png')}>
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No design files attached to this request.</p>
+                  )}
                 </div>
               </div>
               
@@ -334,18 +358,19 @@ export default function AdminPanel() {
                     <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Budget:</span><span>{selectedRfq.budgetRange || 'Unspecified'}</span></div>
                   </div>
                 </div>
-                <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">User-Selected Vendors</h3>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {selectedRfq.selectedVendors?.map((v: string, i: number) => (
-                      <Badge key={i} variant="outline" className="border-white/20">{v}</Badge>
-                    ))}
-                  </div>
+                <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Contact Info</h3>
+                   <div className="p-3 bg-background border border-white/5 rounded-lg">
+                      <p className="font-bold">{selectedRfq.userName}</p>
+                      <p className="text-xs text-muted-foreground">{selectedRfq.userEmail}</p>
+                      <p className="text-xs text-muted-foreground">{selectedRfq.userPhone}</p>
+                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRfq.teamName}</p>
+                   </div>
                 </div>
               </div>
             </div>
             
             <div className="mt-8 flex justify-end gap-3">
-              <Button onClick={() => setShowDetailsModal(false)}>Close View</Button>
+              <Button onClick={() => setShowDetailsModal(false)}>Close Specifications</Button>
             </div>
           </Card>
         </div>

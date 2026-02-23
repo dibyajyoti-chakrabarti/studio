@@ -24,7 +24,6 @@ export default function MatchingPage() {
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch user profile for RFQ submission
   const userProfileRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid);
@@ -36,7 +35,6 @@ export default function MatchingPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Filter vendors with rating >= 4.5 by default for "high rating" recommendation
   const recommendedVendors = MOCK_VENDORS.sort((a, b) => b.rating - a.rating);
 
   const toggleVendor = (id: string) => {
@@ -77,6 +75,8 @@ export default function MatchingPage() {
       deliveryDate: details.deliveryDate,
       budgetRange: details.budget || '',
       deliveryLocation: details.location,
+      designFileName: details.designFileName || 'unnamed_design',
+      designFileUrl: details.designFileUrl || null,
       selectedVendors: selectedVendors.map(id => MOCK_VENDORS.find(v => v.id === id)?.name || id),
       status: 'rfq_submitted',
       vendorId: null,

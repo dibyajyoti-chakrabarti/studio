@@ -8,22 +8,36 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Upload, FileText, ChevronRight, Loader2 } from 'lucide-react';
+import { Upload, FileText, ChevronRight, Loader2, X } from 'lucide-react';
 import { MANUFACTURING_PROCESSES } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
 
 export default function UploadPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [fileData, setFileData] = useState<string | null>(null);
 
-  const handleUpload = () => {
-    setIsUploading(true);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFileData(event.target?.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleNextStep = () => {
+    setIsProcessing(true);
+    // Simulate some file scanning/processing
     setTimeout(() => {
-      setIsUploading(false);
+      setIsProcessing(false);
       setStep(2);
-    }, 1500);
+    }, 1200);
   };
 
   const handleDetailsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,9 +53,10 @@ export default function UploadPage() {
       deliveryDate: formData.get('deliveryDate'),
       budget: formData.get('budget'),
       location: formData.get('location'),
+      designFileName: file?.name,
+      designFileUrl: fileData,
     };
     
-    // Store details temporarily to pass to the matching page
     localStorage.setItem('pendingRfqDetails', JSON.stringify(details));
     router.push('/matching');
   };
@@ -67,31 +82,39 @@ export default function UploadPage() {
           <Card className="bg-card border-white/5 overflow-hidden">
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-3xl font-bold">Upload Your Design</CardTitle>
-              <CardDescription>Drag and drop your engineering files or browse. (STEP, STL, DXF, PDF, JPG, PNG)</CardDescription>
+              <CardDescription>Drag and drop your engineering files (STEP, STL, DXF, PDF, JPG, PNG)</CardDescription>
             </CardHeader>
             <CardContent className="p-10">
               <div 
-                className={`border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer ${file ? 'border-primary bg-primary/5' : 'border-white/10 hover:border-primary/50'}`}
-                onClick={() => document.getElementById('fileInput')?.click()}
+                className={`border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer relative ${file ? 'border-primary bg-primary/5' : 'border-white/10 hover:border-primary/50'}`}
+                onClick={() => !file && document.getElementById('fileInput')?.click()}
               >
                 <input 
                   type="file" 
                   id="fileInput" 
                   className="hidden" 
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  onChange={handleFileChange}
                   accept=".step,.stl,.dxf,.pdf,.jpg,.png"
                 />
                 {!file ? (
                   <>
                     <Upload className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-30" />
-                    <p className="text-lg text-muted-foreground mb-2">Drop your files here</p>
-                    <p className="text-sm text-muted-foreground/50">Maximum file size: 50MB</p>
+                    <p className="text-lg text-muted-foreground mb-2">Drop your design files here</p>
+                    <p className="text-sm text-muted-foreground/50">Maximum file size for prototype: 10MB</p>
                   </>
                 ) : (
                   <div className="flex flex-col items-center">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="absolute top-4 right-4 text-muted-foreground hover:text-white"
+                      onClick={(e) => { e.stopPropagation(); setFile(null); setFileData(null); }}
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
                     <FileText className="w-16 h-16 text-primary mb-4" />
                     <p className="text-xl font-bold mb-1">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB • Ready for analysis</p>
                   </div>
                 )}
               </div>
@@ -99,16 +122,16 @@ export default function UploadPage() {
                 <Button 
                   size="lg" 
                   className="px-12 h-14 text-lg" 
-                  disabled={!file || isUploading}
-                  onClick={handleUpload}
+                  disabled={!file || isProcessing}
+                  onClick={handleNextStep}
                 >
-                  {isUploading ? (
+                  {isProcessing ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Uploading...
+                      Analyzing Design...
                     </>
                   ) : (
-                    'Next Step'
+                    'Configure Requirements'
                   )}
                 </Button>
               </div>
@@ -180,7 +203,7 @@ export default function UploadPage() {
 
                 <div className="md:col-span-2 pt-6">
                   <Button type="submit" size="lg" className="w-full h-14 text-lg bg-primary hover:bg-primary/90">
-                    Find MechMasters
+                    Find Best-Fit MechMasters
                   </Button>
                 </div>
               </form>

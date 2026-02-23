@@ -37,6 +37,8 @@
         "deliveryLocation": { "type": "string" },
         "selectedVendors": { "type": "array", "items": { "type": "string" } },
         "vendorId": { "type": "string" },
+        "designFileUrl": { "type": "string", "description": "Data URI or storage link for the design file." },
+        "designFileName": { "type": "string" },
         "status": { "type": "string", "enum": ["rfq_submitted", "quotation_sent", "negotiation", "order_confirmed", "shipping", "delivered"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
