@@ -40,7 +40,7 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
-  // Verify Admin Role from Firestore
+  // Verify Admin Role from Firestore Document
   useEffect(() => {
     async function verifyAdmin() {
       if (!isUserLoading) {
@@ -49,16 +49,21 @@ export default function AdminPanel() {
         } else if (db) {
           try {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const profile = userDoc.data();
-            if (profile?.role === 'admin') {
-              setIsAdminConfirmed(true);
+            if (userDoc.exists()) {
+              const profile = userDoc.data();
+              if (profile?.role === 'admin') {
+                setIsAdminConfirmed(true);
+              } else {
+                setIsAdminConfirmed(false);
+                toast({
+                  title: "Access Denied",
+                  description: "You do not have administrative privileges.",
+                  variant: "destructive"
+                });
+                router.push('/dashboard');
+              }
             } else {
               setIsAdminConfirmed(false);
-              toast({
-                title: "Access Denied",
-                description: "You do not have administrative privileges.",
-                variant: "destructive"
-              });
               router.push('/dashboard');
             }
           } catch (err) {
@@ -102,32 +107,33 @@ export default function AdminPanel() {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      // Create quotation document
-      const quoteRes = await addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
-      
-      // Update RFQ status
-      const rfqRef = doc(db, 'rfqs', selectedRfq.id);
-      updateDocumentNonBlocking(rfqRef, {
-        status: 'quotation_sent',
-        quotationId: quoteRes?.id || 'manual',
-        updatedAt: new Date().toISOString(),
-      });
+    // Create quotation document
+    addDocumentNonBlocking(collection(db, 'quotations'), quotationData)
+      .then((quoteRes) => {
+        // Update RFQ status
+        const rfqRef = doc(db, 'rfqs', selectedRfq.id);
+        updateDocumentNonBlocking(rfqRef, {
+          status: 'quotation_sent',
+          quotationId: quoteRes?.id || 'manual',
+          updatedAt: new Date().toISOString(),
+        });
 
-      toast({
-        title: "Quotation Sent",
-        description: `Quote successfully sent to ${selectedRfq.userName}`,
+        toast({
+          title: "Quotation Sent",
+          description: `Quote successfully sent to ${selectedRfq.userName}`,
+        });
+        setShowQuoteModal(false);
+      })
+      .catch(() => {
+        toast({
+          title: "Error",
+          description: "Failed to send quotation.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsSubmittingQuote(false);
       });
-      setShowQuoteModal(false);
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to send quotation.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingQuote(false);
-    }
   };
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {

@@ -33,16 +33,15 @@ export default function LoginPage() {
         let role = 'user';
 
         if (!userSnap.exists()) {
-          // Create initial profile for new user
+          // Create initial profile for new user with default 'user' role
           const initialProfile = {
             fullName: user.displayName || '',
             email: user.email,
-            role: 'user', // Default role
+            role: 'user', 
             onboarded: false,
             createdAt: new Date().toISOString(),
           };
           await setDoc(userRef, initialProfile);
-          role = 'user';
         } else {
           role = userSnap.data().role || 'user';
         }
@@ -66,7 +65,7 @@ export default function LoginPage() {
           }
         }
 
-        // Final Redirection based on role
+        // Final Redirection based on manually configured Firestore role
         if (role === 'admin') {
           router.push('/admin');
         } else {

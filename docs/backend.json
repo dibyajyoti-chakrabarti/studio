@@ -2,10 +2,9 @@
 {
   "entities": {
     "UserProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
+      "description": "Stores user profile information and their role.",
       "type": "object",
-      "description": "Stores detailed profile information for a MechHub user, including their role.",
       "properties": {
         "fullName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
@@ -18,10 +17,9 @@
       "required": ["fullName", "email", "role", "onboarded"]
     },
     "RFQ": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "RFQ",
-      "type": "object",
       "description": "Represents a manufacturing request for quotation.",
+      "type": "object",
       "properties": {
         "userId": { "type": "string" },
         "userName": { "type": "string" },
@@ -47,10 +45,9 @@
       "required": ["userId", "manufacturingProcess", "material", "quantity", "status", "createdAt"]
     },
     "Quotation": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Quotation",
-      "type": "object",
       "description": "Admin created quotation for an RFQ.",
+      "type": "object",
       "properties": {
         "rfqId": { "type": "string" },
         "userId": { "type": "string" },

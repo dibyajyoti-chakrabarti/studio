@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper to check if the current user is an admin via Firestore profile field
+    // Helper to check if the current user is an admin via their Firestore profile document
     function isAdmin() {
       return request.auth != null && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
@@ -11,10 +11,10 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Allow users to read/write their own profile
+      // Users can read/write their own profile
       allow read, write: if request.auth != null && request.auth.uid == userId;
       
-      // Allow admins to read any profile
+      // Admins can read any profile
       allow read: if isAdmin();
     }
 
@@ -22,8 +22,9 @@ service cloud.firestore {
       // Users can create RFQs for themselves
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       
-      // Users can only read their OWN rfqs via filtered queries
-      // Admins can read all (including list operations)
+      // Allow read/list:
+      // 1. If user owns the document (and provides a filter in their query)
+      // 2. If user is a verified admin
       allow read: if request.auth != null && (
         (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
       );
@@ -44,6 +45,11 @@ service cloud.firestore {
       );
       // Only admins can create/update quotations
       allow write: if isAdmin();
+    }
+
+    match /consultationRequests/{id} {
+      allow create: if true; // Public submissions
+      allow read: if isAdmin();
     }
   }
 }
