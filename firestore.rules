@@ -6,38 +6,43 @@ service cloud.firestore {
     // Helper to check if the current user is an admin via Firestore profile field
     function isAdmin() {
       return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     match /users/{userId} {
-      // Allow users to read their own profile, or admins to read any profile
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // Allow users to read/write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
       
-      // Allow creation of profile on first sign-in, defaulting role to 'user'
-      allow create: if request.auth != null && request.auth.uid == userId;
-      
-      // Prevent users from changing their own 'role' field. Only admins can modify roles.
-      allow update: if request.auth != null && (
-        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
-        || isAdmin()
-      );
+      // Allow admins to read any profile
+      allow read: if isAdmin();
     }
 
     match /rfqs/{rfqId} {
-      allow create: if request.auth != null;
+      // Users can create RFQs for themselves
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      
+      // Users can only read their OWN rfqs via filtered queries
+      // Admins can read all (including list operations)
       allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isAdmin()
+        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
       );
+
+      // Only owner or admin can update
       allow update: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isAdmin()
+        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
       );
+
+      // Only admin can delete
       allow delete: if isAdmin();
     }
 
     match /quotations/{quotationId} {
+      // Users can read quotes sent to them
       allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || isAdmin()
+        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
       );
+      // Only admins can create/update quotations
       allow write: if isAdmin();
     }
   }

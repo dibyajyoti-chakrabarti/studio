@@ -47,16 +47,23 @@ export default function AdminPanel() {
         if (!user) {
           router.push('/login?redirect=/admin');
         } else if (db) {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const profile = userDoc.data();
-          if (profile?.role === 'admin') {
-            setIsAdminConfirmed(true);
-          } else {
-            toast({
-              title: "Access Denied",
-              description: "You do not have administrative privileges.",
-              variant: "destructive"
-            });
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const profile = userDoc.data();
+            if (profile?.role === 'admin') {
+              setIsAdminConfirmed(true);
+            } else {
+              setIsAdminConfirmed(false);
+              toast({
+                title: "Access Denied",
+                description: "You do not have administrative privileges.",
+                variant: "destructive"
+              });
+              router.push('/dashboard');
+            }
+          } catch (err) {
+            console.error("Admin verification failed:", err);
+            setIsAdminConfirmed(false);
             router.push('/dashboard');
           }
         }
@@ -67,6 +74,8 @@ export default function AdminPanel() {
 
   // Real-time RFQs query - ONLY for confirmed admins
   const rfqsQuery = useMemoFirebase(() => {
+    // CRITICAL: We only return the root query if the user is confirmed as admin.
+    // This prevents "Missing or insufficient permissions" errors for non-admins.
     if (!db || isAdminConfirmed !== true) return null;
     return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
   }, [db, isAdminConfirmed]);
@@ -134,12 +143,16 @@ export default function AdminPanel() {
     });
   };
 
-  if (isAdminConfirmed === null) {
+  if (isAdminConfirmed === null || isUserLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (isAdminConfirmed === false) {
+    return null; // Will redirect via useEffect
   }
 
   return (

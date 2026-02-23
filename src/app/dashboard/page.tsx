@@ -42,9 +42,11 @@ export default function UserDashboard() {
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
+  // Memoize user profile reference
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
+  // Memoize RFQs query - ALWAYS filter by userId for security and to satisfy list rules
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(collection(db, 'rfqs'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
@@ -67,6 +69,7 @@ export default function UserDashboard() {
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
   
+  // Memoize quotations query
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !selectedOrder?.quotationId) return null;
     return query(collection(db, 'quotations'), where('rfqId', '==', selectedOrder.id));
