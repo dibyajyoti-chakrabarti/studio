@@ -1,8 +1,50 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // Allow logged in users to read/write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // RFQ collection
+    match /rfqs/{rfqId} {
+
+      // Any logged in user can create RFQ
+      allow create: if request.auth != null;
+
+      // Allow reading ONLY if:
+      // 1. User owns the RFQ
+      // OR
+      // 2. User role is admin
+      allow read: if request.auth != null &&
+        (
+          resource.data.userId == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        );
+
+      // Allow update only for admin
+      allow update: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Allow quotations access for owners and admins
+    match /quotations/{quotationId} {
+      allow read: if request.auth != null &&
+        (
+          resource.data.userId == request.auth.uid ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        );
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Allow public consultation requests
+    match /consultationRequests/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
   }
 }

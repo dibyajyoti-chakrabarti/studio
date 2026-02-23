@@ -45,7 +45,7 @@ export default function UserDashboard() {
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Memoize RFQs query - STRICTLY FILTERED BY USERID AS REQUESTED
+  // Memoize RFQs query - FILTERED BY USERID AS REQUIRED BY SECURITY RULES
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
