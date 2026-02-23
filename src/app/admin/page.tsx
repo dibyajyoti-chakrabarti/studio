@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -12,10 +11,8 @@ import {
   LayoutDashboard, 
   ClipboardList, 
   Users, 
-  BarChart3, 
   Bell, 
   Search, 
-  MoreVertical,
   Send,
   Eye,
   Loader2,
@@ -24,11 +21,15 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useFirestore, useCollection, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function AdminPanel() {
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
@@ -38,8 +39,34 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
-  // Real-time RFQs query
-  const rfqsQuery = query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
+  // Verify Admin Status and Redirect if necessary
+  useEffect(() => {
+    if (!isUserLoading) {
+      if (!user) {
+        router.push('/login?redirect=/admin');
+      } else {
+        user.getIdTokenResult().then((idTokenResult) => {
+          if (idTokenResult.claims.admin) {
+            setIsAdminConfirmed(true);
+          } else {
+            toast({
+              title: "Access Denied",
+              description: "You do not have administrative privileges.",
+              variant: "destructive"
+            });
+            router.push('/dashboard');
+          }
+        });
+      }
+    }
+  }, [user, isUserLoading, router, toast]);
+
+  // Real-time RFQs query - ONLY for confirmed admins to prevent permission errors
+  const rfqsQuery = useMemoFirebase(() => {
+    if (!db || isAdminConfirmed !== true) return null;
+    return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
+  }, [db, isAdminConfirmed]);
+  
   const { data: rfqs, isLoading } = useCollection(rfqsQuery);
 
   const handleSendQuotation = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,7 +110,7 @@ export default function AdminPanel() {
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to send quotation. Please check permissions.",
+        description: "Failed to send quotation.",
         variant: "destructive",
       });
     } finally {
@@ -102,6 +129,14 @@ export default function AdminPanel() {
       description: `Project is now marked as ${newStatus.replace('_', ' ')}.`,
     });
   };
+
+  if (isAdminConfirmed === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
