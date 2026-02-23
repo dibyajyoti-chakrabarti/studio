@@ -48,7 +48,6 @@ export default function UserDashboard() {
   // Memoize RFQs query - STRICTLY FILTERED BY USERID AS REQUIRED BY SECURITY RULES
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    // Using exactly the query structure requested to avoid permission issues
     return query(
       collection(db, 'rfqs'), 
       where('userId', '==', user.uid)
@@ -66,7 +65,6 @@ export default function UserDashboard() {
   }, [rfqs, selectedOrderId]);
 
   useEffect(() => {
-    // Only show onboarding if the profile check is complete and user is not onboarded
     if (!isProfileLoading && user && profile && profile.onboarded === false) {
       setIsOnboardingOpen(true);
     }
@@ -74,11 +72,16 @@ export default function UserDashboard() {
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
   
-  // Memoize quotations query
+  // Memoize quotations query - ALSO FILTERED BY USERID
   const quotationQuery = useMemoFirebase(() => {
-    if (!db || !selectedOrder?.quotationId) return null;
-    return query(collection(db, 'quotations'), where('rfqId', '==', selectedOrder.id));
-  }, [db, selectedOrder?.id, selectedOrder?.quotationId]);
+    if (!db || !user || !selectedOrder) return null;
+    return query(
+      collection(db, 'quotations'), 
+      where('userId', '==', user.uid),
+      where('rfqId', '==', selectedOrder.id)
+    );
+  }, [db, user?.uid, selectedOrder?.id]);
+  
   const { data: quotations } = useCollection(quotationQuery);
   const activeQuotation = quotations?.[0];
 
@@ -169,7 +172,12 @@ export default function UserDashboard() {
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </CardContent>
                   </Card>
-                )) : <p className="text-center text-muted-foreground py-12">No projects found. Start by uploading a design!</p>}
+                )) : (
+                  <div className="text-center py-12 space-y-4">
+                    <p className="text-muted-foreground">You haven't created any RFQ yet.</p>
+                    <Button onClick={() => router.push('/upload')}>Create your first RFQ</Button>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="profile" className="space-y-6">

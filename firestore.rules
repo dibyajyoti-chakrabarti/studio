@@ -3,44 +3,41 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow logged in users to read/write their own user document
+    // USERS COLLECTION
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // RFQ collection
+    // RFQ COLLECTION
     match /rfqs/{rfqId} {
-
-      // Any logged in user can create RFQ
+      // User can create RFQ only if logged in
       allow create: if request.auth != null;
 
-      // Allow reading ONLY if:
-      // 1. User owns the RFQ
-      // OR
-      // 2. User role is admin
-      allow read: if request.auth != null &&
-        (
-          resource.data.userId == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-        );
+      // Allow read/update if owner or admin
+      allow read, update: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+      );
 
-      // Allow update only for admin
-      allow update: if request.auth != null &&
+      // No delete allowed for users
+      allow delete: if request.auth != null && 
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
-    // Allow quotations access for owners and admins
+    // QUOTATIONS COLLECTION
     match /quotations/{quotationId} {
-      allow read: if request.auth != null &&
-        (
-          resource.data.userId == request.auth.uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-        );
+      // Allow read if owner or admin
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+      );
+      
+      // Only admin can write quotations
       allow write: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
-
-    // Allow public consultation requests
+    
+    // CONSULTATION REQUESTS
     match /consultationRequests/{id} {
       allow create: if true;
       allow read: if request.auth != null &&
