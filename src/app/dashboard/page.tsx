@@ -16,7 +16,7 @@ import {
   DialogHeader, 
   DialogTitle, 
 } from '@/components/ui/dialog';
-import { useUser, useAuth, useFirestore, useCollection, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useUser, useAuth, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, orderBy, doc } from 'firebase/firestore';
@@ -25,17 +25,16 @@ import {
   Clock, 
   Package, 
   ChevronRight, 
-  ExternalLink,
-  TrendingUp,
-  Settings,
-  LogOut,
-  Plus,
-  Loader2,
-  User as UserIcon,
-  Building2,
-  Phone,
-  Sparkles,
-  Check
+  LogOut, 
+  Plus, 
+  Loader2, 
+  User as UserIcon, 
+  Building2, 
+  Phone, 
+  Sparkles, 
+  Check,
+  CreditCard,
+  Truck
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -49,62 +48,42 @@ export default function UserDashboard() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
-  const [hasSubmittedOnboarding, setHasSubmittedOnboarding] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
-  // Fetch user profile from /users/{userId}
-  const userProfileRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return doc(db, 'users', user.uid);
-  }, [db, user?.uid]);
-  
+  const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Fetch user-specific RFQs from root collection
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(
-      collection(db, 'rfqs'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc')
-    );
+    return query(collection(db, 'rfqs'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
   }, [db, user?.uid]);
-
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
-  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
+    if (!isUserLoading && !user) router.push('/login');
   }, [user, isUserLoading, router]);
 
-  // Set initial selected RFQ
   useEffect(() => {
-    if (rfqs && rfqs.length > 0 && !selectedOrderId) {
-      setSelectedOrderId(rfqs[0].id);
-    }
+    if (rfqs?.length && !selectedOrderId) setSelectedOrderId(rfqs[0].id);
   }, [rfqs, selectedOrderId]);
 
-  // Trigger onboarding ONLY if profile is missing/not onboarded
   useEffect(() => {
-    if (!isProfileLoading && user && !hasSubmittedOnboarding) {
-      if (!profile || !profile.onboarded) {
-        setIsOnboardingOpen(true);
-      } else {
-        setIsOnboardingOpen(false);
-      }
-    }
-  }, [isProfileLoading, profile, user, hasSubmittedOnboarding]);
+    if (!isProfileLoading && user && (!profile || !profile.onboarded)) setIsOnboardingOpen(true);
+  }, [isProfileLoading, profile, user]);
 
-  const handleSignOut = () => {
-    signOut(auth);
-    router.push('/');
-  };
+  const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
+  
+  // Query for quotation if available
+  const quotationQuery = useMemoFirebase(() => {
+    if (!db || !selectedOrder?.quotationId) return null;
+    return query(collection(db, 'quotations'), where('rfqId', '==', selectedOrder.id));
+  }, [db, selectedOrder?.id, selectedOrder?.quotationId]);
+  const { data: quotations } = useCollection(quotationQuery);
+  const activeQuotation = quotations?.[0];
 
   const handleOnboardingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!db || !user) return;
-
     setIsSubmittingProfile(true);
     const formData = new FormData(e.currentTarget);
     const profileData = {
@@ -115,32 +94,29 @@ export default function UserDashboard() {
       onboarded: true,
       createdAt: new Date().toISOString(),
     };
-
-    const userRef = doc(db, 'users', user.uid);
-    
-    setHasSubmittedOnboarding(true);
+    setDocumentNonBlocking(doc(db, 'users', user.uid), profileData, { merge: true });
     setIsOnboardingOpen(false);
-
-    setDocumentNonBlocking(userRef, profileData, { merge: true });
-    
-    toast({
-      title: "Welcome onboard!",
-      description: `Glad to have you with us, ${profileData.fullName}.`,
-    });
-    
     setIsSubmittingProfile(false);
+    toast({ title: "Welcome onboard!", description: `Glad to have you with us, ${profileData.fullName}.` });
   };
 
-  if (isUserLoading || (isProfileLoading && !hasSubmittedOnboarding) || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      </div>
-    );
-  }
+  const handleConfirmOrder = () => {
+    if (!db || !selectedOrder) return;
+    setIsConfirming(true);
+    
+    const rfqRef = doc(db, 'rfqs', selectedOrder.id);
+    updateDocumentNonBlocking(rfqRef, { status: 'confirmed' });
 
-  const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
-  const welcomeName = profile?.fullName || user.email?.split('@')[0] || 'Innovator';
+    if (activeQuotation) {
+      const quoteRef = doc(db, 'quotations', activeQuotation.id);
+      updateDocumentNonBlocking(quoteRef, { status: 'accepted' });
+    }
+
+    setIsConfirming(false);
+    toast({ title: "Order Confirmed!", description: "Production will start shortly." });
+  };
+
+  if (isUserLoading || !user) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>;
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -148,123 +124,42 @@ export default function UserDashboard() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
           <div>
-            <h1 className="font-headline text-3xl font-bold">Welcome, {welcomeName} 👋</h1>
-            <p className="text-muted-foreground">Manage your custom manufacturing requests and track production status.</p>
+            <h1 className="font-headline text-3xl font-bold">Welcome, {profile?.fullName || user.email?.split('@')[0]} 👋</h1>
+            <p className="text-muted-foreground">Track your manufacturing projects from design to delivery.</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" size="icon" onClick={() => router.push('/upload')}>
-              <Plus className="w-4 h-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => {}}>
-              <Settings className="w-4 h-4" />
-            </Button>
-            <Button variant="destructive" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Sign Out
-            </Button>
-          </div>
+          <Button variant="outline" onClick={() => router.push('/upload')}><Plus className="w-4 h-4 mr-2" /> New Project</Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
           <div className="lg:col-span-8">
             <Tabs defaultValue="my-orders" className="space-y-6">
               <TabsList className="bg-card border border-white/5 p-1">
                 <TabsTrigger value="my-orders">My Requests</TabsTrigger>
-                <TabsTrigger value="profile">My Profile</TabsTrigger>
-                <TabsTrigger value="active-production">In Production</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
               </TabsList>
 
               <TabsContent value="my-orders" className="space-y-4">
-                {isRfqsLoading ? (
-                  <div className="p-12 flex justify-center">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  </div>
-                ) : rfqs && rfqs.length > 0 ? (
-                  rfqs.map((order) => (
-                    <Card 
-                      key={order.id} 
-                      className={`bg-card border-white/5 hover:border-primary/50 transition-all cursor-pointer ${selectedOrderId === order.id ? 'border-primary/50 ring-1 ring-primary/20' : ''}`}
-                      onClick={() => setSelectedOrderId(order.id)}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center text-primary">
-                              <FileText className="w-6 h-6" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-bold">{order.projectName || 'Unnamed Project'}</span>
-                                <Badge variant={order.status === 'quotation_sent' ? 'secondary' : 'outline'} className="capitalize">
-                                  {order.status?.replace('_', ' ')}
-                                </Badge>
-                              </div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-4">
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(order.createdAt).toLocaleDateString()}</span>
-                                <span className="flex items-center gap-1"><Package className="w-3 h-3" /> {order.manufacturingProcess}</span>
-                              </div>
-                            </div>
+                {isRfqsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : rfqs?.length ? rfqs.map((order) => (
+                  <Card 
+                    key={order.id} 
+                    className={`bg-card border-white/5 cursor-pointer transition-all ${selectedOrderId === order.id ? 'border-primary' : 'hover:border-primary/50'}`}
+                    onClick={() => setSelectedOrderId(order.id)}
+                  >
+                    <CardContent className="p-6 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary"><FileText /></div>
+                        <div>
+                          <p className="font-bold">{order.projectName}</p>
+                          <div className="text-sm text-muted-foreground flex gap-3">
+                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(order.createdAt).toLocaleDateString()}</span>
+                            <Badge variant="outline" className="capitalize">{order.status.replace('_', ' ')}</Badge>
                           </div>
-                          <Button variant="ghost" className="md:ml-auto group">
-                            View Details 
-                            <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Card className="bg-card border-white/5 p-12 text-center">
-                    <p className="text-muted-foreground">You haven't submitted any RFQs yet.</p>
-                    <Button className="mt-4" onClick={() => router.push('/upload')}>Start First Project</Button>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    </CardContent>
                   </Card>
-                )}
-              </TabsContent>
-
-              <TabsContent value="profile" className="space-y-4">
-                <Card className="bg-card border-white/5">
-                  <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Innovator Profile</CardTitle>
-                    <CardDescription>Your professional details used for manufacturing requests.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground">Full Name</Label>
-                        <div className="flex items-center gap-2 font-medium">
-                          <UserIcon className="w-4 h-4 text-primary" />
-                          {profile?.fullName || 'Not provided'}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground">Team / Organization</Label>
-                        <div className="flex items-center gap-2 font-medium">
-                          <Building2 className="w-4 h-4 text-primary" />
-                          {profile?.teamName || 'Not provided'}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground">Phone Number</Label>
-                        <div className="flex items-center gap-2 font-medium">
-                          <Phone className="w-4 h-4 text-primary" />
-                          {profile?.phone || 'Not provided'}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-muted-foreground">Email Address</Label>
-                        <div className="flex items-center gap-2 font-medium">
-                          <Package className="w-4 h-4 text-primary" />
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t border-white/5">
-                      <Button variant="outline" onClick={() => setIsOnboardingOpen(true)}>
-                        Update Profile Information
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                )) : <p className="text-center text-muted-foreground py-12">No projects found. Start by uploading a design!</p>}
               </TabsContent>
             </Tabs>
           </div>
@@ -273,132 +168,73 @@ export default function UserDashboard() {
             {selectedOrder && (
               <Card className="bg-card border-white/5">
                 <CardHeader>
-                  <CardTitle className="font-headline text-xl">Project Details</CardTitle>
-                  <CardDescription>{selectedOrder.projectName}</CardDescription>
+                  <CardTitle className="text-xl">Project Details</CardTitle>
+                  <CardDescription>{selectedOrder.projectName}</Badge>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Material:</span>
-                      <span className="font-medium">{selectedOrder.material}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Quantity:</span>
-                      <span className="font-medium">{selectedOrder.quantity}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tolerance:</span>
-                      <span className="font-medium">{selectedOrder.tolerance}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Location:</span>
-                      <span className="font-medium">{selectedOrder.deliveryLocation}</span>
-                    </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Process:</span> <span>{selectedOrder.manufacturingProcess}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Material:</span> <span>{selectedOrder.material}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span> <span>{selectedOrder.quantity}</span></div>
                   </div>
-                  
-                  {selectedOrder.status === 'rfq_submitted' ? (
-                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 text-center">
-                      <p className="text-sm font-medium text-primary">Awaiting MechMaster Bids</p>
-                      <p className="text-xs text-muted-foreground mt-1">We'll notify you when quotes arrive.</p>
-                    </div>
-                  ) : (
-                    <div className="p-4 bg-secondary/5 rounded-lg border border-secondary/20">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Status</span>
-                        <span className="font-bold capitalize">{selectedOrder.status?.replace('_', ' ')}</span>
+
+                  {selectedOrder.status === 'quotation_sent' && activeQuotation && (
+                    <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg space-y-4">
+                      <p className="text-sm font-bold text-primary flex items-center gap-2"><CreditCard className="w-4 h-4" /> Quotation Received</p>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="text-muted-foreground">Price:</div><div className="font-bold">₹{activeQuotation.quotedPrice}</div>
+                        <div className="text-muted-foreground">Lead Time:</div><div className="font-bold">{activeQuotation.leadTimeDays} Days</div>
                       </div>
-                      <Button className="w-full bg-secondary text-background hover:bg-secondary/80">Track Progress</Button>
+                      {activeQuotation.notes && <p className="text-xs italic text-muted-foreground">Note: {activeQuotation.notes}</p>}
+                      <Button className="w-full" onClick={handleConfirmOrder} disabled={isConfirming}>
+                        {isConfirming ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Order"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedOrder.status === 'confirmed' && (
+                    <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-lg text-center">
+                      <Check className="w-8 h-8 text-secondary mx-auto mb-2" />
+                      <p className="text-sm font-bold">Order Confirmed</p>
+                      <p className="text-xs text-muted-foreground">We're preparing your project for production.</p>
+                    </div>
+                  )}
+
+                  {selectedOrder.status === 'in_production' && (
+                    <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-lg text-center">
+                      <Truck className="w-8 h-8 text-blue-500 mx-auto mb-2 animate-pulse" />
+                      <p className="text-sm font-bold">In Production</p>
+                      <p className="text-xs text-muted-foreground">MechMasters are working on your parts.</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             )}
-
-            <Card className="bg-card border-white/5">
-              <CardHeader>
-                <CardTitle className="font-headline text-xl">Quick Insights</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 bg-background/50 rounded-lg border border-white/5 text-center">
-                  <div className="text-2xl font-bold">{rfqs?.length || 0}</div>
-                  <div className="text-[10px] uppercase text-muted-foreground tracking-widest mt-1">Total RFQs</div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
 
-      {/* Onboarding Dialog */}
-      <Dialog open={isOnboardingOpen} onOpenChange={(open) => {
-        if (profile?.onboarded || hasSubmittedOnboarding) setIsOnboardingOpen(open);
-      }}>
-        <DialogContent className="sm:max-w-[500px] bg-card text-foreground">
+      <Dialog open={isOnboardingOpen} onOpenChange={setIsOnboardingOpen}>
+        <DialogContent className="bg-card text-foreground">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-secondary mb-2">
-              <Sparkles className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">Profile Setup</span>
-            </div>
-            <DialogTitle className="font-headline text-2xl">Hey Innovator, Let's know you a little</DialogTitle>
-            <DialogDescription>
-              Complete your profile to get personalized recommendations and track your projects.
-            </DialogDescription>
+            <DialogTitle className="text-2xl font-headline">Hey Innovator, Let's know you a little</DialogTitle>
+            <DialogDescription>Complete your profile to manage your manufacturing projects.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleOnboardingSubmit} className="space-y-6 py-4">
+          <form onSubmit={handleOnboardingSubmit} className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Enter your full name</Label>
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="fullName" 
-                  name="fullName" 
-                  defaultValue={profile?.fullName || ''} 
-                  required 
-                  className="pl-10 bg-background" 
-                  placeholder="e.g. Rahul Sharma"
-                />
-              </div>
+              <Label>Full Name</Label>
+              <Input name="fullName" required placeholder="e.g. Rahul Sharma" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="phone" 
-                  name="phone" 
-                  defaultValue={profile?.phone || ''} 
-                  required 
-                  className="pl-10 bg-background" 
-                  placeholder="e.g. +91 98765 43210"
-                />
-              </div>
+              <Label>Phone Number</Label>
+              <Input name="phone" required placeholder="+91 98765 43210" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="teamName">College / Team / Startup Name</Label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="teamName" 
-                  name="teamName" 
-                  defaultValue={profile?.teamName || ''} 
-                  required 
-                  className="pl-10 bg-background" 
-                  placeholder="e.g. IIT Madras RoboTeam"
-                />
-              </div>
+              <Label>College / Team / Startup</Label>
+              <Input name="teamName" required placeholder="e.g. IIT Madras RoboTeam" />
             </div>
-            <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmittingProfile}>
-              {isSubmittingProfile ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Saving Profile...
-                </>
-              ) : (
-                <>
-                  <Check className="mr-2 h-5 w-5" />
-                  Welcome onboard
-                </>
-              )}
+            <Button type="submit" className="w-full h-12" disabled={isSubmittingProfile}>
+              {isSubmittingProfile ? <Loader2 className="animate-spin" /> : "Welcome Onboard"}
             </Button>
           </form>
         </DialogContent>

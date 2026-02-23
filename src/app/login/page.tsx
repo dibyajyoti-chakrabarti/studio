@@ -23,32 +23,34 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  // Effect to handle post-login RFQ submission to root collection
   useEffect(() => {
     if (user && db) {
-      const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
-      if (pendingRfq) {
-        try {
-          const rfqData = {
-            ...JSON.parse(pendingRfq),
-            userId: user.uid,
-            userEmail: user.email,
-            userName: user.displayName || 'User',
-            updatedAt: new Date().toISOString(),
-          };
-          addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
-          localStorage.removeItem('pendingRfqToSubmit');
-          localStorage.removeItem('pendingRfqDetails');
-          toast({
-            title: "Project Submitted!",
-            description: "Your design has been added to your dashboard.",
-          });
-        } catch (e) {
-          console.error("Failed to process pending RFQ:", e);
+      // Check for admin claim
+      user.getIdTokenResult().then((tokenResult) => {
+        if (tokenResult.claims.admin) {
+          router.push('/admin');
+          return;
         }
-      }
-      const redirectPath = searchParams.get('redirect') || '/dashboard';
-      router.push(redirectPath);
+
+        const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
+        if (pendingRfq) {
+          try {
+            const rfqData = {
+              ...JSON.parse(pendingRfq),
+              userId: user.uid,
+              userEmail: user.email,
+              userName: user.displayName || 'User',
+              updatedAt: new Date().toISOString(),
+            };
+            addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+            localStorage.removeItem('pendingRfqToSubmit');
+            toast({ title: "Project Submitted!", description: "Your design has been added to your dashboard." });
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        router.push(searchParams.get('redirect') || '/dashboard');
+      });
     }
   }, [user, db, router, searchParams, toast]);
 
@@ -56,23 +58,14 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    initiateEmailSignIn(auth, email, password);
+    initiateEmailSignIn(auth, formData.get('email') as string, formData.get('password') as string);
   };
 
   const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    initiateEmailSignUp(auth, email, password);
-  };
-
-  const handleGoogleSignIn = () => {
-    setLoading(true);
-    initiateGoogleSignIn(auth);
+    initiateEmailSignUp(auth, formData.get('email') as string, formData.get('password') as string);
   };
 
   return (
@@ -96,17 +89,11 @@ export default function LoginPage() {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required />
-                      </div>
+                      <Input id="email" name="email" type="email" placeholder="name@example.com" className="bg-background" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required />
-                      </div>
+                      <Input id="password" name="password" type="password" placeholder="••••••••" className="bg-background" required />
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
@@ -114,17 +101,7 @@ export default function LoginPage() {
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
                       Sign In
                     </Button>
-                    <div className="relative w-full my-2">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-white/10"></span>
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                      </div>
-                    </div>
-                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading}>
-                      Google
-                    </Button>
+                    <Button variant="outline" type="button" className="w-full h-11" onClick={() => initiateGoogleSignIn(auth)} disabled={loading}>Google</Button>
                   </CardFooter>
                 </form>
               </Card>
@@ -140,17 +117,11 @@ export default function LoginPage() {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="reg-email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="reg-email" name="email" type="email" placeholder="name@example.com" className="pl-10 bg-background" required />
-                      </div>
+                      <Input id="reg-email" name="email" type="email" placeholder="name@example.com" className="bg-background" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="reg-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="reg-password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background" required />
-                      </div>
+                      <Input id="reg-password" name="password" type="password" placeholder="••••••••" className="bg-background" required />
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
@@ -158,17 +129,7 @@ export default function LoginPage() {
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                       Create Account
                     </Button>
-                    <div className="relative w-full my-2">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-white/10"></span>
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                      </div>
-                    </div>
-                    <Button variant="outline" type="button" className="w-full h-11 bg-background border-white/10 hover:bg-white/5" onClick={handleGoogleSignIn} disabled={loading}>
-                      Google
-                    </Button>
+                    <Button variant="outline" type="button" className="w-full h-11" onClick={() => initiateGoogleSignIn(auth)} disabled={loading}>Google</Button>
                   </CardFooter>
                 </form>
               </Card>
