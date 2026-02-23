@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useUser, useFirestore, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { Loader2, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -24,14 +24,30 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user && db) {
-      // Check for admin claim
-      user.getIdTokenResult().then((tokenResult) => {
-        if (tokenResult.claims.admin) {
-          router.push('/admin');
-          return;
+    async function syncUserAndRedirect() {
+      if (user && db) {
+        setLoading(true);
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+
+        let role = 'user';
+
+        if (!userSnap.exists()) {
+          // Create initial profile for new user
+          const initialProfile = {
+            fullName: user.displayName || '',
+            email: user.email,
+            role: 'user', // Default role
+            onboarded: false,
+            createdAt: new Date().toISOString(),
+          };
+          await setDoc(userRef, initialProfile);
+          role = 'user';
+        } else {
+          role = userSnap.data().role || 'user';
         }
 
+        // Handle any pending RFQ submission
         const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
         if (pendingRfq) {
           try {
@@ -49,9 +65,18 @@ export default function LoginPage() {
             console.error(e);
           }
         }
-        router.push(searchParams.get('redirect') || '/dashboard');
-      });
+
+        // Final Redirection based on role
+        if (role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push(searchParams.get('redirect') || '/dashboard');
+        }
+        setLoading(false);
+      }
     }
+
+    syncUserAndRedirect();
   }, [user, db, router, searchParams, toast]);
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {

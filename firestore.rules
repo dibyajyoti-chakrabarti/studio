@@ -1,54 +1,44 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
+    // Helper to check if the current user is an admin via Firestore profile field
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // --- User Profiles ---
     match /users/{userId} {
-      // User can read/write their own profile
-      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // Allow users to read their own profile, or admins to read any profile
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       
-      // Inheritance rule for nested subcollections as requested
-      match /{allPaths=**} {
-        allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      }
+      // Allow creation of profile on first sign-in, defaulting role to 'user'
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Prevent users from changing their own 'role' field. Only admins can modify roles.
+      allow update: if request.auth != null && (
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))
+        || isAdmin()
+      );
     }
 
-    // --- RFQs (Root Collection) ---
     match /rfqs/{rfqId} {
-      allow create: if isSignedIn();
-      // read/list is allowed if the user is an owner or an admin
-      // Firestore list operations require a query filter to match this ownership rule
-      allow read: if isSignedIn() && (
-        isAdmin() || 
-        (resource != null && resource.data.userId == request.auth.uid)
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || isAdmin()
       );
-      allow update: if isSignedIn() && (
-        isAdmin() || 
-        (resource != null && resource.data.userId == request.auth.uid)
+      allow update: if request.auth != null && (
+        resource.data.userId == request.auth.uid || isAdmin()
       );
       allow delete: if isAdmin();
     }
 
-    // --- Quotations ---
     match /quotations/{quotationId} {
-      allow read: if isSignedIn() && (
-        isAdmin() || 
-        (resource != null && resource.data.userId == request.auth.uid)
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || isAdmin()
       );
       allow write: if isAdmin();
-    }
-
-    // Default deny for non-admin on other root paths
-    match /{document=**} {
-      allow read, write: if isAdmin();
     }
   }
 }

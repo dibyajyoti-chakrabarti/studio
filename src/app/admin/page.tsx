@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -22,7 +23,7 @@ import {
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, doc } from 'firebase/firestore';
+import { collection, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -39,14 +40,16 @@ export default function AdminPanel() {
   const { toast } = useToast();
   const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
-  // Verify Admin Status and Redirect if necessary
+  // Verify Admin Role from Firestore
   useEffect(() => {
-    if (!isUserLoading) {
-      if (!user) {
-        router.push('/login?redirect=/admin');
-      } else {
-        user.getIdTokenResult().then((idTokenResult) => {
-          if (idTokenResult.claims.admin) {
+    async function verifyAdmin() {
+      if (!isUserLoading) {
+        if (!user) {
+          router.push('/login?redirect=/admin');
+        } else if (db) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const profile = userDoc.data();
+          if (profile?.role === 'admin') {
             setIsAdminConfirmed(true);
           } else {
             toast({
@@ -56,12 +59,13 @@ export default function AdminPanel() {
             });
             router.push('/dashboard');
           }
-        });
+        }
       }
     }
-  }, [user, isUserLoading, router, toast]);
+    verifyAdmin();
+  }, [user, isUserLoading, db, router, toast]);
 
-  // Real-time RFQs query - ONLY for confirmed admins to prevent permission errors
+  // Real-time RFQs query - ONLY for confirmed admins
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || isAdminConfirmed !== true) return null;
     return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
@@ -79,7 +83,6 @@ export default function AdminPanel() {
     const leadTime = Number(formData.get('leadTime'));
     const notes = formData.get('notes') as string;
 
-    const quotationId = Math.random().toString(36).substring(2, 11);
     const quotationData = {
       rfqId: selectedRfq.id,
       userId: selectedRfq.userId,
@@ -92,13 +95,13 @@ export default function AdminPanel() {
 
     try {
       // Create quotation document
-      await addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
+      const quoteRes = await addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
       
       // Update RFQ status
       const rfqRef = doc(db, 'rfqs', selectedRfq.id);
       updateDocumentNonBlocking(rfqRef, {
         status: 'quotation_sent',
-        quotationId: quotationId,
+        quotationId: quoteRes?.id || 'manual',
         updatedAt: new Date().toISOString(),
       });
 
@@ -119,6 +122,7 @@ export default function AdminPanel() {
   };
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {
+    if (!db) return;
     const rfqRef = doc(db, 'rfqs', rfqId);
     updateDocumentNonBlocking(rfqRef, {
       status: newStatus,
@@ -172,9 +176,6 @@ export default function AdminPanel() {
 
       <div className="flex flex-1">
         <aside className="w-64 border-r border-white/5 bg-card flex flex-col p-4 space-y-2">
-          <Button variant={activeTab === 'dashboard' ? 'secondary' : 'ghost'} className="w-full justify-start gap-3" onClick={() => setActiveTab('dashboard')}>
-            <LayoutDashboard className="w-4 h-4" /> Dashboard
-          </Button>
           <Button variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} className="w-full justify-start gap-3" onClick={() => setActiveTab('rfqs')}>
             <ClipboardList className="w-4 h-4" /> RFQ Management
           </Button>

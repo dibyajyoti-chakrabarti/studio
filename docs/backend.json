@@ -5,16 +5,17 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Stores detailed profile information for a MechHub user.",
+      "description": "Stores detailed profile information for a MechHub user, including their role.",
       "properties": {
         "fullName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "phone": { "type": "string" },
         "teamName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "onboarded": { "type": "boolean" }
       },
-      "required": ["fullName", "email", "phone", "teamName", "onboarded"]
+      "required": ["fullName", "email", "role", "onboarded"]
     },
     "RFQ": {
       "$schema": "http://json-schema.org/draft-07/schema#",

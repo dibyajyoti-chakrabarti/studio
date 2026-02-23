@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -15,22 +16,15 @@ import {
   DialogHeader, 
   DialogTitle, 
 } from '@/components/ui/dialog';
-import { useUser, useAuth, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, orderBy, doc } from 'firebase/firestore';
 import { 
   FileText, 
   Clock, 
-  Package, 
   ChevronRight, 
-  LogOut, 
   Plus, 
   Loader2, 
-  User as UserIcon, 
-  Building2, 
-  Phone, 
-  Sparkles, 
   Check,
   CreditCard,
   Truck
@@ -39,7 +33,6 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function UserDashboard() {
   const { user, isUserLoading } = useUser();
-  const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
@@ -67,12 +60,13 @@ export default function UserDashboard() {
   }, [rfqs, selectedOrderId]);
 
   useEffect(() => {
-    if (!isProfileLoading && user && (!profile || !profile.onboarded)) setIsOnboardingOpen(true);
+    if (!isProfileLoading && user && (!profile || !profile.onboarded)) {
+      setIsOnboardingOpen(true);
+    }
   }, [isProfileLoading, profile, user]);
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
   
-  // Query for quotation if available
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !selectedOrder?.quotationId) return null;
     return query(collection(db, 'quotations'), where('rfqId', '==', selectedOrder.id));
@@ -89,11 +83,10 @@ export default function UserDashboard() {
       fullName: formData.get('fullName') as string,
       phone: formData.get('phone') as string,
       teamName: formData.get('teamName') as string,
-      email: user.email,
       onboarded: true,
-      createdAt: new Date().toISOString(),
+      // No role field here to prevent users from making themselves admins
     };
-    setDocumentNonBlocking(doc(db, 'users', user.uid), profileData, { merge: true });
+    updateDocumentNonBlocking(doc(db, 'users', user.uid), profileData);
     setIsOnboardingOpen(false);
     setIsSubmittingProfile(false);
     toast({ title: "Welcome onboard!", description: `Glad to have you with us, ${profileData.fullName}.` });
