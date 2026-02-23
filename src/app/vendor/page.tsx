@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Logo } from '@/components/Logo';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ClipboardList, 
   Settings, 
@@ -15,10 +16,14 @@ import {
   CheckCircle2,
   LogOut,
   Package,
-  Clock
+  Clock,
+  LayoutGrid,
+  Eye,
+  FileText,
+  MapPin
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, useAuth } from '@/firebase';
-import { collection, query, doc, getDoc, where } from 'firebase/firestore';
+import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -28,6 +33,7 @@ export default function VendorPortal() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isVendorConfirmed, setIsVendorConfirmed] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState('marketplace');
   
   const db = useFirestore();
   const { toast } = useToast();
@@ -40,7 +46,7 @@ export default function VendorPortal() {
         } else if (db) {
           try {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists() && userDoc.data()?.role === 'vendor') {
+            if (userDoc.exists() && (userDoc.data()?.role === 'vendor' || userDoc.data()?.role === 'admin')) {
               setIsVendorConfirmed(true);
             } else {
               setIsVendorConfirmed(false);
@@ -56,13 +62,20 @@ export default function VendorPortal() {
     verifyVendor();
   }, [user, isUserLoading, db, router]);
 
+  // Query for open marketplace RFQs
+  const marketplaceQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, 'rfqs'), where('status', '==', 'rfq_submitted'), orderBy('createdAt', 'desc'));
+  }, [db]);
+  
   // Query for RFQs assigned to this vendor
-  const rfqsQuery = useMemoFirebase(() => {
+  const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(collection(db, 'rfqs'), where('vendorId', '==', user.uid));
+    return query(collection(db, 'rfqs'), where('vendorId', '==', user.uid), orderBy('updatedAt', 'desc'));
   }, [db, user?.uid]);
   
-  const { data: rfqs, isLoading } = useCollection(rfqsQuery);
+  const { data: marketplaceRfqs, isLoading: isMarketplaceLoading } = useCollection(marketplaceQuery);
+  const { data: myRfqs, isLoading: isMyProjectsLoading } = useCollection(myProjectsQuery);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -96,71 +109,127 @@ export default function VendorPortal() {
       </header>
 
       <div className="container mx-auto p-8 space-y-8">
-        <div>
-          <h1 className="text-3xl font-headline font-bold">Assigned Projects</h1>
-          <p className="text-muted-foreground">Manage production and update status for your active orders.</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-headline font-bold">Workspace</h1>
+            <p className="text-muted-foreground">Browse open requests or manage your active manufacturing projects.</p>
+          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-card border border-white/5 p-1 rounded-lg">
+            <TabsList className="bg-transparent">
+              <TabsTrigger value="marketplace" className="gap-2"><LayoutGrid className="w-4 h-4" /> Marketplace</TabsTrigger>
+              <TabsTrigger value="projects" className="gap-2"><ClipboardList className="w-4 h-4" /> My Projects</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin" /></div>
-        ) : (
-          <Card className="bg-card border-white/5">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-white/5">
-                  <TableHead>Project</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Process / Material</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rfqs?.length ? rfqs.map((rfq) => (
-                  <TableRow key={rfq.id} className="border-b border-white/5">
-                    <TableCell>
-                      <div className="font-bold">{rfq.projectName}</div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(rfq.createdAt).toLocaleDateString()}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{rfq.userName}</div>
-                      <div className="text-xs text-muted-foreground">{rfq.teamName}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{rfq.manufacturingProcess}</div>
-                      <div className="text-xs text-muted-foreground">{rfq.material}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={rfq.status === 'completed' ? 'secondary' : 'default'}>
-                        {rfq.status.replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {rfq.status === 'confirmed' && (
-                          <Button size="sm" onClick={() => handleUpdateStatus(rfq.id, 'in_production')}>
-                            <Hammer className="w-3 h-3 mr-1" /> Start Build
-                          </Button>
-                        )}
-                        {rfq.status === 'in_production' && (
-                          <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(rfq.id, 'completed')}>
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Complete
-                          </Button>
-                        )}
+        {activeTab === 'marketplace' ? (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-secondary">
+              <Package className="w-5 h-5" />
+              <h2 className="text-xl font-bold font-headline">Open RFQs</h2>
+            </div>
+            {isMarketplaceLoading ? (
+              <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin" /></div>
+            ) : marketplaceRfqs?.length ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {marketplaceRfqs.map((rfq) => (
+                  <Card key={rfq.id} className="bg-card border-white/5 hover:border-secondary/30 transition-all group">
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2">
+                        <Badge variant="outline" className="text-[10px] uppercase border-secondary/20 text-secondary">{rfq.manufacturingProcess}</Badge>
+                        <span className="text-xs text-muted-foreground">{new Date(rfq.createdAt).toLocaleDateString()}</span>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
-                      <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                      No active projects assigned to you yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+                      <CardTitle className="group-hover:text-secondary transition-colors">{rfq.projectName || 'Untitled'}</CardTitle>
+                      <CardDescription className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="text-muted-foreground">Material:</div><div className="font-medium">{rfq.material}</div>
+                        <div className="text-muted-foreground">Quantity:</div><div className="font-medium">{rfq.quantity} units</div>
+                        <div className="text-muted-foreground">Budget:</div><div className="font-medium">{rfq.budgetRange || 'TBD'}</div>
+                      </div>
+                      <Button variant="secondary" className="w-full gap-2">
+                        <Eye className="w-4 h-4" /> View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-card/30 rounded-xl border border-dashed border-white/5">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                <p className="text-muted-foreground">No new RFQs available in the marketplace right now.</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-6">
+             <div className="flex items-center gap-2 text-primary">
+              <Hammer className="w-5 h-5" />
+              <h2 className="text-xl font-bold font-headline">Active Builds</h2>
+            </div>
+            {isMyProjectsLoading ? (
+              <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin" /></div>
+            ) : (
+              <Card className="bg-card border-white/5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/5">
+                      <TableHead>Project</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Process / Material</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {myRfqs?.length ? myRfqs.map((rfq) => (
+                      <TableRow key={rfq.id} className="border-b border-white/5">
+                        <TableCell>
+                          <div className="font-bold">{rfq.projectName}</div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(rfq.createdAt).toLocaleDateString()}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{rfq.userName}</div>
+                          <div className="text-xs text-muted-foreground">{rfq.teamName}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">{rfq.manufacturingProcess}</div>
+                          <div className="text-xs text-muted-foreground">{rfq.material}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={rfq.status === 'completed' ? 'secondary' : 'default'}>
+                            {rfq.status.replace('_', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {rfq.status === 'confirmed' && (
+                              <Button size="sm" onClick={() => handleUpdateStatus(rfq.id, 'in_production')}>
+                                <Hammer className="w-3 h-3 mr-1" /> Start Build
+                              </Button>
+                            )}
+                            {rfq.status === 'in_production' && (
+                              <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(rfq.id, 'completed')}>
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Complete
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                          <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                          No active projects assigned to you yet.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </div>
         )}
       </div>
     </div>

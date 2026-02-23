@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Logo } from '@/components/Logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ClipboardList, 
   Users, 
@@ -23,7 +24,8 @@ import {
   LogOut,
   ShieldCheck,
   Factory,
-  User as UserIcon
+  User as UserIcon,
+  Briefcase
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -89,9 +91,12 @@ export default function AdminPanel() {
     if (!selectedRfq || !db) return;
     setIsSubmittingQuote(true);
     const formData = new FormData(e.currentTarget);
+    const vendorId = formData.get('vendorId') as string;
+
     const quotationData = {
       rfqId: selectedRfq.id,
       userId: selectedRfq.userId,
+      vendorId: vendorId,
       quotedPrice: Number(formData.get('price')),
       leadTimeDays: Number(formData.get('leadTime')),
       notes: formData.get('notes') as string,
@@ -103,10 +108,11 @@ export default function AdminPanel() {
       .then((quoteRes) => {
         updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
           status: 'quotation_sent',
+          vendorId: vendorId,
           quotationId: quoteRes?.id || 'manual',
           updatedAt: new Date().toISOString(),
         });
-        toast({ title: "Quotation Sent", description: "Successfully sent to user." });
+        toast({ title: "Quotation Sent", description: "Sent to client and assigned to vendor." });
         setShowQuoteModal(false);
       })
       .finally(() => setIsSubmittingQuote(false));
@@ -147,6 +153,7 @@ export default function AdminPanel() {
                     <TableRow className="border-white/5 hover:bg-transparent">
                       <TableHead>Project</TableHead>
                       <TableHead>User</TableHead>
+                      <TableHead>Selected Vendors</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Action</TableHead>
                     </TableRow>
@@ -156,9 +163,16 @@ export default function AdminPanel() {
                       <TableRow key={rfq.id} className="border-b border-white/5">
                         <TableCell><div className="font-bold">{rfq.projectName || 'Untitled'}</div></TableCell>
                         <TableCell>{rfq.userName}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {rfq.selectedVendors?.map((v: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-[9px]">{v}</Badge>
+                            ))}
+                          </div>
+                        </TableCell>
                         <TableCell><Badge>{rfq.status.replace('_', ' ')}</Badge></TableCell>
                         <TableCell>
-                          {rfq.status === 'rfq_submitted' && <Button size="sm" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>Quote</Button>}
+                          {rfq.status === 'rfq_submitted' && <Button size="sm" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>Assign & Quote</Button>}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -203,13 +217,27 @@ export default function AdminPanel() {
           <Card className="w-full max-w-lg bg-card border-white/10 shadow-2xl p-6">
             <h2 className="text-xl font-headline font-bold mb-4">Create Quote for {selectedRfq.projectName}</h2>
             <form onSubmit={handleSendQuotation} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Assign MechMaster (Vendor)</Label>
+                <Select name="vendorId" required>
+                  <SelectTrigger className="bg-background border-white/10">
+                    <SelectValue placeholder="Select a vendor to fulfill this" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vendors?.map(v => (
+                      <SelectItem key={v.id} value={v.id}>{v.fullName} ({v.email})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[10px] text-muted-foreground">User requested: {selectedRfq.selectedVendors?.join(', ')}</p>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Price (INR)</Label><Input name="price" type="number" required /></div>
                 <div className="space-y-2"><Label>Lead Time (Days)</Label><Input name="leadTime" type="number" required /></div>
               </div>
-              <div className="space-y-2"><Label>Notes</Label><textarea name="notes" className="w-full bg-background border rounded-md p-3 min-h-[100px]" /></div>
+              <div className="space-y-2"><Label>Notes</Label><textarea name="notes" className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px]" /></div>
               <div className="flex gap-3">
-                <Button type="submit" className="flex-1" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Send Quote'}</Button>
+                <Button type="submit" className="flex-1" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Confirm & Send Quote'}</Button>
                 <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)}>Cancel</Button>
               </div>
             </form>
