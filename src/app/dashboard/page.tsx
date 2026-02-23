@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { collection, query, where, orderBy, doc } from 'firebase/firestore';
+import { collection, query, where, doc } from 'firebase/firestore';
 import { 
   FileText, 
   Clock, 
@@ -45,15 +45,16 @@ export default function UserDashboard() {
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Memoize RFQs query - FILTERED BY USERID AS REQUIRED BY SECURITY RULES
+  // Memoize RFQs query - STRICTLY FILTERED BY USERID AS REQUIRED BY SECURITY RULES
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
+    // Using exactly the query structure requested to avoid permission issues
     return query(
       collection(db, 'rfqs'), 
-      where('userId', '==', user.uid), 
-      orderBy('createdAt', 'desc')
+      where('userId', '==', user.uid)
     );
   }, [db, user?.uid]);
+  
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
   useEffect(() => {
@@ -161,7 +162,7 @@ export default function UserDashboard() {
                           <p className="font-bold">{order.projectName || 'Untitled Project'}</p>
                           <div className="text-sm text-muted-foreground flex gap-3">
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(order.createdAt).toLocaleDateString()}</span>
-                            <Badge variant="outline" className="capitalize">{order.status.replace('_', ' ')}</Badge>
+                            <Badge variant="outline" className="capitalize">{order.status?.replace('_', ' ') || 'Submitted'}</Badge>
                           </div>
                         </div>
                       </div>
