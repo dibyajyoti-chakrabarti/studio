@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Logo } from '@/components/Logo';
 import { 
   Dialog,
   DialogContent,
@@ -47,7 +48,6 @@ import {
 import Link from 'next/link';
 import { MOCK_VENDORS } from './lib/mock-data';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -59,8 +59,6 @@ export default function Home() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const db = useFirestore();
-
-  const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -84,7 +82,6 @@ export default function Home() {
       requestDate: new Date().toISOString(),
     };
 
-    // Use setDocumentNonBlocking with the generated ID to satisfy Firestore security rules
     const docRef = doc(db, 'consultationRequests', id);
     
     try {
@@ -109,7 +106,6 @@ export default function Home() {
     <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
       <LandingNav />
       
-      {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-40 overflow-hidden">
         <div className="blueprint-grid opacity-20" suppressHydrationWarning />
         <RotatingGears />
@@ -139,7 +135,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
       <section id="services" className="py-24 bg-card/30 border-y border-white/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -171,7 +166,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section id="how-it-works" className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -204,7 +198,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MechMasters Scrolling */}
       <section id="vendors" className="py-24 bg-card/30">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-12">
@@ -254,7 +247,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why MechHub Section with Toggle */}
       <section className="py-24 bg-background relative overflow-hidden">
         <div className="blueprint-grid opacity-5" suppressHydrationWarning />
         <div className="container mx-auto px-4 relative z-10">
@@ -272,31 +264,11 @@ export default function Home() {
               <TabsContent value="innovators">
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
                   {[
-                    {
-                      title: 'Faster Quotation',
-                      desc: 'No more chasing vendors on WhatsApp. Get quotes in record time.',
-                      icon: Zap
-                    },
-                    {
-                      title: 'Verified Vendors',
-                      desc: 'Every MechMaster is screened for capability, quality, and delivery consistency.',
-                      icon: ShieldCheck
-                    },
-                    {
-                      title: 'Structured Pricing',
-                      desc: 'Clear cost breakdown with no hidden surprises. Compare options easily.',
-                      icon: CircleDollarSign
-                    },
-                    {
-                      title: 'Quality Layer',
-                      desc: 'Production updates, QC checklists, and part inspection images before delivery.',
-                      icon: ClipboardCheck
-                    },
-                    {
-                      title: 'End-to-End Tracking',
-                      desc: 'From upload to delivery, manage everything in one integrated dashboard.',
-                      icon: LayoutDashboard
-                    }
+                    { title: 'Faster Quotation', desc: 'No more chasing vendors on WhatsApp. Get quotes in record time.', icon: Zap },
+                    { title: 'Verified Vendors', desc: 'Every MechMaster is screened for capability, quality, and delivery consistency.', icon: ShieldCheck },
+                    { title: 'Structured Pricing', desc: 'Clear cost breakdown with no hidden surprises. Compare options easily.', icon: CircleDollarSign },
+                    { title: 'Quality Layer', desc: 'Production updates, QC checklists, and part inspection images before delivery.', icon: ClipboardCheck },
+                    { title: 'End-to-End Tracking', desc: 'From upload to delivery, manage everything in one integrated dashboard.', icon: LayoutDashboard }
                   ].map((benefit, i) => (
                     <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
                       <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -312,31 +284,11 @@ export default function Home() {
               <TabsContent value="manufacturers">
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-20">
                   {[
-                    {
-                      title: 'More Orders',
-                      desc: 'Receive RFQs from serious engineering teams and startups.',
-                      icon: TrendingUp
-                    },
-                    {
-                      title: 'No Marketing Cost',
-                      desc: 'We bring the customers to you, saving your outreach budget.',
-                      icon: ShieldCheck
-                    },
-                    {
-                      title: 'No Monthly Fees',
-                      desc: 'Only a small commission on confirmed and completed orders.',
-                      icon: CircleDollarSign
-                    },
-                    {
-                      title: 'Faster Payments',
-                      desc: 'Structured payment process designed to avoid traditional delays.',
-                      icon: FastForward
-                    },
-                    {
-                      title: 'No Middlemen',
-                      desc: 'Enjoy direct communication and maintain transparent pricing.',
-                      icon: Users2
-                    }
+                    { title: 'More Orders', desc: 'Receive RFQs from serious engineering teams and startups.', icon: TrendingUp },
+                    { title: 'No Marketing Cost', desc: 'We bring the customers to you, saving your outreach budget.', icon: ShieldCheck },
+                    { title: 'No Monthly Fees', desc: 'Only a small commission on confirmed and completed orders.', icon: CircleDollarSign },
+                    { title: 'Faster Payments', desc: 'Structured payment process designed to avoid traditional delays.', icon: FastForward },
+                    { title: 'No Middlemen', desc: 'Enjoy direct communication and maintain transparent pricing.', icon: Users2 }
                   ].map((benefit, i) => (
                     <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
                       <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -368,7 +320,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Expert Consultation Section */}
       <section className="py-24 bg-white text-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto border-l-4 border-primary pl-8 md:pl-16 py-8">
@@ -379,12 +330,7 @@ export default function Home() {
                   Get your design reviewed, optimized, or fully engineered by our experts.
                 </p>
                 <div className="grid grid-cols-2 gap-6 mb-10">
-                  {[
-                    "Design Optimization",
-                    "Cost Reduction Suggestions",
-                    "DFM Analysis",
-                    "Complete Design Support"
-                  ].map((option, i) => (
+                  {["Design Optimization", "Cost Reduction Suggestions", "DFM Analysis", "Complete Design Support"].map((option, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
                         <Check className="w-3 h-3 text-primary" />
@@ -461,25 +407,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-12 bg-background border-t border-white/5">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-12">
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
-                {logo?.imageUrl && (logo.imageUrl.startsWith('http') || logo.imageUrl.startsWith('/')) && (
-                  <div className="relative w-8 h-8 overflow-hidden rounded">
-                    <Image
-                      src={logo.imageUrl}
-                      alt="MechHub Logo"
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                      data-ai-hint={logo?.imageHint}
-                      suppressHydrationWarning
-                    />
-                  </div>
-                )}
+                <Logo size={40} />
                 <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
               </Link>
               <p className="text-muted-foreground text-sm max-w-sm">

@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Logo } from '@/components/Logo';
 import { 
-  LayoutDashboard, 
   ClipboardList, 
   Users, 
   Bell, 
@@ -21,12 +21,10 @@ import {
   Hammer,
   LogOut
 } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'navigation';
 import { signOut } from 'firebase/auth';
 
 export default function AdminPanel() {
@@ -41,9 +39,7 @@ export default function AdminPanel() {
   
   const db = useFirestore();
   const { toast } = useToast();
-  const logo = PlaceHolderImages.find((img) => img.id === 'mechhub-logo');
 
-  // Verify Admin Role from Firestore Document
   useEffect(() => {
     async function verifyAdmin() {
       if (!isUserLoading) {
@@ -80,7 +76,6 @@ export default function AdminPanel() {
     verifyAdmin();
   }, [user, isUserLoading, db, router, toast]);
 
-  // Real-time RFQs query - ONLY for confirmed admins
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || isAdminConfirmed !== true) return null;
     return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
@@ -121,10 +116,8 @@ export default function AdminPanel() {
       createdAt: new Date().toISOString(),
     };
 
-    // Create quotation document
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData)
       .then((quoteRes) => {
-        // Update RFQ status
         const rfqRef = doc(db, 'rfqs', selectedRfq.id);
         updateDocumentNonBlocking(rfqRef, {
           status: 'quotation_sent',
@@ -172,26 +165,14 @@ export default function AdminPanel() {
   }
 
   if (isAdminConfirmed === false) {
-    return null; // Will redirect via useEffect
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card">
         <div className="flex items-center gap-3">
-          <div className="relative w-8 h-8 overflow-hidden rounded bg-primary/20">
-            {logo?.imageUrl && (
-              <Image
-                src={logo.imageUrl}
-                alt="MechHub Logo"
-                width={32}
-                height={32}
-                className="object-cover"
-                data-ai-hint={logo?.imageHint}
-                suppressHydrationWarning
-              />
-            )}
-          </div>
+          <Logo size={32} />
           <span className="font-headline font-bold text-lg">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
