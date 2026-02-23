@@ -36,6 +36,9 @@ export default function MatchingPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Filter vendors with rating >= 4.5 by default for "high rating" recommendation
+  const recommendedVendors = MOCK_VENDORS.sort((a, b) => b.rating - a.rating);
+
   const toggleVendor = (id: string) => {
     setSelectedVendors(prev => 
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
@@ -43,19 +46,25 @@ export default function MatchingPage() {
   };
 
   const handleSubmit = async () => {
-    if (selectedVendors.length < 3) {
+    if (selectedVendors.length < 1) {
       toast({
         title: "Selection Required",
-        description: "Please select at least 3 vendors to ensure competitive quotes.",
+        description: "Please select at least 1 vendor to request a quotation.",
         variant: "destructive"
       });
       return;
     }
 
     const details = JSON.parse(localStorage.getItem('pendingRfqDetails') || '{}');
+    if (!details.projectName) {
+      toast({ title: "Session Expired", description: "Design details missing. Please re-upload.", variant: "destructive" });
+      router.push('/upload');
+      return;
+    }
+
     const rfqData = {
       userId: user?.uid || null,
-      userName: profile?.fullName || user?.displayName || 'User',
+      userName: profile?.fullName || user?.displayName || 'Guest User',
       userEmail: user?.email || '',
       userPhone: profile?.phone || '',
       teamName: profile?.teamName || '',
@@ -70,7 +79,7 @@ export default function MatchingPage() {
       deliveryLocation: details.location,
       selectedVendors: selectedVendors.map(id => MOCK_VENDORS.find(v => v.id === id)?.name || id),
       status: 'rfq_submitted',
-      quotationId: null,
+      vendorId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -78,8 +87,8 @@ export default function MatchingPage() {
     if (!user) {
       localStorage.setItem('pendingRfqToSubmit', JSON.stringify(rfqData));
       toast({
-        title: "One last step",
-        description: "Please sign in to submit your RFQ and track progress.",
+        title: "Almost there!",
+        description: "Sign in to submit your project and track vendor quotes.",
       });
       router.push('/login?redirect=/dashboard');
       return;
@@ -90,8 +99,8 @@ export default function MatchingPage() {
       addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
       localStorage.removeItem('pendingRfqDetails');
       toast({
-        title: "RFQ Submitted!",
-        description: "MechMasters have been notified. Check your dashboard for updates.",
+        title: "RFQ Submitted Successfully!",
+        description: "MechMasters are reviewing your design. We'll notify you soon.",
       });
       router.push('/dashboard');
     }
@@ -102,8 +111,8 @@ export default function MatchingPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
         <Sparkles className="w-12 h-12 text-secondary animate-pulse mb-4" />
-        <h2 className="text-2xl font-headline font-bold mb-2">Analyzing Requirements</h2>
-        <p className="text-muted-foreground">Our MechMaster Matching Engine is finding the best partners for your project...</p>
+        <h2 className="text-2xl font-headline font-bold mb-2">Analyzing Design...</h2>
+        <p className="text-muted-foreground">Our Matching Engine is finding specialized MechMasters for your project.</p>
         <div className="mt-8 flex gap-2">
           <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
           <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -121,31 +130,31 @@ export default function MatchingPage() {
           <div>
             <div className="flex items-center gap-2 text-secondary mb-2">
               <Sparkles className="w-5 h-5" />
-              <span className="text-sm font-bold uppercase tracking-widest">AI Recommended Matches</span>
+              <span className="text-sm font-bold uppercase tracking-widest">Recommended MechMasters</span>
             </div>
-            <h1 className="font-headline text-3xl md:text-4xl font-bold">Top MechMasters for You</h1>
-            <p className="text-muted-foreground mt-2">We found {MOCK_VENDORS.length} vendors matching your requirements.</p>
+            <h1 className="font-headline text-3xl md:text-4xl font-bold">Matching Production Partners</h1>
+            <p className="text-muted-foreground mt-2">Select the vendors you'd like to receive competitive quotations from.</p>
           </div>
           <div className="bg-secondary/10 border border-secondary/20 p-4 rounded-lg flex items-center gap-3">
             <AlertCircle className="text-secondary w-5 h-5 shrink-0" />
-            <p className="text-sm">Select at least <b>3 vendors</b> to receive Request for Quotations (RFQ).</p>
+            <p className="text-sm">We recommend selecting at least <b>3 vendors</b> for the best pricing results.</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {MOCK_VENDORS.map((vendor) => (
+          {recommendedVendors.map((vendor) => (
             <div 
               key={vendor.id} 
-              className={`relative cursor-pointer group rounded-xl transition-all ${selectedVendors.includes(vendor.id) ? 'ring-2 ring-primary' : ''}`}
+              className={`relative cursor-pointer group rounded-xl transition-all ${selectedVendors.includes(vendor.id) ? 'ring-2 ring-primary shadow-2xl shadow-primary/20' : ''}`}
               onClick={() => toggleVendor(vendor.id)}
             >
               <Card className="overflow-hidden border-white/5 bg-card hover:bg-card/80 h-full">
-                <div className="relative h-40">
+                <div className="relative h-44">
                   <Image 
                     src={vendor.image} 
                     alt={vendor.name} 
                     fill 
-                    className="object-cover"
+                    className="object-cover transition-transform group-hover:scale-105"
                     unoptimized
                   />
                   <div className="absolute top-3 left-3">
@@ -163,8 +172,8 @@ export default function MatchingPage() {
                     {vendor.location}
                   </div>
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {vendor.services.slice(0, 2).map((s, i) => (
-                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase">
+                    {vendor.services.map((s, i) => (
+                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase font-bold">
                         {s}
                       </Badge>
                     ))}
@@ -176,24 +185,25 @@ export default function MatchingPage() {
           ))}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/80 backdrop-blur border-t border-white/5 flex items-center justify-center z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/80 backdrop-blur-md border-t border-white/5 flex items-center justify-center z-50">
           <div className="container max-w-6xl w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm font-medium">
-              Selected: <span className="text-secondary font-bold text-lg ml-1">{selectedVendors.length}</span> / {MOCK_VENDORS.length}
+            <div className="text-sm font-medium flex items-center gap-2">
+              <Badge variant="secondary" className="text-lg px-3">{selectedVendors.length}</Badge>
+              <span className="text-muted-foreground">Vendors Selected for Quotation</span>
             </div>
             <Button 
               size="lg" 
-              className="px-12 h-14 text-lg min-w-[200px]" 
-              disabled={selectedVendors.length < 3 || isSubmitting}
+              className="px-12 h-14 text-lg min-w-[240px] font-bold" 
+              disabled={selectedVendors.length === 0 || isSubmitting}
               onClick={handleSubmit}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Submitting RFQ...
+                  Sending Request...
                 </>
               ) : (
-                'Send RFQ'
+                'Request Quotations'
               )}
             </Button>
           </div>
