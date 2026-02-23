@@ -3,9 +3,9 @@
   "placeholderImages": [
     {
       "id": "mechhub-logo",
-      "description": "MechHub Official Logo - Mechanical M Design",
-      "imageUrl": "https://picsum.photos/seed/mech-m-logo-blue/128/128",
-      "imageHint": "mechanical logo"
+      "description": "MechHub Official Logo - White Mechanical M on Blue",
+      "imageUrl": "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop",
+      "imageHint": "mechanical M"
     },
     {
       "id": "hero-bg",
