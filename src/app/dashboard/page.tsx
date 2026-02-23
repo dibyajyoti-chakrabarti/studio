@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -149,7 +148,7 @@ export default function UserDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary"><FileText /></div>
                         <div>
-                          <p className="font-bold">{order.projectName}</p>
+                          <p className="font-bold">{order.projectName || 'Untitled Project'}</p>
                           <div className="text-sm text-muted-foreground flex gap-3">
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(order.createdAt).toLocaleDateString()}</span>
                             <Badge variant="outline" className="capitalize">{order.status.replace('_', ' ')}</Badge>
@@ -161,6 +160,35 @@ export default function UserDashboard() {
                   </Card>
                 )) : <p className="text-center text-muted-foreground py-12">No projects found. Start by uploading a design!</p>}
               </TabsContent>
+
+              <TabsContent value="profile" className="space-y-6">
+                <Card className="bg-card border-white/5">
+                  <CardHeader>
+                    <CardTitle>My Profile</CardTitle>
+                    <CardDescription>Your personal and team information.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Full Name</Label>
+                        <p className="font-medium text-lg">{profile?.fullName || 'Not provided'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Email</Label>
+                        <p className="font-medium text-lg">{profile?.email || user.email}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Phone</Label>
+                        <p className="font-medium text-lg">{profile?.phone || 'Not provided'}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-muted-foreground">Team / Organization</Label>
+                        <p className="font-medium text-lg">{profile?.teamName || 'Not provided'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </div>
 
@@ -169,13 +197,14 @@ export default function UserDashboard() {
               <Card className="bg-card border-white/5">
                 <CardHeader>
                   <CardTitle className="text-xl">Project Details</CardTitle>
-                  <CardDescription>{selectedOrder.projectName}</Badge>
+                  <CardDescription>{selectedOrder.projectName || 'Untitled Project'}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Process:</span> <span>{selectedOrder.manufacturingProcess}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Material:</span> <span>{selectedOrder.material}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span> <span>{selectedOrder.quantity}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Location:</span> <span>{selectedOrder.deliveryLocation}</span></div>
                   </div>
 
                   {selectedOrder.status === 'quotation_sent' && activeQuotation && (
