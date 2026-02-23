@@ -18,17 +18,20 @@ import {
   Eye,
   Loader2,
   CheckCircle2,
-  Hammer
+  Hammer,
+  LogOut
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
 
 export default function AdminPanel() {
   const router = useRouter();
+  const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
@@ -79,13 +82,24 @@ export default function AdminPanel() {
 
   // Real-time RFQs query - ONLY for confirmed admins
   const rfqsQuery = useMemoFirebase(() => {
-    // CRITICAL: We only return the root query if the user is confirmed as admin.
-    // This prevents "Missing or insufficient permissions" errors for non-admins.
     if (!db || isAdminConfirmed !== true) return null;
     return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
   }, [db, isAdminConfirmed]);
   
   const { data: rfqs, isLoading } = useCollection(rfqsQuery);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSendQuotation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -180,8 +194,8 @@ export default function AdminPanel() {
           </div>
           <span className="font-headline font-bold text-lg">MechHub Admin</span>
         </div>
-        <div className="flex items-center gap-6">
-          <div className="relative hidden md:block">
+        <div className="flex items-center gap-4">
+          <div className="relative hidden md:block mr-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input className="w-64 pl-10 h-9 bg-background border-white/10" placeholder="Search RFQs, Users..." suppressHydrationWarning />
           </div>
@@ -190,6 +204,10 @@ export default function AdminPanel() {
             <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
           </Button>
           <div className="w-8 h-8 rounded-full bg-secondary text-background font-bold flex items-center justify-center">A</div>
+          <Button variant="outline" size="sm" onClick={handleLogout} className="ml-2 gap-2 border-white/10 hover:bg-white/5" suppressHydrationWarning>
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </Button>
         </div>
       </header>
 
