@@ -1,58 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // USERS COLLECTION
-    match /users/{userId} {
-
-      // User can read and update only their own profile
-      allow read, update: if request.auth != null
-                          && request.auth.uid == userId;
-
-      // Allow user document creation at signup
-      allow create: if request.auth != null
-                    && request.auth.uid == userId;
-    }
-
-
-    // RFQS COLLECTION
-    match /rfqs/{rfqId} {
-
-      // Any logged in user can create RFQ
-      allow create: if request.auth != null;
-
-      // User can read ONLY their own RFQs
-      allow read: if request.auth != null &&
-        (
-          (resource != null && resource.data.userId == request.auth.uid)
-          ||
-
-          // OR user role is admin
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-        );
-
-      // Only admin can update RFQ (for status updates, quotation, etc.)
-      allow update: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-
-      // Only admin can delete
-      allow delete: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-    }
-
-    // QUOTATIONS COLLECTION (Allowing read for owners/admins)
-    match /quotations/{quotationId} {
-      allow read: if request.auth != null && (
-        (resource != null && resource.data.userId == request.auth.uid) || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-      );
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-    }
-
-    // CONSULTATION REQUESTS
-    match /consultationRequests/{id} {
-      allow create: if true;
-      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
