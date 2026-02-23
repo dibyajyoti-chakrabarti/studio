@@ -6,50 +6,51 @@ service cloud.firestore {
     // Helper to check if the current user is an admin via their Firestore profile document
     function isAdmin() {
       return request.auth != null && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
+    // USERS COLLECTION
     match /users/{userId} {
-      // Users can read/write their own profile
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Admins can read any profile
-      allow read: if isAdmin();
+      allow read, write: if request.auth != null 
+                         && request.auth.uid == userId;
     }
 
+    // RFQS COLLECTION
     match /rfqs/{rfqId} {
-      // Users can create RFQs for themselves
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      
-      // Allow read/list:
-      // 1. If user owns the document (and provides a filter in their query)
-      // 2. If user is a verified admin
-      allow read: if request.auth != null && (
-        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
-      );
 
-      // Only owner or admin can update
-      allow update: if request.auth != null && (
-        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
-      );
+      // Any logged-in user can create RFQ
+      allow create: if request.auth != null;
 
-      // Only admin can delete
-      allow delete: if isAdmin();
+      // Allow read if:
+      // 1. User owns the RFQ
+      // OR
+      // 2. User role is admin
+      allow read: if request.auth != null
+        && (
+          (resource != null && request.auth.uid == resource.data.userId)
+          ||
+          isAdmin()
+        );
+
+      // Allow update only if admin (Note: Per instruction 5, owners might need update access for confirmation)
+      allow update: if request.auth != null
+        && (isAdmin() || (resource != null && request.auth.uid == resource.data.userId));
+
+      allow delete: if request.auth != null && isAdmin();
     }
 
+    // QUOTATIONS COLLECTION
     match /quotations/{quotationId} {
-      // Users can read quotes sent to them
       allow read: if request.auth != null && (
         (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
       );
-      // Only admins can create/update quotations
-      allow write: if isAdmin();
+      allow write: if request.auth != null && isAdmin();
     }
 
+    // CONSULTATION REQUESTS
     match /consultationRequests/{id} {
-      allow create: if true; // Public submissions
-      allow read: if isAdmin();
+      allow create: if true;
+      allow read: if request.auth != null && isAdmin();
     }
   }
 }
