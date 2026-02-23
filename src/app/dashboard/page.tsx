@@ -46,10 +46,14 @@ export default function UserDashboard() {
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Memoize RFQs query - ALWAYS filter by userId for security and to satisfy list rules
+  // Memoize RFQs query - STRICTLY FILTERED BY USERID TO PREVENT PERMISSION ERRORS
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(collection(db, 'rfqs'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
+    return query(
+      collection(db, 'rfqs'), 
+      where('userId', '==', user.uid), 
+      orderBy('createdAt', 'desc')
+    );
   }, [db, user?.uid]);
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
@@ -62,7 +66,8 @@ export default function UserDashboard() {
   }, [rfqs, selectedOrderId]);
 
   useEffect(() => {
-    if (!isProfileLoading && user && (!profile || !profile.onboarded)) {
+    // Only show onboarding if the profile check is complete and user is not onboarded
+    if (!isProfileLoading && user && profile && !profile.onboarded) {
       setIsOnboardingOpen(true);
     }
   }, [isProfileLoading, profile, user]);
@@ -87,9 +92,12 @@ export default function UserDashboard() {
       phone: formData.get('phone') as string,
       teamName: formData.get('teamName') as string,
       onboarded: true,
-      // No role field here to prevent users from making themselves admins
+      updatedAt: new Date().toISOString(),
     };
-    updateDocumentNonBlocking(doc(db, 'users', user.uid), profileData);
+    
+    const userRef = doc(db, 'users', user.uid);
+    updateDocumentNonBlocking(userRef, profileData);
+    
     setIsOnboardingOpen(false);
     setIsSubmittingProfile(false);
     toast({ title: "Welcome onboard!", description: `Glad to have you with us, ${profileData.fullName}.` });
@@ -100,7 +108,10 @@ export default function UserDashboard() {
     setIsConfirming(true);
     
     const rfqRef = doc(db, 'rfqs', selectedOrder.id);
-    updateDocumentNonBlocking(rfqRef, { status: 'confirmed' });
+    updateDocumentNonBlocking(rfqRef, { 
+      status: 'confirmed',
+      updatedAt: new Date().toISOString()
+    });
 
     if (activeQuotation) {
       const quoteRef = doc(db, 'quotations', activeQuotation.id);
@@ -134,7 +145,11 @@ export default function UserDashboard() {
               </TabsList>
 
               <TabsContent value="my-orders" className="space-y-4">
-                {isRfqsLoading ? <Loader2 className="w-8 h-8 animate-spin mx-auto" /> : rfqs?.length ? rfqs.map((order) => (
+                {isRfqsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : rfqs?.length ? rfqs.map((order) => (
                   <Card 
                     key={order.id} 
                     className={`bg-card border-white/5 cursor-pointer transition-all ${selectedOrderId === order.id ? 'border-primary' : 'hover:border-primary/50'}`}

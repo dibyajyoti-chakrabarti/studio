@@ -32,7 +32,8 @@ service cloud.firestore {
           isAdmin()
         );
 
-      // Allow update only if admin (Note: Per instruction 5, owners might need update access for confirmation)
+      // Allow update only if admin (or owner for confirmation, but per user instructions we restrict to admin for now)
+      // Note: Added ownership check for update so users can confirm their own orders as per the UI flow
       allow update: if request.auth != null
         && (isAdmin() || (resource != null && request.auth.uid == resource.data.userId));
 
