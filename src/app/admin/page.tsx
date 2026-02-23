@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Logo } from '@/components/Logo';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ClipboardList, 
   Users, 
@@ -19,12 +20,15 @@ import {
   Loader2,
   CheckCircle2,
   Hammer,
-  LogOut
+  LogOut,
+  ShieldCheck,
+  Factory,
+  User as UserIcon
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
-import { collection, query, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'navigation';
+import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 
 export default function AdminPanel() {
@@ -48,25 +52,13 @@ export default function AdminPanel() {
         } else if (db) {
           try {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-              const profile = userDoc.data();
-              if (profile?.role === 'admin') {
-                setIsAdminConfirmed(true);
-              } else {
-                setIsAdminConfirmed(false);
-                toast({
-                  title: "Access Denied",
-                  description: "You do not have administrative privileges.",
-                  variant: "destructive"
-                });
-                router.push('/dashboard');
-              }
+            if (userDoc.exists() && userDoc.data()?.role === 'admin') {
+              setIsAdminConfirmed(true);
             } else {
               setIsAdminConfirmed(false);
               router.push('/dashboard');
             }
           } catch (err) {
-            console.error("Admin verification failed:", err);
             setIsAdminConfirmed(false);
             router.push('/dashboard');
           }
@@ -74,99 +66,54 @@ export default function AdminPanel() {
       }
     }
     verifyAdmin();
-  }, [user, isUserLoading, db, router, toast]);
+  }, [user, isUserLoading, db, router]);
 
-  const rfqsQuery = useMemoFirebase(() => {
-    if (!db || isAdminConfirmed !== true) return null;
-    return query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'));
-  }, [db, isAdminConfirmed]);
-  
-  const { data: rfqs, isLoading } = useCollection(rfqsQuery);
+  // Queries for all three types of users
+  const buyersQuery = useMemoFirebase(() => db ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db]);
+  const vendorsQuery = useMemoFirebase(() => db ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db]);
+  const adminsQuery = useMemoFirebase(() => db ? query(collection(db, 'users'), where('role', '==', 'admin')) : null, [db]);
+  const rfqsQuery = useMemoFirebase(() => db ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db]);
+
+  const { data: buyers } = useCollection(buyersQuery);
+  const { data: vendors } = useCollection(vendorsQuery);
+  const { data: admins } = useCollection(adminsQuery);
+  const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out.",
-        variant: "destructive"
-      });
-    }
+    await signOut(auth);
+    router.push('/login');
   };
 
   const handleSendQuotation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedRfq || !db) return;
-
     setIsSubmittingQuote(true);
     const formData = new FormData(e.currentTarget);
-    const price = Number(formData.get('price'));
-    const leadTime = Number(formData.get('leadTime'));
-    const notes = formData.get('notes') as string;
-
     const quotationData = {
       rfqId: selectedRfq.id,
       userId: selectedRfq.userId,
-      quotedPrice: price,
-      leadTimeDays: leadTime,
-      notes: notes,
+      quotedPrice: Number(formData.get('price')),
+      leadTimeDays: Number(formData.get('leadTime')),
+      notes: formData.get('notes') as string,
       status: 'sent',
       createdAt: new Date().toISOString(),
     };
 
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData)
       .then((quoteRes) => {
-        const rfqRef = doc(db, 'rfqs', selectedRfq.id);
-        updateDocumentNonBlocking(rfqRef, {
+        updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
           status: 'quotation_sent',
           quotationId: quoteRes?.id || 'manual',
           updatedAt: new Date().toISOString(),
         });
-
-        toast({
-          title: "Quotation Sent",
-          description: `Quote successfully sent to ${selectedRfq.userName}`,
-        });
+        toast({ title: "Quotation Sent", description: "Successfully sent to user." });
         setShowQuoteModal(false);
       })
-      .catch(() => {
-        toast({
-          title: "Error",
-          description: "Failed to send quotation.",
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsSubmittingQuote(false);
-      });
+      .finally(() => setIsSubmittingQuote(false));
   };
 
-  const handleUpdateStatus = (rfqId: string, newStatus: string) => {
-    if (!db) return;
-    const rfqRef = doc(db, 'rfqs', rfqId);
-    updateDocumentNonBlocking(rfqRef, {
-      status: newStatus,
-      updatedAt: new Date().toISOString(),
-    });
-    toast({
-      title: "Status Updated",
-      description: `Project is now marked as ${newStatus.replace('_', ' ')}.`,
-    });
-  };
-
-  if (isAdminConfirmed === null || isUserLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (isAdminConfirmed === false) {
-    return null;
-  }
+  if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (!isAdminConfirmed) return null;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -176,103 +123,76 @@ export default function AdminPanel() {
           <span className="font-headline font-bold text-lg">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block mr-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="w-64 pl-10 h-9 bg-background border-white/10" placeholder="Search RFQs, Users..." suppressHydrationWarning />
-          </div>
-          <Button variant="ghost" size="icon" className="relative" suppressHydrationWarning>
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
-          </Button>
-          <div className="w-8 h-8 rounded-full bg-secondary text-background font-bold flex items-center justify-center">A</div>
-          <Button variant="outline" size="sm" onClick={handleLogout} className="ml-2 gap-2 border-white/10 hover:bg-white/5" suppressHydrationWarning>
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Logout</span>
+          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10">
+            <LogOut className="w-4 h-4" /> Logout
           </Button>
         </div>
       </header>
 
       <div className="flex flex-1">
         <aside className="w-64 border-r border-white/5 bg-card flex flex-col p-4 space-y-2">
-          <Button variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} className="w-full justify-start gap-3" onClick={() => setActiveTab('rfqs')}>
-            <ClipboardList className="w-4 h-4" /> RFQ Management
-          </Button>
-          <Button variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} className="w-full justify-start gap-3" onClick={() => setActiveTab('vendors')}>
-            <Users className="w-4 h-4" /> MechMasters
-          </Button>
+          <Button variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('rfqs')}><ClipboardList className="w-4 h-4" /> RFQs</Button>
+          <Button variant={activeTab === 'users' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('users')}><UserIcon className="w-4 h-4" /> Users (Buyers)</Button>
+          <Button variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('vendors')}><Factory className="w-4 h-4" /> Vendors (Masters)</Button>
+          <Button variant={activeTab === 'admins' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('admins')}><ShieldCheck className="w-4 h-4" /> Admins</Button>
         </aside>
 
         <main className="flex-1 p-8 overflow-y-auto">
           {activeTab === 'rfqs' && (
-            <div className="space-y-8">
-              <div className="flex justify-between items-end">
-                <div>
-                  <h1 className="text-3xl font-headline font-bold">RFQ Management</h1>
-                  <p className="text-muted-foreground">Review incoming requests and manage production lifecycle.</p>
-                </div>
-              </div>
-
-              {isLoading ? (
-                <div className="flex items-center justify-center h-64">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <Card className="bg-card border-white/5">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/5 hover:bg-transparent">
-                        <TableHead>Project</TableHead>
-                        <TableHead>User / Team</TableHead>
-                        <TableHead>Process</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
+            <div className="space-y-6">
+              <h1 className="text-3xl font-headline font-bold">Manage RFQs</h1>
+              <Card className="bg-card border-white/5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead>Project</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rfqs?.map((rfq) => (
+                      <TableRow key={rfq.id} className="border-b border-white/5">
+                        <TableCell><div className="font-bold">{rfq.projectName || 'Untitled'}</div></TableCell>
+                        <TableCell>{rfq.userName}</TableCell>
+                        <TableCell><Badge>{rfq.status.replace('_', ' ')}</Badge></TableCell>
+                        <TableCell>
+                          {rfq.status === 'rfq_submitted' && <Button size="sm" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>Quote</Button>}
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {rfqs?.map((rfq) => (
-                        <TableRow key={rfq.id} className="border-b border-white/5 hover:bg-white/5">
-                          <TableCell>
-                            <div className="font-bold">{rfq.projectName || 'Untitled'}</div>
-                            <div className="text-xs text-muted-foreground">{new Date(rfq.createdAt).toLocaleDateString()}</div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{rfq.userName}</div>
-                            <div className="text-xs text-muted-foreground">{rfq.teamName}</div>
-                          </TableCell>
-                          <TableCell>{rfq.manufacturingProcess}</TableCell>
-                          <TableCell>
-                            <Badge variant={rfq.status === 'quotation_sent' ? 'secondary' : 'default'} className="capitalize">
-                              {rfq.status.replace('_', ' ')}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              {rfq.status === 'rfq_submitted' && (
-                                <Button size="sm" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>
-                                  Send Quote
-                                </Button>
-                              )}
-                              {rfq.status === 'confirmed' && (
-                                <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(rfq.id, 'in_production')}>
-                                  <Hammer className="w-3 h-3 mr-1" /> Start Production
-                                </Button>
-                              )}
-                              {rfq.status === 'in_production' && (
-                                <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(rfq.id, 'completed')}>
-                                  <CheckCircle2 className="w-3 h-3 mr-1" /> Complete
-                                </Button>
-                              )}
-                              <Button variant="ghost" size="icon">
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
-              )}
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
+          {(activeTab === 'users' || activeTab === 'vendors' || activeTab === 'admins') && (
+            <div className="space-y-6">
+              <h1 className="text-3xl font-headline font-bold capitalize">{activeTab} List</h1>
+              <Card className="bg-card border-white/5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(activeTab === 'users' ? buyers : activeTab === 'vendors' ? vendors : admins)?.map((u) => (
+                      <TableRow key={u.id} className="border-b border-white/5">
+                        <TableCell className="font-bold">{u.fullName}</TableCell>
+                        <TableCell>{u.email}</TableCell>
+                        <TableCell>{u.phone}</TableCell>
+                        <TableCell><Badge variant="outline">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
             </div>
           )}
         </main>
@@ -280,35 +200,18 @@ export default function AdminPanel() {
 
       {showQuoteModal && selectedRfq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <Card className="w-full max-w-lg bg-card border-white/10 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="font-headline">Create Quotation</CardTitle>
-              <CardDescription>Reviewing {selectedRfq.projectName} from {selectedRfq.userName}</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSendQuotation}>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Price (INR)</Label>
-                    <Input name="price" type="number" required placeholder="e.g. 25000" className="bg-background border-white/10" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Lead Time (Days)</Label>
-                    <Input name="leadTime" type="number" required placeholder="e.g. 7" className="bg-background border-white/10" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Admin Notes</Label>
-                  <textarea name="notes" className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px] text-sm" placeholder="Additional details..." />
-                </div>
-                <div className="pt-4 flex gap-3">
-                  <Button type="submit" className="flex-1 gap-2" disabled={isSubmittingQuote}>
-                    {isSubmittingQuote ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Submit Quote
-                  </Button>
-                  <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)}>Cancel</Button>
-                </div>
-              </CardContent>
+          <Card className="w-full max-w-lg bg-card border-white/10 shadow-2xl p-6">
+            <h2 className="text-xl font-headline font-bold mb-4">Create Quote for {selectedRfq.projectName}</h2>
+            <form onSubmit={handleSendQuotation} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Price (INR)</Label><Input name="price" type="number" required /></div>
+                <div className="space-y-2"><Label>Lead Time (Days)</Label><Input name="leadTime" type="number" required /></div>
+              </div>
+              <div className="space-y-2"><Label>Notes</Label><textarea name="notes" className="w-full bg-background border rounded-md p-3 min-h-[100px]" /></div>
+              <div className="flex gap-3">
+                <Button type="submit" className="flex-1" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Send Quote'}</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)}>Cancel</Button>
+              </div>
             </form>
           </Card>
         </div>

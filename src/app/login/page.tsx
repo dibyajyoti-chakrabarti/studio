@@ -3,15 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth, useUser, useFirestore, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn, addDocumentNonBlocking } from '@/firebase';
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { useAuth, useUser, useFirestore, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
@@ -20,7 +19,6 @@ export default function LoginPage() {
   const db = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -33,7 +31,6 @@ export default function LoginPage() {
         let role = 'user';
 
         if (!userSnap.exists()) {
-          // Create initial profile for new user with default 'user' role
           const initialProfile = {
             fullName: user.displayName || '',
             email: user.email,
@@ -46,28 +43,10 @@ export default function LoginPage() {
           role = userSnap.data().role || 'user';
         }
 
-        // Handle any pending RFQ submission
-        const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
-        if (pendingRfq) {
-          try {
-            const rfqData = {
-              ...JSON.parse(pendingRfq),
-              userId: user.uid,
-              userEmail: user.email,
-              userName: user.displayName || 'User',
-              updatedAt: new Date().toISOString(),
-            };
-            addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
-            localStorage.removeItem('pendingRfqToSubmit');
-            toast({ title: "Project Submitted!", description: "Your design has been added to your dashboard." });
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        // Final Redirection based on manually configured Firestore role
         if (role === 'admin') {
           router.push('/admin');
+        } else if (role === 'vendor') {
+          router.push('/vendor');
         } else {
           router.push(searchParams.get('redirect') || '/dashboard');
         }
@@ -76,7 +55,7 @@ export default function LoginPage() {
     }
 
     syncUserAndRedirect();
-  }, [user, db, router, searchParams, toast]);
+  }, [user, db, router, searchParams]);
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { doc } from 'firebase/firestore';
 
+
 export function LandingNav() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();

@@ -10,7 +10,7 @@
         "email": { "type": "string", "format": "email" },
         "phone": { "type": "string" },
         "teamName": { "type": "string" },
-        "role": { "type": "string", "enum": ["user", "admin"] },
+        "role": { "type": "string", "enum": ["user", "vendor", "admin"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "onboarded": { "type": "boolean" }
       },
@@ -26,6 +26,7 @@
         "userEmail": { "type": "string" },
         "userPhone": { "type": "string" },
         "teamName": { "type": "string" },
+        "projectName": { "type": "string" },
         "manufacturingProcess": { "type": "string" },
         "material": { "type": "string" },
         "quantity": { "type": "number" },
@@ -35,10 +36,8 @@
         "budgetRange": { "type": "string" },
         "deliveryLocation": { "type": "string" },
         "selectedVendors": { "type": "array", "items": { "type": "string" } },
-        "fileURL": { "type": "string" },
-        "fileName": { "type": "string" },
+        "vendorId": { "type": "string" },
         "status": { "type": "string", "enum": ["rfq_submitted", "quotation_sent", "confirmed", "in_production", "completed"] },
-        "quotationId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -46,11 +45,12 @@
     },
     "Quotation": {
       "title": "Quotation",
-      "description": "Admin created quotation for an RFQ.",
+      "description": "Quotation for an RFQ.",
       "type": "object",
       "properties": {
         "rfqId": { "type": "string" },
         "userId": { "type": "string" },
+        "vendorId": { "type": "string" },
         "quotedPrice": { "type": "number" },
         "leadTimeDays": { "type": "number" },
         "notes": { "type": "string" },
@@ -74,7 +74,7 @@
     },
     "/quotations/{quotationId}": {
       "schema": { "$ref": "#/backend/entities/Quotation" },
-      "description": "Admin quotations."
+      "description": "Quotations."
     }
   }
 }
