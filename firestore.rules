@@ -7,25 +7,42 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // --- User Sandbox (User's Requested Rule Pattern) ---
+    // --- User Profiles ---
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
-      
-      // RFQs and any other nested data are covered by this recursive match
-      match /{allPaths=**} {
-        allow read, write: if isSignedIn() && request.auth.uid == userId;
-      }
+      allow read, write: if isOwner(userId);
     }
 
-    // --- Consultation Requests ---
-    match /consultationRequests/{requestId} {
-      allow get, list: if isAdmin();
-      allow create: if true; // Public submission allowed
-      allow update, delete: if isAdmin();
+    // --- RFQs ---
+    match /rfqs/{rfqId} {
+      // Users can list and read their own RFQs
+      allow list: if isSignedIn() && request.query.limit <= 100 && (
+        isAdmin() || resource.data.userId == request.auth.uid
+      );
+      allow get: if isSignedIn() && (
+        isAdmin() || resource.data.userId == request.auth.uid
+      );
+      // Users can create RFQs, Admin can update status
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isAdmin() || (isOwner(resource.data.userId) && request.resource.data.status == resource.data.status)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // --- Quotations ---
+    match /quotations/{quotationId} {
+      allow read: if isSignedIn() && (
+        isAdmin() || resource.data.userId == request.auth.uid
+      );
+      allow create, update, delete: if isAdmin();
     }
 
     // --- Admin Metadata ---
@@ -33,14 +50,10 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if false; 
     }
-
-    // --- Legacy / Compatibility Rules ---
-    // Ensuring any root-level RFQs that might still exist don't cause permission crashes
-    match /rfqs/{rfqId} {
-      allow read, write: if isSignedIn() && (
-        (resource != null && resource.data.userId == request.auth.uid) ||
-        (request.resource != null && request.resource.data.userId == request.auth.uid)
-      );
+    
+    // Legacy support for user sandbox subcollections
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
     }
   }
 }

@@ -7,166 +7,76 @@
       "type": "object",
       "description": "Stores detailed profile information for a MechHub user.",
       "properties": {
-        "displayName": {
-          "type": "string",
-          "description": "The user's preferred full name."
-        },
-        "phoneNumber": {
-          "type": "string",
-          "description": "The user's contact phone number."
-        },
-        "organization": {
-          "type": "string",
-          "description": "The name of the user's college, team, or startup."
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The user's primary email address."
-        },
-        "onboarded": {
-          "type": "boolean",
-          "description": "Whether the user has completed the initial onboarding process."
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "fullName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "teamName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "onboarded": { "type": "boolean" }
       },
-      "required": [
-        "displayName",
-        "phoneNumber",
-        "organization",
-        "onboarded"
-      ]
-    },
-    "ConsultationRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ConsultationRequest",
-      "type": "object",
-      "description": "Represents a user's request for expert manufacturing guidance and consultation services.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the ConsultationRequest entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The full name of the user requesting consultation."
-        },
-        "phone": {
-          "type": "string",
-          "description": "The phone number of the user for contact purposes."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the user for communication.",
-          "format": "email"
-        },
-        "message": {
-          "type": "string",
-          "description": "A detailed message from the user describing their consultation needs."
-        },
-        "consultationOptions": {
-          "type": "array",
-          "description": "A list of selected consultation options (e.g., Design Optimization, DFM Analysis).",
-          "items": {
-            "type": "string"
-          }
-        },
-        "requestDate": {
-          "type": "string",
-          "description": "The date and time when the consultation request was submitted.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "phone",
-        "email",
-        "message",
-        "requestDate"
-      ]
+      "required": ["fullName", "email", "phone", "teamName", "onboarded"]
     },
     "RFQ": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "RFQ",
       "type": "object",
-      "description": "Represents a manufacturing request for quotation sent to multiple MechMasters.",
+      "description": "Represents a manufacturing request for quotation.",
       "properties": {
         "userId": { "type": "string" },
-        "projectName": { "type": "string" },
-        "process": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userPhone": { "type": "string" },
+        "teamName": { "type": "string" },
+        "manufacturingProcess": { "type": "string" },
         "material": { "type": "string" },
         "quantity": { "type": "number" },
-        "status": { "type": "string" },
+        "surfaceFinish": { "type": "string" },
+        "tolerance": { "type": "string" },
+        "deliveryDate": { "type": "string", "format": "date-time" },
+        "budgetRange": { "type": "string" },
+        "deliveryLocation": { "type": "string" },
+        "selectedVendors": { "type": "array", "items": { "type": "string" } },
+        "fileURL": { "type": "string" },
+        "fileName": { "type": "string" },
+        "status": { "type": "string", "enum": ["rfq_submitted", "quotation_sent", "confirmed", "in_production", "completed"] },
+        "quotationId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "manufacturingProcess", "material", "quantity", "status", "createdAt"]
+    },
+    "Quotation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Quotation",
+      "type": "object",
+      "description": "Admin created quotation for an RFQ.",
+      "properties": {
+        "rfqId": { "type": "string" },
+        "userId": { "type": "string" },
+        "quotedPrice": { "type": "number" },
+        "leadTimeDays": { "type": "number" },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["sent", "accepted"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "projectName", "process", "createdAt"]
+      "required": ["rfqId", "userId", "quotedPrice", "leadTimeDays", "status", "createdAt"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous",
-      "google.com"
-    ]
+    "providers": ["password", "google.com"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
-          "description": "Stores the user's private profile information.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/rfqs/{rfqId}",
-        "definition": {
-          "entityName": "RFQ",
-          "schema": {
-            "$ref": "#/backend/entities/RFQ"
-          },
-          "description": "Stores user-specific manufacturing requests within their private subcollection.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user who owns the RFQs."
-            },
-            {
-              "name": "rfqId",
-              "description": "The unique identifier for a specific RFQ."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/consultationRequests/{consultationRequestId}",
-        "definition": {
-          "entityName": "ConsultationRequest",
-          "schema": {
-            "$ref": "#/backend/entities/ConsultationRequest"
-          },
-          "description": "Stores individual requests for expert manufacturing consultation submitted via the public form.",
-          "params": [
-            {
-              "name": "consultationRequestId",
-              "description": "The unique identifier for a specific consultation request."
-            }
-          ]
-        }
-      }
-    ]
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserProfile" },
+      "description": "User profile data."
+    },
+    "/rfqs/{rfqId}": {
+      "schema": { "$ref": "#/backend/entities/RFQ" },
+      "description": "Manufacturing requests."
+    },
+    "/quotations/{quotationId}": {
+      "schema": { "$ref": "#/backend/entities/Quotation" },
+      "description": "Admin quotations."
+    }
   }
 }

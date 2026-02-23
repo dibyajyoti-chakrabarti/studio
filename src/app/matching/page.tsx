@@ -12,8 +12,8 @@ import { MOCK_VENDORS } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useUser, useFirestore, useDoc, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
 
 export default function MatchingPage() {
   const router = useRouter();
@@ -23,6 +23,13 @@ export default function MatchingPage() {
   const [loading, setLoading] = useState(true);
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch user profile for RFQ submission
+  const userProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+  const { data: profile } = useDoc(userProfileRef);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 2000);
@@ -47,15 +54,28 @@ export default function MatchingPage() {
 
     const details = JSON.parse(localStorage.getItem('pendingRfqDetails') || '{}');
     const rfqData = {
-      ...details,
-      vendorIds: selectedVendors,
-      status: 'Quotation Pending',
-      createdAt: new Date().toISOString(),
       userId: user?.uid || null,
+      userName: profile?.fullName || user?.displayName || 'User',
+      userEmail: user?.email || '',
+      userPhone: profile?.phone || '',
+      teamName: profile?.teamName || '',
+      projectName: details.projectName,
+      manufacturingProcess: details.process,
+      material: details.material,
+      quantity: Number(details.quantity),
+      surfaceFinish: details.surfaceFinish || '',
+      tolerance: details.tolerance,
+      deliveryDate: details.deliveryDate,
+      budgetRange: details.budget || '',
+      deliveryLocation: details.location,
+      selectedVendors: selectedVendors.map(id => MOCK_VENDORS.find(v => v.id === id)?.name || id),
+      status: 'rfq_submitted',
+      quotationId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     if (!user) {
-      // If not logged in, store the RFQ and redirect to login
       localStorage.setItem('pendingRfqToSubmit', JSON.stringify(rfqData));
       toast({
         title: "One last step",
@@ -66,26 +86,16 @@ export default function MatchingPage() {
     }
 
     setIsSubmitting(true);
-    try {
-      if (db) {
-        // Save to the user's private subcollection for better security and path matching
-        addDocumentNonBlocking(collection(db, 'users', user.uid, 'rfqs'), rfqData);
-        localStorage.removeItem('pendingRfqDetails');
-        toast({
-          title: "RFQ Submitted!",
-          description: "MechMasters have been notified. Check your dashboard for updates.",
-        });
-        router.push('/dashboard');
-      }
-    } catch (err) {
+    if (db) {
+      addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+      localStorage.removeItem('pendingRfqDetails');
       toast({
-        title: "Submission failed",
-        description: "Please try again later.",
-        variant: "destructive",
+        title: "RFQ Submitted!",
+        description: "MechMasters have been notified. Check your dashboard for updates.",
       });
-    } finally {
-      setIsSubmitting(false);
+      router.push('/dashboard');
     }
+    setIsSubmitting(false);
   };
 
   if (loading) {
@@ -114,7 +124,7 @@ export default function MatchingPage() {
               <span className="text-sm font-bold uppercase tracking-widest">AI Recommended Matches</span>
             </div>
             <h1 className="font-headline text-3xl md:text-4xl font-bold">Top MechMasters for You</h1>
-            <p className="text-muted-foreground mt-2">We found 6 vendors matching your process and location requirements.</p>
+            <p className="text-muted-foreground mt-2">We found {MOCK_VENDORS.length} vendors matching your requirements.</p>
           </div>
           <div className="bg-secondary/10 border border-secondary/20 p-4 rounded-lg flex items-center gap-3">
             <AlertCircle className="text-secondary w-5 h-5 shrink-0" />
@@ -169,7 +179,7 @@ export default function MatchingPage() {
         <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/80 backdrop-blur border-t border-white/5 flex items-center justify-center z-50">
           <div className="container max-w-6xl w-full flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm font-medium">
-              Selected: <span className="text-secondary font-bold text-lg ml-1">{selectedVendors.length}</span> / 6
+              Selected: <span className="text-secondary font-bold text-lg ml-1">{selectedVendors.length}</span> / {MOCK_VENDORS.length}
             </div>
             <Button 
               size="lg" 
