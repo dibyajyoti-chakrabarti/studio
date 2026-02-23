@@ -1,57 +1,58 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper to check if the current user is an admin via their Firestore profile document
-    function isAdmin() {
-      return request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-    }
-
     // USERS COLLECTION
     match /users/{userId} {
-      allow read, write: if request.auth != null 
-                         && request.auth.uid == userId;
+
+      // User can read and update only their own profile
+      allow read, update: if request.auth != null
+                          && request.auth.uid == userId;
+
+      // Allow user document creation at signup
+      allow create: if request.auth != null
+                    && request.auth.uid == userId;
     }
+
 
     // RFQS COLLECTION
     match /rfqs/{rfqId} {
 
-      // Any logged-in user can create RFQ
+      // Any logged in user can create RFQ
       allow create: if request.auth != null;
 
-      // Allow read if:
-      // 1. User owns the RFQ
-      // OR
-      // 2. User role is admin
-      allow read: if request.auth != null
-        && (
-          (resource != null && request.auth.uid == resource.data.userId)
+      // User can read ONLY their own RFQs
+      allow read: if request.auth != null &&
+        (
+          (resource != null && resource.data.userId == request.auth.uid)
           ||
-          isAdmin()
+
+          // OR user role is admin
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
         );
 
-      // Allow update only if admin (or owner for confirmation, but per user instructions we restrict to admin for now)
-      // Note: Added ownership check for update so users can confirm their own orders as per the UI flow
-      allow update: if request.auth != null
-        && (isAdmin() || (resource != null && request.auth.uid == resource.data.userId));
+      // Only admin can update RFQ (for status updates, quotation, etc.)
+      allow update: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
 
-      allow delete: if request.auth != null && isAdmin();
+      // Only admin can delete
+      allow delete: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
-    // QUOTATIONS COLLECTION
+    // QUOTATIONS COLLECTION (Allowing read for owners/admins)
     match /quotations/{quotationId} {
       allow read: if request.auth != null && (
-        (resource != null && resource.data.userId == request.auth.uid) || isAdmin()
+        (resource != null && resource.data.userId == request.auth.uid) || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
       );
-      allow write: if request.auth != null && isAdmin();
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
     // CONSULTATION REQUESTS
     match /consultationRequests/{id} {
       allow create: if true;
-      allow read: if request.auth != null && isAdmin();
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
   }
 }

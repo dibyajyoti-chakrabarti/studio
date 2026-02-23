@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -46,7 +45,7 @@ export default function UserDashboard() {
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
-  // Memoize RFQs query - STRICTLY FILTERED BY USERID TO PREVENT PERMISSION ERRORS
+  // Memoize RFQs query - STRICTLY FILTERED BY USERID AS REQUESTED
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(
@@ -67,7 +66,7 @@ export default function UserDashboard() {
 
   useEffect(() => {
     // Only show onboarding if the profile check is complete and user is not onboarded
-    if (!isProfileLoading && user && profile && !profile.onboarded) {
+    if (!isProfileLoading && user && profile && profile.onboarded === false) {
       setIsOnboardingOpen(true);
     }
   }, [isProfileLoading, profile, user]);
