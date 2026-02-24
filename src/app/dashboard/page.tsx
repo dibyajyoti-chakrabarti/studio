@@ -318,7 +318,7 @@ export default function UserDashboard() {
                                         disabled={isConfirming}
                                       >
                                         {isConfirming ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Check className="w-3 h-3 mr-1" />}
-                                        Award Project
+                                        Accept Project
                                       </Button>
                                       <Button 
                                         variant="outline" 
