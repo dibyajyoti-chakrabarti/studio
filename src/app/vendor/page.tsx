@@ -36,7 +36,9 @@ import {
   MessageSquare,
   Gavel,
   Check,
-  Zap
+  Zap,
+  ShieldCheck,
+  History
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firestore';
@@ -93,7 +95,6 @@ export default function VendorPortal() {
 
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
-    // Show RFQs where this vendor is explicitly invited
     return query(
       collection(db, 'rfqs'), 
       where('selectedVendorIds', 'array-contains', user.uid),
@@ -157,7 +158,7 @@ export default function VendorPortal() {
     toast({ title: "Quotation Submitted", description: "Your competitive bid is now visible to the client." });
   };
 
-  const handleRespondNegotiation = (partyAction: 'accept' | 'counter') => {
+  const handleRespondNegotiation = (partyAction: 'accept' | 'counter' | 'reject') => {
     if (!db || !negotiatingQuote) return;
 
     if (partyAction === 'accept') {
@@ -168,6 +169,12 @@ export default function VendorPortal() {
         updatedAt: new Date().toISOString()
       });
       toast({ title: "Proposal Accepted", description: "Project terms updated." });
+    } else if (partyAction === 'reject') {
+      updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
+        status: 'rejected',
+        updatedAt: new Date().toISOString()
+      });
+      toast({ title: "Proposal Rejected", description: "This quotation is now closed." });
     } else {
       const historyItem = {
         party: 'vendor',
@@ -182,7 +189,7 @@ export default function VendorPortal() {
         negotiationHistory: newHistory,
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Counter-Proposal Sent", description: "The client will be notified." });
+      toast({ title: "Counter-Proposal Sent", description: "The message has been sent." });
     }
 
     setIsResponding(false);
@@ -253,14 +260,17 @@ export default function VendorPortal() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {marketplaceRfqs.map((rfq) => {
                   const myQuote = myQuotes?.find(q => q.rfqId === rfq.id);
-                  const inNegotiation = myQuote?.negotiationHistory?.length > 0 && myQuote.negotiationHistory[myQuote.negotiationHistory.length - 1].party === 'user';
+                  const lastNeg = myQuote?.negotiationHistory?.[myQuote.negotiationHistory.length - 1];
+                  const isAdminRevision = lastNeg?.party === 'admin';
+                  const isUserCounter = lastNeg?.party === 'user';
                   
                   return (
-                    <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group">
+                    <Card key={rfq.id} className={`bg-card border-white/10 hover:border-secondary/30 transition-all group relative overflow-hidden ${isAdminRevision ? 'ring-2 ring-primary' : ''}`}>
+                      {isAdminRevision && <div className="absolute top-0 right-0 bg-primary text-[8px] font-bold uppercase px-3 py-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Admin Revised</div>}
                       <CardHeader>
                         <div className="flex justify-between items-start mb-2">
                           <Badge className="bg-primary/20 text-primary border-none text-[10px] font-bold uppercase">{rfq.manufacturingProcess}</Badge>
-                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">Bid Submitted</Badge>}
+                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">{myQuote.status === 'negotiating' ? 'Under Negotiation' : 'Bid Submitted'}</Badge>}
                         </div>
                         <CardTitle className="text-xl font-headline text-white group-hover:text-secondary transition-colors truncate">{rfq.projectName}</CardTitle>
                         <CardDescription className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
@@ -272,16 +282,22 @@ export default function VendorPortal() {
                           <div className="flex justify-between"><span className="text-muted-foreground">Deadline:</span><span className="font-bold text-white">{new Date(rfq.deliveryDate).toLocaleDateString()}</span></div>
                         </div>
 
-                        {inNegotiation ? (
-                          <Button variant="secondary" className="w-full gap-2 font-bold h-11 bg-secondary/10 text-secondary hover:bg-secondary/20" onClick={() => { 
-                            setNegotiatingQuote(myQuote);
-                            const lastNeg = myQuote.negotiationHistory[myQuote.negotiationHistory.length - 1];
-                            setResPrice(lastNeg.price.toString());
-                            setResLeadTime(lastNeg.leadTime.toString());
-                            setIsResponding(true);
-                          }}>
-                            <MessageSquare className="w-4 h-4" /> Counter Proposal
-                          </Button>
+                        {(isAdminRevision || isUserCounter) ? (
+                          <div className="space-y-3">
+                            <div className="bg-secondary/5 border border-secondary/20 rounded-lg p-3 text-[10px]">
+                              <p className="font-bold text-secondary mb-1 flex items-center gap-1 uppercase tracking-wider"><History className="w-3 h-3" /> {isAdminRevision ? 'Admin Revision' : 'User Counter'}</p>
+                              <p className="text-white font-bold mb-1">Target: ₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
+                              <p className="text-muted-foreground italic line-clamp-2">"{lastNeg.message}"</p>
+                            </div>
+                            <Button variant="secondary" className="w-full gap-2 font-bold h-11 bg-secondary/10 text-secondary hover:bg-secondary/20" onClick={() => { 
+                              setNegotiatingQuote(myQuote);
+                              setResPrice(lastNeg.price.toString());
+                              setResLeadTime(lastNeg.leadTime.toString());
+                              setIsResponding(true);
+                            }}>
+                              <MessageSquare className="w-4 h-4" /> Respond to Revision
+                            </Button>
+                          </div>
                         ) : (
                           <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
                             <Eye className="w-4 h-4" /> {myQuote ? 'Review Status' : 'Bid Now'}
@@ -420,18 +436,18 @@ export default function VendorPortal() {
       <Dialog open={isResponding} onOpenChange={setIsResponding}>
         <DialogContent className="bg-card text-foreground border-white/10">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-headline font-bold text-white">Respond to Negotiation</DialogTitle>
-            <DialogDescription>The innovator has requested revised terms. Please review and respond.</DialogDescription>
+            <DialogTitle className="text-2xl font-headline font-bold text-white">Respond to Revision / Counter</DialogTitle>
+            <DialogDescription>Review terms from {negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1]?.party === 'admin' ? 'Admin' : 'Client'} and respond.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-xl">
-              <p className="text-[10px] font-bold text-secondary mb-2 uppercase">Innovator's Target</p>
+              <p className="text-[10px] font-bold text-secondary mb-2 uppercase tracking-widest">Target Conditions</p>
               {(() => {
                 const last = negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1];
                 return (
                   <div className="text-xs space-y-2">
-                    <p className="text-white font-bold">Price: ₹{last?.price} • Timeline: {last?.leadTime} Days</p>
-                    <p className="italic text-muted-foreground">"{last?.message}"</p>
+                    <p className="text-white font-bold flex items-center justify-between"><span>Price: ₹{last?.price}</span> <span>Timeline: {last?.leadTime} Days</span></p>
+                    <p className="italic text-muted-foreground bg-background/30 p-2 rounded">"{last?.message}"</p>
                   </div>
                 );
               })()}
@@ -439,7 +455,7 @@ export default function VendorPortal() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-white">Final Price (₹)</Label>
+                <Label className="text-white">Revised Price (₹)</Label>
                 <Input value={resPrice} onChange={(e) => setResPrice(e.target.value)} type="number" className="bg-background" />
               </div>
               <div className="space-y-2">
@@ -448,13 +464,14 @@ export default function VendorPortal() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-white">Counter-Proposal Message</Label>
-              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Justification for the terms..." />
+              <Label className="text-white">Message / Justification</Label>
+              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Optional notes for the admin/client..." />
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Counter Proposal</Button>
-            <Button onClick={() => handleRespondNegotiation('accept')} className="bg-green-600 hover:bg-green-700 text-white font-bold">Accept Terms</Button>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => handleRespondNegotiation('reject')} className="border-red-500/50 text-red-500 hover:bg-red-500/10">Reject Revision</Button>
+            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Submit Counter</Button>
+            <Button onClick={() => handleRespondNegotiation('accept')} className="bg-green-600 hover:bg-green-700 text-white font-bold">Accept & Update</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

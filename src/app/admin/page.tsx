@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Logo } from '@/components/Logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   ClipboardList, 
   Search, 
@@ -28,7 +30,10 @@ import {
   DollarSign,
   Download,
   ExternalLink,
-  UserCheck
+  UserCheck,
+  History,
+  TrendingUp,
+  AlertCircle
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -56,6 +61,12 @@ export default function AdminPanel() {
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
   
+  const [isRevising, setIsRevising] = useState(false);
+  const [revisingQuote, setRevisingQuote] = useState<any>(null);
+  const [revPrice, setRevPrice] = useState('');
+  const [revLeadTime, setRevLeadTime] = useState('');
+  const [revMessage, setRevMessage] = useState('');
+
   const db = useFirestore();
   const { toast } = useToast();
 
@@ -87,9 +98,15 @@ export default function AdminPanel() {
   const vendorsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, user, isAdminConfirmed]);
   const rfqsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, user, isAdminConfirmed]);
 
+  const quotationsQuery = useMemoFirebase(() => {
+    if (!db || !isAdminConfirmed || !selectedRfq) return null;
+    return query(collection(db, 'quotations'), where('rfqId', '==', selectedRfq.id));
+  }, [db, isAdminConfirmed, selectedRfq?.id]);
+
   const { data: buyers } = useCollection(buyersQuery);
   const { data: vendors } = useCollection(vendorsQuery);
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
+  const { data: selectedRfqQuotes } = useCollection(quotationsQuery);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -120,29 +137,59 @@ export default function AdminPanel() {
     setIsSubmittingQuote(true);
     const formData = new FormData(e.currentTarget);
     const vendorId = formData.get('vendorId') as string;
+    const vendor = vendors?.find(v => v.id === vendorId);
 
     const quotationData = {
       rfqId: selectedRfq.id,
       userId: selectedRfq.userId,
       vendorId: vendorId,
+      vendorName: vendor?.fullName || 'MechMaster',
+      vendorRating: 4.5,
       quotedPrice: Number(formData.get('price')),
       leadTimeDays: Number(formData.get('leadTime')),
       notes: formData.get('notes') as string,
       status: 'sent',
+      negotiationHistory: [],
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData)
       .then(() => {
         updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
           status: 'quotation_sent',
-          vendorId: vendorId,
           updatedAt: new Date().toISOString(),
         });
         toast({ title: "Quotation Sent", description: "Sent to client and assigned to vendor." });
         setShowQuoteModal(false);
       })
       .finally(() => setIsSubmittingQuote(false));
+  };
+
+  const handleAdminReviseQuote = () => {
+    if (!db || !revisingQuote) return;
+
+    const historyItem = {
+      party: 'admin',
+      price: Number(revPrice),
+      leadTime: Number(revLeadTime),
+      message: revMessage,
+      createdAt: new Date().toISOString(),
+    };
+
+    const newHistory = [...(revisingQuote.negotiationHistory || []), historyItem];
+
+    updateDocumentNonBlocking(doc(db, 'quotations', revisingQuote.id), {
+      status: 'negotiating',
+      quotedPrice: Number(revPrice),
+      leadTimeDays: Number(revLeadTime),
+      negotiationHistory: newHistory,
+      updatedAt: new Date().toISOString()
+    });
+
+    setIsRevising(false);
+    setRevisingQuote(null);
+    toast({ title: "Quotation Revised", description: "Revised terms sent to vendor for confirmation." });
   };
 
   const downloadFile = (dataUrl: string, fileName: string) => {
@@ -239,7 +286,7 @@ export default function AdminPanel() {
                             </Button>
                             {rfq.status === 'rfq_submitted' && (
                               <Button size="sm" onClick={() => { setSelectedRfq(rfq); setShowQuoteModal(true); }}>
-                                <DollarSign className="w-3 h-3 mr-1" /> Quote
+                                <DollarSign className="w-3 h-3 mr-1" /> Initial Quote
                               </Button>
                             )}
                           </div>
@@ -301,7 +348,7 @@ export default function AdminPanel() {
       {showQuoteModal && selectedRfq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
           <Card className="w-full max-w-lg bg-card border-white/10 shadow-2xl p-6">
-            <h2 className="text-xl font-headline font-bold mb-4">Create Quote & Assign Vendor</h2>
+            <h2 className="text-xl font-headline font-bold mb-4">Create Initial Quote</h2>
             <form onSubmit={handleSendQuotation} className="space-y-4">
               <div className="space-y-2">
                 <Label>Assign MechMaster</Label>
@@ -333,17 +380,17 @@ export default function AdminPanel() {
 
       {showDetailsModal && selectedRfq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
-          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6 my-8">
+          <Card className="w-full max-w-4xl bg-card border-white/10 shadow-2xl p-6 my-8">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-headline font-bold">{selectedRfq.projectName}</h2>
-                <p className="text-muted-foreground">Detailed project specifications</p>
+                <p className="text-muted-foreground">Detailed project specifications & bid management</p>
               </div>
               <Badge className="text-lg px-4 py-1">{selectedRfq.status.replace('_', ' ')}</Badge>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Technical Requirements</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Process:</span><span>{selectedRfq.manufacturingProcess}</span></div>
@@ -367,12 +414,9 @@ export default function AdminPanel() {
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground italic">No design files attached to this request.</p>
+                    <p className="text-xs text-muted-foreground italic">No design files attached.</p>
                   )}
                 </div>
-              </div>
-              
-              <div className="space-y-4">
                 <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Logistics</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Quantity:</span><span>{selectedRfq.quantity} units</span></div>
@@ -381,19 +425,100 @@ export default function AdminPanel() {
                     <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Budget:</span><span>{selectedRfq.budgetRange || 'Unspecified'}</span></div>
                   </div>
                 </div>
-                <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Contact Info</h3>
-                   <div className="p-3 bg-background border border-white/5 rounded-lg">
-                      <p className="font-bold">{selectedRfq.userName}</p>
-                      <p className="text-xs text-muted-foreground">{selectedRfq.userEmail}</p>
-                      <p className="text-xs text-muted-foreground">{selectedRfq.userPhone}</p>
-                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRfq.teamName}</p>
-                   </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div><h3 className="font-bold text-primary mb-2 uppercase tracking-widest text-[10px] flex items-center gap-2"><TrendingUp className="w-4 h-4" /> Active Bids & Negotiations</h3>
+                  {selectedRfqQuotes && selectedRfqQuotes.length > 0 ? (
+                    <div className="space-y-4">
+                      {selectedRfqQuotes.map((quote) => {
+                        const lastNeg = quote.negotiationHistory?.[quote.negotiationHistory.length - 1];
+                        const isUserWaiting = lastNeg?.party === 'user';
+                        
+                        return (
+                          <Card key={quote.id} className="bg-background border-white/10 p-4 space-y-3 relative overflow-hidden">
+                            {isUserWaiting && <div className="absolute top-0 right-0 p-1 bg-yellow-500 text-[8px] font-bold uppercase px-2 text-black">User Action Requested</div>}
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-bold text-white">{quote.vendorName}</p>
+                                <p className="text-[10px] text-muted-foreground">Status: {quote.status.toUpperCase()}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-secondary">₹{quote.quotedPrice}</p>
+                                <p className="text-[10px] text-muted-foreground">{quote.leadTimeDays} Days</p>
+                              </div>
+                            </div>
+                            
+                            {quote.negotiationHistory?.length > 0 && (
+                              <div className="space-y-2 mt-2 pt-2 border-t border-white/5">
+                                <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Latest Update</p>
+                                <div className={`p-2 rounded text-[10px] ${lastNeg.party === 'user' ? 'bg-primary/5 border-l-2 border-primary' : 'bg-secondary/5 border-l-2 border-secondary'}`}>
+                                  <p className="font-bold capitalize mb-1">{lastNeg.party} Proposal:</p>
+                                  <p>₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
+                                  {lastNeg.message && <p className="italic text-muted-foreground mt-1">"{lastNeg.message}"</p>}
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="flex gap-2 pt-2">
+                              <Button variant="outline" size="sm" className="h-7 text-xs flex-1 border-white/10" onClick={() => {
+                                setRevisingQuote(quote);
+                                setRevPrice(quote.quotedPrice.toString());
+                                setRevLeadTime(quote.leadTimeDays.toString());
+                                setIsRevising(true);
+                              }}>
+                                <History className="w-3 h-3 mr-1" /> Oversee / Revise
+                              </Button>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center bg-background/50 rounded-xl border border-dashed border-white/5">
+                      <Clock className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-2" />
+                      <p className="text-xs text-muted-foreground italic">No bids submitted for this RFQ yet.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="mt-8 flex justify-end gap-3">
               <Button onClick={() => setShowDetailsModal(false)}>Close Specifications</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {isRevising && revisingQuote && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+          <Card className="w-full max-w-md bg-card border-white/10 p-6 shadow-2xl">
+            <h2 className="text-xl font-headline font-bold mb-4">Admin Intervention: Revise Quotation</h2>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Revised Price (₹)</Label>
+                  <Input value={revPrice} onChange={(e) => setRevPrice(e.target.value)} type="number" className="bg-background" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Revised Lead Time (Days)</Label>
+                  <Input value={revLeadTime} onChange={(e) => setRevLeadTime(e.target.value)} type="number" className="bg-background" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Admin Instructions / Message to Vendor</Label>
+                <Textarea 
+                  value={revMessage} 
+                  onChange={(e) => setRevMessage(e.target.value)} 
+                  placeholder="Explain the changes to the vendor..." 
+                  className="bg-background h-24"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button className="flex-1 font-bold" onClick={handleAdminReviseQuote}>Update & Issue Terms</Button>
+                <Button variant="outline" className="flex-1 border-white/10" onClick={() => setIsRevising(false)}>Cancel</Button>
+              </div>
             </div>
           </Card>
         </div>

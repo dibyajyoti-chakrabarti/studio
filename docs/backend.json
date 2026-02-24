@@ -65,7 +65,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "party": { "type": "string", "enum": ["user", "vendor"] },
+              "party": { "type": "string", "enum": ["user", "vendor", "admin"] },
               "price": { "type": "number" },
               "leadTime": { "type": "number" },
               "message": { "type": "string" },
