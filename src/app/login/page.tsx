@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth, useUser, useFirestore, initiateEmailSignIn, initiateEmailSignUp, initiateGoogleSignIn } from '@/firebase';
+import { useAuth, useUser, useFirestore, initiateGoogleSignIn } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
-import { Loader2, UserPlus, LogIn, Users, Factory, ShieldCheck } from 'lucide-react';
+import { Loader2, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
@@ -22,7 +22,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'user' | 'vendor'>('user');
 
   useEffect(() => {
     async function syncUserAndRedirect() {
@@ -32,18 +31,18 @@ export default function LoginPage() {
           const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
 
-          let role = selectedRole; 
+          let role = 'user'; 
 
           if (!userSnap.exists()) {
             const initialProfile = {
               fullName: user.displayName || '',
               email: user.email,
-              role: selectedRole, 
+              role: 'user', 
               onboarded: false,
               createdAt: new Date().toISOString(),
             };
             await setDoc(userRef, initialProfile);
-            role = selectedRole;
+            role = 'user';
           } else {
             role = userSnap.data().role || 'user';
           }
@@ -64,7 +63,7 @@ export default function LoginPage() {
     }
 
     syncUserAndRedirect();
-  }, [user, db, router, searchParams, selectedRole]);
+  }, [user, db, router, searchParams]);
 
   const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -121,23 +120,9 @@ export default function LoginPage() {
           
           <div className="flex flex-col items-center gap-4">
              <div className="text-center space-y-2">
-               <h1 className="text-3xl font-headline font-bold">Join the Network</h1>
-               <p className="text-sm text-muted-foreground">Select your portal access type</p>
+               <h1 className="text-3xl font-headline font-bold">Secure Access</h1>
+               <p className="text-sm text-muted-foreground">Sign in to your manufacturing workspace</p>
              </div>
-             <Tabs 
-               value={selectedRole} 
-               onValueChange={(val) => setSelectedRole(val as 'user' | 'vendor')} 
-               className="w-full max-w-[340px]"
-             >
-               <TabsList className="grid w-full grid-cols-2 bg-card border border-white/10 p-1 h-12">
-                 <TabsTrigger value="user" className="data-[state=active]:bg-primary data-[state=active]:text-white flex gap-2 font-bold">
-                   <Users className="w-4 h-4" /> Innovator
-                 </TabsTrigger>
-                 <TabsTrigger value="vendor" className="data-[state=active]:bg-primary data-[state=active]:text-white flex gap-2 font-bold">
-                   <Factory className="w-4 h-4" /> MechMaster
-                 </TabsTrigger>
-               </TabsList>
-             </Tabs>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
@@ -151,7 +136,7 @@ export default function LoginPage() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">
-                    {selectedRole === 'user' ? 'Innovator Access' : 'MechMaster Access'}
+                    Account Access
                   </CardTitle>
                   <CardDescription>Enter your verified credentials to continue.</CardDescription>
                 </CardHeader>
@@ -169,7 +154,7 @@ export default function LoginPage() {
                   <CardFooter className="flex flex-col gap-4">
                     <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-                      Log In to {selectedRole === 'user' ? 'Hub' : 'Portal'}
+                      Log In to Hub
                     </Button>
                     <div className="relative w-full py-2">
                       <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/5"></span></div>
@@ -188,7 +173,7 @@ export default function LoginPage() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">
-                    {selectedRole === 'user' ? 'Create Hub Account' : 'Register MechMaster'}
+                    Create Hub Account
                   </CardTitle>
                   <CardDescription>Join the managed manufacturing network.</CardDescription>
                 </CardHeader>
@@ -204,13 +189,13 @@ export default function LoginPage() {
                     </div>
                     <div className="pt-2 flex items-center gap-2 text-[10px] text-muted-foreground">
                       <ShieldCheck className="w-4 h-4 text-secondary" />
-                      All accounts are subject to IP and NDA verification.
+                      All accounts are subject to verification and NDA protocols.
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
                     <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                      Register as {selectedRole === 'user' ? 'Innovator' : 'MechMaster'}
+                      Register as Innovator
                     </Button>
                   </CardFooter>
                 </form>

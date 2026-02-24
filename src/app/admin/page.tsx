@@ -28,7 +28,8 @@ import {
   FileText,
   DollarSign,
   Download,
-  ExternalLink
+  ExternalLink,
+  UserCheck
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -83,7 +84,6 @@ export default function AdminPanel() {
     verifyAdmin();
   }, [user, isUserLoading, db, router]);
 
-  // CRITICAL: Only run queries if isAdminConfirmed is true to avoid permission errors
   const buyersQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db, user, isAdminConfirmed]);
   const vendorsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, user, isAdminConfirmed]);
   const rfqsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, user, isAdminConfirmed]);
@@ -104,6 +104,15 @@ export default function AdminPanel() {
       updatedAt: new Date().toISOString(),
     });
     toast({ title: "Status Updated", description: `Project is now in ${newStatus.replace('_', ' ')} phase.` });
+  };
+
+  const handlePromoteToVendor = (userId: string) => {
+    if (!db) return;
+    updateDocumentNonBlocking(doc(db, 'users', userId), {
+      role: 'vendor',
+      updatedAt: new Date().toISOString(),
+    });
+    toast({ title: "Role Updated", description: "User has been promoted to MechMaster." });
   };
 
   const handleSendQuotation = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -255,6 +264,7 @@ export default function AdminPanel() {
                       <TableHead>Contact</TableHead>
                       <TableHead>Organization</TableHead>
                       <TableHead>Status</TableHead>
+                      {activeTab === 'users' && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -267,6 +277,18 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>{u.teamName}</TableCell>
                         <TableCell><Badge variant="outline">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
+                        {activeTab === 'users' && (
+                          <TableCell>
+                            <Button 
+                              size="sm" 
+                              variant="secondary" 
+                              className="h-8 text-xs font-bold gap-1"
+                              onClick={() => handlePromoteToVendor(u.id)}
+                            >
+                              <UserCheck className="w-3 h-3" /> Onboard as MechMaster
+                            </Button>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -365,7 +387,7 @@ export default function AdminPanel() {
                       <p className="font-bold">{selectedRfq.userName}</p>
                       <p className="text-xs text-muted-foreground">{selectedRfq.userEmail}</p>
                       <p className="text-xs text-muted-foreground">{selectedRfq.userPhone}</p>
-                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRfq.teamName}</p>
+                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRole === 'vendor' ? 'Vendor Partner' : selectedRfq.teamName}</p>
                    </div>
                 </div>
               </div>
