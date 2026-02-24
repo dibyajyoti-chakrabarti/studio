@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ClipboardList, 
-  Users, 
   Search, 
   Send,
   Eye,
@@ -387,7 +386,7 @@ export default function AdminPanel() {
                       <p className="font-bold">{selectedRfq.userName}</p>
                       <p className="text-xs text-muted-foreground">{selectedRfq.userEmail}</p>
                       <p className="text-xs text-muted-foreground">{selectedRfq.userPhone}</p>
-                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRole === 'vendor' ? 'Vendor Partner' : selectedRfq.teamName}</p>
+                      <p className="text-[10px] mt-1 text-primary/70 uppercase font-bold">{selectedRfq.teamName}</p>
                    </div>
                 </div>
               </div>
