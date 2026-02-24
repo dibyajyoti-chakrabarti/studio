@@ -8,7 +8,7 @@ service cloud.firestore {
       return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
 
-    // User profiles
+    // User profiles: Users can read/write their own profile
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId;
@@ -16,19 +16,19 @@ service cloud.firestore {
 
     // RFQs (Manufacturing Requests)
     match /rfqs/{rfqId} {
-      // Users see their own. 
-      // Admins see all.
-      // Vendors see open marketplace (rfq_submitted) or projects assigned to them.
+      // Innovators: Read/Write their own projects
+      // Vendors: Read if marketplace (rfq_submitted) or assigned
+      // Admins: Full access
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
         (hasRole('vendor') && (resource.data.status == 'rfq_submitted' || resource.data.vendorId == request.auth.uid))
       );
       
-      // Standard creation for innovators
-      allow create: if request.auth != null;
+      allow create: if request.auth != null && (
+        request.resource.data.userId == request.auth.uid || hasRole('admin')
+      );
       
-      // Updates allowed for owner (cancel), admin (management), or assigned vendor (status updates)
       allow update: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
@@ -40,15 +40,19 @@ service cloud.firestore {
 
     // Quotations
     match /quotations/{quotationId} {
-      // Read allowed for project owner, admin, or the vendor who created it
+      // Innovators: Read if they own the project
+      // Vendors: Read/Write if they are the bidder
+      // Admins: Full access
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
         resource.data.vendorId == request.auth.uid
       );
       
-      // Admins and Vendors can create/update
-      allow write: if request.auth != null && (hasRole('admin') || hasRole('vendor'));
+      allow write: if request.auth != null && (
+        hasRole('admin') || 
+        (hasRole('vendor') && (request.resource.data.vendorId == request.auth.uid || resource.data.vendorId == request.auth.uid))
+      );
     }
 
     // Consultation requests
@@ -56,6 +60,5 @@ service cloud.firestore {
       allow create: if true;
       allow read: if hasRole('admin');
     }
-
   }
 }

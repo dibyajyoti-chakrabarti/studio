@@ -66,7 +66,7 @@ export default function VendorPortal() {
     verifyVendor();
   }, [user, isUserLoading, db, router]);
 
-  // Marketplace: Only Open RFQs. CRITICAL: Wait for isVendorConfirmed to avoid permission errors
+  // Vendor Marketplace Query: Filter by status == 'rfq_submitted'
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
@@ -76,7 +76,7 @@ export default function VendorPortal() {
     );
   }, [db, user, isVendorConfirmed]);
   
-  // My Projects: Assigned to this vendor. CRITICAL: Wait for isVendorConfirmed to avoid permission errors
+  // Assigned Vendor Projects Query: Filter by vendorId
   const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -60,6 +59,7 @@ export default function UserDashboard() {
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
+  // Innovator (User) Query: Filter by userId
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(collection(db, 'rfqs'), where('userId', '==', user.uid));
@@ -83,13 +83,15 @@ export default function UserDashboard() {
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
   
+  // Quotations (User) Query: Filter by userId to see bids for own projects
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !user || !selectedOrder) return null;
     return query(
       collection(db, 'quotations'), 
+      where('userId', '==', user.uid),
       where('rfqId', '==', selectedOrder.id)
     );
-  }, [db, selectedOrder?.id]);
+  }, [db, user?.uid, selectedOrder?.id]);
   
   const { data: quotations } = useCollection(quotationQuery);
 
@@ -116,7 +118,6 @@ export default function UserDashboard() {
     if (!db || !selectedOrder) return;
     setIsConfirming(true);
     
-    // Update RFQ with selected vendor details
     updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), { 
       status: 'order_confirmed',
       vendorId: quotation.vendorId,
@@ -125,7 +126,6 @@ export default function UserDashboard() {
       updatedAt: new Date().toISOString()
     });
 
-    // Update the chosen quotation status
     updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), { 
       status: 'accepted' 
     });
