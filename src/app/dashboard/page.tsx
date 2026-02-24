@@ -30,13 +30,16 @@ import {
   Truck,
   MessageSquare,
   Package,
-  History
+  History,
+  User as UserIcon,
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const STATUS_MAP: Record<string, { label: string, color: string, icon: any }> = {
   rfq_submitted: { label: 'RFQ Submitted', color: 'bg-blue-500/10 text-blue-500', icon: FileText },
-  quotation_sent: { label: 'Quotation Received', color: 'bg-yellow-500/10 text-yellow-500', icon: CreditCard },
+  quotation_sent: { label: 'Reviewing Quotes', color: 'bg-yellow-500/10 text-yellow-500', icon: CreditCard },
   negotiation: { label: 'Negotiation', color: 'bg-purple-500/10 text-purple-500', icon: MessageSquare },
   order_confirmed: { label: 'Order Confirmed', color: 'bg-green-500/10 text-green-500', icon: Check },
   shipping: { label: 'Shipping', color: 'bg-orange-500/10 text-orange-500', icon: Truck },
@@ -84,13 +87,11 @@ export default function UserDashboard() {
     if (!db || !user || !selectedOrder) return null;
     return query(
       collection(db, 'quotations'), 
-      where('rfqId', '==', selectedOrder.id),
-      where('userId', '==', user.uid)
+      where('rfqId', '==', selectedOrder.id)
     );
-  }, [db, user?.uid, selectedOrder?.id]);
+  }, [db, selectedOrder?.id]);
   
   const { data: quotations } = useCollection(quotationQuery);
-  const activeQuotation = quotations?.[0];
 
   const handleOnboardingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -111,18 +112,29 @@ export default function UserDashboard() {
     toast({ title: "Profile Completed!", description: `Ready to build, ${profileData.fullName}.` });
   };
 
-  const handleAcceptQuote = () => {
+  const handleSelectVendor = (quotation: any) => {
     if (!db || !selectedOrder) return;
     setIsConfirming(true);
+    
+    // Update RFQ with selected vendor details
     updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), { 
       status: 'order_confirmed',
+      vendorId: quotation.vendorId,
+      finalPrice: quotation.quotedPrice,
+      finalLeadTime: quotation.leadTimeDays,
       updatedAt: new Date().toISOString()
     });
-    if (activeQuotation) {
-      updateDocumentNonBlocking(doc(db, 'quotations', activeQuotation.id), { status: 'accepted' });
-    }
+
+    // Update the chosen quotation status
+    updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), { 
+      status: 'accepted' 
+    });
+
     setIsConfirming(false);
-    toast({ title: "Order Placed!", description: "Production phase has been triggered." });
+    toast({ 
+      title: "Vendor Selected!", 
+      description: "Production phase has been triggered with your selected MechMaster." 
+    });
   };
 
   if (isUserLoading || !user) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>;
@@ -217,20 +229,51 @@ export default function UserDashboard() {
                     <div className="flex justify-between pb-2"><span className="text-muted-foreground">Tolerance:</span> <span className="font-bold">{selectedOrder.tolerance}</span></div>
                   </div>
 
-                  {selectedOrder.status === 'quotation_sent' && activeQuotation && (
-                    <div className="p-5 bg-primary/10 border border-primary/20 rounded-xl space-y-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-primary flex items-center gap-2"><CreditCard className="w-4 h-4" /> Final Quote</p>
-                        <Badge variant="outline" className="border-primary/30 text-[10px]">VERIFIED</Badge>
+                  {selectedOrder.status === 'quotation_sent' && (
+                    <div className="space-y-4 pt-4 border-t border-white/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CreditCard className="w-4 h-4 text-primary" />
+                        <h4 className="font-bold text-sm">Select Production Partner</h4>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="space-y-1"><p className="text-[10px] text-muted-foreground font-bold">PRICE</p><p className="font-bold text-lg">₹{activeQuotation.quotedPrice.toLocaleString()}</p></div>
-                        <div className="space-y-1"><p className="text-[10px] text-muted-foreground font-bold">LEAD TIME</p><p className="font-bold text-lg">{activeQuotation.leadTimeDays} Days</p></div>
-                      </div>
-                      {activeQuotation.notes && <div className="p-3 bg-background/50 rounded text-xs italic text-muted-foreground">Note: {activeQuotation.notes}</div>}
-                      <Button className="w-full h-11 font-bold shadow-lg shadow-primary/20" onClick={handleAcceptQuote} disabled={isConfirming}>
-                        {isConfirming ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Accept & Confirm Order
-                      </Button>
+                      
+                      {quotations && quotations.length > 0 ? (
+                        <div className="space-y-3">
+                          {quotations.map((quote) => (
+                            <Card key={quote.id} className="bg-background/50 border-white/10 hover:border-primary/50 transition-colors">
+                              <CardContent className="p-4 space-y-3">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Estimated Price</p>
+                                    <p className="text-lg font-bold">₹{quote.quotedPrice.toLocaleString()}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Lead Time</p>
+                                    <p className="text-lg font-bold">{quote.leadTimeDays} Days</p>
+                                  </div>
+                                </div>
+                                {quote.notes && (
+                                  <p className="text-xs italic text-muted-foreground bg-muted/30 p-2 rounded">
+                                    "{quote.notes}"
+                                  </p>
+                                )}
+                                <Button 
+                                  className="w-full h-10 text-xs font-bold" 
+                                  onClick={() => handleSelectVendor(quote)}
+                                  disabled={isConfirming}
+                                >
+                                  {isConfirming ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : null}
+                                  Accept & Start Production
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-muted/20 rounded-lg text-center">
+                          <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">Admin is finalizing quotations from your requested vendors.</p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -238,22 +281,30 @@ export default function UserDashboard() {
                     <div className="p-5 bg-green-500/10 border border-green-500/20 rounded-xl text-center space-y-3">
                       <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto"><Check className="text-green-500 w-6 h-6" /></div>
                       <p className="text-lg font-bold">Order Confirmed</p>
-                      <p className="text-xs text-muted-foreground">The assigned MechMaster has started production. We'll update you when it ships.</p>
+                      <p className="text-xs text-muted-foreground">Your production slot is secured. The MechMaster is preparing materials.</p>
                     </div>
                   )}
 
                   {selectedOrder.status === 'shipping' && (
                     <div className="p-5 bg-orange-500/10 border border-orange-500/20 rounded-xl text-center space-y-3">
                       <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto animate-bounce"><Truck className="text-orange-500 w-6 h-6" /></div>
-                      <p className="text-lg font-bold">In Transit</p>
-                      <p className="text-xs text-muted-foreground">Your parts are on their way to {selectedOrder.deliveryLocation}.</p>
+                      <p className="text-lg font-bold">Parts Shipped</p>
+                      <p className="text-xs text-muted-foreground">Your order has left the facility and is headed to {selectedOrder.deliveryLocation}.</p>
+                    </div>
+                  )}
+                  
+                  {selectedOrder.status === 'delivered' && (
+                    <div className="p-5 bg-teal-500/10 border border-teal-500/20 rounded-xl text-center space-y-3">
+                      <div className="w-12 h-12 bg-teal-500/20 rounded-full flex items-center justify-center mx-auto"><Package className="text-teal-500 w-6 h-6" /></div>
+                      <p className="text-lg font-bold">Project Delivered</p>
+                      <p className="text-xs text-muted-foreground">Design realized! Check your shipment at the delivery site.</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed border-white/5 rounded-2xl p-10 text-center">
-                Select a project from the left to view detailed status and specifications.
+                Select a project from the left to view detailed status and received quotations.
               </div>
             )}
           </div>
