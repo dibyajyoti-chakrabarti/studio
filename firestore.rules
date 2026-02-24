@@ -17,13 +17,21 @@ service cloud.firestore {
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
-        (hasRole('vendor') && (resource.data.status == 'rfq_submitted' || resource.data.vendorId == request.auth.uid))
+        (hasRole('vendor') && (
+          resource.data.status == 'rfq_submitted' || 
+          resource.data.vendorId == request.auth.uid ||
+          (request.auth.uid in resource.data.selectedVendorIds)
+        ))
       );
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
-        (hasRole('vendor') && (resource.data.status == 'rfq_submitted' || resource.data.vendorId == request.auth.uid))
+        (hasRole('vendor') && (
+          resource.data.status == 'rfq_submitted' || 
+          resource.data.vendorId == request.auth.uid ||
+          (request.auth.uid in resource.data.selectedVendorIds)
+        ))
       );
       allow delete: if hasRole('admin');
     }

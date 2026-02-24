@@ -35,7 +35,8 @@ import {
   AlertCircle,
   MessageSquare,
   Gavel,
-  Check
+  Check,
+  Zap
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firestore';
@@ -92,8 +93,10 @@ export default function VendorPortal() {
 
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
+    // Show RFQs where this vendor is explicitly invited
     return query(
       collection(db, 'rfqs'), 
+      where('selectedVendorIds', 'array-contains', user.uid),
       where('status', 'in', ['rfq_submitted', 'quotation_sent', 'negotiation']),
       orderBy('createdAt', 'desc')
     );
@@ -151,7 +154,7 @@ export default function VendorPortal() {
 
     setIsQuoting(false);
     setShowDetails(false);
-    toast({ title: "Quotation Submitted", description: "Your bid is now visible to the innovator." });
+    toast({ title: "Quotation Submitted", description: "Your competitive bid is now visible to the client." });
   };
 
   const handleRespondNegotiation = (partyAction: 'accept' | 'counter') => {
@@ -164,7 +167,7 @@ export default function VendorPortal() {
         status: 'sent',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Proposal Accepted", description: "Terms have been updated based on the negotiation." });
+      toast({ title: "Proposal Accepted", description: "Project terms updated." });
     } else {
       const historyItem = {
         party: 'vendor',
@@ -179,7 +182,7 @@ export default function VendorPortal() {
         negotiationHistory: newHistory,
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Counter-Proposal Sent", description: "The innovator will review your response." });
+      toast({ title: "Counter-Proposal Sent", description: "The client will be notified." });
     }
 
     setIsResponding(false);
@@ -192,7 +195,7 @@ export default function VendorPortal() {
       status: newStatus,
       updatedAt: new Date().toISOString(),
     });
-    toast({ title: "Status Updated", description: `Project is now in ${newStatus.replace('_', ' ')} phase.` });
+    toast({ title: "Status Updated", description: `Production stage: ${newStatus.replace('_', ' ')}.` });
   };
 
   const downloadFile = (dataUrl: string, fileName: string) => {
@@ -212,7 +215,7 @@ export default function VendorPortal() {
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Logo size={32} />
-          <span className="font-headline font-bold text-lg text-white">MechMaster Portal</span>
+          <span className="font-headline font-bold text-lg text-white">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">
@@ -224,13 +227,13 @@ export default function VendorPortal() {
       <div className="container mx-auto p-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-headline font-bold tracking-tight text-white">Vendor Workspace</h1>
-            <p className="text-muted-foreground mt-1">Review manufacturing opportunities and manage your production queue.</p>
+            <h1 className="text-3xl font-headline font-bold tracking-tight text-white">Production Control</h1>
+            <p className="text-muted-foreground mt-1">Review your invited RFQs and manage active production runs.</p>
           </div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-card border border-white/10 p-1 rounded-lg">
             <TabsList className="bg-transparent">
-              <TabsTrigger value="marketplace" className="gap-2 px-6"><LayoutGrid className="w-4 h-4" /> Marketplace</TabsTrigger>
-              <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> Assignments</TabsTrigger>
+              <TabsTrigger value="marketplace" className="gap-2 px-6"><Zap className="w-4 h-4" /> Invitations</TabsTrigger>
+              <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> Active Runs</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -239,8 +242,8 @@ export default function VendorPortal() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-secondary">
-                <Package className="w-5 h-5" />
-                <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Open RFQs</h2>
+                <Gavel className="w-5 h-5" />
+                <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Requested Quotations</h2>
               </div>
             </div>
 
@@ -277,11 +280,11 @@ export default function VendorPortal() {
                             setResLeadTime(lastNeg.leadTime.toString());
                             setIsResponding(true);
                           }}>
-                            <MessageSquare className="w-4 h-4" /> Respond to Negotiation
+                            <MessageSquare className="w-4 h-4" /> Counter Proposal
                           </Button>
                         ) : (
                           <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
-                            <Eye className="w-4 h-4" /> {myQuote ? 'View Bid Status' : 'Review & Bid'}
+                            <Eye className="w-4 h-4" /> {myQuote ? 'Review Status' : 'Bid Now'}
                           </Button>
                         )}
                       </CardContent>
@@ -292,8 +295,8 @@ export default function VendorPortal() {
             ) : (
               <div className="text-center py-24 bg-card/30 rounded-2xl border border-dashed border-white/10">
                 <FileText className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">No Open Requests</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">New RFQs from innovators will appear here as soon as they are submitted.</p>
+                <h3 className="text-xl font-bold text-white mb-2">No Active Invitations</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto">You'll see new manufacturing requests here when innovators select you for their builds.</p>
               </div>
             )}
           </div>
@@ -301,7 +304,7 @@ export default function VendorPortal() {
           <div className="space-y-6">
              <div className="flex items-center gap-2 text-primary">
               <Hammer className="w-5 h-5" />
-              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Active Assignments</h2>
+              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">In Production</h2>
             </div>
             {isMyProjectsLoading ? (
               <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary" /></div>
@@ -310,7 +313,7 @@ export default function VendorPortal() {
                 <Table>
                   <TableHeader className="bg-muted/30">
                     <TableRow className="border-white/10 hover:bg-transparent">
-                      <TableHead className="font-bold text-white">Project & Client</TableHead>
+                      <TableHead className="font-bold text-white">Build & Client</TableHead>
                       <TableHead className="font-bold text-white">Specs</TableHead>
                       <TableHead className="font-bold text-white">Status</TableHead>
                       <TableHead className="font-bold text-white">Actions</TableHead>
@@ -328,7 +331,7 @@ export default function VendorPortal() {
                           <div className="text-[10px] text-muted-foreground">{rfq.material} • {rfq.quantity}u</div>
                         </TableCell>
                         <TableCell>
-                          <Badge className="font-bold uppercase text-[10px]">
+                          <Badge className="font-bold uppercase text-[10px] bg-primary/20 text-primary border-none">
                             {rfq.status.replace('_', ' ')}
                           </Badge>
                         </TableCell>
@@ -336,12 +339,12 @@ export default function VendorPortal() {
                           <div className="flex gap-2">
                             {rfq.status === 'order_confirmed' && (
                               <Button size="sm" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'shipping')}>
-                                <Package className="w-3 h-3 mr-1" /> Ship Order
+                                <Package className="w-3 h-3 mr-1" /> Ship
                               </Button>
                             )}
                             {rfq.status === 'shipping' && (
                               <Button size="sm" variant="secondary" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'delivered')}>
-                                <CheckCircle2 className="w-3 h-3 mr-1" /> Delivered
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Deliver
                               </Button>
                             )}
                           </div>
@@ -349,7 +352,7 @@ export default function VendorPortal() {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-20 text-muted-foreground">No active assignments found.</TableCell>
+                        <TableCell colSpan={4} className="text-center py-20 text-muted-foreground">No active assignments in your queue.</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -364,7 +367,7 @@ export default function VendorPortal() {
         <DialogContent className="bg-card text-foreground border-white/10 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-headline font-bold text-white">{selectedRfq?.projectName}</DialogTitle>
-            <DialogDescription>Review technical requirements and submit your quotation.</DialogDescription>
+            <DialogDescription>Review technical requirements and submit your competitive quotation.</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-8 py-6">
             <div className="space-y-4">
@@ -379,9 +382,9 @@ export default function VendorPortal() {
               <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Design File</h3>
               {selectedRfq?.designFileUrl ? (
                 <Button variant="outline" className="w-full h-12 border-white/10 gap-2" onClick={() => downloadFile(selectedRfq.designFileUrl, selectedRfq.designFileName)}>
-                  <Download className="w-4 h-4" /> Download CAD/PDF
+                  <Download className="w-4 h-4" /> Download Engineering Data
                 </Button>
-              ) : <p className="text-xs text-muted-foreground italic">No file attached.</p>}
+              ) : <p className="text-xs text-muted-foreground italic">No technical files attached.</p>}
             </div>
 
             <div className="space-y-4">
@@ -390,23 +393,23 @@ export default function VendorPortal() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-white text-xs">Quoted Price (₹)</Label>
-                    <Input value={quotePrice} onChange={(e) => setQuotePrice(e.target.value)} type="number" className="bg-background" placeholder="Total project cost" />
+                    <Input value={quotePrice} onChange={(e) => setQuotePrice(e.target.value)} type="number" className="bg-background" placeholder="Total cost" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-white text-xs">Lead Time (Days)</Label>
-                    <Input value={quoteLeadTime} onChange={(e) => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" placeholder="Days to deliver" />
+                    <Input value={quoteLeadTime} onChange={(e) => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" placeholder="Days to completion" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white text-xs">Notes</Label>
-                    <Textarea value={quoteNotes} onChange={(e) => setQuoteNotes(e.target.value)} className="bg-background h-20 text-xs" placeholder="Material specifics, etc." />
+                    <Label className="text-white text-xs">Proposal Notes</Label>
+                    <Textarea value={quoteNotes} onChange={(e) => setQuoteNotes(e.target.value)} className="bg-background h-20 text-xs" placeholder="Terms, material grades, etc." />
                   </div>
-                  <Button className="w-full h-11 font-bold" onClick={handleSubmitQuote}>Submit Official Bid</Button>
+                  <Button className="w-full h-11 font-bold" onClick={handleSubmitQuote}>Confirm & Submit Bid</Button>
                 </div>
               ) : (
                 <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-2xl text-center space-y-3">
                   <Check className="w-8 h-8 text-green-500 mx-auto" />
-                  <p className="text-sm font-bold text-white">Bid Submitted</p>
-                  <p className="text-xs text-muted-foreground">You will be notified if the innovator wants to negotiate or award the project.</p>
+                  <p className="text-sm font-bold text-white">Bid Live</p>
+                  <p className="text-xs text-muted-foreground">The client is reviewing your offer. Stay tuned for potential negotiations.</p>
                 </div>
               )}
             </div>
@@ -418,16 +421,16 @@ export default function VendorPortal() {
         <DialogContent className="bg-card text-foreground border-white/10">
           <DialogHeader>
             <DialogTitle className="text-2xl font-headline font-bold text-white">Respond to Negotiation</DialogTitle>
-            <DialogDescription>Review the innovator's proposal and accept or counter-offer.</DialogDescription>
+            <DialogDescription>The innovator has requested revised terms. Please review and respond.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-xl">
-              <p className="text-[10px] font-bold text-secondary mb-2 uppercase">Innovator's Proposal</p>
+              <p className="text-[10px] font-bold text-secondary mb-2 uppercase">Innovator's Target</p>
               {(() => {
                 const last = negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1];
                 return (
                   <div className="text-xs space-y-2">
-                    <p className="text-white font-bold">Target: ₹{last?.price} • Time: {last?.leadTime} Days</p>
+                    <p className="text-white font-bold">Price: ₹{last?.price} • Timeline: {last?.leadTime} Days</p>
                     <p className="italic text-muted-foreground">"{last?.message}"</p>
                   </div>
                 );
@@ -436,7 +439,7 @@ export default function VendorPortal() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-white">Price (₹)</Label>
+                <Label className="text-white">Final Price (₹)</Label>
                 <Input value={resPrice} onChange={(e) => setResPrice(e.target.value)} type="number" className="bg-background" />
               </div>
               <div className="space-y-2">
@@ -445,12 +448,12 @@ export default function VendorPortal() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-white">Message (For Counter-Offer)</Label>
-              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Required if countering..." />
+              <Label className="text-white">Counter-Proposal Message</Label>
+              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Justification for the terms..." />
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Send Counter-Offer</Button>
+            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Counter Proposal</Button>
             <Button onClick={() => handleRespondNegotiation('accept')} className="bg-green-600 hover:bg-green-700 text-white font-bold">Accept Terms</Button>
           </DialogFooter>
         </DialogContent>
