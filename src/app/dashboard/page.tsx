@@ -95,7 +95,8 @@ export default function UserDashboard() {
     if (!db || !user || !selectedOrder) return null;
     return query(
       collection(db, 'quotations'), 
-      where('rfqId', '==', selectedOrder.id)
+      where('rfqId', '==', selectedOrder.id),
+      where('userId', '==', user.uid)
     );
   }, [db, user?.uid, selectedOrder?.id]);
   
