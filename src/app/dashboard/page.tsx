@@ -82,7 +82,11 @@ export default function UserDashboard() {
   
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !user || !selectedOrder) return null;
-    return query(collection(db, 'quotations'), where('rfqId', '==', selectedOrder.id));
+    return query(
+      collection(db, 'quotations'), 
+      where('rfqId', '==', selectedOrder.id),
+      where('userId', '==', user.uid)
+    );
   }, [db, user?.uid, selectedOrder?.id]);
   
   const { data: quotations } = useCollection(quotationQuery);
