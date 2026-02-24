@@ -36,8 +36,8 @@
         "budgetRange": { "type": "string" },
         "deliveryLocation": { "type": "string" },
         "selectedVendors": { "type": "array", "items": { "type": "string" } },
-        "vendorId": { "type": "string" },
-        "designFileUrl": { "type": "string", "description": "Data URI or storage link for the design file." },
+        "vendorId": { "type": "string", "description": "The ID of the vendor who won the bid." },
+        "designFileUrl": { "type": "string" },
         "designFileName": { "type": "string" },
         "status": { "type": "string", "enum": ["rfq_submitted", "quotation_sent", "negotiation", "order_confirmed", "shipping", "delivered"] },
         "createdAt": { "type": "string", "format": "date-time" },
@@ -47,19 +47,35 @@
     },
     "Quotation": {
       "title": "Quotation",
-      "description": "Quotation for an RFQ.",
+      "description": "Quotation for an RFQ with negotiation history.",
       "type": "object",
       "properties": {
         "rfqId": { "type": "string" },
         "userId": { "type": "string" },
         "vendorId": { "type": "string" },
+        "vendorName": { "type": "string" },
+        "vendorRating": { "type": "number" },
         "quotedPrice": { "type": "number" },
         "leadTimeDays": { "type": "number" },
         "notes": { "type": "string" },
-        "status": { "type": "string", "enum": ["sent", "accepted"] },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "status": { "type": "string", "enum": ["sent", "negotiating", "accepted", "rejected"] },
+        "negotiationHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "party": { "type": "string", "enum": ["user", "vendor"] },
+              "price": { "type": "number" },
+              "leadTime": { "type": "number" },
+              "message": { "type": "string" },
+              "createdAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["rfqId", "userId", "quotedPrice", "leadTimeDays", "status", "createdAt"]
+      "required": ["rfqId", "userId", "vendorId", "quotedPrice", "leadTimeDays", "status", "createdAt"]
     }
   },
   "auth": {
@@ -76,7 +92,7 @@
     },
     "/quotations/{quotationId}": {
       "schema": { "$ref": "#/backend/entities/Quotation" },
-      "description": "Quotations."
+      "description": "Quotations submitted by vendors."
     }
   }
 }

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -5,11 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Logo } from '@/components/Logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { 
   ClipboardList, 
-  Settings, 
   Loader2,
   Hammer,
   CheckCircle2,
@@ -21,10 +32,12 @@ import {
   FileText,
   MapPin,
   Download,
-  Building2,
-  AlertCircle
+  AlertCircle,
+  MessageSquare,
+  Gavel,
+  Check
 } from 'lucide-react';
-import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, useAuth } from '@/firebase';
+import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -39,6 +52,17 @@ export default function VendorPortal() {
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
   
+  const [isQuoting, setIsQuoting] = useState(false);
+  const [quotePrice, setQuotePrice] = useState('');
+  const [quoteLeadTime, setQuoteLeadTime] = useState('');
+  const [quoteNotes, setQuoteNotes] = useState('');
+  
+  const [isResponding, setIsResponding] = useState(false);
+  const [negotiatingQuote, setNegotiatingQuote] = useState<any>(null);
+  const [resPrice, setResPrice] = useState('');
+  const [resLeadTime, setResLeadTime] = useState('');
+  const [resMessage, setResMessage] = useState('');
+
   const db = useFirestore();
   const { toast } = useToast();
 
@@ -66,17 +90,15 @@ export default function VendorPortal() {
     verifyVendor();
   }, [user, isUserLoading, db, router]);
 
-  // Vendor Marketplace Query: Filter by status == 'rfq_submitted'
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
       collection(db, 'rfqs'), 
-      where('status', '==', 'rfq_submitted'),
+      where('status', 'in', ['rfq_submitted', 'quotation_sent', 'negotiation']),
       orderBy('createdAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
   
-  // Assigned Vendor Projects Query: Filter by vendorId
   const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
@@ -85,13 +107,83 @@ export default function VendorPortal() {
       orderBy('updatedAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
+
+  const myQuotesQuery = useMemoFirebase(() => {
+    if (!db || !user || !isVendorConfirmed) return null;
+    return query(
+      collection(db, 'quotations'),
+      where('vendorId', '==', user.uid)
+    );
+  }, [db, user, isVendorConfirmed]);
   
   const { data: marketplaceRfqs, isLoading: isMarketplaceLoading } = useCollection(marketplaceQuery);
   const { data: myRfqs, isLoading: isMyProjectsLoading } = useCollection(myProjectsQuery);
+  const { data: myQuotes } = useCollection(myQuotesQuery);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+  };
+
+  const handleSubmitQuote = async () => {
+    if (!db || !user || !selectedRfq) return;
+    
+    const quotationData = {
+      rfqId: selectedRfq.id,
+      userId: selectedRfq.userId,
+      vendorId: user.uid,
+      vendorName: user.displayName || 'Verified MechMaster',
+      vendorRating: 4.8,
+      quotedPrice: Number(quotePrice),
+      leadTimeDays: Number(quoteLeadTime),
+      notes: quoteNotes,
+      status: 'sent',
+      negotiationHistory: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
+    updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
+      status: 'quotation_sent',
+      updatedAt: new Date().toISOString()
+    });
+
+    setIsQuoting(false);
+    setShowDetails(false);
+    toast({ title: "Quotation Submitted", description: "Your bid is now visible to the innovator." });
+  };
+
+  const handleRespondNegotiation = (partyAction: 'accept' | 'counter') => {
+    if (!db || !negotiatingQuote) return;
+
+    if (partyAction === 'accept') {
+      updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
+        quotedPrice: Number(resPrice),
+        leadTimeDays: Number(resLeadTime),
+        status: 'sent',
+        updatedAt: new Date().toISOString()
+      });
+      toast({ title: "Proposal Accepted", description: "Terms have been updated based on the negotiation." });
+    } else {
+      const historyItem = {
+        party: 'vendor',
+        price: Number(resPrice),
+        leadTime: Number(resLeadTime),
+        message: resMessage,
+        createdAt: new Date().toISOString(),
+      };
+      const newHistory = [...(negotiatingQuote.negotiationHistory || []), historyItem];
+      
+      updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
+        negotiationHistory: newHistory,
+        updatedAt: new Date().toISOString()
+      });
+      toast({ title: "Counter-Proposal Sent", description: "The innovator will review your response." });
+    }
+
+    setIsResponding(false);
+    setNegotiatingQuote(null);
   };
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {
@@ -100,7 +192,7 @@ export default function VendorPortal() {
       status: newStatus,
       updatedAt: new Date().toISOString(),
     });
-    toast({ title: "Status Updated", description: `Project state changed to ${newStatus.replace('_', ' ')}.` });
+    toast({ title: "Status Updated", description: `Project is now in ${newStatus.replace('_', ' ')} phase.` });
   };
 
   const downloadFile = (dataUrl: string, fileName: string) => {
@@ -112,7 +204,7 @@ export default function VendorPortal() {
     document.body.removeChild(link);
   };
 
-  if (isVendorConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
+  if (isVendorConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
   if (!isVendorConfirmed) return null;
 
   return (
@@ -120,7 +212,7 @@ export default function VendorPortal() {
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Logo size={32} />
-          <span className="font-headline font-bold text-lg">MechMaster Portal</span>
+          <span className="font-headline font-bold text-lg text-white">MechMaster Portal</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">
@@ -132,13 +224,13 @@ export default function VendorPortal() {
       <div className="container mx-auto p-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-headline font-bold tracking-tight">Vendor Workspace</h1>
-            <p className="text-muted-foreground mt-1">Review new manufacturing opportunities and manage your active production queue.</p>
+            <h1 className="text-3xl font-headline font-bold tracking-tight text-white">Vendor Workspace</h1>
+            <p className="text-muted-foreground mt-1">Review manufacturing opportunities and manage your production queue.</p>
           </div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-card border border-white/10 p-1 rounded-lg">
             <TabsList className="bg-transparent">
               <TabsTrigger value="marketplace" className="gap-2 px-6"><LayoutGrid className="w-4 h-4" /> Marketplace</TabsTrigger>
-              <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> My Assignments</TabsTrigger>
+              <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> Assignments</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -148,58 +240,60 @@ export default function VendorPortal() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-secondary">
                 <Package className="w-5 h-5" />
-                <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Open Requests</h2>
+                <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Open RFQs</h2>
               </div>
-              <Badge variant="outline" className="px-4 py-1 border-white/10">{marketplaceRfqs?.length || 0} Open RFQs</Badge>
             </div>
 
             {isMarketplaceLoading ? (
-              <div className="flex flex-col items-center justify-center h-64 gap-4">
-                <Loader2 className="animate-spin text-primary w-10 h-10" />
-                <p className="text-muted-foreground animate-pulse">Syncing marketplace data...</p>
-              </div>
+              <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>
             ) : marketplaceRfqs?.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {marketplaceRfqs.map((rfq) => (
-                  <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors" />
-                    <CardHeader>
-                      <div className="flex justify-between items-start mb-2 relative z-10">
-                        <Badge className="bg-primary/20 text-primary border-none text-[10px] font-bold uppercase">{rfq.manufacturingProcess}</Badge>
-                        <span className="text-xs text-muted-foreground font-mono">{new Date(rfq.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <CardTitle className="text-xl font-headline group-hover:text-secondary transition-colors truncate">{rfq.projectName || 'Untitled Design'}</CardTitle>
-                      <CardDescription className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="p-3 bg-background/50 rounded-lg border border-white/5 space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Material:</span>
-                          <span className="font-bold">{rfq.material}</span>
+                {marketplaceRfqs.map((rfq) => {
+                  const myQuote = myQuotes?.find(q => q.rfqId === rfq.id);
+                  const inNegotiation = myQuote?.negotiationHistory?.length > 0 && myQuote.negotiationHistory[myQuote.negotiationHistory.length - 1].party === 'user';
+                  
+                  return (
+                    <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group">
+                      <CardHeader>
+                        <div className="flex justify-between items-start mb-2">
+                          <Badge className="bg-primary/20 text-primary border-none text-[10px] font-bold uppercase">{rfq.manufacturingProcess}</Badge>
+                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">Bid Submitted</Badge>}
                         </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Quantity:</span>
-                          <span className="font-bold">{rfq.quantity} units</span>
+                        <CardTitle className="text-xl font-headline text-white group-hover:text-secondary transition-colors truncate">{rfq.projectName}</CardTitle>
+                        <CardDescription className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="p-3 bg-background/50 rounded-lg border border-white/5 space-y-2 text-xs">
+                          <div className="flex justify-between"><span className="text-muted-foreground">Material:</span><span className="font-bold text-white">{rfq.material}</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span><span className="font-bold text-white">{rfq.quantity} units</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Deadline:</span><span className="font-bold text-white">{new Date(rfq.deliveryDate).toLocaleDateString()}</span></div>
                         </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Target Date:</span>
-                          <span className="font-bold">{new Date(rfq.deliveryDate).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
-                        <Eye className="w-4 h-4" /> Inspect Request
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+
+                        {inNegotiation ? (
+                          <Button variant="secondary" className="w-full gap-2 font-bold h-11 bg-secondary/10 text-secondary hover:bg-secondary/20" onClick={() => { 
+                            setNegotiatingQuote(myQuote);
+                            const lastNeg = myQuote.negotiationHistory[myQuote.negotiationHistory.length - 1];
+                            setResPrice(lastNeg.price.toString());
+                            setResLeadTime(lastNeg.leadTime.toString());
+                            setIsResponding(true);
+                          }}>
+                            <MessageSquare className="w-4 h-4" /> Respond to Negotiation
+                          </Button>
+                        ) : (
+                          <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
+                            <Eye className="w-4 h-4" /> {myQuote ? 'View Bid Status' : 'Review & Bid'}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-24 bg-card/30 rounded-2xl border border-dashed border-white/10">
-                <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FileText className="w-8 h-8 opacity-20" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Marketplace Quiet</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">New requests from innovators will appear here as soon as they are submitted.</p>
+                <FileText className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">No Open Requests</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto">New RFQs from innovators will appear here as soon as they are submitted.</p>
               </div>
             )}
           </div>
@@ -207,7 +301,7 @@ export default function VendorPortal() {
           <div className="space-y-6">
              <div className="flex items-center gap-2 text-primary">
               <Hammer className="w-5 h-5" />
-              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Active Builds</h2>
+              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Active Assignments</h2>
             </div>
             {isMyProjectsLoading ? (
               <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary" /></div>
@@ -216,48 +310,38 @@ export default function VendorPortal() {
                 <Table>
                   <TableHeader className="bg-muted/30">
                     <TableRow className="border-white/10 hover:bg-transparent">
-                      <TableHead className="font-bold">Project & Client</TableHead>
-                      <TableHead className="font-bold">Technical Specs</TableHead>
-                      <TableHead className="font-bold">Status</TableHead>
-                      <TableHead className="font-bold">Timeline</TableHead>
-                      <TableHead className="font-bold text-right">Actions</TableHead>
+                      <TableHead className="font-bold text-white">Project & Client</TableHead>
+                      <TableHead className="font-bold text-white">Specs</TableHead>
+                      <TableHead className="font-bold text-white">Status</TableHead>
+                      <TableHead className="font-bold text-white">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {myRfqs?.length ? myRfqs.map((rfq) => (
                       <TableRow key={rfq.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                         <TableCell>
-                          <div className="font-bold text-lg">{rfq.projectName}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Building2 className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">{rfq.userName} • {rfq.teamName}</span>
-                          </div>
+                          <div className="font-bold text-white">{rfq.projectName}</div>
+                          <div className="text-xs text-muted-foreground">{rfq.userName} ({rfq.teamName})</div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm font-medium">{rfq.manufacturingProcess}</div>
-                          <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">{rfq.material} • {rfq.quantity} units</div>
+                          <div className="text-xs text-white">{rfq.manufacturingProcess}</div>
+                          <div className="text-[10px] text-muted-foreground">{rfq.material} • {rfq.quantity}u</div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={rfq.status === 'delivered' ? 'secondary' : 'default'} className="font-bold uppercase text-[10px]">
+                          <Badge className="font-bold uppercase text-[10px]">
                             {rfq.status.replace('_', ' ')}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="text-xs font-mono text-muted-foreground">Due: {new Date(rfq.deliveryDate).toLocaleDateString()}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button size="sm" variant="outline" className="h-8 text-xs border-white/10" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
-                              <Eye className="w-3 h-3 mr-1" /> View
-                            </Button>
-                            {(rfq.status === 'order_confirmed' || rfq.status === 'quotation_sent') && (
+                          <div className="flex gap-2">
+                            {rfq.status === 'order_confirmed' && (
                               <Button size="sm" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'shipping')}>
                                 <Package className="w-3 h-3 mr-1" /> Ship Order
                               </Button>
                             )}
                             {rfq.status === 'shipping' && (
                               <Button size="sm" variant="secondary" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'delivered')}>
-                                <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Delivered
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Delivered
                               </Button>
                             )}
                           </div>
@@ -265,12 +349,7 @@ export default function VendorPortal() {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-20 text-muted-foreground">
-                          <div className="flex flex-col items-center gap-4 opacity-30">
-                            <Package className="w-16 h-16" />
-                            <p className="font-headline text-lg font-bold">No Active Assignments</p>
-                          </div>
-                        </TableCell>
+                        <TableCell colSpan={4} className="text-center py-20 text-muted-foreground">No active assignments found.</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -281,82 +360,101 @@ export default function VendorPortal() {
         )}
       </div>
 
-      {showDetails && selectedRfq && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/95 backdrop-blur-md overflow-y-auto">
-          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-0 overflow-hidden">
-            <div className="bg-primary/10 px-8 py-6 border-b border-white/10 flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-headline font-bold">{selectedRfq.projectName}</h2>
-                <div className="flex items-center gap-4 mt-2">
-                  <Badge variant="outline" className="border-primary/30 text-primary">{selectedRfq.manufacturingProcess}</Badge>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> Submitted {new Date(selectedRfq.createdAt).toLocaleDateString()}</span>
-                </div>
+      <Dialog open={showDetails && !!selectedRfq} onOpenChange={setShowDetails}>
+        <DialogContent className="bg-card text-foreground border-white/10 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline font-bold text-white">{selectedRfq?.projectName}</DialogTitle>
+            <DialogDescription>Review technical requirements and submit your quotation.</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-8 py-6">
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Specifications</h3>
+              <div className="space-y-3 text-xs bg-background/50 p-4 rounded-xl border border-white/5">
+                <div className="flex justify-between"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq?.manufacturingProcess}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq?.material}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span><span className="text-white">{selectedRfq?.quantity} units</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Tolerance:</span><span className="text-white">{selectedRfq?.tolerance}</span></div>
               </div>
-              <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setShowDetails(false)}>
-                <CheckCircle2 className="w-6 h-6 rotate-45" />
-              </Button>
+              
+              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Design File</h3>
+              {selectedRfq?.designFileUrl ? (
+                <Button variant="outline" className="w-full h-12 border-white/10 gap-2" onClick={() => downloadFile(selectedRfq.designFileUrl, selectedRfq.designFileName)}>
+                  <Download className="w-4 h-4" /> Download CAD/PDF
+                </Button>
+              ) : <p className="text-xs text-muted-foreground italic">No file attached.</p>}
             </div>
-            
-            <div className="p-8 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Submit Your Quotation</h3>
+              {!myQuotes?.find(q => q.rfqId === selectedRfq?.id) ? (
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-secondary uppercase tracking-[0.2em]">Technical Specifications</h3>
-                  <div className="space-y-3 bg-background/50 p-4 rounded-xl border border-white/5 text-sm">
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Material:</span><span className="font-bold">{selectedRfq.material}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Quantity:</span><span className="font-bold">{selectedRfq.quantity} Units</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Tolerance:</span><span className="font-bold">{selectedRfq.tolerance}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Surface Finish:</span><span className="font-bold">{selectedRfq.surfaceFinish || 'Standard'}</span></div>
+                  <div className="space-y-2">
+                    <Label className="text-white text-xs">Quoted Price (₹)</Label>
+                    <Input value={quotePrice} onChange={(e) => setQuotePrice(e.target.value)} type="number" className="bg-background" placeholder="Total project cost" />
                   </div>
+                  <div className="space-y-2">
+                    <Label className="text-white text-xs">Lead Time (Days)</Label>
+                    <Input value={quoteLeadTime} onChange={(e) => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" placeholder="Days to deliver" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white text-xs">Notes</Label>
+                    <Textarea value={quoteNotes} onChange={(e) => setQuoteNotes(e.target.value)} className="bg-background h-20 text-xs" placeholder="Material specifics, etc." />
+                  </div>
+                  <Button className="w-full h-11 font-bold" onClick={handleSubmitQuote}>Submit Official Bid</Button>
                 </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-secondary uppercase tracking-[0.2em]">Logistics & Client</h3>
-                  <div className="space-y-3 bg-background/50 p-4 rounded-xl border border-white/5 text-sm">
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Client:</span><span className="font-bold">{selectedRfq.userName}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Team:</span><span className="font-bold">{selectedRfq.teamName}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Deadline:</span><span className="font-bold text-primary">{new Date(selectedRfq.deliveryDate).toLocaleDateString()}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Location:</span><span className="font-bold truncate max-w-[120px]">{selectedRfq.deliveryLocation}</span></div>
-                  </div>
+              ) : (
+                <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-2xl text-center space-y-3">
+                  <Check className="w-8 h-8 text-green-500 mx-auto" />
+                  <p className="text-sm font-bold text-white">Bid Submitted</p>
+                  <p className="text-xs text-muted-foreground">You will be notified if the innovator wants to negotiate or award the project.</p>
                 </div>
-              </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold text-secondary uppercase tracking-[0.2em]">Design Documents</h3>
-                {selectedRfq.designFileUrl ? (
-                  <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl group hover:bg-primary/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-bold">{selectedRfq.designFileName || 'Engineering_Drawing.pdf'}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold">CAD/Blueprints Ready</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="lg" className="gap-2 border-primary/30 text-primary hover:bg-primary hover:text-white" onClick={() => downloadFile(selectedRfq.designFileUrl, selectedRfq.designFileName || 'design.png')}>
-                      <Download className="w-4 h-4" /> Download Files
-                    </Button>
+      <Dialog open={isResponding} onOpenChange={setIsResponding}>
+        <DialogContent className="bg-card text-foreground border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline font-bold text-white">Respond to Negotiation</DialogTitle>
+            <DialogDescription>Review the innovator's proposal and accept or counter-offer.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-xl">
+              <p className="text-[10px] font-bold text-secondary mb-2 uppercase">Innovator's Proposal</p>
+              {(() => {
+                const last = negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1];
+                return (
+                  <div className="text-xs space-y-2">
+                    <p className="text-white font-bold">Target: ₹{last?.price} • Time: {last?.leadTime} Days</p>
+                    <p className="italic text-muted-foreground">"{last?.message}"</p>
                   </div>
-                ) : (
-                  <div className="p-6 text-center border-2 border-dashed border-white/10 rounded-xl">
-                    <AlertCircle className="w-8 h-8 mx-auto text-muted-foreground opacity-20 mb-2" />
-                    <p className="text-sm text-muted-foreground italic">No design files were attached to this request.</p>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
+            </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end gap-4">
-                <Button variant="ghost" onClick={() => setShowDetails(false)}>Close Overview</Button>
-                {selectedRfq.status === 'rfq_submitted' && (
-                  <Button className="bg-primary hover:bg-primary/90 px-8 font-bold" onClick={() => toast({ title: "Inquiry Sent", description: "The admin has been notified of your interest in this RFQ." })}>
-                    Submit Expression of Interest
-                  </Button>
-                )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-white">Price (₹)</Label>
+                <Input value={resPrice} onChange={(e) => setResPrice(e.target.value)} type="number" className="bg-background" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white">Lead Time (Days)</Label>
+                <Input value={resLeadTime} onChange={(e) => setResLeadTime(e.target.value)} type="number" className="bg-background" />
               </div>
             </div>
-          </Card>
-        </div>
-      )}
+            <div className="space-y-2">
+              <Label className="text-white">Message (For Counter-Offer)</Label>
+              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Required if countering..." />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Send Counter-Offer</Button>
+            <Button onClick={() => handleRespondNegotiation('accept')} className="bg-green-600 hover:bg-green-700 text-white font-bold">Accept Terms</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
