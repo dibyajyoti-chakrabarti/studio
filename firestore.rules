@@ -8,13 +8,18 @@ service cloud.firestore {
       return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
+    function isVendor() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "vendor";
+    }
+
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
 
     // USERS COLLECTION
     match /users/{userId} {
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin() || isVendor();
+      allow write: if isOwner(userId) || isAdmin();
     }
 
     // RFQ COLLECTION
@@ -24,10 +29,11 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid ||
         resource.data.vendorId == request.auth.uid ||
         isAdmin() ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "vendor"
+        isVendor()
       );
       allow update: if request.auth != null && (
         resource.data.userId == request.auth.uid ||
+        resource.data.vendorId == request.auth.uid ||
         isAdmin()
       );
       allow delete: if isAdmin();
@@ -35,7 +41,7 @@ service cloud.firestore {
 
     // QUOTATIONS COLLECTION
     match /quotations/{quotationId} {
-      allow create: if request.auth != null && (isAdmin() || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "vendor");
+      allow create: if request.auth != null && (isAdmin() || isVendor());
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid ||
         resource.data.vendorId == request.auth.uid ||

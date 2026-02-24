@@ -62,17 +62,16 @@ export default function VendorPortal() {
     verifyVendor();
   }, [user, isUserLoading, db, router]);
 
-  // Query for open marketplace RFQs
+  // Ensure queries only run when user is authenticated to avoid permission errors
   const marketplaceQuery = useMemoFirebase(() => {
-    if (!db) return null;
+    if (!db || !user) return null;
     return query(collection(db, 'rfqs'), where('status', '==', 'rfq_submitted'), orderBy('createdAt', 'desc'));
-  }, [db]);
+  }, [db, user]);
   
-  // Query for RFQs assigned to this vendor
   const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(collection(db, 'rfqs'), where('vendorId', '==', user.uid), orderBy('updatedAt', 'desc'));
-  }, [db, user?.uid]);
+  }, [db, user]);
   
   const { data: marketplaceRfqs, isLoading: isMarketplaceLoading } = useCollection(marketplaceQuery);
   const { data: myRfqs, isLoading: isMyProjectsLoading } = useCollection(myProjectsQuery);

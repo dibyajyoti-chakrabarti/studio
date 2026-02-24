@@ -84,9 +84,10 @@ export default function AdminPanel() {
     verifyAdmin();
   }, [user, isUserLoading, db, router]);
 
-  const buyersQuery = useMemoFirebase(() => db ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db]);
-  const vendorsQuery = useMemoFirebase(() => db ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db]);
-  const rfqsQuery = useMemoFirebase(() => db ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db]);
+  // Ensure queries only run when user is authenticated to avoid permission errors
+  const buyersQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db, user]);
+  const vendorsQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, user]);
+  const rfqsQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, user]);
 
   const { data: buyers } = useCollection(buyersQuery);
   const { data: vendors } = useCollection(vendorsQuery);
