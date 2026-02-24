@@ -12,6 +12,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
 import { Loader2, UserPlus, LogIn, Users, Factory } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -19,6 +21,7 @@ export default function LoginPage() {
   const db = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'user' | 'vendor'>('user');
 
@@ -26,34 +29,38 @@ export default function LoginPage() {
     async function syncUserAndRedirect() {
       if (user && db) {
         setLoading(true);
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
 
-        let role = selectedRole; // Fallback to current selection for new users
+          let role = selectedRole; 
 
-        if (!userSnap.exists()) {
-          const initialProfile = {
-            fullName: user.displayName || '',
-            email: user.email,
-            role: selectedRole, 
-            onboarded: false,
-            createdAt: new Date().toISOString(),
-          };
-          await setDoc(userRef, initialProfile);
-          role = selectedRole;
-        } else {
-          role = userSnap.data().role || 'user';
+          if (!userSnap.exists()) {
+            const initialProfile = {
+              fullName: user.displayName || '',
+              email: user.email,
+              role: selectedRole, 
+              onboarded: false,
+              createdAt: new Date().toISOString(),
+            };
+            await setDoc(userRef, initialProfile);
+            role = selectedRole;
+          } else {
+            role = userSnap.data().role || 'user';
+          }
+
+          if (role === 'admin') {
+            router.push('/admin');
+          } else if (role === 'vendor') {
+            router.push('/vendor');
+          } else {
+            router.push(searchParams.get('redirect') || '/dashboard');
+          }
+        } catch (err) {
+          console.error("Error syncing user profile:", err);
+        } finally {
+          setLoading(false);
         }
-
-        // Route based on actual role in DB
-        if (role === 'admin') {
-          router.push('/admin');
-        } else if (role === 'vendor') {
-          router.push('/vendor');
-        } else {
-          router.push(searchParams.get('redirect') || '/dashboard');
-        }
-        setLoading(false);
       }
     }
 
@@ -64,14 +71,47 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    initiateEmailSignIn(auth, formData.get('email') as string, formData.get('password') as string);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .catch((error) => {
+        setLoading(false);
+        let message = "An unexpected error occurred.";
+        if (error.code === 'auth/invalid-credential') {
+          message = "Invalid email or password. If you don't have an account, please register first.";
+        } else if (error.code === 'auth/user-not-found') {
+          message = "No account found with this email. Please register.";
+        } else if (error.code === 'auth/wrong-password') {
+          message = "Incorrect password. Please try again.";
+        } else {
+          message = error.message;
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Sign In Failed",
+          description: message,
+        });
+      });
   };
 
   const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
-    initiateEmailSignUp(auth, formData.get('email') as string, formData.get('password') as string);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .catch((error) => {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Registration Failed",
+          description: error.message,
+        });
+      });
   };
 
   return (
