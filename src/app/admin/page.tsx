@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -84,10 +83,10 @@ export default function AdminPanel() {
     verifyAdmin();
   }, [user, isUserLoading, db, router]);
 
-  // Ensure queries only run when user is authenticated to avoid permission errors
-  const buyersQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db, user]);
-  const vendorsQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, user]);
-  const rfqsQuery = useMemoFirebase(() => (db && user) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, user]);
+  // CRITICAL: Only run queries if isAdminConfirmed is true to avoid permission errors
+  const buyersQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'user')) : null, [db, user, isAdminConfirmed]);
+  const vendorsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, user, isAdminConfirmed]);
+  const rfqsQuery = useMemoFirebase(() => (db && user && isAdminConfirmed) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, user, isAdminConfirmed]);
 
   const { data: buyers } = useCollection(buyersQuery);
   const { data: vendors } = useCollection(vendorsQuery);
@@ -191,7 +190,9 @@ export default function AdminPanel() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {rfqs?.map((rfq) => (
+                    {isRfqsLoading ? (
+                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto" /></TableCell></TableRow>
+                    ) : rfqs?.map((rfq) => (
                       <TableRow key={rfq.id} className="border-b border-white/5">
                         <TableCell>
                           <div className="font-bold">{rfq.projectName || 'Untitled'}</div>

@@ -16,25 +16,39 @@ service cloud.firestore {
 
     // RFQs (Manufacturing Requests)
     match /rfqs/{rfqId} {
-      // Users see their own. Vendors see open marketplace or assigned. Admins see all.
+      // Users see their own. 
+      // Admins see all.
+      // Vendors see open marketplace (rfq_submitted) or projects assigned to them.
       allow read: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
         (hasRole('vendor') && (resource.data.status == 'rfq_submitted' || resource.data.vendorId == request.auth.uid))
       );
       
-      // Innovators create. Admins/Vendors update status.
+      // Standard creation for innovators
       allow create: if request.auth != null;
+      
+      // Updates allowed for owner (cancel), admin (management), or assigned vendor (status updates)
       allow update: if request.auth != null && (
         resource.data.userId == request.auth.uid || 
         hasRole('admin') || 
         (hasRole('vendor') && resource.data.vendorId == request.auth.uid)
       );
+      
+      allow delete: if hasRole('admin');
     }
 
     // Quotations
     match /quotations/{quotationId} {
-      allow read, write: if request.auth != null;
+      // Read allowed for project owner, admin, or the vendor who created it
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        hasRole('admin') || 
+        resource.data.vendorId == request.auth.uid
+      );
+      
+      // Admins and Vendors can create/update
+      allow write: if request.auth != null && (hasRole('admin') || hasRole('vendor'));
     }
 
     // Consultation requests
