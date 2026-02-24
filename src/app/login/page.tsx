@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
-import { Loader2, UserPlus, LogIn, Users, Factory } from 'lucide-react';
+import { Loader2, UserPlus, LogIn, Users, Factory, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
@@ -79,11 +78,11 @@ export default function LoginPage() {
         setLoading(false);
         let message = "An unexpected error occurred.";
         if (error.code === 'auth/invalid-credential') {
-          message = "Invalid email or password. If you don't have an account, please register first.";
+          message = "Invalid email or password. Please verify your credentials.";
         } else if (error.code === 'auth/user-not-found') {
-          message = "No account found with this email. Please register.";
+          message = "No account found with this email.";
         } else if (error.code === 'auth/wrong-password') {
-          message = "Incorrect password. Please try again.";
+          message = "Incorrect password.";
         } else {
           message = error.message;
         }
@@ -122,20 +121,20 @@ export default function LoginPage() {
           
           <div className="flex flex-col items-center gap-4">
              <div className="text-center space-y-2">
-               <h1 className="text-2xl font-headline font-bold">I want to join as...</h1>
-               <p className="text-sm text-muted-foreground">Select your account type below</p>
+               <h1 className="text-3xl font-headline font-bold">Join the Network</h1>
+               <p className="text-sm text-muted-foreground">Select your portal access type</p>
              </div>
              <Tabs 
                value={selectedRole} 
                onValueChange={(val) => setSelectedRole(val as 'user' | 'vendor')} 
-               className="w-full max-w-[300px]"
+               className="w-full max-w-[340px]"
              >
-               <TabsList className="grid w-full grid-cols-2 bg-card border border-white/10 p-1">
-                 <TabsTrigger value="user" className="data-[state=active]:bg-primary flex gap-2">
+               <TabsList className="grid w-full grid-cols-2 bg-card border border-white/10 p-1 h-12">
+                 <TabsTrigger value="user" className="data-[state=active]:bg-primary data-[state=active]:text-white flex gap-2 font-bold">
                    <Users className="w-4 h-4" /> Innovator
                  </TabsTrigger>
-                 <TabsTrigger value="vendor" className="data-[state=active]:bg-primary flex gap-2">
-                   <Factory className="w-4 h-4" /> Vendor
+                 <TabsTrigger value="vendor" className="data-[state=active]:bg-primary data-[state=active]:text-white flex gap-2 font-bold">
+                   <Factory className="w-4 h-4" /> MechMaster
                  </TabsTrigger>
                </TabsList>
              </Tabs>
@@ -143,73 +142,76 @@ export default function LoginPage() {
 
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8 bg-card border border-white/10 p-1">
-              <TabsTrigger value="login" className="data-[state=active]:bg-secondary data-[state=active]:text-background">Sign In</TabsTrigger>
-              <TabsTrigger value="register" className="data-[state=active]:bg-secondary data-[state=active]:text-background">Register</TabsTrigger>
+              <TabsTrigger value="login" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Sign In</TabsTrigger>
+              <TabsTrigger value="register" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Register</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
-              <Card className="bg-card border-white/10 shadow-xl">
+              <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">
-                    {selectedRole === 'user' ? 'Innovator Login' : 'MechMaster Login'}
+                    {selectedRole === 'user' ? 'Innovator Access' : 'MechMaster Access'}
                   </CardTitle>
-                  <CardDescription>Enter your credentials to access your portal.</CardDescription>
+                  <CardDescription>Enter your verified credentials to continue.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" placeholder="name@example.com" className="bg-background" required />
+                      <Label htmlFor="email">Work Email</Label>
+                      <Input id="email" name="email" type="email" placeholder="engineering@company.com" className="bg-background border-white/10 focus:border-primary/50" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input id="password" name="password" type="password" placeholder="••••••••" className="bg-background" required />
+                      <Label htmlFor="password">Security Password</Label>
+                      <Input id="password" name="password" type="password" placeholder="••••••••" className="bg-background border-white/10 focus:border-primary/50" required />
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full h-11" disabled={loading}>
+                    <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-                      Sign In
+                      Log In to {selectedRole === 'user' ? 'Hub' : 'Portal'}
                     </Button>
-                    <div className="relative w-full">
+                    <div className="relative w-full py-2">
                       <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/5"></span></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or continue with</span></div>
+                      <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest"><span className="bg-card px-3 text-muted-foreground">Secure Authentication</span></div>
                     </div>
-                    <Button variant="outline" type="button" className="w-full h-11 border-white/10" onClick={() => initiateGoogleSignIn(auth)} disabled={loading}>Google</Button>
+                    <Button variant="outline" type="button" className="w-full h-11 border-white/10 hover:bg-white/5" onClick={() => initiateGoogleSignIn(auth)} disabled={loading}>
+                      Continue with Google
+                    </Button>
                   </CardFooter>
                 </form>
               </Card>
             </TabsContent>
 
             <TabsContent value="register">
-              <Card className="bg-card border-white/10 shadow-xl">
+              <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">
-                    {selectedRole === 'user' ? 'Innovator Registration' : 'MechMaster Registration'}
+                    {selectedRole === 'user' ? 'Create Hub Account' : 'Register MechMaster'}
                   </CardTitle>
-                  <CardDescription>Join the MechHub network as a {selectedRole === 'user' ? 'Buyer' : 'Manufacturing Vendor'}.</CardDescription>
+                  <CardDescription>Join the managed manufacturing network.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="reg-email">Email</Label>
-                      <Input id="reg-email" name="email" type="email" placeholder="name@example.com" className="bg-background" required />
+                      <Label htmlFor="reg-email">Work Email</Label>
+                      <Input id="reg-email" name="email" type="email" placeholder="name@organization.com" className="bg-background border-white/10 focus:border-primary/50" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="reg-password">Password</Label>
-                      <Input id="reg-password" name="password" type="password" placeholder="••••••••" className="bg-background" required />
+                      <Label htmlFor="reg-password">Create Password</Label>
+                      <Input id="reg-password" name="password" type="password" placeholder="Min. 8 characters" className="bg-background border-white/10 focus:border-primary/50" required />
+                    </div>
+                    <div className="pt-2 flex items-center gap-2 text-[10px] text-muted-foreground">
+                      <ShieldCheck className="w-4 h-4 text-secondary" />
+                      All accounts are subject to IP and NDA verification.
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full h-11" disabled={loading}>
+                    <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                      Create Account
+                      Register as {selectedRole === 'user' ? 'Innovator' : 'MechMaster'}
                     </Button>
-                    <div className="relative w-full">
-                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/5"></span></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or register with</span></div>
-                    </div>
-                    <Button variant="outline" type="button" className="w-full h-11 border-white/10" onClick={() => initiateGoogleSignIn(auth)} disabled={loading}>Google</Button>
                   </CardFooter>
                 </form>
               </Card>
