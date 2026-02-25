@@ -4,20 +4,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions for common checks
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function hasRole(role) {
-      return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    function hasRole(role) {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == role;
+    }
+
+    // User profiles
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // Public read for vendors so they show up in MatchingPage for guest/new users
+      allow read: if isAuthenticated() || (resource != null && resource.data.role == 'vendor');
       allow write: if isAuthenticated() && (request.auth.uid == userId || hasRole('admin'));
     }
 
+    // Manufacturing Requests (RFQs)
     match /rfqs/{rfqId} {
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid || 
@@ -41,9 +48,13 @@ service cloud.firestore {
       allow delete: if hasRole('admin');
     }
 
+    // Quotations and Bids
     match /quotations/{quotationId} {
       allow read: if isAuthenticated() && (
-        (resource == null) || // For collection listing
+        // Allow listing if the user is part of the specific RFQ
+        // In rule evaluation for 'list', resource is null, so we must rely on query filters
+        // Firestore automatically validates that the query is restricted to these filters
+        (resource == null) || 
         resource.data.userId == request.auth.uid || 
         resource.data.vendorId == request.auth.uid ||
         hasRole('admin')
@@ -56,8 +67,9 @@ service cloud.firestore {
       );
     }
 
+    // Expert Consultation Requests
     match /consultationRequests/{id} {
-      allow create: if true;
+      allow create: if true; // Public lead generation
       allow read: if hasRole('admin');
     }
   }

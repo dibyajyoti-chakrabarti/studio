@@ -23,6 +23,7 @@ export default function MatchingPage() {
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Allow guests to see vendors - rules updated to support public read for role='vendor'
   const vendorsQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, 'users'), where('role', '==', 'vendor'));
