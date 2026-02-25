@@ -26,18 +26,18 @@ import {
   LogOut,
   Package,
   Clock,
-  LayoutGrid,
   Eye,
   FileText,
   MapPin,
   Download,
-  AlertCircle,
   MessageSquare,
   Gavel,
   Check,
   Zap,
   ShieldCheck,
-  History
+  History,
+  TrendingUp,
+  X
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
 import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firestore';
@@ -97,8 +97,8 @@ export default function VendorPortal() {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
       collection(db, 'rfqs'), 
-      where('selectedVendorIds', 'array-contains', user.uid),
-      where('status', 'in', ['rfq_submitted', 'quotation_sent', 'negotiation']),
+      where('shortlistedVendorIds', 'array-contains', user.uid),
+      where('status', 'in', ['submitted', 'quotations_received', 'under_negotiation']),
       orderBy('createdAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
@@ -107,7 +107,7 @@ export default function VendorPortal() {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
       collection(db, 'rfqs'), 
-      where('vendorId', '==', user.uid),
+      where('assignedVendorId', '==', user.uid),
       orderBy('updatedAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
@@ -137,11 +137,10 @@ export default function VendorPortal() {
       userId: selectedRfq.userId,
       vendorId: user.uid,
       vendorName: user.displayName || 'Verified MechMaster',
-      vendorRating: 4.8,
       quotedPrice: Number(quotePrice),
       leadTimeDays: Number(quoteLeadTime),
       notes: quoteNotes,
-      status: 'sent',
+      status: 'pending',
       negotiationHistory: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -149,32 +148,24 @@ export default function VendorPortal() {
 
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
     updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
-      status: 'quotation_sent',
+      status: 'quotations_received',
       updatedAt: new Date().toISOString()
     });
 
     setIsQuoting(false);
     setShowDetails(false);
-    toast({ title: "Quotation Submitted", description: "Your competitive bid is now visible to the client." });
+    toast({ title: "Quotation Submitted", description: "The innovator will review your bid." });
   };
 
-  const handleRespondNegotiation = (partyAction: 'accept' | 'counter' | 'reject') => {
+  const handleRespondNegotiation = (partyAction: 'accept' | 'counter') => {
     if (!db || !negotiatingQuote) return;
 
     if (partyAction === 'accept') {
       updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
-        quotedPrice: Number(resPrice),
-        leadTimeDays: Number(resLeadTime),
-        status: 'sent',
+        status: 'pending',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Proposal Accepted", description: "Project terms updated." });
-    } else if (partyAction === 'reject') {
-      updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
-        status: 'rejected',
-        updatedAt: new Date().toISOString()
-      });
-      toast({ title: "Proposal Rejected", description: "This quotation is now closed." });
+      toast({ title: "Offer Accepted", description: "Waiting for platform finalization." });
     } else {
       const historyItem = {
         party: 'vendor',
@@ -187,13 +178,12 @@ export default function VendorPortal() {
       
       updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
         negotiationHistory: newHistory,
+        status: 'revised',
         updatedAt: new Date().toISOString()
       });
-      toast({ title: "Counter-Proposal Sent", description: "The message has been sent." });
+      toast({ title: "Counter-Proposal Sent" });
     }
-
     setIsResponding(false);
-    setNegotiatingQuote(null);
   };
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {
@@ -202,16 +192,7 @@ export default function VendorPortal() {
       status: newStatus,
       updatedAt: new Date().toISOString(),
     });
-    toast({ title: "Status Updated", description: `Production stage: ${newStatus.replace('_', ' ')}.` });
-  };
-
-  const downloadFile = (dataUrl: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    toast({ title: "Production Status Updated" });
   };
 
   if (isVendorConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
@@ -221,12 +202,7 @@ export default function VendorPortal() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Image
-            src="/mechhub.jpg"
-            alt="MechHub Logo"
-            width={60}
-            height={60}
-          />
+          <Image src="/mechhub.jpg" alt="MechHub Logo" width={60} height={60} />
           <span className="font-headline font-bold text-xl text-white">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
@@ -239,12 +215,12 @@ export default function VendorPortal() {
       <div className="container mx-auto p-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-headline font-bold tracking-tight text-white">Production Control</h1>
-            <p className="text-muted-foreground mt-1">Review your invited RFQs and manage active production runs.</p>
+            <h1 className="text-3xl font-headline font-bold text-white">Production Control</h1>
+            <p className="text-muted-foreground mt-1">Manage bids and track active manufacturing assignments.</p>
           </div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-card border border-white/10 p-1 rounded-lg">
             <TabsList className="bg-transparent">
-              <TabsTrigger value="marketplace" className="gap-2 px-6"><Zap className="w-4 h-4" /> Invitations</TabsTrigger>
+              <TabsTrigger value="marketplace" className="gap-2 px-6"><Zap className="w-4 h-4" /> Opportunities</TabsTrigger>
               <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> Active Runs</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -252,11 +228,9 @@ export default function VendorPortal() {
 
         {activeTab === 'marketplace' ? (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-secondary">
-                <Gavel className="w-5 h-5" />
-                <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Requested Quotations</h2>
-              </div>
+            <div className="flex items-center gap-2 text-secondary">
+              <Gavel className="w-5 h-5" />
+              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Available Opportunities</h2>
             </div>
 
             {isMarketplaceLoading ? (
@@ -266,46 +240,36 @@ export default function VendorPortal() {
                 {marketplaceRfqs.map((rfq) => {
                   const myQuote = myQuotes?.find(q => q.rfqId === rfq.id);
                   const lastNeg = myQuote?.negotiationHistory?.[myQuote.negotiationHistory.length - 1];
-                  const isAdminRevision = lastNeg?.party === 'admin';
-                  const isUserCounter = lastNeg?.party === 'user';
+                  const needsResponse = lastNeg?.party === 'customer' || lastNeg?.party === 'admin';
                   
                   return (
-                    <Card key={rfq.id} className={`bg-card border-white/10 hover:border-secondary/30 transition-all group relative overflow-hidden ${isAdminRevision ? 'ring-2 ring-primary' : ''}`}>
-                      {isAdminRevision && <div className="absolute top-0 right-0 bg-primary text-[8px] font-bold uppercase px-3 py-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Admin Revised</div>}
+                    <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group overflow-hidden">
                       <CardHeader>
                         <div className="flex justify-between items-start mb-2">
                           <Badge className="bg-primary/20 text-primary border-none text-[10px] font-bold uppercase">{rfq.manufacturingProcess}</Badge>
-                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">{myQuote.status === 'negotiating' ? 'Under Negotiation' : 'Bid Submitted'}</Badge>}
+                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">{myQuote.status.toUpperCase()}</Badge>}
                         </div>
-                        <CardTitle className="text-xl font-headline text-white group-hover:text-secondary transition-colors truncate">{rfq.projectName}</CardTitle>
+                        <CardTitle className="text-xl font-headline text-white group-hover:text-secondary truncate">{rfq.projectName}</CardTitle>
                         <CardDescription className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="p-3 bg-background/50 rounded-lg border border-white/5 space-y-2 text-xs">
-                          <div className="flex justify-between"><span className="text-muted-foreground">Material:</span><span className="font-bold text-white">{rfq.material}</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span><span className="font-bold text-white">{rfq.quantity} units</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Deadline:</span><span className="font-bold text-white">{new Date(rfq.deliveryDate).toLocaleDateString()}</span></div>
+                          <div className="flex justify-between text-muted-foreground"><span>Material:</span><span className="text-white font-bold">{rfq.material}</span></div>
+                          <div className="flex justify-between text-muted-foreground"><span>Qty:</span><span className="text-white font-bold">{rfq.quantity}</span></div>
                         </div>
 
-                        {(isAdminRevision || isUserCounter) ? (
+                        {needsResponse ? (
                           <div className="space-y-3">
                             <div className="bg-secondary/5 border border-secondary/20 rounded-lg p-3 text-[10px]">
-                              <p className="font-bold text-secondary mb-1 flex items-center gap-1 uppercase tracking-wider"><History className="w-3 h-3" /> {isAdminRevision ? 'Admin Revision' : 'User Counter'}</p>
-                              <p className="text-white font-bold mb-1">Target: ₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
-                              <p className="text-muted-foreground italic line-clamp-2">"{lastNeg.message}"</p>
+                              <p className="font-bold text-secondary mb-1 flex items-center gap-1 uppercase tracking-wider"><History className="w-3 h-3" /> Negotiation Update</p>
+                              <p className="text-white font-bold">Target: ₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
+                              <p className="text-muted-foreground italic mt-1 line-clamp-1">"{lastNeg.message}"</p>
                             </div>
-                            <Button variant="secondary" className="w-full gap-2 font-bold h-11 bg-secondary/10 text-secondary hover:bg-secondary/20" onClick={() => { 
-                              setNegotiatingQuote(myQuote);
-                              setResPrice(lastNeg.price.toString());
-                              setResLeadTime(lastNeg.leadTime.toString());
-                              setIsResponding(true);
-                            }}>
-                              <MessageSquare className="w-4 h-4" /> Respond to Revision
-                            </Button>
+                            <Button variant="secondary" className="w-full h-11" onClick={() => { setNegotiatingQuote(myQuote); setIsResponding(true); }}>Respond to Bid</Button>
                           </div>
                         ) : (
                           <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
-                            <Eye className="w-4 h-4" /> {myQuote ? 'Review Status' : 'Bid Now'}
+                            <Eye className="w-4 h-4" /> {myQuote ? 'View Bid Status' : 'Submit Quotation'}
                           </Button>
                         )}
                       </CardContent>
@@ -314,170 +278,91 @@ export default function VendorPortal() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-24 bg-card/30 rounded-2xl border border-dashed border-white/10">
-                <FileText className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">No Active Invitations</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">You'll see new manufacturing requests here when innovators select you for their builds.</p>
+              <div className="text-center py-24 bg-card/30 rounded-2xl border border-dashed border-white/10 opacity-50">
+                <FileText className="w-12 h-12 mx-auto mb-4" />
+                <p>No active project invitations in your region.</p>
               </div>
             )}
           </div>
         ) : (
           <div className="space-y-6">
-             <div className="flex items-center gap-2 text-primary">
+            <div className="flex items-center gap-2 text-primary">
               <Hammer className="w-5 h-5" />
-              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">In Production</h2>
+              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Active Build Log</h2>
             </div>
-            {isMyProjectsLoading ? (
-              <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary" /></div>
-            ) : (
-              <Card className="bg-card border-white/10 overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-muted/30">
-                    <TableRow className="border-white/10 hover:bg-transparent">
-                      <TableHead className="font-bold text-white">Build & Client</TableHead>
-                      <TableHead className="font-bold text-white">Specs</TableHead>
-                      <TableHead className="font-bold text-white">Status</TableHead>
-                      <TableHead className="font-bold text-white">Actions</TableHead>
+            <Card className="bg-card border-white/10 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/30">
+                  <TableRow className="border-white/10 hover:bg-transparent">
+                    <TableHead className="text-white">Build Details</TableHead>
+                    <TableHead className="text-white">Specs</TableHead>
+                    <TableHead className="text-white">Stage</TableHead>
+                    <TableHead className="text-white">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {myRfqs?.length ? myRfqs.map((rfq) => (
+                    <TableRow key={rfq.id} className="border-b border-white/5">
+                      <TableCell>
+                        <div className="font-bold text-white">{rfq.projectName}</div>
+                        <div className="text-xs text-muted-foreground">{rfq.userName}</div>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <div className="text-white">{rfq.manufacturingProcess}</div>
+                        <div className="text-muted-foreground">{rfq.material} • {rfq.quantity}u</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-primary/20 text-primary border-none uppercase text-[10px]">{rfq.status.replace('_', ' ')}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {rfq.status === 'assigned' && <Button size="sm" onClick={() => handleUpdateStatus(rfq.id, 'in_progress')}>Start Build</Button>}
+                          {rfq.status === 'in_progress' && <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(rfq.id, 'completed')}>Complete Build</Button>}
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {myRfqs?.length ? myRfqs.map((rfq) => (
-                      <TableRow key={rfq.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <TableCell>
-                          <div className="font-bold text-white">{rfq.projectName}</div>
-                          <div className="text-xs text-muted-foreground">{rfq.userName} ({rfq.teamName})</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs text-white">{rfq.manufacturingProcess}</div>
-                          <div className="text-[10px] text-muted-foreground">{rfq.material} • {rfq.quantity}u</div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="font-bold uppercase text-[10px] bg-primary/20 text-primary border-none">
-                            {rfq.status.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            {rfq.status === 'order_confirmed' && (
-                              <Button size="sm" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'shipping')}>
-                                <Package className="w-3 h-3 mr-1" /> Ship
-                              </Button>
-                            )}
-                            {rfq.status === 'shipping' && (
-                              <Button size="sm" variant="secondary" className="h-8 text-xs font-bold" onClick={() => handleUpdateStatus(rfq.id, 'delivered')}>
-                                <CheckCircle2 className="w-3 h-3 mr-1" /> Deliver
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-20 text-muted-foreground">No active assignments in your queue.</TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            )}
+                  )) : <TableRow><TableCell colSpan={4} className="text-center py-20 opacity-30 italic">No assigned builds at this time.</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
         )}
       </div>
 
       <Dialog open={showDetails && !!selectedRfq} onOpenChange={setShowDetails}>
         <DialogContent className="bg-card text-foreground border-white/10 max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-headline font-bold text-white">{selectedRfq?.projectName}</DialogTitle>
-            <DialogDescription>Review technical requirements and submit your competitive quotation.</DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle className="text-2xl font-headline font-bold text-white">{selectedRfq?.projectName}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-8 py-6">
             <div className="space-y-4">
-              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Specifications</h3>
+              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-widest">Requirements</h3>
               <div className="space-y-3 text-xs bg-background/50 p-4 rounded-xl border border-white/5">
-                <div className="flex justify-between"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq?.manufacturingProcess}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq?.material}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Quantity:</span><span className="text-white">{selectedRfq?.quantity} units</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Tolerance:</span><span className="text-white">{selectedRfq?.tolerance}</span></div>
+                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq?.manufacturingProcess}</span></div>
+                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq?.material}</span></div>
+                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Qty:</span><span className="text-white">{selectedRfq?.quantity}</span></div>
               </div>
-              
-              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Design File</h3>
-              {selectedRfq?.designFileUrl ? (
-                <Button variant="outline" className="w-full h-12 border-white/10 gap-2" onClick={() => downloadFile(selectedRfq.designFileUrl, selectedRfq.designFileName)}>
-                  <Download className="w-4 h-4" /> Download Engineering Data
+              {selectedRfq?.designFileUrl && (
+                <Button variant="outline" className="w-full gap-2 border-white/10" onClick={() => window.open(selectedRfq.designFileUrl)}>
+                  <Download className="w-4 h-4" /> Download Design Data
                 </Button>
-              ) : <p className="text-xs text-muted-foreground italic">No technical files attached.</p>}
+              )}
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">Submit Your Quotation</h3>
+              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-widest">Your Bid</h3>
               {!myQuotes?.find(q => q.rfqId === selectedRfq?.id) ? (
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-white text-xs">Quoted Price (₹)</Label>
-                    <Input value={quotePrice} onChange={(e) => setQuotePrice(e.target.value)} type="number" className="bg-background" placeholder="Total cost" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-white text-xs">Lead Time (Days)</Label>
-                    <Input value={quoteLeadTime} onChange={(e) => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" placeholder="Days to completion" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-white text-xs">Proposal Notes</Label>
-                    <Textarea value={quoteNotes} onChange={(e) => setQuoteNotes(e.target.value)} className="bg-background h-20 text-xs" placeholder="Terms, material grades, etc." />
-                  </div>
-                  <Button className="w-full h-11 font-bold" onClick={handleSubmitQuote}>Confirm & Submit Bid</Button>
+                  <div className="space-y-2"><Label className="text-xs">Price (₹)</Label><Input value={quotePrice} onChange={e => setQuotePrice(e.target.value)} type="number" className="bg-background" /></div>
+                  <div className="space-y-2"><Label className="text-xs">Lead Time (Days)</Label><Input value={quoteLeadTime} onChange={e => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+                  <Button className="w-full font-bold h-11" onClick={handleSubmitQuote}>Submit Official Quotation</Button>
                 </div>
               ) : (
-                <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-2xl text-center space-y-3">
-                  <Check className="w-8 h-8 text-green-500 mx-auto" />
+                <div className="p-6 bg-green-500/10 border border-green-500/20 rounded-2xl text-center">
+                  <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
                   <p className="text-sm font-bold text-white">Bid Live</p>
-                  <p className="text-xs text-muted-foreground">The client is reviewing your offer. Stay tuned for potential negotiations.</p>
                 </div>
               )}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isResponding} onOpenChange={setIsResponding}>
-        <DialogContent className="bg-card text-foreground border-white/10">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-headline font-bold text-white">Respond to Revision / Counter</DialogTitle>
-            <DialogDescription>Review terms from {negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1]?.party === 'admin' ? 'Admin' : 'Client'} and respond.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-xl">
-              <p className="text-[10px] font-bold text-secondary mb-2 uppercase tracking-widest">Target Conditions</p>
-              {(() => {
-                const last = negotiatingQuote?.negotiationHistory?.[negotiatingQuote.negotiationHistory.length - 1];
-                return (
-                  <div className="text-xs space-y-2">
-                    <p className="text-white font-bold flex items-center justify-between"><span>Price: ₹{last?.price}</span> <span>Timeline: {last?.leadTime} Days</span></p>
-                    <p className="italic text-muted-foreground bg-background/30 p-2 rounded">"{last?.message}"</p>
-                  </div>
-                );
-              })()}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-white">Revised Price (₹)</Label>
-                <Input value={resPrice} onChange={(e) => setResPrice(e.target.value)} type="number" className="bg-background" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-white">Lead Time (Days)</Label>
-                <Input value={resLeadTime} onChange={(e) => setResLeadTime(e.target.value)} type="number" className="bg-background" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white">Message / Justification</Label>
-              <Textarea value={resMessage} onChange={(e) => setResMessage(e.target.value)} className="bg-background h-20" placeholder="Optional notes for the admin/client..." />
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => handleRespondNegotiation('reject')} className="border-red-500/50 text-red-500 hover:bg-red-500/10">Reject Revision</Button>
-            <Button variant="outline" onClick={() => handleRespondNegotiation('counter')} className="border-white/10">Submit Counter</Button>
-            <Button onClick={() => handleRespondNegotiation('accept')} className="bg-green-600 hover:bg-green-700 text-white font-bold">Accept & Update</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

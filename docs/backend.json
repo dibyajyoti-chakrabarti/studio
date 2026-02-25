@@ -3,81 +3,76 @@
   "entities": {
     "UserProfile": {
       "title": "UserProfile",
-      "description": "Stores user profile information, role, and vendor-specific specializations.",
+      "description": "Stores unified user information with specific fields for MechMasters.",
       "type": "object",
       "properties": {
         "fullName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "phone": { "type": "string" },
         "teamName": { "type": "string" },
-        "role": { "type": "string", "enum": ["user", "vendor", "admin"] },
-        "createdAt": { "type": "string", "format": "date-time" },
+        "role": { "type": "string", "enum": ["customer", "vendor", "admin"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
         "onboarded": { "type": "boolean" },
-        "specializations": { "type": "array", "items": { "type": "string" }, "description": "Vendor specializations like CNC, Laser, etc." },
-        "location": { "type": "string", "description": "City, State, Country" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "specializations": { "type": "array", "items": { "type": "string" }, "description": "Vendor capabilities." },
+        "location": { "type": "string" },
         "experienceYears": { "type": "number" },
         "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
         "isVerified": { "type": "boolean" },
         "isActive": { "type": "boolean" },
-        "portfolio": { "type": "string", "description": "Links or description of past works." },
-        "imageUrl": { "type": "string", "description": "Data URI or URL for the profile logo/image." },
-        "workshopImages": { "type": "array", "items": { "type": "string" }, "description": "Array of image URLs or Data URIs for workshop photos." },
-        "adminNotes": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" },
-        "updatedBy": { "type": "string" }
+        "portfolio": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "assignedProjectsCount": { "type": "number" }
       },
-      "required": ["fullName", "email", "role", "onboarded"]
+      "required": ["fullName", "email", "role", "status", "onboarded"]
     },
     "RFQ": {
       "title": "RFQ",
-      "description": "Represents a manufacturing request for quotation.",
+      "description": "The central manufacturing request document.",
       "type": "object",
       "properties": {
         "userId": { "type": "string" },
         "userName": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "userPhone": { "type": "string" },
-        "teamName": { "type": "string" },
         "projectName": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "submitted", "quotations_received", "under_negotiation", "assigned", "in_progress", "completed", "cancelled"] },
         "manufacturingProcess": { "type": "string" },
         "material": { "type": "string" },
         "quantity": { "type": "number" },
         "surfaceFinish": { "type": "string" },
         "tolerance": { "type": "string" },
         "deliveryDate": { "type": "string", "format": "date-time" },
-        "budgetRange": { "type": "string" },
         "deliveryLocation": { "type": "string" },
-        "selectedVendors": { "type": "array", "items": { "type": "string" }, "description": "Names of selected vendors." },
-        "selectedVendorIds": { "type": "array", "items": { "type": "string" }, "description": "UIDs of selected vendors." },
-        "vendorId": { "type": "string", "description": "The ID of the vendor who eventually won the bid." },
+        "budgetRange": { "type": "string" },
         "designFileUrl": { "type": "string" },
         "designFileName": { "type": "string" },
-        "status": { "type": "string", "enum": ["rfq_submitted", "quotation_sent", "negotiation", "order_confirmed", "shipping", "delivered"] },
+        "selectedVendorIds": { "type": "array", "items": { "type": "string" }, "description": "Vendors invited by user." },
+        "shortlistedVendorIds": { "type": "array", "items": { "type": "string" }, "description": "Vendors approved by admin." },
+        "assignedVendorId": { "type": "string", "description": "Final vendor winning the bid." },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "manufacturingProcess", "material", "quantity", "status", "createdAt"]
+      "required": ["userId", "projectName", "status", "manufacturingProcess", "material", "quantity", "createdAt"]
     },
     "Quotation": {
       "title": "Quotation",
-      "description": "Quotation for an RFQ with negotiation history.",
+      "description": "A specific vendor's bid for an RFQ.",
       "type": "object",
       "properties": {
         "rfqId": { "type": "string" },
-        "userId": { "type": "string" },
         "vendorId": { "type": "string" },
+        "userId": { "type": "string" },
         "vendorName": { "type": "string" },
-        "vendorRating": { "type": "number" },
         "quotedPrice": { "type": "number" },
         "leadTimeDays": { "type": "number" },
         "notes": { "type": "string" },
-        "status": { "type": "string", "enum": ["sent", "negotiating", "accepted", "rejected"] },
+        "status": { "type": "string", "enum": ["pending", "revised", "accepted", "rejected"] },
         "negotiationHistory": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "party": { "type": "string", "enum": ["user", "vendor", "admin"] },
+              "party": { "type": "string", "enum": ["customer", "vendor", "admin"] },
               "price": { "type": "number" },
               "leadTime": { "type": "number" },
               "message": { "type": "string" },
@@ -88,7 +83,35 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["rfqId", "userId", "vendorId", "quotedPrice", "leadTimeDays", "status", "createdAt"]
+      "required": ["rfqId", "vendorId", "quotedPrice", "status", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Feedback submitted after project completion.",
+      "type": "object",
+      "properties": {
+        "rfqId": { "type": "string" },
+        "vendorId": { "type": "string" },
+        "userId": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["rfqId", "vendorId", "rating", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "System alerts for users.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "message": { "type": "string" },
+        "link": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "message", "createdAt"]
     }
   },
   "auth": {
@@ -106,6 +129,14 @@
     "/quotations/{quotationId}": {
       "schema": { "$ref": "#/backend/entities/Quotation" },
       "description": "Quotations submitted by vendors."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/backend/entities/Review" },
+      "description": "Post-project reviews."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/backend/entities/Notification" },
+      "description": "User notifications."
     }
   }
 }
