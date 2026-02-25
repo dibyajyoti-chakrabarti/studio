@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users } from 'lucide-react';
+import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users, ShieldCheck } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -23,10 +23,14 @@ export default function MatchingPage() {
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Allow guests to see vendors - rules updated to support public read for role='vendor'
+  // Filter for ACTIVE vendors only
   const vendorsQuery = useMemoFirebase(() => {
     if (!db) return null;
-    return query(collection(db, 'users'), where('role', '==', 'vendor'));
+    return query(
+      collection(db, 'users'), 
+      where('role', '==', 'vendor'),
+      where('isActive', '==', true)
+    );
   }, [db]);
   
   const { data: dbVendors, isLoading: isVendorsLoading } = useCollection(vendorsQuery);
@@ -172,27 +176,38 @@ export default function MatchingPage() {
                   </div>
                   <div className="absolute top-3 right-3 bg-background/80 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                    4.8
+                    {vendor.rating || 4.5}
                   </div>
                 </div>
                 <CardContent className="p-6">
-                  <h3 className="font-headline text-xl font-bold mb-2 group-hover:text-secondary transition-colors">{vendor.fullName || 'Verified MechMaster'}</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2">{vendor.fullName || 'Verified MechMaster'}</h3>
+                    {vendor.isVerified && <ShieldCheck className="w-5 h-5 text-secondary shrink-0" />}
+                  </div>
                   <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
                     <MapPin className="w-3 h-3" />
-                    {vendor.teamName || 'Industrial Hub'}
+                    {vendor.location || vendor.teamName || 'Industrial Hub'}
                   </div>
                   <div className="flex flex-wrap gap-1 mb-4">
-                    <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">CNC Machining</Badge>
-                    <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">Laser Cutting</Badge>
+                    {vendor.specializations?.slice(0, 3).map((s: string, i: number) => (
+                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase font-bold">{s}</Badge>
+                    )) || (
+                      <>
+                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">CNC Machining</Badge>
+                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">Laser Cutting</Badge>
+                      </>
+                    )}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">Verified high-precision manufacturing facility with ISO certification.</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                    {vendor.portfolio || 'Verified high-precision manufacturing facility with ISO certification.'}
+                  </p>
                 </CardContent>
               </Card>
             </div>
           )) : (
             <div className="col-span-full py-20 text-center space-y-4">
               <Users className="w-12 h-12 mx-auto text-muted-foreground opacity-20" />
-              <p className="text-muted-foreground italic">No MechMasters are currently available for onboarding. Please check back soon.</p>
+              <p className="text-muted-foreground italic">No MechMasters are currently available for selection. Please check back soon.</p>
             </div>
           )}
         </div>

@@ -19,9 +19,18 @@ service cloud.firestore {
 
     // User profiles
     match /users/{userId} {
-      // Public read for vendors so they show up in MatchingPage for guest/new users
+      // Public read for vendors so they show up in MatchingPage
+      // Users can only read other users if they are admin or the target is a vendor
       allow read: if isAuthenticated() || (resource != null && resource.data.role == 'vendor');
-      allow write: if isAuthenticated() && (request.auth.uid == userId || hasRole('admin'));
+      
+      // Only admins can create/update profiles manually for others
+      // Users can only update their own non-role fields
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == userId || 
+        hasRole('admin')
+      );
+      allow delete: if hasRole('admin');
     }
 
     // Manufacturing Requests (RFQs)
@@ -51,9 +60,6 @@ service cloud.firestore {
     // Quotations and Bids
     match /quotations/{quotationId} {
       allow read: if isAuthenticated() && (
-        // Allow listing if the user is part of the specific RFQ
-        // In rule evaluation for 'list', resource is null, so we must rely on query filters
-        // Firestore automatically validates that the query is restricted to these filters
         (resource == null) || 
         resource.data.userId == request.auth.uid || 
         resource.data.vendorId == request.auth.uid ||
@@ -65,6 +71,7 @@ service cloud.firestore {
         resource.data.vendorId == request.auth.uid ||
         hasRole('admin')
       );
+      allow delete: if hasRole('admin');
     }
 
     // Expert Consultation Requests

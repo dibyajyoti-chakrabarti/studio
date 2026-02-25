@@ -12,6 +12,7 @@ import { Logo } from '@/components/Logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ClipboardList, 
   Search, 
@@ -34,9 +35,16 @@ import {
   History,
   TrendingUp,
   AlertCircle,
-  Clock
+  Clock,
+  Plus,
+  Trash2,
+  Edit3,
+  MapPin,
+  Briefcase,
+  Star,
+  Check
 } from 'lucide-react';
-import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth } from '@/firebase';
+import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -51,16 +59,33 @@ const STATUS_OPTIONS = [
   { value: 'delivered', label: 'Delivered' },
 ];
 
+const SPECIALIZATIONS = [
+  'CNC Machining',
+  'Laser Cutting',
+  'Welding & Fabrication',
+  'Sheet Metal',
+  'Prototype Manufacturing',
+  '3D Printing',
+  'Small Batch Production'
+];
+
 export default function AdminPanel() {
   const router = useRouter();
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
+  
+  // Modals
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showVendorModal, setShowVendorModal] = useState(false);
+  
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
+  const [selectedVendorProfile, setSelectedVendorProfile] = useState<any>(null);
+  
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
+  const [isSubmittingVendor, setIsSubmittingVendor] = useState(false);
   
   const [isRevising, setIsRevising] = useState(false);
   const [revisingQuote, setRevisingQuote] = useState<any>(null);
@@ -123,13 +148,64 @@ export default function AdminPanel() {
     toast({ title: "Status Updated", description: `Project is now in ${newStatus.replace('_', ' ')} phase.` });
   };
 
-  const handlePromoteToVendor = (userId: string) => {
+  const handleToggleVendorStatus = (vendor: any, field: 'isActive' | 'isVerified') => {
     if (!db) return;
-    updateDocumentNonBlocking(doc(db, 'users', userId), {
-      role: 'vendor',
+    updateDocumentNonBlocking(doc(db, 'users', vendor.id), {
+      [field]: !vendor[field],
       updatedAt: new Date().toISOString(),
+      updatedBy: user?.uid
     });
-    toast({ title: "Role Updated", description: "User has been promoted to MechMaster." });
+    toast({ title: "Vendor Updated", description: `${field} status has been toggled.` });
+  };
+
+  const handleDeleteVendor = (vendorId: string) => {
+    if (!db || !confirm("Are you sure you want to delete this vendor profile?")) return;
+    deleteDocumentNonBlocking(doc(db, 'users', vendorId));
+    toast({ title: "Vendor Deleted", description: "The profile has been removed from the system." });
+  };
+
+  const handleSaveVendor = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!db || !user) return;
+    setIsSubmittingVendor(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const vendorId = selectedVendorProfile?.id || Math.random().toString(36).substring(2, 11);
+    
+    const specs: string[] = [];
+    SPECIALIZATIONS.forEach(s => {
+      if (formData.get(`spec_${s}`)) specs.push(s);
+    });
+
+    const vendorData = {
+      fullName: formData.get('fullName') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      teamName: formData.get('teamName') as string,
+      location: formData.get('location') as string,
+      experienceYears: Number(formData.get('experienceYears')),
+      rating: Number(formData.get('rating')),
+      portfolio: formData.get('portfolio') as string,
+      adminNotes: formData.get('adminNotes') as string,
+      specializations: specs,
+      role: 'vendor',
+      onboarded: true,
+      isActive: formData.get('isActive') === 'on',
+      isVerified: formData.get('isVerified') === 'on',
+      updatedAt: new Date().toISOString(),
+      updatedBy: user.uid,
+      ...(selectedVendorProfile ? {} : { createdAt: new Date().toISOString() })
+    };
+
+    setDocumentNonBlocking(doc(db, 'users', vendorId), vendorData, { merge: true });
+    
+    setIsSubmittingVendor(false);
+    setShowVendorModal(false);
+    setSelectedVendorProfile(null);
+    toast({ 
+      title: selectedVendorProfile ? "Vendor Updated" : "Vendor Created", 
+      description: `MechMaster ${vendorData.fullName} profile saved.` 
+    });
   };
 
   const handleSendQuotation = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -145,7 +221,7 @@ export default function AdminPanel() {
       userId: selectedRfq.userId,
       vendorId: vendorId,
       vendorName: vendor?.fullName || 'MechMaster',
-      vendorRating: 4.5,
+      vendorRating: vendor?.rating || 4.5,
       quotedPrice: Number(formData.get('price')),
       leadTimeDays: Number(formData.get('leadTime')),
       notes: formData.get('notes') as string,
@@ -223,7 +299,7 @@ export default function AdminPanel() {
         <aside className="w-64 border-r border-white/5 bg-card flex flex-col p-4 space-y-2">
           <Button variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('rfqs')}><ClipboardList className="w-4 h-4" /> RFQs</Button>
           <Button variant={activeTab === 'users' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('users')}><UserIcon className="w-4 h-4" /> Buyers</Button>
-          <Button variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('vendors')}><Factory className="w-4 h-4" /> Vendors</Button>
+          <Button variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('vendors')}><Factory className="w-4 h-4" /> MechMasters</Button>
         </aside>
 
         <main className="flex-1 p-8 overflow-y-auto">
@@ -300,9 +376,9 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {(activeTab === 'users' || activeTab === 'vendors') && (
+          {activeTab === 'users' && (
             <div className="space-y-6">
-              <h1 className="text-3xl font-headline font-bold capitalize">{activeTab} Directory</h1>
+              <h1 className="text-3xl font-headline font-bold">Buyer Directory</h1>
               <Card className="bg-card border-white/5">
                 <Table>
                   <TableHeader>
@@ -311,11 +387,11 @@ export default function AdminPanel() {
                       <TableHead>Contact</TableHead>
                       <TableHead>Organization</TableHead>
                       <TableHead>Status</TableHead>
-                      {activeTab === 'users' && <TableHead>Actions</TableHead>}
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {(activeTab === 'users' ? buyers : vendors)?.map((u) => (
+                    {buyers?.map((u) => (
                       <TableRow key={u.id} className="border-b border-white/5">
                         <TableCell className="font-bold">{u.fullName}</TableCell>
                         <TableCell>
@@ -324,18 +400,97 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>{u.teamName}</TableCell>
                         <TableCell><Badge variant="outline">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
-                        {activeTab === 'users' && (
-                          <TableCell>
-                            <Button 
-                              size="sm" 
-                              variant="secondary" 
-                              className="h-8 text-xs font-bold gap-1"
-                              onClick={() => handlePromoteToVendor(u.id)}
-                            >
-                              <UserCheck className="w-3 h-3" /> Onboard as MechMaster
+                        <TableCell>
+                          <Button 
+                            size="sm" 
+                            variant="secondary" 
+                            className="h-8 text-xs font-bold gap-1"
+                            onClick={() => {
+                              setSelectedVendorProfile(u);
+                              setShowVendorModal(true);
+                            }}
+                          >
+                            <UserCheck className="w-3 h-3" /> Convert to Vendor
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'vendors' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-headline font-bold">MechMaster Registry</h1>
+                <Button onClick={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }} className="gap-2">
+                  <Plus className="w-4 h-4" /> Register New MechMaster
+                </Button>
+              </div>
+              
+              <Card className="bg-card border-white/5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead>Vendor & Rating</TableHead>
+                      <TableHead>Capabilities</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Verification</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vendors?.map((v) => (
+                      <TableRow key={v.id} className="border-b border-white/5">
+                        <TableCell>
+                          <div className="font-bold flex items-center gap-2">
+                            {v.fullName}
+                            {v.isVerified && <ShieldCheck className="w-3 h-3 text-secondary" />}
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />
+                            {v.rating || 0} • {v.experienceYears || 0} yrs exp
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {v.specializations?.map((s: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-[9px] bg-primary/5">{s}</Badge>
+                            )) || <span className="text-[10px] italic opacity-50">None listed</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-muted-foreground" /> {v.location || 'Unknown'}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={`h-7 text-[10px] gap-1 ${v.isVerified ? 'text-green-500' : 'text-muted-foreground'}`}
+                            onClick={() => handleToggleVendorStatus(v, 'isVerified')}
+                          >
+                            {v.isVerified ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                            {v.isVerified ? 'Verified' : 'Unverified'}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={v.isActive ? 'default' : 'secondary'} className="text-[10px]">
+                            {v.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedVendorProfile(v); setShowVendorModal(true); }}>
+                              <Edit3 className="w-3.5 h-3.5" />
                             </Button>
-                          </TableCell>
-                        )}
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteVendor(v.id)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -345,6 +500,90 @@ export default function AdminPanel() {
           )}
         </main>
       </div>
+
+      {showVendorModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm overflow-y-auto">
+          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6 my-8">
+            <h2 className="text-2xl font-headline font-bold mb-6">{selectedVendorProfile ? 'Edit Vendor Profile' : 'Register New MechMaster'}</h2>
+            <form onSubmit={handleSaveVendor} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Full Name</Label>
+                  <Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required placeholder="Contact Person Name" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email Address</Label>
+                  <Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required placeholder="vendor@example.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone Number</Label>
+                  <Input name="phone" defaultValue={selectedVendorProfile?.phone} placeholder="+91..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Company Name</Label>
+                  <Input name="teamName" defaultValue={selectedVendorProfile?.teamName} placeholder="Official Business Name" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State, Country" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Exp. Years</Label>
+                    <Input name="experienceYears" type="number" defaultValue={selectedVendorProfile?.experienceYears || 0} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Initial Rating</Label>
+                    <Input name="rating" type="number" step="0.1" max="5" defaultValue={selectedVendorProfile?.rating || 4.5} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Work Specializations</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {SPECIALIZATIONS.map(s => (
+                    <div key={s} className="flex items-center gap-2 bg-background p-2 rounded border border-white/5">
+                      <Checkbox id={`spec_${s}`} name={`spec_${s}`} defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
+                      <label htmlFor={`spec_${s}`} className="text-[10px] font-bold cursor-pointer">{s}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Portfolio / Description</Label>
+                <Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} placeholder="Describe past projects or capabilities..." className="h-20" />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Admin Notes (Internal)</Label>
+                <Textarea name="adminNotes" defaultValue={selectedVendorProfile?.adminNotes} placeholder="Internal verification details..." className="h-20" />
+              </div>
+
+              <div className="flex items-center gap-8 pt-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="isActive" name="isActive" defaultChecked={selectedVendorProfile ? selectedVendorProfile.isActive : true} />
+                  <Label htmlFor="isActive" className="text-sm font-bold">Active in Marketplace</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="isVerified" name="isVerified" defaultChecked={selectedVendorProfile?.isVerified} />
+                  <Label htmlFor="isVerified" className="text-sm font-bold">Verified Status</Label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-white/5">
+                <Button type="submit" className="flex-1 font-bold h-12" disabled={isSubmittingVendor}>
+                  {isSubmittingVendor ? <Loader2 className="animate-spin" /> : (selectedVendorProfile ? 'Update Profile' : 'Create MechMaster Account')}
+                </Button>
+                <Button variant="outline" type="button" className="flex-1 h-12 border-white/10" onClick={() => { setShowVendorModal(false); setSelectedVendorProfile(null); }}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
 
       {showQuoteModal && selectedRfq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
@@ -358,7 +597,7 @@ export default function AdminPanel() {
                     <SelectValue placeholder="Select a vendor" />
                   </SelectTrigger>
                   <SelectContent>
-                    {vendors?.map(v => (
+                    {vendors?.filter(v => v.isActive).map(v => (
                       <SelectItem key={v.id} value={v.id}>{v.fullName} ({v.email})</SelectItem>
                     ))}
                   </SelectContent>
