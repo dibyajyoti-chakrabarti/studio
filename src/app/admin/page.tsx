@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { 
   ClipboardList, 
   Send,
@@ -395,7 +396,7 @@ export default function AdminPanel() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative w-10 h-10 rounded overflow-hidden bg-muted">
-                              <Image src={v.imageUrl || "/mechhub.jpg"} alt={v.fullName} fill className="object-cover" />
+                              <Image src={v.imageUrl || "/mechhub.jpg"} alt={v.fullName || "Vendor Logo"} fill className="object-cover" />
                             </div>
                             <div>
                               <div className="font-bold text-white flex items-center gap-1">{v.fullName} {v.isVerified && <ShieldCheck className="w-3 h-3 text-secondary" />}</div>
