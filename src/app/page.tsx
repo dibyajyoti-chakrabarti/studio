@@ -249,16 +249,16 @@ export default function Home() {
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-headline text-xl font-bold truncate pr-2 group-hover:text-secondary transition-colors text-white">{vendor.fullName}</h3>
+                      <h3 className="font-headline text-xl font-bold truncate pr-2 group-hover:text-secondary transition-colors text-white">{vendor.fullName || 'Verified MechMaster'}</h3>
                     </div>
                     
                     <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
-                      <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
-                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
+                      <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Location Pending'}</div>
+                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '0'}+ Yrs Exp</div>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-6 min-h-12 overflow-hidden">
-                      {(vendor.specializations || ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
+                      {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
                         <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">
                           {s}
                         </Badge>
@@ -427,7 +427,7 @@ export default function Home() {
               <div className="hidden md:block relative h-[400px]">
                 <Image 
                   src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800"
-                  alt="Engineering Consultation"
+                  alt="Engineering Consultation Session"
                   fill
                   className="object-cover rounded-2xl grayscale"
                 />

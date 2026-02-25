@@ -166,7 +166,7 @@ export default function MatchingPage() {
                 <div className="relative h-48 bg-muted/20 flex items-center justify-center">
                   <Image 
                     src={vendor.imageUrl || "/mechhub.jpg"} 
-                    alt={vendor.fullName || 'MechMaster Logo'} 
+                    alt={vendor.fullName || 'Verified MechMaster Profile Image'} 
                     fill 
                     className="object-cover transition-transform group-hover:scale-105 opacity-90 group-hover:opacity-100"
                   />
@@ -193,25 +193,20 @@ export default function MatchingPage() {
                   </div>
                   
                   <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
-                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
-                    <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Location Pending'}</div>
+                    <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '0'}+ Yrs Exp</div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-6 min-h-12">
-                    {vendor.specializations?.map((s: string, i: number) => (
+                    {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Machining', 'Sheet Metal']).map((s: string, i: number) => (
                       <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">
                         {s}
                       </Badge>
-                    )) || (
-                      <>
-                        <Badge variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">CNC Machining</Badge>
-                        <Badge variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">Sheet Metal</Badge>
-                      </>
-                    )}
+                    ))}
                   </div>
 
                   <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3 min-h-8">
-                    {vendor.portfolio || 'Verified high-precision manufacturing facility with ISO certification.'}
+                    {vendor.portfolio || 'Verified high-precision manufacturing facility within our trusted network.'}
                   </p>
                 </CardContent>
               </Card>
