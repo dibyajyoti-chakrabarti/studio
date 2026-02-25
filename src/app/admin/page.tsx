@@ -407,7 +407,6 @@ export default function AdminPanel() {
                       <TableHead>Contact</TableHead>
                       <TableHead>Organization</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -420,20 +419,6 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>{u.teamName}</TableCell>
                         <TableCell><Badge variant="outline">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
-                        <TableCell>
-                          <Button 
-                            size="sm" 
-                            variant="secondary" 
-                            className="h-8 text-xs font-bold gap-1"
-                            onClick={() => {
-                              setSelectedVendorProfile(u);
-                              setProfileImage(u.imageUrl || null);
-                              setShowVendorModal(true);
-                            }}
-                          >
-                            <UserCheck className="w-3 h-3" /> Convert to Vendor
-                          </Button>
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -472,7 +457,7 @@ export default function AdminPanel() {
                             {v.imageUrl ? (
                               <Image src={v.imageUrl} alt={v.fullName} fill className="object-cover" />
                             ) : (
-                              <div className="flex items-center justify-center w-full h-full text-muted-foreground"><ImageIcon size={16} /></div>
+                              <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={16} /></div>
                             )}
                           </div>
                         </TableCell>
