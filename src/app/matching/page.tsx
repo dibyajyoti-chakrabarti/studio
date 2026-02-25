@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users, ShieldCheck, Factory } from 'lucide-react';
+import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users, ShieldCheck, Factory, Clock } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -159,17 +159,17 @@ export default function MatchingPage() {
           {dbVendors && dbVendors.length > 0 ? dbVendors.map((vendor) => (
             <div 
               key={vendor.id} 
-              className={`relative cursor-pointer group rounded-xl transition-all ${selectedVendors.includes(vendor.id) ? 'ring-2 ring-primary shadow-2xl shadow-primary/20' : ''}`}
+              className={`relative cursor-pointer group rounded-xl transition-all ${selectedVendors.includes(vendor.id) ? 'ring-2 ring-primary shadow-2xl shadow-primary/20' : 'hover:shadow-xl hover:shadow-primary/5'}`}
               onClick={() => toggleVendor(vendor.id)}
             >
-              <Card className="overflow-hidden border-white/5 bg-card hover:bg-card/80 h-full">
-                <div className="relative h-44 bg-muted/20 flex items-center justify-center">
+              <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 h-full">
+                <div className="relative h-48 bg-muted/20 flex items-center justify-center">
                   {vendor.imageUrl ? (
                     <Image 
                       src={vendor.imageUrl} 
-                      alt={vendor.fullName || 'MechMaster'} 
+                      alt={vendor.fullName || 'MechMaster Logo'} 
                       fill 
-                      className="object-cover transition-transform group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                      className="object-cover transition-transform group-hover:scale-105 opacity-90 group-hover:opacity-100"
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground/30">
@@ -177,34 +177,48 @@ export default function MatchingPage() {
                       <span className="text-[10px] font-bold uppercase tracking-widest">Manufacturing Partner</span>
                     </div>
                   )}
-                  <div className="absolute top-3 left-3">
+                  
+                  {/* Verified Badge Overlay */}
+                  {vendor.isVerified && (
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-background px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      <ShieldCheck className="w-3 h-3" /> VERIFIED
+                    </div>
+                  )}
+
+                  <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
                     <Checkbox checked={selectedVendors.includes(vendor.id)} className="w-6 h-6 border-white bg-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                  </div>
-                  <div className="absolute top-3 right-3 bg-background/80 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-                    <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                    {vendor.rating || 4.5}
+                    <div className="bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1">
+                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                      {vendor.rating || 4.5}/5
+                    </div>
                   </div>
                 </div>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2">{vendor.fullName || 'Verified MechMaster'}</h3>
-                    {vendor.isVerified && <ShieldCheck className="w-5 h-5 text-secondary shrink-0" />}
+                    <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2">
+                      {vendor.fullName || 'Verified MechMaster'}
+                    </h3>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
-                    <MapPin className="w-3 h-3" />
-                    {vendor.location || vendor.teamName || 'Industrial Hub'}
+                  
+                  <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-medium uppercase tracking-wider mb-4">
+                    <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
+                    <div className="flex items-center gap-1"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
                   </div>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {vendor.specializations?.slice(0, 3).map((s: string, i: number) => (
-                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase font-bold">{s}</Badge>
+
+                  <div className="flex flex-wrap gap-2 mb-6 h-12 overflow-hidden">
+                    {vendor.specializations?.map((s: string, i: number) => (
+                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">
+                        {s}
+                      </Badge>
                     )) || (
                       <>
-                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">CNC Machining</Badge>
-                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold">Laser Cutting</Badge>
+                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">CNC Machining</Badge>
+                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">Sheet Metal</Badge>
                       </>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3">
                     {vendor.portfolio || 'Verified high-precision manufacturing facility with ISO certification.'}
                   </p>
                 </CardContent>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -42,7 +43,8 @@ import {
   MessageSquare,
   Loader2,
   Check,
-  Factory
+  Factory,
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -121,7 +123,7 @@ export default function Home() {
         <RotatingGears />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <Badge variant="outline" className="mb-4 border-secondary/50 text-secondary bg-secondary/5">
+            <Badge variant="outline" className="mb-4 border-secondary/50 text-secondary bg-secondary/5 uppercase font-bold tracking-widest text-[10px]">
               Revolutionizing Industrial Manufacturing
             </Badge>
             <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight mb-6">
@@ -132,12 +134,12 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/upload">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white h-14 px-10 text-lg group" suppressHydrationWarning>
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white h-14 px-10 text-lg group font-bold" suppressHydrationWarning>
                   Upload Your Design
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-white/20 hover:bg-white/5" suppressHydrationWarning>
+              <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-white/20 hover:bg-white/5 font-bold" suppressHydrationWarning>
                 Become a MechMaster
               </Button>
             </div>
@@ -148,7 +150,7 @@ export default function Home() {
       <section id="services" className="py-24 bg-card/30 border-y border-white/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight">What We Offer</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our network of MechMasters covers a wide range of industrial processes to meet your specific requirements.
             </p>
@@ -179,7 +181,7 @@ export default function Home() {
       <section id="how-it-works" className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight">How It Works</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             <div className="hidden md:block absolute top-10 left-1/4 right-1/4 h-px border-t border-dashed border-white/20 -z-10" />
@@ -212,56 +214,70 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Meet Our MechMasters</h2>
-              <p className="text-muted-foreground">Trusted partners across India providing world-class manufacturing.</p>
+              <div className="flex items-center gap-2 text-secondary mb-2">
+                <Users2 className="w-5 h-5" />
+                <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Verified Marketplace</span>
+              </div>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-white">Meet Our MechMasters</h2>
+              <p className="text-muted-foreground max-w-md leading-relaxed">Trusted partners across India providing world-class high-precision manufacturing.</p>
             </div>
-            <Link href="/upload" className="text-secondary hover:underline hidden sm:block">View All MechMasters →</Link>
+            <Link href="/upload" className="text-secondary hover:underline font-bold text-sm uppercase tracking-wider hidden sm:block">View All MechMasters →</Link>
           </div>
           
           <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
             {landingVendors?.length ? landingVendors.map((vendor) => (
-              <div key={vendor.id} className="min-w-[320px] md:min-w-[400px] snap-center">
-                <Card className="overflow-hidden border-white/5 bg-card hover:bg-card/80 transition-colors">
-                  <div className="relative h-48 w-full bg-muted/20">
+              <div key={vendor.id} className="min-w-[320px] md:min-w-[380px] snap-center group">
+                <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+                  <div className="relative h-48 w-full bg-muted/20 overflow-hidden">
                     {vendor.imageUrl ? (
                       <Image 
                         src={vendor.imageUrl} 
                         alt={vendor.fullName || 'MechMaster Logo'} 
                         fill 
-                        className="object-cover grayscale hover:grayscale-0 transition-all duration-500" 
+                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                       />
                     ) : (
                       <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={64} /></div>
                     )}
-                    <div className="absolute top-4 right-4 bg-background/80 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                    
+                    {/* Verified Badge Overlay */}
+                    {vendor.isVerified && (
+                      <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-secondary/90 text-background px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg">
+                        <ShieldCheck className="w-3.5 h-3.5" /> VERIFIED
+                      </div>
+                    )}
+
+                    <div className="absolute top-4 right-4 bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 border border-white/10 shadow-lg">
                       <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                      {vendor.rating}
+                      {vendor.rating || '4.8'}/5
                     </div>
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-headline text-xl font-bold truncate pr-2">{vendor.fullName}</h3>
-                      {vendor.isVerified && <ShieldCheck className="w-4 h-4 text-secondary shrink-0" />}
+                      <h3 className="font-headline text-xl font-bold truncate pr-2 group-hover:text-secondary transition-colors text-white">{vendor.fullName}</h3>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
-                      <MapPin className="w-4 h-4" />
-                      {vendor.location || vendor.teamName || 'Manufacturing Hub'}
+                    
+                    <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
+                      <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
+                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs</div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
+
+                    <div className="flex flex-wrap gap-2 mb-6 h-12 overflow-hidden">
                       {(vendor.specializations || ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
-                        <Badge key={i} variant="secondary" className="bg-primary/10 text-[10px] text-white uppercase tracking-wider">
+                        <Badge key={i} variant="outline" className="bg-white/5 border-white/10 text-[9px] text-white uppercase font-bold py-1 px-2 tracking-tighter">
                           {s}
                         </Badge>
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3">
                       {vendor.portfolio || 'Verified high-precision manufacturing facility within our trusted network.'}
                     </p>
                   </CardContent>
                 </Card>
               </div>
             )) : (
-              <div className="py-12 text-center w-full opacity-50">Discovering verified production partners...</div>
+              <div className="py-12 text-center w-full opacity-50 italic">Discovering verified production partners...</div>
             )}
           </div>
         </div>
@@ -271,13 +287,13 @@ export default function Home() {
         <div className="blueprint-grid opacity-5" suppressHydrationWarning />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6">Why Join MechHub?</h2>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6 uppercase tracking-tight">Why Join MechHub?</h2>
             
             <Tabs defaultValue="innovators" className="w-full">
               <div className="flex justify-center mb-16">
                 <TabsList className="bg-card border border-white/10 p-1 h-12">
-                  <TabsTrigger value="innovators" className="px-8 font-bold data-[state=active]:bg-primary">For Innovators</TabsTrigger>
-                  <TabsTrigger value="manufacturers" className="px-8 font-bold data-[state=active]:bg-primary">For Manufacturers</TabsTrigger>
+                  <TabsTrigger value="innovators" className="px-8 font-bold data-[state=active]:bg-primary uppercase tracking-widest text-[11px]">For Innovators</TabsTrigger>
+                  <TabsTrigger value="manufacturers" className="px-8 font-bold data-[state=active]:bg-primary uppercase tracking-widest text-[11px]">For Manufacturers</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -290,8 +306,8 @@ export default function Home() {
                     { title: 'Quality Layer', desc: 'Production updates, QC checklists, and part inspection images before delivery.', icon: ClipboardCheck },
                     { title: 'End-to-End Tracking', desc: 'From upload to delivery, manage everything in one integrated dashboard.', icon: LayoutDashboard }
                   ].map((benefit, i) => (
-                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
-                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors group">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
                         <benefit.icon className="text-secondary w-7 h-7" />
                       </div>
                       <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
@@ -310,8 +326,8 @@ export default function Home() {
                     { title: 'Faster Payments', desc: 'Structured payment process designed to avoid traditional delays.', icon: FastForward },
                     { title: 'No Middlemen', desc: 'Enjoy direct communication and maintain transparent pricing.', icon: Users2 }
                   ].map((benefit, i) => (
-                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors">
-                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                    <div key={i} className="flex flex-col items-center text-center p-6 rounded-xl border border-white/5 bg-card/50 hover:bg-card transition-colors group">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
                         <benefit.icon className="text-secondary w-7 h-7" />
                       </div>
                       <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
@@ -323,16 +339,16 @@ export default function Home() {
             </Tabs>
           </div>
 
-          <div className="max-w-3xl mx-auto bg-primary/5 border border-primary/10 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8">
+          <div className="max-w-3xl mx-auto bg-primary/5 border border-primary/10 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
             <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
               <Lock className="text-secondary w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-white">
                 We protect your IP
                 <ShieldCheck className="w-5 h-5 text-secondary" />
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed text-sm">
                 Innovation is your greatest asset. We sign a strictly binding NDA with all our MechMasters to ensure your designs and intellectual property are fully protected at every stage.
               </p>
             </div>
@@ -345,7 +361,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto border-l-4 border-primary pl-8 md:pl-16 py-8">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Need Expert Manufacturing Guidance?</h2>
+                <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight">Need Expert Manufacturing Guidance?</h2>
                 <p className="text-lg text-muted-foreground mb-10">
                   Get your design reviewed, optimized, or fully engineered by our experts.
                 </p>
@@ -362,7 +378,7 @@ export default function Home() {
 
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="lg" className="h-14 px-10 text-lg bg-primary hover:bg-primary/90 text-white" suppressHydrationWarning>
+                    <Button size="lg" className="h-14 px-10 text-lg bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest" suppressHydrationWarning>
                       Book Consultation
                     </Button>
                   </DialogTrigger>
@@ -405,7 +421,7 @@ export default function Home() {
                           <Upload className="mx-auto mb-2 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">Upload design (optional)</span>
                         </div>
-                        <Button type="submit" className="w-full h-12" disabled={isSubmitting} suppressHydrationWarning>
+                        <Button type="submit" className="w-full h-12 font-bold uppercase tracking-widest" disabled={isSubmitting} suppressHydrationWarning>
                           {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Request"}
                         </Button>
                       </form>
@@ -432,14 +448,14 @@ export default function Home() {
             <div className="col-span-2">
               <Link href="/" className="flex items-center gap-3 mb-6">
                 <Logo size={40} />
-                <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
+                <span className="font-headline font-bold text-xl tracking-tight text-white uppercase">MechHub</span>
               </Link>
-              <p className="text-muted-foreground text-sm max-w-sm">
-                The hub for custom mechanical parts. Bridging the gap between engineering design and quality manufacturing.
+              <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+                The hub for custom mechanical parts. Bridging the gap between engineering design and quality manufacturing across India.
               </p>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-widest text-secondary">Company</h4>
+              <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-secondary">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
@@ -447,7 +463,7 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-widest text-secondary">Legal</h4>
+              <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-secondary">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
@@ -455,7 +471,7 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-sm uppercase tracking-widest text-secondary">For Vendors</h4>
+              <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-secondary">For Vendors</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#" className="hover:text-white transition-colors">Onboarding</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Seller Portal</Link></li>
@@ -463,8 +479,8 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <div>© {currentYear || ''} MechHub. All rights reserved.</div>
-            <div className="font-bold text-white/50">A Unit of Synchubb Innovations Pvt Ltd</div>
+            <div className="uppercase tracking-tighter">© {currentYear || ''} MechHub. All rights reserved.</div>
+            <div className="font-bold text-white/50 uppercase tracking-widest text-[9px]">A Unit of Synchubb Innovations Pvt Ltd</div>
           </div>
         </div>
       </footer>
