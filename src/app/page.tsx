@@ -1,5 +1,4 @@
-
-'use client';
+"use client"
 
 import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
@@ -227,7 +226,7 @@ export default function Home() {
                     {vendor.imageUrl ? (
                       <Image 
                         src={vendor.imageUrl} 
-                        alt={vendor.fullName} 
+                        alt={vendor.fullName || 'MechMaster Logo'} 
                         fill 
                         className="object-cover grayscale hover:grayscale-0 transition-all duration-500" 
                       />

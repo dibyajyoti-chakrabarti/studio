@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -468,7 +467,7 @@ export default function AdminPanel() {
                         <TableCell>
                           <div className="relative w-10 h-10 rounded overflow-hidden bg-muted">
                             {v.imageUrl ? (
-                              <Image src={v.imageUrl} alt={v.fullName} fill className="object-cover" />
+                              <Image src={v.imageUrl} alt={v.fullName || 'Vendor Logo'} fill className="object-cover" />
                             ) : (
                               <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={16} /></div>
                             )}
@@ -564,7 +563,7 @@ export default function AdminPanel() {
                         <div className="relative w-32 h-32 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden bg-background group">
                           {profileImage ? (
                             <>
-                              <Image src={profileImage} alt="Preview" fill className="object-cover" />
+                              <Image src={profileImage} alt="Profile Logo Preview" fill className="object-cover" />
                               <Button 
                                 type="button" 
                                 variant="destructive" 
@@ -764,7 +763,7 @@ export default function AdminPanel() {
               <div className="space-y-2"><Label>Notes</Label><textarea name="notes" className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px]" /></div>
               <div className="flex gap-3">
                 <Button type="submit" className="flex-1" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Confirm & Send Quote'}</Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShowQuoteModal(false)}>Cancel</Button>
+                <Button variant="outline" className="flex-1" onClick={() => { setShowQuoteModal(false); setSelectedRfq(null); }}>Cancel</Button>
               </div>
             </form>
           </Card>
@@ -878,7 +877,7 @@ export default function AdminPanel() {
             </div>
             
             <div className="mt-8 flex justify-end gap-3">
-              <Button onClick={() => setShowDetailsModal(false)}>Close Specifications</Button>
+              <Button onClick={() => { setShowDetailsModal(false); setSelectedRfq(null); }}>Close Specifications</Button>
             </div>
           </Card>
         </div>
