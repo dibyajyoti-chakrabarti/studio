@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import Image from "next/image";
@@ -40,7 +39,12 @@ export function LandingNav() {
     <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/mechhub.jpg" alt="MechHub Logo" width={60} height={60} />
+          <Image
+            src="/mechhub.jpg"
+            alt="MechHub Logo"
+            width={60}
+            height={60}
+          />
           <span className="font-headline font-bold text-xl tracking-tight">MechHub</span>
         </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">

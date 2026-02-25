@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -9,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Logo } from '@/components/Logo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Dialog,
@@ -45,6 +43,7 @@ import { collection, query, doc, getDoc, where, orderBy } from 'firebase/firesto
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
+import Image from 'next/image';
 
 export default function VendorPortal() {
   const router = useRouter();
@@ -219,10 +218,15 @@ export default function VendorPortal() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
+      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Logo size={32} />
-          <span className="font-headline font-bold text-lg text-white">MechMaster Workspace</span>
+          <Image
+            src="/mechhub.jpg"
+            alt="MechHub Logo"
+            width={60}
+            height={60}
+          />
+          <span className="font-headline font-bold text-xl text-white">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">

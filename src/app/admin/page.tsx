@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -8,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Logo } from '@/components/Logo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -300,10 +298,15 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-card">
+      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card">
         <div className="flex items-center gap-3">
-          <Logo size={32} />
-          <span className="font-headline font-bold text-lg">MechHub Admin</span>
+          <Image
+            src="/mechhub.jpg"
+            alt="MechHub Logo"
+            width={60}
+            height={60}
+          />
+          <span className="font-headline font-bold text-xl">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10">
@@ -807,7 +810,7 @@ export default function AdminPanel() {
 
       {isRevising && revisingQuote && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-          <Card className="w-full max-w-md bg-card border-white/10 p-6 shadow-2xl">
+          <Card className="w-max-w-md bg-card border-white/10 p-6 shadow-2xl">
             <h2 className="text-xl font-headline font-bold mb-4">Admin Intervention: Revise Quotation</h2>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
