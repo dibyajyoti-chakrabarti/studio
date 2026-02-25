@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -348,7 +349,7 @@ export default function AdminPanel() {
                       <TableRow key={rfq.id} className="border-b border-white/5">
                         <TableCell>
                           <div className="font-bold">{rfq.projectName || 'Untitled'}</div>
-                          <div className="text-xs text-muted-foreground">{rfq.userName} ({rfq.teamName})</div>
+                          <div className="text-sm text-muted-foreground">{rfq.userName} ({rfq.teamName})</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-xs">{rfq.manufacturingProcess}</div>
