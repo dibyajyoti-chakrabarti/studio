@@ -146,7 +146,7 @@ export default function MatchingPage() {
               <Sparkles className="w-5 h-5" />
               <span className="text-sm font-bold uppercase tracking-widest">Recommended MechMasters</span>
             </div>
-            <h1 className="font-headline text-3xl md:text-4xl font-bold">Invite Production Partners</h1>
+            <h1 className="font-headline text-3xl md:text-4xl font-bold text-white">Invite Production Partners</h1>
             <p className="text-muted-foreground mt-2">Select multiple vendors to receive competitive quotations and ensure the best price.</p>
           </div>
           <div className="bg-secondary/10 border border-secondary/20 p-4 rounded-lg flex items-center gap-3">
@@ -164,30 +164,22 @@ export default function MatchingPage() {
             >
               <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 h-full">
                 <div className="relative h-48 bg-muted/20 flex items-center justify-center">
-                  {vendor.imageUrl ? (
-                    <Image 
-                      src={vendor.imageUrl} 
-                      alt={vendor.fullName || 'MechMaster Logo'} 
-                      fill 
-                      className="object-cover transition-transform group-hover:scale-105 opacity-90 group-hover:opacity-100"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground/30">
-                      <Factory size={48} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Manufacturing Partner</span>
-                    </div>
-                  )}
+                  <Image 
+                    src={vendor.imageUrl || "/mechhub.jpg"} 
+                    alt={vendor.fullName || 'MechMaster Logo'} 
+                    fill 
+                    className="object-cover transition-transform group-hover:scale-105 opacity-90 group-hover:opacity-100"
+                  />
                   
-                  {/* Verified Badge Overlay */}
                   {vendor.isVerified && (
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-background px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-background px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
                       <ShieldCheck className="w-3 h-3" /> VERIFIED
                     </div>
                   )}
 
                   <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
                     <Checkbox checked={selectedVendors.includes(vendor.id)} className="w-6 h-6 border-white bg-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <div className="bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1">
+                    <div className="bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 border border-white/10 shadow-lg">
                       <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                       {vendor.rating || 4.5}/5
                     </div>
@@ -195,30 +187,30 @@ export default function MatchingPage() {
                 </div>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2">
+                    <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2 text-white">
                       {vendor.fullName || 'Verified MechMaster'}
                     </h3>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-medium uppercase tracking-wider mb-4">
-                    <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
-                    <div className="flex items-center gap-1"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
+                  <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
+                    <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 mb-6 h-12 overflow-hidden">
+                  <div className="flex flex-wrap gap-2 mb-6 min-h-12">
                     {vendor.specializations?.map((s: string, i: number) => (
-                      <Badge key={i} variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">
+                      <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">
                         {s}
                       </Badge>
                     )) || (
                       <>
-                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">CNC Machining</Badge>
-                        <Badge variant="outline" className="text-[9px] border-white/10 uppercase font-bold py-1 px-2 bg-white/5 tracking-tight">Sheet Metal</Badge>
+                        <Badge variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">CNC Machining</Badge>
+                        <Badge variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">Sheet Metal</Badge>
                       </>
                     )}
                   </div>
 
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3">
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3 min-h-8">
                     {vendor.portfolio || 'Verified high-precision manufacturing facility with ISO certification.'}
                   </p>
                 </CardContent>
@@ -236,11 +228,11 @@ export default function MatchingPage() {
           <div className="container max-w-6xl w-full flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm font-medium flex items-center gap-2">
               <Badge variant="secondary" className="text-lg px-3">{selectedVendors.length}</Badge>
-              <span className="text-muted-foreground">Vendors Selected for Bidding</span>
+              <span className="text-muted-foreground font-bold uppercase tracking-widest text-[11px]">Vendors Selected for Bidding</span>
             </div>
             <Button 
               size="lg" 
-              className="px-12 h-14 text-lg min-w-[240px] font-bold" 
+              className="px-12 h-14 text-lg min-w-[240px] font-bold uppercase tracking-widest" 
               disabled={selectedVendors.length === 0 || isSubmitting}
               onClick={handleSubmit}
             >

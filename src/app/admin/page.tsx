@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -305,7 +306,7 @@ export default function AdminPanel() {
     document.body.removeChild(link);
   };
 
-  if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
   if (!isAdminConfirmed) return null;
 
   return (
@@ -318,10 +319,10 @@ export default function AdminPanel() {
             width={60}
             height={60}
           />
-          <span className="font-headline font-bold text-xl">MechHub Admin</span>
+          <span className="font-headline font-bold text-xl text-white">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10">
+          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">
             <LogOut className="w-4 h-4" /> Logout
           </Button>
         </div>
@@ -338,38 +339,38 @@ export default function AdminPanel() {
           {activeTab === 'rfqs' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-headline font-bold">Project Management</h1>
-                <Badge variant="outline" className="px-3 py-1">{rfqs?.length || 0} Total Requests</Badge>
+                <h1 className="text-3xl font-headline font-bold text-white">Project Management</h1>
+                <Badge variant="outline" className="px-3 py-1 border-white/10 text-white">{rfqs?.length || 0} Total Requests</Badge>
               </div>
               
               <Card className="bg-card border-white/5">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
-                      <TableHead>Project & User</TableHead>
-                      <TableHead>Details</TableHead>
-                      <TableHead>Requested Vendors</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-white">Project & User</TableHead>
+                      <TableHead className="text-white">Details</TableHead>
+                      <TableHead className="text-white">Requested Vendors</TableHead>
+                      <TableHead className="text-white">Status</TableHead>
+                      <TableHead className="text-white">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isRfqsLoading ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto" /></TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
                     ) : rfqs?.map((rfq) => (
                       <TableRow key={rfq.id} className="border-b border-white/5">
                         <TableCell>
-                          <div className="font-bold">{rfq.projectName || 'Untitled'}</div>
+                          <div className="font-bold text-white">{rfq.projectName || 'Untitled'}</div>
                           <div className="text-sm text-muted-foreground">{rfq.userName} ({rfq.teamName})</div>
                         </TableCell>
                         <TableCell>
-                          <div className="text-xs">{rfq.manufacturingProcess}</div>
+                          <div className="text-xs text-white">{rfq.manufacturingProcess}</div>
                           <div className="text-[10px] text-muted-foreground uppercase">{rfq.material} • Qty: {rfq.quantity}</div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {rfq.selectedVendors?.map((v: string, i: number) => (
-                              <Badge key={i} variant="outline" className="text-[9px] border-white/10">{v}</Badge>
+                              <Badge key={i} variant="outline" className="text-[9px] border-white/10 bg-white/5 text-white">{v}</Badge>
                             ))}
                           </div>
                         </TableCell>
@@ -410,27 +411,27 @@ export default function AdminPanel() {
 
           {activeTab === 'users' && (
             <div className="space-y-6">
-              <h1 className="text-3xl font-headline font-bold">Buyer Directory</h1>
+              <h1 className="text-3xl font-headline font-bold text-white">Buyer Directory</h1>
               <Card className="bg-card border-white/5">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
-                      <TableHead>Name</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Organization</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead className="text-white">Name</TableHead>
+                      <TableHead className="text-white">Contact</TableHead>
+                      <TableHead className="text-white">Organization</TableHead>
+                      <TableHead className="text-white">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {buyers?.map((u) => (
                       <TableRow key={u.id} className="border-b border-white/5">
-                        <TableCell className="font-bold">{u.fullName}</TableCell>
+                        <TableCell className="font-bold text-white">{u.fullName}</TableCell>
                         <TableCell>
-                          <div className="text-sm">{u.email}</div>
+                          <div className="text-sm text-white">{u.email}</div>
                           <div className="text-xs text-muted-foreground">{u.phone}</div>
                         </TableCell>
-                        <TableCell>{u.teamName}</TableCell>
-                        <TableCell><Badge variant="outline">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
+                        <TableCell className="text-white">{u.teamName}</TableCell>
+                        <TableCell><Badge variant="outline" className="border-white/10 text-white">{u.onboarded ? 'Onboarded' : 'Pending'}</Badge></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -442,8 +443,8 @@ export default function AdminPanel() {
           {activeTab === 'vendors' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-headline font-bold">MechMaster Registry</h1>
-                <Button onClick={() => { setSelectedVendorProfile(null); setProfileImage(null); setVendorStep(1); setShowVendorModal(true); }} className="gap-2">
+                <h1 className="text-3xl font-headline font-bold text-white">MechMaster Registry</h1>
+                <Button onClick={() => { setSelectedVendorProfile(null); setProfileImage(null); setVendorStep(1); setShowVendorModal(true); }} className="gap-2 font-bold uppercase tracking-widest text-[11px]">
                   <Plus className="w-4 h-4" /> Register New MechMaster
                 </Button>
               </div>
@@ -452,13 +453,13 @@ export default function AdminPanel() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
-                      <TableHead>Logo</TableHead>
-                      <TableHead>Vendor & Rating</TableHead>
-                      <TableHead>Capabilities</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Verification</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-white">Logo</TableHead>
+                      <TableHead className="text-white">Vendor & Rating</TableHead>
+                      <TableHead className="text-white">Capabilities</TableHead>
+                      <TableHead className="text-white">Location</TableHead>
+                      <TableHead className="text-white">Verification</TableHead>
+                      <TableHead className="text-white">Status</TableHead>
+                      <TableHead className="text-white">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -466,15 +467,16 @@ export default function AdminPanel() {
                       <TableRow key={v.id} className="border-b border-white/5">
                         <TableCell>
                           <div className="relative w-10 h-10 rounded overflow-hidden bg-muted">
-                            {v.imageUrl ? (
-                              <Image src={v.imageUrl} alt={v.fullName || 'Vendor Logo'} fill className="object-cover" />
-                            ) : (
-                              <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={16} /></div>
-                            )}
+                            <Image 
+                              src={v.imageUrl || "/mechhub.jpg"} 
+                              alt={v.fullName || 'Vendor Logo'} 
+                              fill 
+                              className="object-cover" 
+                            />
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-bold flex items-center gap-2">
+                          <div className="font-bold flex items-center gap-2 text-white">
                             {v.fullName}
                             {v.isVerified && <ShieldCheck className="w-3 h-3 text-secondary" />}
                           </div>
@@ -486,11 +488,13 @@ export default function AdminPanel() {
                         <TableCell>
                           <div className="flex flex-wrap gap-1 max-w-[200px]">
                             {v.specializations?.map((s: string, i: number) => (
-                              <Badge key={i} variant="outline" className="text-[9px] bg-primary/5">{s}</Badge>
+                              <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider">
+                                {s}
+                              </Badge>
                             )) || <span className="text-[10px] italic opacity-50">None listed</span>}
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs text-white">
                           <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-muted-foreground" /> {v.location || 'Unknown'}</div>
                         </TableCell>
                         <TableCell>
@@ -505,7 +509,7 @@ export default function AdminPanel() {
                           </Button>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={v.isActive ? 'default' : 'secondary'} className="text-[10px]">
+                          <Badge variant={v.isActive ? 'default' : 'secondary'} className="text-[10px] font-bold uppercase tracking-widest px-2">
                             {v.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </TableCell>
@@ -558,7 +562,7 @@ export default function AdminPanel() {
                 {vendorStep === 1 && (
                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="space-y-4">
-                      <Label className="text-secondary font-bold uppercase tracking-widest text-[10px]">Company Brading</Label>
+                      <Label className="text-secondary font-bold uppercase tracking-widest text-[10px]">Company Branding</Label>
                       <div className="flex items-center gap-6">
                         <div className="relative w-32 h-32 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden bg-background group">
                           {profileImage ? (
@@ -593,7 +597,7 @@ export default function AdminPanel() {
                             type="button" 
                             variant="outline" 
                             onClick={() => fileInputRef.current?.click()}
-                            className="gap-2 w-full h-12 border-white/10 hover:bg-white/5"
+                            className="gap-2 w-full h-12 border-white/10 hover:bg-white/5 font-bold uppercase tracking-widest text-[10px]"
                           >
                             <Upload size={16} /> Upload Official Logo
                           </Button>
@@ -604,11 +608,11 @@ export default function AdminPanel() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-secondary" /> Company Name</Label>
+                        <Label className="flex items-center gap-2 text-white"><Building2 className="w-4 h-4 text-secondary" /> Company Name</Label>
                         <Input name="teamName" defaultValue={selectedVendorProfile?.teamName} placeholder="e.g. Precision Engineering Ltd" className="bg-background h-12" required />
                       </div>
                       <div className="space-y-2">
-                        <Label className="flex items-center gap-2"><Contact2 className="w-4 h-4 text-secondary" /> Contact Person</Label>
+                        <Label className="flex items-center gap-2 text-white"><Contact2 className="w-4 h-4 text-secondary" /> Contact Person</Label>
                         <Input name="fullName" defaultValue={selectedVendorProfile?.fullName} placeholder="e.g. John Wick" className="bg-background h-12" required />
                       </div>
                     </div>
@@ -619,15 +623,15 @@ export default function AdminPanel() {
                   <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label>Official Email Address</Label>
+                        <Label className="text-white">Official Email Address</Label>
                         <Input name="email" type="email" defaultValue={selectedVendorProfile?.email} placeholder="vendor@mechhub.com" className="bg-background h-12" required />
                       </div>
                       <div className="space-y-2">
-                        <Label>Direct Phone Number</Label>
+                        <Label className="text-white">Direct Phone Number</Label>
                         <Input name="phone" defaultValue={selectedVendorProfile?.phone} placeholder="+91 00000 00000" className="bg-background h-12" required />
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-secondary" /> Workshop Location</Label>
+                        <Label className="flex items-center gap-2 text-white"><MapPin className="w-4 h-4 text-secondary" /> Workshop Location</Label>
                         <Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State, Country (e.g. Pune, Maharashtra, India)" className="bg-background h-12" required />
                       </div>
                     </div>
@@ -644,7 +648,7 @@ export default function AdminPanel() {
                         {SPECIALIZATIONS.map(s => (
                           <div key={s} className="flex items-center gap-3 bg-background p-3 rounded-lg border border-white/5 hover:border-secondary/20 transition-all cursor-pointer">
                             <Checkbox id={`spec_${s}`} name={`spec_${s}`} defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
-                            <label htmlFor={`spec_${s}`} className="text-xs font-bold cursor-pointer select-none">{s}</label>
+                            <label htmlFor={`spec_${s}`} className="text-xs font-bold cursor-pointer select-none text-white">{s}</label>
                           </div>
                         ))}
                       </div>
@@ -652,11 +656,11 @@ export default function AdminPanel() {
 
                     <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                       <div className="space-y-2">
-                        <Label>Manufacturing Experience (Years)</Label>
+                        <Label className="text-white">Manufacturing Experience (Years)</Label>
                         <Input name="experienceYears" type="number" defaultValue={selectedVendorProfile?.experienceYears || 0} className="bg-background h-12" />
                       </div>
                       <div className="space-y-2">
-                        <Label>Initial Marketplace Rating (0-5)</Label>
+                        <Label className="text-white">Initial Marketplace Rating (0-5)</Label>
                         <Input name="rating" type="number" step="0.1" max="5" defaultValue={selectedVendorProfile?.rating || 4.5} className="bg-background h-12" />
                       </div>
                     </div>
@@ -666,20 +670,20 @@ export default function AdminPanel() {
                 {vendorStep === 4 && (
                   <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><FileCheck2 className="w-4 h-4 text-secondary" /> Portfolio & Facility Description</Label>
-                      <Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} placeholder="Describe workshop capacity, major machinery, and past clients..." className="bg-background min-h-[100px] text-sm" />
+                      <Label className="flex items-center gap-2 text-white"><FileCheck2 className="w-4 h-4 text-secondary" /> Portfolio & Facility Description</Label>
+                      <Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} placeholder="Describe workshop capacity, major machinery, and past clients..." className="bg-background min-h-[100px] text-sm text-white" />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">Internal Admin Notes</Label>
-                      <Textarea name="adminNotes" defaultValue={selectedVendorProfile?.adminNotes} placeholder="Confidential verification notes, payment terms, or lead source..." className="bg-background h-24 text-sm" />
+                      <Textarea name="adminNotes" defaultValue={selectedVendorProfile?.adminNotes} placeholder="Confidential verification notes, payment terms, or lead source..." className="bg-background h-24 text-sm text-white" />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-8 pt-6 border-t border-white/5">
                       <div className="flex items-center gap-3">
                         <Checkbox id="isActive" name="isActive" defaultChecked={selectedVendorProfile ? selectedVendorProfile.isActive : true} />
                         <div className="grid gap-0.5">
-                          <Label htmlFor="isActive" className="text-sm font-bold">Active Status</Label>
+                          <Label htmlFor="isActive" className="text-sm font-bold text-white">Active Status</Label>
                           <p className="text-[10px] text-muted-foreground">Visible to innovators in marketplace</p>
                         </div>
                       </div>
@@ -707,7 +711,7 @@ export default function AdminPanel() {
                       setVendorStep(prev => prev - 1);
                     }
                   }}
-                  className="gap-2 border-white/10"
+                  className="gap-2 border-white/10 hover:bg-white/5 font-bold uppercase tracking-widest text-[10px] h-12 px-6"
                 >
                   <ChevronLeft size={16} /> {vendorStep === 1 ? 'Discard' : 'Back'}
                 </Button>
@@ -717,7 +721,7 @@ export default function AdminPanel() {
                     <Button 
                       type="button" 
                       onClick={() => setVendorStep(prev => prev + 1)}
-                      className="gap-2 font-bold px-8 h-12"
+                      className="gap-2 font-bold px-10 h-12 uppercase tracking-widest text-[10px]"
                     >
                       Continue <ChevronRight size={16} />
                     </Button>
@@ -725,7 +729,7 @@ export default function AdminPanel() {
                     <Button 
                       type="submit" 
                       disabled={isSubmittingVendor}
-                      className="gap-2 font-bold px-10 h-12 bg-secondary text-background hover:bg-secondary/90"
+                      className="gap-2 font-bold px-10 h-12 bg-secondary text-background hover:bg-secondary/90 uppercase tracking-widest text-[10px]"
                     >
                       {isSubmittingVendor ? <Loader2 className="animate-spin" /> : (selectedVendorProfile ? 'Commit Changes' : 'Finalize Registration')}
                     </Button>
@@ -740,30 +744,30 @@ export default function AdminPanel() {
       {showQuoteModal && selectedRfq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
           <Card className="w-full max-w-lg bg-card border-white/10 shadow-2xl p-6">
-            <h2 className="text-xl font-headline font-bold mb-4">Create Initial Quote</h2>
+            <h2 className="text-xl font-headline font-bold mb-4 text-white">Create Initial Quote</h2>
             <form onSubmit={handleSendQuotation} className="space-y-4">
               <div className="space-y-2">
-                <Label>Assign MechMaster</Label>
+                <Label className="text-white">Assign MechMaster</Label>
                 <Select name="vendorId" required>
-                  <SelectTrigger className="bg-background border-white/10">
+                  <SelectTrigger className="bg-background border-white/10 text-white">
                     <SelectValue placeholder="Select a vendor" />
                   </SelectTrigger>
                   <SelectContent>
                     {vendors?.filter(v => v.isActive).map(v => (
-                      <SelectItem key={v.id} value={v.id}>{v.fullName} ({v.email})</SelectItem>
+                      <SelectItem key={v.id} value={v.id} className="text-white">{v.fullName} ({v.email})</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-[10px] text-muted-foreground">User requested: {selectedRfq.selectedVendors?.join(', ')}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Price (INR)</Label><Input name="price" type="number" required /></div>
-                <div className="space-y-2"><Label>Lead Time (Days)</Label><Input name="leadTime" type="number" required /></div>
+                <div className="space-y-2"><Label className="text-white">Price (INR)</Label><Input name="price" type="number" required className="text-white" /></div>
+                <div className="space-y-2"><Label className="text-white">Lead Time (Days)</Label><Input name="leadTime" type="number" required className="text-white" /></div>
               </div>
-              <div className="space-y-2"><Label>Notes</Label><textarea name="notes" className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px]" /></div>
-              <div className="flex gap-3">
-                <Button type="submit" className="flex-1" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Confirm & Send Quote'}</Button>
-                <Button variant="outline" className="flex-1" onClick={() => { setShowQuoteModal(false); setSelectedRfq(null); }}>Cancel</Button>
+              <div className="space-y-2"><Label className="text-white">Notes</Label><textarea name="notes" className="w-full bg-background border border-white/10 rounded-md p-3 min-h-[100px] text-white text-sm" /></div>
+              <div className="flex gap-3 pt-4">
+                <Button type="submit" className="flex-1 font-bold" disabled={isSubmittingQuote}>{isSubmittingQuote ? <Loader2 className="animate-spin" /> : 'Confirm & Send Quote'}</Button>
+                <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 font-bold" onClick={() => { setShowQuoteModal(false); setSelectedRfq(null); }}>Cancel</Button>
               </div>
             </form>
           </Card>
@@ -775,20 +779,20 @@ export default function AdminPanel() {
           <Card className="w-full max-w-4xl bg-card border-white/10 shadow-2xl p-6 my-8">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-2xl font-headline font-bold">{selectedRfq.projectName}</h2>
+                <h2 className="text-2xl font-headline font-bold text-white">{selectedRfq.projectName}</h2>
                 <p className="text-muted-foreground">Detailed project specifications & bid management</p>
               </div>
-              <Badge className="text-lg px-4 py-1">{selectedRfq.status.replace('_', ' ')}</Badge>
+              <Badge className="text-lg px-4 py-1 bg-primary text-white border-none">{selectedRfq.status.replace('_', ' ')}</Badge>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
               <div className="space-y-6">
                 <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Technical Requirements</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Process:</span><span>{selectedRfq.manufacturingProcess}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Material:</span><span>{selectedRfq.material}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Tolerance:</span><span>{selectedRfq.tolerance}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Finish:</span><span>{selectedRfq.surfaceFinish || 'Standard'}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq.manufacturingProcess}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq.material}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Tolerance:</span><span className="text-white">{selectedRfq.tolerance}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Finish:</span><span className="text-white">{selectedRfq.surfaceFinish || 'Standard'}</span></div>
                   </div>
                 </div>
                 <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Technical Documents</h3>
@@ -797,7 +801,7 @@ export default function AdminPanel() {
                       <div className="flex items-center gap-3">
                         <FileText className="w-8 h-8 text-primary" />
                         <div className="overflow-hidden max-w-[150px]">
-                          <p className="font-bold truncate">{selectedRfq.designFileName || 'Design_File'}</p>
+                          <p className="font-bold truncate text-white">{selectedRfq.designFileName || 'Design_File'}</p>
                           <p className="text-[10px] text-muted-foreground">Engineering Drawing</p>
                         </div>
                       </div>
@@ -811,10 +815,10 @@ export default function AdminPanel() {
                 </div>
                 <div><h3 className="font-bold text-secondary mb-2 uppercase tracking-widest text-[10px]">Logistics</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Quantity:</span><span>{selectedRfq.quantity} units</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Delivery:</span><span>{new Date(selectedRfq.deliveryDate).toLocaleDateString()}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Location:</span><span>{selectedRfq.deliveryLocation}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Budget:</span><span>{selectedRfq.budgetRange || 'Unspecified'}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Quantity:</span><span className="text-white">{selectedRfq.quantity} units</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Delivery:</span><span className="text-white">{new Date(selectedRfq.deliveryDate).toLocaleDateString()}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Location:</span><span className="text-white">{selectedRfq.deliveryLocation}</span></div>
+                    <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Budget:</span><span className="text-white">{selectedRfq.budgetRange || 'Unspecified'}</span></div>
                   </div>
                 </div>
               </div>
@@ -845,15 +849,15 @@ export default function AdminPanel() {
                               <div className="space-y-2 mt-2 pt-2 border-t border-white/5">
                                 <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Latest Update</p>
                                 <div className={`p-2 rounded text-[10px] ${lastNeg.party === 'user' ? 'bg-primary/5 border-l-2 border-primary' : 'bg-secondary/5 border-l-2 border-secondary'}`}>
-                                  <p className="font-bold capitalize mb-1">{lastNeg.party} Proposal:</p>
-                                  <p>₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
+                                  <p className="font-bold text-white capitalize mb-1">{lastNeg.party} Proposal:</p>
+                                  <p className="text-white">₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
                                   {lastNeg.message && <p className="italic text-muted-foreground mt-1">"{lastNeg.message}"</p>}
                                 </div>
                               </div>
                             )}
                             
                             <div className="flex gap-2 pt-2">
-                              <Button variant="outline" size="sm" className="h-7 text-xs flex-1 border-white/10" onClick={() => {
+                              <Button variant="outline" size="sm" className="h-7 text-xs flex-1 border-white/10 hover:bg-white/5 font-bold" onClick={() => {
                                 setRevisingQuote(quote);
                                 setRevPrice(quote.quotedPrice.toString());
                                 setRevLeadTime(quote.leadTimeDays.toString());
@@ -867,7 +871,7 @@ export default function AdminPanel() {
                       })}
                     </div>
                   ) : (
-                    <div className="p-8 text-center bg-background/50 rounded-xl border border-dashed border-white/5">
+                    <div className="p-8 text-center bg-background/50 rounded-xl border border-dashed border-white/10">
                       <Clock className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-2" />
                       <p className="text-xs text-muted-foreground italic">No bids submitted for this RFQ yet.</p>
                     </div>
@@ -876,8 +880,8 @@ export default function AdminPanel() {
               </div>
             </div>
             
-            <div className="mt-8 flex justify-end gap-3">
-              <Button onClick={() => { setShowDetailsModal(false); setSelectedRfq(null); }}>Close Specifications</Button>
+            <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-white/5">
+              <Button onClick={() => { setShowDetailsModal(false); setSelectedRfq(null); }} className="font-bold px-8">Close Specifications</Button>
             </div>
           </Card>
         </div>
@@ -885,31 +889,31 @@ export default function AdminPanel() {
 
       {isRevising && revisingQuote && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-          <Card className="w-max-w-md bg-card border-white/10 p-6 shadow-2xl">
-            <h2 className="text-xl font-headline font-bold mb-4">Admin Intervention: Revise Quotation</h2>
+          <Card className="w-full max-w-md bg-card border-white/10 p-6 shadow-2xl">
+            <h2 className="text-xl font-headline font-bold mb-4 text-white">Admin Intervention: Revise Quotation</h2>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Revised Price (₹)</Label>
-                  <Input value={revPrice} onChange={(e) => setRevPrice(e.target.value)} type="number" className="bg-background" />
+                  <Label className="text-white">Revised Price (₹)</Label>
+                  <Input value={revPrice} onChange={(e) => setRevPrice(e.target.value)} type="number" className="bg-background text-white" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Revised Lead Time (Days)</Label>
-                  <Input value={revLeadTime} onChange={(e) => setRevLeadTime(e.target.value)} type="number" className="bg-background" />
+                  <Label className="text-white">Revised Lead Time (Days)</Label>
+                  <Input value={revLeadTime} onChange={(e) => setRevLeadTime(e.target.value)} type="number" className="bg-background text-white" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Admin Instructions / Message to Vendor</Label>
+                <Label className="text-white">Admin Instructions / Message to Vendor</Label>
                 <Textarea 
                   value={revMessage} 
                   onChange={(e) => setRevMessage(e.target.value)} 
                   placeholder="Explain the changes to the vendor..." 
-                  className="bg-background h-24"
+                  className="bg-background h-24 text-white text-sm"
                 />
               </div>
               <div className="flex gap-3 pt-4">
-                <Button className="flex-1 font-bold" onClick={handleAdminReviseQuote}>Update & Issue Terms</Button>
-                <Button variant="outline" className="flex-1 border-white/10" onClick={() => setIsRevising(false)}>Cancel</Button>
+                <Button className="flex-1 font-bold h-12" onClick={handleAdminReviseQuote}>Update & Issue Terms</Button>
+                <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-12 font-bold" onClick={() => setIsRevising(false)}>Cancel</Button>
               </div>
             </div>
           </Card>

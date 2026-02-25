@@ -126,7 +126,7 @@ export default function Home() {
             <Badge variant="outline" className="mb-4 border-secondary/50 text-secondary bg-secondary/5 uppercase font-bold tracking-widest text-[10px]">
               Revolutionizing Industrial Manufacturing
             </Badge>
-            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight mb-6">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold leading-tight mb-6 text-white">
               From CAD to Reality – <span className="text-secondary">Faster.</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
@@ -150,7 +150,7 @@ export default function Home() {
       <section id="services" className="py-24 bg-card/30 border-y border-white/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight">What We Offer</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-white">What We Offer</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our network of MechMasters covers a wide range of industrial processes to meet your specific requirements.
             </p>
@@ -169,7 +169,7 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <service.icon className="text-secondary w-6 h-6" />
                   </div>
-                  <h3 className="font-headline text-xl font-bold mb-3">{service.title}</h3>
+                  <h3 className="font-headline text-xl font-bold mb-3 text-white">{service.title}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{service.desc}</p>
                 </CardContent>
               </Card>
@@ -181,28 +181,28 @@ export default function Home() {
       <section id="how-it-works" className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight">How It Works</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-white">How It Works</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             <div className="hidden md:block absolute top-10 left-1/4 right-1/4 h-px border-t border-dashed border-white/20 -z-10" />
             
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold">1</div>
-              <h3 className="font-headline text-xl font-bold mb-3">Upload Design</h3>
+              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">1</div>
+              <h3 className="font-headline text-xl font-bold mb-3 text-white">Upload Design</h3>
               <p className="text-muted-foreground">Upload your STEP, STL, or PDF drawings securely.</p>
               <Upload className="mx-auto mt-6 text-secondary opacity-50" />
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold">2</div>
-              <h3 className="font-headline text-xl font-bold mb-3">Get Matched</h3>
+              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">2</div>
+              <h3 className="font-headline text-xl font-bold mb-3 text-white">Get Matched</h3>
               <p className="text-muted-foreground">We connect you with the best-suited MechMasters.</p>
               <Search className="mx-auto mt-6 text-secondary opacity-50" />
             </div>
 
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold">3</div>
-              <h3 className="font-headline text-xl font-bold mb-3">Track Production</h3>
+              <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">3</div>
+              <h3 className="font-headline text-xl font-bold mb-3 text-white">Track Production</h3>
               <p className="text-muted-foreground">Monitor progress from dashboard to delivery.</p>
               <CheckCircle2 className="mx-auto mt-6 text-secondary opacity-50" />
             </div>
@@ -227,20 +227,15 @@ export default function Home() {
           <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
             {landingVendors?.length ? landingVendors.map((vendor) => (
               <div key={vendor.id} className="min-w-[320px] md:min-w-[380px] snap-center group">
-                <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+                <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 h-full">
                   <div className="relative h-48 w-full bg-muted/20 overflow-hidden">
-                    {vendor.imageUrl ? (
-                      <Image 
-                        src={vendor.imageUrl} 
-                        alt={vendor.fullName || 'MechMaster Logo'} 
-                        fill 
-                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={64} /></div>
-                    )}
+                    <Image 
+                      src={vendor.imageUrl || "/mechhub.jpg"} 
+                      alt={vendor.fullName || 'MechMaster Logo'} 
+                      fill 
+                      className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
+                    />
                     
-                    {/* Verified Badge Overlay */}
                     {vendor.isVerified && (
                       <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-secondary/90 text-background px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg">
                         <ShieldCheck className="w-3.5 h-3.5" /> VERIFIED
@@ -259,18 +254,18 @@ export default function Home() {
                     
                     <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
                       <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Kolkata'}</div>
-                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs</div>
+                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '8'}+ Yrs Exp</div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mb-6 h-12 overflow-hidden">
+                    <div className="flex flex-wrap gap-2 mb-6 min-h-12 overflow-hidden">
                       {(vendor.specializations || ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
-                        <Badge key={i} variant="outline" className="bg-white/5 border-white/10 text-[9px] text-white uppercase font-bold py-1 px-2 tracking-tighter">
+                        <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">
                           {s}
                         </Badge>
                       ))}
                     </div>
                     
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3">
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3 min-h-8">
                       {vendor.portfolio || 'Verified high-precision manufacturing facility within our trusted network.'}
                     </p>
                   </CardContent>
@@ -287,7 +282,7 @@ export default function Home() {
         <div className="blueprint-grid opacity-5" suppressHydrationWarning />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6 uppercase tracking-tight">Why Join MechHub?</h2>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6 uppercase tracking-tight text-white">Why Join MechHub?</h2>
             
             <Tabs defaultValue="innovators" className="w-full">
               <div className="flex justify-center mb-16">
@@ -310,7 +305,7 @@ export default function Home() {
                       <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
                         <benefit.icon className="text-secondary w-7 h-7" />
                       </div>
-                      <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
+                      <h3 className="font-headline font-bold text-lg mb-2 text-white">{benefit.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
                     </div>
                   ))}
@@ -330,7 +325,7 @@ export default function Home() {
                       <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
                         <benefit.icon className="text-secondary w-7 h-7" />
                       </div>
-                      <h3 className="font-headline font-bold text-lg mb-2">{benefit.title}</h3>
+                      <h3 className="font-headline font-bold text-lg mb-2 text-white">{benefit.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{benefit.desc}</p>
                     </div>
                   ))}
