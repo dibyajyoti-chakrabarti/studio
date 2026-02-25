@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users, ShieldCheck } from 'lucide-react';
+import { Star, MapPin, Loader2, Sparkles, AlertCircle, Users, ShieldCheck, Factory } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -164,13 +164,19 @@ export default function MatchingPage() {
             >
               <Card className="overflow-hidden border-white/5 bg-card hover:bg-card/80 h-full">
                 <div className="relative h-44 bg-muted/20 flex items-center justify-center">
-                  <Image 
-                    src={`https://picsum.photos/seed/${vendor.id}/400/300`} 
-                    alt={vendor.fullName || 'MechMaster'} 
-                    fill 
-                    className="object-cover transition-transform group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                    unoptimized
-                  />
+                  {vendor.imageUrl ? (
+                    <Image 
+                      src={vendor.imageUrl} 
+                      alt={vendor.fullName || 'MechMaster'} 
+                      fill 
+                      className="object-cover transition-transform group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground/30">
+                      <Factory size={48} />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Manufacturing Partner</span>
+                    </div>
+                  )}
                   <div className="absolute top-3 left-3">
                     <Checkbox checked={selectedVendors.includes(vendor.id)} className="w-6 h-6 border-white bg-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
                   </div>

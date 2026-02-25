@@ -41,15 +41,14 @@ import {
   LayoutDashboard,
   ClipboardCheck,
   MessageSquare,
-  FileText,
   Loader2,
-  Check
+  Check,
+  Factory
 } from 'lucide-react';
 import Link from 'next/link';
-import { MOCK_VENDORS } from './lib/mock-data';
 import Image from 'next/image';
-import { useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirestore, setDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
+import { doc, collection, query, where, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
@@ -63,6 +62,18 @@ export default function Home() {
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
+
+  // Fetch a subset of active vendors for the landing page showcase
+  const landingVendorsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(
+      collection(db, 'users'),
+      where('role', '==', 'vendor'),
+      where('isActive', '==', true),
+      limit(6)
+    );
+  }, [db]);
+  const { data: landingVendors } = useCollection(landingVendorsQuery);
 
   async function handleConsultationSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -209,40 +220,50 @@ export default function Home() {
           </div>
           
           <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
-            {MOCK_VENDORS.map((vendor) => (
+            {landingVendors?.length ? landingVendors.map((vendor) => (
               <div key={vendor.id} className="min-w-[320px] md:min-w-[400px] snap-center">
                 <Card className="overflow-hidden border-white/5 bg-card hover:bg-card/80 transition-colors">
-                  <div className="relative h-48 w-full">
-                    <Image 
-                      src={vendor.image} 
-                      alt={vendor.name} 
-                      fill 
-                      className="object-cover grayscale hover:grayscale-0 transition-all duration-500" 
-                      data-ai-hint="industrial factory"
-                    />
+                  <div className="relative h-48 w-full bg-muted/20">
+                    {vendor.imageUrl ? (
+                      <Image 
+                        src={vendor.imageUrl} 
+                        alt={vendor.fullName} 
+                        fill 
+                        className="object-cover grayscale hover:grayscale-0 transition-all duration-500" 
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full text-muted-foreground/20"><Factory size={64} /></div>
+                    )}
                     <div className="absolute top-4 right-4 bg-background/80 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
                       <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                       {vendor.rating}
                     </div>
                   </div>
                   <CardContent className="p-6">
-                    <h3 className="font-headline text-xl font-bold mb-2">{vendor.name}</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-headline text-xl font-bold truncate pr-2">{vendor.fullName}</h3>
+                      {vendor.isVerified && <ShieldCheck className="w-4 h-4 text-secondary shrink-0" />}
+                    </div>
                     <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
                       <MapPin className="w-4 h-4" />
-                      {vendor.location}
+                      {vendor.location || vendor.teamName || 'Manufacturing Hub'}
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {vendor.services.map((s, i) => (
+                      {(vendor.specializations || ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
                         <Badge key={i} variant="secondary" className="bg-primary/10 text-[10px] text-white uppercase tracking-wider">
                           {s}
                         </Badge>
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{vendor.description}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {vendor.portfolio || 'Verified high-precision manufacturing facility within our trusted network.'}
+                    </p>
                   </CardContent>
                 </Card>
               </div>
-            ))}
+            )) : (
+              <div className="py-12 text-center w-full opacity-50">Discovering verified production partners...</div>
+            )}
           </div>
         </div>
       </section>
@@ -399,7 +420,6 @@ export default function Home() {
                   alt="Engineering Consultation"
                   fill
                   className="object-cover rounded-2xl grayscale"
-                  data-ai-hint="engineering design"
                 />
               </div>
             </div>

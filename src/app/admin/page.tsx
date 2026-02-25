@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,13 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Logo } from '@/components/Logo';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ClipboardList, 
-  Search, 
   Send,
   Eye,
   Loader2,
@@ -24,13 +22,8 @@ import {
   ShieldCheck,
   Factory,
   User as UserIcon,
-  Package,
-  Truck,
-  MessageSquare,
-  FileText,
   DollarSign,
   Download,
-  ExternalLink,
   UserCheck,
   History,
   TrendingUp,
@@ -40,15 +33,17 @@ import {
   Trash2,
   Edit3,
   MapPin,
-  Briefcase,
   Star,
-  Check
+  Upload,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
+import Image from 'next/image';
 
 const STATUS_OPTIONS = [
   { value: 'rfq_submitted', label: 'RFQ Submitted' },
@@ -92,6 +87,10 @@ export default function AdminPanel() {
   const [revPrice, setRevPrice] = useState('');
   const [revLeadTime, setRevLeadTime] = useState('');
   const [revMessage, setRevMessage] = useState('');
+
+  // Image Upload State
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const db = useFirestore();
   const { toast } = useToast();
@@ -137,6 +136,21 @@ export default function AdminPanel() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Please upload an image smaller than 2MB.", variant: "destructive" });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setProfileImage(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {
@@ -187,6 +201,7 @@ export default function AdminPanel() {
       rating: Number(formData.get('rating')),
       portfolio: formData.get('portfolio') as string,
       adminNotes: formData.get('adminNotes') as string,
+      imageUrl: profileImage,
       specializations: specs,
       role: 'vendor',
       onboarded: true,
@@ -202,6 +217,7 @@ export default function AdminPanel() {
     setIsSubmittingVendor(false);
     setShowVendorModal(false);
     setSelectedVendorProfile(null);
+    setProfileImage(null);
     toast({ 
       title: selectedVendorProfile ? "Vendor Updated" : "Vendor Created", 
       description: `MechMaster ${vendorData.fullName} profile saved.` 
@@ -407,6 +423,7 @@ export default function AdminPanel() {
                             className="h-8 text-xs font-bold gap-1"
                             onClick={() => {
                               setSelectedVendorProfile(u);
+                              setProfileImage(u.imageUrl || null);
                               setShowVendorModal(true);
                             }}
                           >
@@ -425,7 +442,7 @@ export default function AdminPanel() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-headline font-bold">MechMaster Registry</h1>
-                <Button onClick={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }} className="gap-2">
+                <Button onClick={() => { setSelectedVendorProfile(null); setProfileImage(null); setShowVendorModal(true); }} className="gap-2">
                   <Plus className="w-4 h-4" /> Register New MechMaster
                 </Button>
               </div>
@@ -434,6 +451,7 @@ export default function AdminPanel() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead>Logo</TableHead>
                       <TableHead>Vendor & Rating</TableHead>
                       <TableHead>Capabilities</TableHead>
                       <TableHead>Location</TableHead>
@@ -445,6 +463,15 @@ export default function AdminPanel() {
                   <TableBody>
                     {vendors?.map((v) => (
                       <TableRow key={v.id} className="border-b border-white/5">
+                        <TableCell>
+                          <div className="relative w-10 h-10 rounded overflow-hidden bg-muted">
+                            {v.imageUrl ? (
+                              <Image src={v.imageUrl} alt={v.fullName} fill className="object-cover" />
+                            ) : (
+                              <div className="flex items-center justify-center w-full h-full text-muted-foreground"><ImageIcon size={16} /></div>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="font-bold flex items-center gap-2">
                             {v.fullName}
@@ -483,7 +510,11 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedVendorProfile(v); setShowVendorModal(true); }}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { 
+                              setSelectedVendorProfile(v); 
+                              setProfileImage(v.imageUrl || null);
+                              setShowVendorModal(true); 
+                            }}>
                               <Edit3 className="w-3.5 h-3.5" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDeleteVendor(v.id)}>
@@ -506,6 +537,48 @@ export default function AdminPanel() {
           <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6 my-8">
             <h2 className="text-2xl font-headline font-bold mb-6">{selectedVendorProfile ? 'Edit Vendor Profile' : 'Register New MechMaster'}</h2>
             <form onSubmit={handleSaveVendor} className="space-y-6">
+              <div className="space-y-4">
+                <Label>Company Logo / Profile Image</Label>
+                <div className="flex items-center gap-6">
+                  <div className="relative w-24 h-24 rounded-lg border border-dashed border-white/20 flex items-center justify-center overflow-hidden bg-background group">
+                    {profileImage ? (
+                      <>
+                        <Image src={profileImage} alt="Preview" fill className="object-cover" />
+                        <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="icon" 
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setProfileImage(null)}
+                        >
+                          <X size={12} />
+                        </Button>
+                      </>
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-muted-foreground opacity-30" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept="image/*" 
+                      onChange={handleImageChange}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="gap-2 h-10 border-white/10"
+                    >
+                      <Upload size={16} /> Select Image
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground">Recommended: Square aspect ratio, max 2MB.</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
@@ -576,7 +649,7 @@ export default function AdminPanel() {
                 <Button type="submit" className="flex-1 font-bold h-12" disabled={isSubmittingVendor}>
                   {isSubmittingVendor ? <Loader2 className="animate-spin" /> : (selectedVendorProfile ? 'Update Profile' : 'Create MechMaster Account')}
                 </Button>
-                <Button variant="outline" type="button" className="flex-1 h-12 border-white/10" onClick={() => { setShowVendorModal(false); setSelectedVendorProfile(null); }}>
+                <Button variant="outline" type="button" className="flex-1 h-12 border-white/10" onClick={() => { setShowVendorModal(false); setSelectedVendorProfile(null); setProfileImage(null); }}>
                   Cancel
                 </Button>
               </div>

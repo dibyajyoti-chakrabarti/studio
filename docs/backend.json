@@ -20,6 +20,8 @@
         "isVerified": { "type": "boolean" },
         "isActive": { "type": "boolean" },
         "portfolio": { "type": "string", "description": "Links or description of past works." },
+        "imageUrl": { "type": "string", "description": "Data URI or URL for the profile logo/image." },
+        "workshopImages": { "type": "array", "items": { "type": "string" }, "description": "Array of image URLs or Data URIs for workshop photos." },
         "adminNotes": { "type": "string" },
         "updatedAt": { "type": "string", "format": "date-time" },
         "updatedBy": { "type": "string" }
