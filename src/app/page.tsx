@@ -231,7 +231,7 @@ export default function Home() {
                   <div className="relative h-48 w-full bg-muted/20 overflow-hidden">
                     <Image 
                       src={vendor.imageUrl || "/mechhub.jpg"} 
-                      alt={vendor.fullName || 'MechMaster Logo'} 
+                      alt={vendor.fullName || 'Verified MechMaster Profile Image'} 
                       fill 
                       className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                     />
@@ -258,7 +258,7 @@ export default function Home() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-6 min-h-12 overflow-hidden">
-                      {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Machining', 'Fabrication']).map((s: string, i: number) => (
+                      {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Machining', 'Sheet Metal']).map((s: string, i: number) => (
                         <Badge key={i} variant="outline" className="rounded-full bg-secondary/5 text-secondary border-secondary/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">
                           {s}
                         </Badge>

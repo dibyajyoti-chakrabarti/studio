@@ -11,7 +11,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
 import { 
   ClipboardList, 
   Send,
@@ -199,6 +198,7 @@ export default function AdminPanel() {
     
     const specs: string[] = [];
     SPECIALIZATIONS.forEach(s => {
+      // Checkboxes only exist in FormData if they are checked
       if (formData.get(`spec_${s}`)) specs.push(s);
     });
 
