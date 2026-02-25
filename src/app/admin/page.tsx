@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
 import { 
   ClipboardList, 
   Send,
@@ -36,7 +37,13 @@ import {
   Upload,
   Image as ImageIcon,
   X,
-  FileText
+  FileText,
+  ChevronRight,
+  ChevronLeft,
+  Building2,
+  Contact2,
+  Settings2,
+  FileCheck2
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -70,6 +77,10 @@ export default function AdminPanel() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
+  
+  // Vendor Form Stepper State
+  const [vendorStep, setVendorStep] = useState(1);
+  const totalVendorSteps = 4;
   
   // Modals
   const [showQuoteModal, setShowQuoteModal] = useState(false);
@@ -218,6 +229,7 @@ export default function AdminPanel() {
     setShowVendorModal(false);
     setSelectedVendorProfile(null);
     setProfileImage(null);
+    setVendorStep(1);
     toast({ 
       title: selectedVendorProfile ? "Vendor Updated" : "Vendor Created", 
       description: `MechMaster ${vendorData.fullName} profile saved.` 
@@ -432,7 +444,7 @@ export default function AdminPanel() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-headline font-bold">MechMaster Registry</h1>
-                <Button onClick={() => { setSelectedVendorProfile(null); setProfileImage(null); setShowVendorModal(true); }} className="gap-2">
+                <Button onClick={() => { setSelectedVendorProfile(null); setProfileImage(null); setVendorStep(1); setShowVendorModal(true); }} className="gap-2">
                   <Plus className="w-4 h-4" /> Register New MechMaster
                 </Button>
               </div>
@@ -503,6 +515,7 @@ export default function AdminPanel() {
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { 
                               setSelectedVendorProfile(v); 
                               setProfileImage(v.imageUrl || null);
+                              setVendorStep(1);
                               setShowVendorModal(true); 
                             }}>
                               <Edit3 className="w-3.5 h-3.5" />
@@ -524,124 +537,201 @@ export default function AdminPanel() {
 
       {showVendorModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-sm overflow-y-auto">
-          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl p-6 my-8">
-            <h2 className="text-2xl font-headline font-bold mb-6">{selectedVendorProfile ? 'Edit Vendor Profile' : 'Register New MechMaster'}</h2>
-            <form onSubmit={handleSaveVendor} className="space-y-6">
-              <div className="space-y-4">
-                <Label>Company Logo / Profile Image</Label>
-                <div className="flex items-center gap-6">
-                  <div className="relative w-24 h-24 rounded-lg border border-dashed border-white/20 flex items-center justify-center overflow-hidden bg-background group">
-                    {profileImage ? (
-                      <>
-                        <Image src={profileImage} alt="Preview" fill className="object-cover" />
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="icon" 
-                          className="absolute top-1 right-1 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => setProfileImage(null)}
-                        >
-                          <X size={12} />
-                        </Button>
-                      </>
-                    ) : (
-                      <ImageIcon className="w-8 h-8 text-muted-foreground opacity-30" />
-                    )}
+          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl overflow-hidden my-8">
+            <div className="bg-primary/10 px-8 py-6 border-b border-white/5 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-headline font-bold text-white">{selectedVendorProfile ? 'Edit MechMaster' : 'Register New MechMaster'}</h2>
+                <p className="text-sm text-muted-foreground">Step {vendorStep} of {totalVendorSteps}: {
+                  vendorStep === 1 ? 'Brand Identity' : 
+                  vendorStep === 2 ? 'Contact & Logistics' : 
+                  vendorStep === 3 ? 'Technical Capabilities' : 'Review & Oversight'
+                }</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4].map(s => (
+                  <div key={s} className={`w-3 h-3 rounded-full ${vendorStep === s ? 'bg-secondary' : vendorStep > s ? 'bg-primary' : 'bg-white/10'}`} />
+                ))}
+              </div>
+            </div>
+            
+            <form onSubmit={handleSaveVendor}>
+              <div className="p-8">
+                {vendorStep === 1 && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-4">
+                      <Label className="text-secondary font-bold uppercase tracking-widest text-[10px]">Company Brading</Label>
+                      <div className="flex items-center gap-6">
+                        <div className="relative w-32 h-32 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden bg-background group">
+                          {profileImage ? (
+                            <>
+                              <Image src={profileImage} alt="Preview" fill className="object-cover" />
+                              <Button 
+                                type="button" 
+                                variant="destructive" 
+                                size="icon" 
+                                className="absolute top-1 right-1 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => setProfileImage(null)}
+                              >
+                                <X size={12} />
+                              </Button>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center gap-2 text-muted-foreground opacity-30">
+                              <ImageIcon className="w-8 h-8" />
+                              <span className="text-[8px] font-bold">LOGO</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*" 
+                            onChange={handleImageChange}
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="gap-2 w-full h-12 border-white/10 hover:bg-white/5"
+                          >
+                            <Upload size={16} /> Upload Official Logo
+                          </Button>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">High resolution square JPG/PNG recommended. Max file size: 2MB.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-secondary" /> Company Name</Label>
+                        <Input name="teamName" defaultValue={selectedVendorProfile?.teamName} placeholder="e.g. Precision Engineering Ltd" className="bg-background h-12" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Contact2 className="w-4 h-4 text-secondary" /> Contact Person</Label>
+                        <Input name="fullName" defaultValue={selectedVendorProfile?.fullName} placeholder="e.g. John Wick" className="bg-background h-12" required />
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      className="hidden" 
-                      accept="image/*" 
-                      onChange={handleImageChange}
-                    />
+                )}
+
+                {vendorStep === 2 && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label>Official Email Address</Label>
+                        <Input name="email" type="email" defaultValue={selectedVendorProfile?.email} placeholder="vendor@mechhub.com" className="bg-background h-12" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Direct Phone Number</Label>
+                        <Input name="phone" defaultValue={selectedVendorProfile?.phone} placeholder="+91 00000 00000" className="bg-background h-12" required />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-secondary" /> Workshop Location</Label>
+                        <Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State, Country (e.g. Pune, Maharashtra, India)" className="bg-background h-12" required />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {vendorStep === 3 && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
+                    <div className="space-y-4">
+                      <Label className="text-secondary font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
+                        <Settings2 className="w-4 h-4" /> Machine Capabilities
+                      </Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {SPECIALIZATIONS.map(s => (
+                          <div key={s} className="flex items-center gap-3 bg-background p-3 rounded-lg border border-white/5 hover:border-secondary/20 transition-all cursor-pointer">
+                            <Checkbox id={`spec_${s}`} name={`spec_${s}`} defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
+                            <label htmlFor={`spec_${s}`} className="text-xs font-bold cursor-pointer select-none">{s}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                      <div className="space-y-2">
+                        <Label>Manufacturing Experience (Years)</Label>
+                        <Input name="experienceYears" type="number" defaultValue={selectedVendorProfile?.experienceYears || 0} className="bg-background h-12" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Initial Marketplace Rating (0-5)</Label>
+                        <Input name="rating" type="number" step="0.1" max="5" defaultValue={selectedVendorProfile?.rating || 4.5} className="bg-background h-12" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {vendorStep === 4 && (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-right-2 duration-300">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2"><FileCheck2 className="w-4 h-4 text-secondary" /> Portfolio & Facility Description</Label>
+                      <Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} placeholder="Describe workshop capacity, major machinery, and past clients..." className="bg-background min-h-[100px] text-sm" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">Internal Admin Notes</Label>
+                      <Textarea name="adminNotes" defaultValue={selectedVendorProfile?.adminNotes} placeholder="Confidential verification notes, payment terms, or lead source..." className="bg-background h-24 text-sm" />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-8 pt-6 border-t border-white/5">
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="isActive" name="isActive" defaultChecked={selectedVendorProfile ? selectedVendorProfile.isActive : true} />
+                        <div className="grid gap-0.5">
+                          <Label htmlFor="isActive" className="text-sm font-bold">Active Status</Label>
+                          <p className="text-[10px] text-muted-foreground">Visible to innovators in marketplace</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="isVerified" name="isVerified" defaultChecked={selectedVendorProfile?.isVerified} />
+                        <div className="grid gap-0.5">
+                          <Label htmlFor="isVerified" className="text-sm font-bold text-secondary flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified Hub Partner</Label>
+                          <p className="text-[10px] text-muted-foreground">Trust badge displayed on vendor card</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-muted/30 px-8 py-6 border-t border-white/5 flex items-center justify-between">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => {
+                    if (vendorStep === 1) {
+                      setShowVendorModal(false);
+                      setVendorStep(1);
+                    } else {
+                      setVendorStep(prev => prev - 1);
+                    }
+                  }}
+                  className="gap-2 border-white/10"
+                >
+                  <ChevronLeft size={16} /> {vendorStep === 1 ? 'Discard' : 'Back'}
+                </Button>
+
+                <div className="flex gap-3">
+                  {vendorStep < totalVendorSteps ? (
                     <Button 
                       type="button" 
-                      variant="outline" 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="gap-2 h-10 border-white/10"
+                      onClick={() => setVendorStep(prev => prev + 1)}
+                      className="gap-2 font-bold px-8 h-12"
                     >
-                      <Upload size={16} /> Select Image
+                      Continue <ChevronRight size={16} />
                     </Button>
-                    <p className="text-[10px] text-muted-foreground">Recommended: Square aspect ratio, max 2MB.</p>
-                  </div>
+                  ) : (
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmittingVendor}
+                      className="gap-2 font-bold px-10 h-12 bg-secondary text-background hover:bg-secondary/90"
+                    >
+                      {isSubmittingVendor ? <Loader2 className="animate-spin" /> : (selectedVendorProfile ? 'Commit Changes' : 'Finalize Registration')}
+                    </Button>
+                  )}
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required placeholder="Contact Person Name" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email Address</Label>
-                  <Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required placeholder="vendor@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Phone Number</Label>
-                  <Input name="phone" defaultValue={selectedVendorProfile?.phone} placeholder="+91..." />
-                </div>
-                <div className="space-y-2">
-                  <Label>Company Name</Label>
-                  <Input name="teamName" defaultValue={selectedVendorProfile?.teamName} placeholder="Official Business Name" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Location</Label>
-                  <Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State, Country" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Exp. Years</Label>
-                    <Input name="experienceYears" type="number" defaultValue={selectedVendorProfile?.experienceYears || 0} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Initial Rating</Label>
-                    <Input name="rating" type="number" step="0.1" max="5" defaultValue={selectedVendorProfile?.rating || 4.5} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Work Specializations</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {SPECIALIZATIONS.map(s => (
-                    <div key={s} className="flex items-center gap-2 bg-background p-2 rounded border border-white/5">
-                      <Checkbox id={`spec_${s}`} name={`spec_${s}`} defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
-                      <label htmlFor={`spec_${s}`} className="text-[10px] font-bold cursor-pointer">{s}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Portfolio / Description</Label>
-                <Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} placeholder="Describe past projects or capabilities..." className="h-20" />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Admin Notes (Internal)</Label>
-                <Textarea name="adminNotes" defaultValue={selectedVendorProfile?.adminNotes} placeholder="Internal verification details..." className="h-20" />
-              </div>
-
-              <div className="flex items-center gap-8 pt-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="isActive" name="isActive" defaultChecked={selectedVendorProfile ? selectedVendorProfile.isActive : true} />
-                  <Label htmlFor="isActive" className="text-sm font-bold">Active in Marketplace</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="isVerified" name="isVerified" defaultChecked={selectedVendorProfile?.isVerified} />
-                  <Label htmlFor="isVerified" className="text-sm font-bold">Verified Status</Label>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-white/5">
-                <Button type="submit" className="flex-1 font-bold h-12" disabled={isSubmittingVendor}>
-                  {isSubmittingVendor ? <Loader2 className="animate-spin" /> : (selectedVendorProfile ? 'Update Profile' : 'Create MechMaster Account')}
-                </Button>
-                <Button variant="outline" type="button" className="flex-1 h-12 border-white/10" onClick={() => { setShowVendorModal(false); setSelectedVendorProfile(null); setProfileImage(null); }}>
-                  Cancel
-                </Button>
               </div>
             </form>
           </Card>
