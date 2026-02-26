@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  ClipboardList, 
+import {
+  ClipboardList,
   Send,
   Eye,
   Loader2,
@@ -41,9 +41,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Building2,
-  Contact2,
-  Settings2,
-  FileCheck2,
+  Check,
+  User,
   Gavel
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
@@ -55,11 +54,14 @@ import Image from 'next/image';
 
 const STATUS_OPTIONS = [
   { value: 'submitted', label: 'RFQ Submitted' },
+  { value: 'quotation_sent', label: 'Quotation Sent' },
   { value: 'quotations_received', label: 'Quotations Received' },
   { value: 'under_negotiation', label: 'Under Negotiation' },
+  { value: 'accepted', label: 'Accepted' },
   { value: 'assigned', label: 'Vendor Assigned' },
   { value: 'in_progress', label: 'In Production' },
   { value: 'completed', label: 'Completed' },
+  { value: 'rejected', label: 'Rejected' },
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
@@ -79,25 +81,31 @@ export default function AdminPanel() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
-  
+
   const [vendorStep, setVendorStep] = useState(1);
   const totalVendorSteps = 4;
-  
+
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
-  
+  const [showSendQuoteModal, setShowSendQuoteModal] = useState(false);
+
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
   const [selectedVendorProfile, setSelectedVendorProfile] = useState<any>(null);
-  
+
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
   const [isSubmittingVendor, setIsSubmittingVendor] = useState(false);
-  
+
   const [isRevising, setIsRevising] = useState(false);
   const [revisingQuote, setRevisingQuote] = useState<any>(null);
   const [revPrice, setRevPrice] = useState('');
   const [revLeadTime, setRevLeadTime] = useState('');
   const [revMessage, setRevMessage] = useState('');
+
+  const [sendQuoteVendorId, setSendQuoteVendorId] = useState('');
+  const [sendQuotePrice, setSendQuotePrice] = useState('');
+  const [sendQuoteLeadTime, setSendQuoteLeadTime] = useState('');
+  const [sendQuoteRemarks, setSendQuoteRemarks] = useState('');
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,17 +181,17 @@ export default function AdminPanel() {
   const handleShortlistVendor = (rfqId: string, vendorId: string) => {
     if (!db || !selectedRfq) return;
     const currentList = selectedRfq.shortlistedVendorIds || [];
-    const newList = currentList.includes(vendorId) 
+    const newList = currentList.includes(vendorId)
       ? currentList.filter((id: string) => id !== vendorId)
       : [...currentList, vendorId];
-    
+
     updateDocumentNonBlocking(doc(db, 'rfqs', rfqId), { shortlistedVendorIds: newList });
     toast({ title: "Shortlist Updated", description: "MechMaster selection refined." });
   };
 
   const handleAssignVendor = (rfqId: string, vendorId: string) => {
     if (!db || !confirm("Assign this project to this vendor and finalize negotiations?")) return;
-    updateDocumentNonBlocking(doc(db, 'rfqs', rfqId), { 
+    updateDocumentNonBlocking(doc(db, 'rfqs', rfqId), {
       assignedVendorId: vendorId,
       status: 'assigned',
       updatedAt: new Date().toISOString()
@@ -198,7 +206,7 @@ export default function AdminPanel() {
     const formData = new FormData(e.currentTarget);
     const vendorId = selectedVendorProfile?.id || Math.random().toString(36).substring(2, 11);
     const specs: string[] = [];
-    SPECIALIZATIONS.forEach(s => { if (formData.get(`spec_${s}`)) specs.push(s); });
+    SPECIALIZATIONS.forEach(s => { if (formData.get(s)) specs.push(s); });
 
     const vendorData = {
       fullName: formData.get('fullName') as string,
@@ -230,7 +238,7 @@ export default function AdminPanel() {
   };
 
   const handleAdminReviseQuote = () => {
-    if (!db || !revisingQuote) return;
+    if (!db || !revisingQuote || !selectedRfq) return;
     const historyItem = {
       party: 'admin',
       price: Number(revPrice),
@@ -248,8 +256,51 @@ export default function AdminPanel() {
       updatedAt: new Date().toISOString()
     });
 
+    updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
+      status: 'under_negotiation',
+      updatedAt: new Date().toISOString()
+    });
+
     setIsRevising(false);
-    toast({ title: "Quotation Revised", description: "Intervention logged." });
+    toast({ title: "Quotation Revised", description: "Intervention logged. RFQ moved to negotiation." });
+  };
+
+  const handleAdminSendQuotation = () => {
+    if (!db || !selectedRfq || !sendQuoteVendorId) return;
+    const vendorObj = vendors?.find((v: any) => v.id === sendQuoteVendorId);
+
+    const quotationData = {
+      rfqId: selectedRfq.id,
+      userId: selectedRfq.userId,
+      vendorId: sendQuoteVendorId,
+      vendorName: vendorObj?.teamName || vendorObj?.fullName || 'MechMaster',
+      quotedPrice: Number(sendQuotePrice),
+      leadTimeDays: Number(sendQuoteLeadTime),
+      notes: sendQuoteRemarks,
+      status: 'pending',
+      negotiationHistory: [{
+        party: 'admin',
+        price: Number(sendQuotePrice),
+        leadTime: Number(sendQuoteLeadTime),
+        message: sendQuoteRemarks || 'Initial quotation sent by admin.',
+        createdAt: new Date().toISOString(),
+      }],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
+    updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
+      status: 'quotation_sent',
+      updatedAt: new Date().toISOString()
+    });
+
+    setShowSendQuoteModal(false);
+    setSendQuoteVendorId('');
+    setSendQuotePrice('');
+    setSendQuoteLeadTime('');
+    setSendQuoteRemarks('');
+    toast({ title: "Quotation Sent", description: "Customer will be notified of the new quotation." });
   };
 
   if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
@@ -259,7 +310,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Image src="/mechhub.jpg" alt="MechHub Logo" width={60} height={60} />
+          <Image src="/mechhub.png" alt="MechHub Logo" width={60} height={60} />
           <span className="font-headline font-bold text-xl text-white">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
@@ -283,7 +334,7 @@ export default function AdminPanel() {
                 <h1 className="text-3xl font-headline font-bold text-white">Project Lifecycle Control</h1>
                 <Badge variant="outline" className="px-3 py-1 border-white/10 text-white">{rfqs?.length || 0} RFQs</Badge>
               </div>
-              
+
               <Card className="bg-card border-white/5">
                 <Table>
                   <TableHeader>
@@ -396,7 +447,7 @@ export default function AdminPanel() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative w-10 h-10 rounded overflow-hidden bg-muted">
-                              <Image src={v.imageUrl || "/mechhub.jpg"} alt={v.fullName || "Vendor Logo"} fill className="object-cover" />
+                              <Image src={v.imageUrl || "/mechhub.png"} alt={v.fullName || "Vendor Logo"} fill className="object-cover" />
                             </div>
                             <div>
                               <div className="font-bold text-white flex items-center gap-1">{v.fullName} {v.isVerified && <ShieldCheck className="w-3 h-3 text-secondary" />}</div>
@@ -459,14 +510,14 @@ export default function AdminPanel() {
                     {vendors?.filter(v => selectedRfq.selectedVendorIds?.includes(v.id)).map(v => (
                       <div key={v.id} className="p-3 bg-background border border-white/5 rounded-lg flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Avatar className="w-8 h-8"><AvatarImage src={v.imageUrl} /><AvatarFallback>{v.fullName[0]}</AvatarFallback></Avatar>
+                          <Avatar className="w-8 h-8"><AvatarImage src={v.imageUrl} /><AvatarFallback>{v.fullName?.[0] || 'V'}</AvatarFallback></Avatar>
                           <div className="text-xs">
                             <p className="font-bold text-white">{v.fullName}</p>
                             <p className="text-muted-foreground">{v.teamName}</p>
                           </div>
                         </div>
-                        <Checkbox 
-                          checked={selectedRfq.shortlistedVendorIds?.includes(v.id)} 
+                        <Checkbox
+                          checked={selectedRfq.shortlistedVendorIds?.includes(v.id)}
                           onCheckedChange={() => handleShortlistVendor(selectedRfq.id, v.id)}
                         />
                       </div>
@@ -494,7 +545,7 @@ export default function AdminPanel() {
                             <p className="text-xs text-muted-foreground">{quote.leadTimeDays} Days</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-2">
                           <Button size="sm" className="flex-1 font-bold" onClick={() => { setRevisingQuote(quote); setIsRevising(true); }}>
                             <History className="w-3 h-3 mr-1" /> Oversee
@@ -518,6 +569,37 @@ export default function AdminPanel() {
 
             <div className="mt-10 flex justify-end gap-3 pt-8 border-t border-white/5">
               <Button variant="outline" className="px-10 border-white/10" onClick={() => setShowDetailsModal(false)}>Close Oversight</Button>
+              <Button className="px-10 font-bold gap-2" onClick={() => setShowSendQuoteModal(true)}><Send className="w-4 h-4" /> Send Quotation</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {showSendQuoteModal && selectedRfq && (
+        <div className="fixed inset-0 z-[105] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+          <Card className="w-full max-w-md bg-card border-white/10 p-8 shadow-2xl">
+            <h2 className="text-xl font-headline font-bold mb-6 text-white flex items-center gap-2"><Send className="w-5 h-5 text-secondary" /> Send Quotation to Customer</h2>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label>Assign Vendor</Label>
+                <Select value={sendQuoteVendorId} onValueChange={setSendQuoteVendorId}>
+                  <SelectTrigger className="bg-background border-white/10"><SelectValue placeholder="Select a MechMaster" /></SelectTrigger>
+                  <SelectContent className="z-[200]">
+                    {vendors?.map((v: any) => (
+                      <SelectItem key={v.id} value={v.id}>{v.teamName || v.fullName} — {v.location}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Quoted Price (₹)</Label><Input value={sendQuotePrice} onChange={e => setSendQuotePrice(e.target.value)} type="number" className="bg-background" /></div>
+                <div className="space-y-2"><Label>Lead Time (Days)</Label><Input value={sendQuoteLeadTime} onChange={e => setSendQuoteLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+              </div>
+              <div className="space-y-2"><Label>Admin Remarks</Label><Textarea value={sendQuoteRemarks} onChange={e => setSendQuoteRemarks(e.target.value)} className="bg-background h-24" placeholder="Notes about this quotation for the customer..." /></div>
+              <div className="flex gap-3 pt-4">
+                <Button className="flex-1 font-bold h-12" onClick={handleAdminSendQuotation} disabled={!sendQuoteVendorId || !sendQuotePrice || !sendQuoteLeadTime}>Send to Customer</Button>
+                <Button variant="outline" className="flex-1 border-white/10 h-12" onClick={() => setShowSendQuoteModal(false)}>Cancel</Button>
+              </div>
             </div>
           </Card>
         </div>
@@ -532,78 +614,73 @@ export default function AdminPanel() {
                 <p className="text-sm text-muted-foreground">Step {vendorStep} of {totalVendorSteps}</p>
               </div>
               <div className="flex gap-1.5">
-                {[1,2,3,4].map(s => <div key={s} className={`w-2 h-2 rounded-full ${vendorStep >= s ? 'bg-secondary' : 'bg-white/10'}`} />)}
+                {[1, 2, 3, 4].map(s => <div key={s} className={`w-2 h-2 rounded-full ${vendorStep >= s ? 'bg-secondary' : 'bg-white/10'}`} />)}
               </div>
             </div>
 
             <form onSubmit={handleSaveVendor}>
               <div className="p-8">
-                {vendorStep === 1 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                    <div className="flex items-center gap-6">
-                      <div className="relative w-24 h-24 rounded-lg bg-background border border-white/10 overflow-hidden flex items-center justify-center">
-                        {profileImage ? <Image src={profileImage} alt="Preview" fill className="object-cover" /> : <ImageIcon className="opacity-10 w-8 h-8" />}
+                <div className={`${vendorStep !== 1 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-bottom-2`}>
+                  <div className="flex items-center gap-6">
+                    <div className="relative w-24 h-24 rounded-lg bg-background border border-white/10 overflow-hidden flex items-center justify-center">
+                      {profileImage ? <Image src={profileImage} alt="Preview" fill className="object-cover" /> : <ImageIcon className="opacity-10 w-8 h-8" />}
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <Label className="text-xs uppercase font-bold text-secondary">MechMaster Identity</Label>
+                      <Button type="button" variant="outline" className="w-full border-white/10 gap-2 h-10" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4" /> Upload Brand Logo
+                      </Button>
+                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Company Name</Label><Input name="teamName" defaultValue={selectedVendorProfile?.teamName} required className="bg-background" /></div>
+                    <div className="space-y-2"><Label>Primary Contact</Label><Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required className="bg-background" /></div>
+                  </div>
+                </div>
+
+                <div className={`${vendorStep !== 2 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Work Email</Label><Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required className="bg-background" /></div>
+                    <div className="space-y-2"><Label>Direct Phone</Label><Input name="phone" defaultValue={selectedVendorProfile?.phone} required className="bg-background" /></div>
+                    <div className="space-y-2 col-span-2"><Label>Workshop Location</Label><Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State" className="bg-background" /></div>
+                  </div>
+                </div>
+
+                <div className={`${vendorStep !== 3 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                  <Label className="text-xs uppercase font-bold text-secondary">Core Specializations</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {SPECIALIZATIONS.map(s => (
+                      <div key={s} className="flex items-center gap-3 p-3 bg-background border border-white/5 rounded-lg">
+                        <Checkbox id={s} name={s} value="on" defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
+                        <label htmlFor={s} className="text-xs font-bold text-white cursor-pointer">{s}</label>
                       </div>
-                      <div className="space-y-2 flex-1">
-                        <Label className="text-xs uppercase font-bold text-secondary">MechMaster Identity</Label>
-                        <Button type="button" variant="outline" className="w-full border-white/10 gap-2 h-10" onClick={() => fileInputRef.current?.click()}>
-                          <Upload className="w-4 h-4" /> Upload Brand Logo
-                        </Button>
-                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><Label>Company Name</Label><Input name="teamName" defaultValue={selectedVendorProfile?.teamName} required className="bg-background" /></div>
-                      <div className="space-y-2"><Label>Primary Contact</Label><Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required className="bg-background" /></div>
-                    </div>
+                    ))}
                   </div>
-                )}
+                </div>
 
-                {vendorStep === 2 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><Label>Work Email</Label><Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required className="bg-background" /></div>
-                      <div className="space-y-2"><Label>Direct Phone</Label><Input name="phone" defaultValue={selectedVendorProfile?.phone} required className="bg-background" /></div>
-                      <div className="space-y-2 col-span-2"><Label>Workshop Location</Label><Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State" className="bg-background" /></div>
-                    </div>
+                <div className={`${vendorStep !== 4 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                  <div className="space-y-2">
+                    <Label>About Vendor / Company Description</Label>
+                    <Textarea name="portfolio" required maxLength={100} placeholder="Brief company introduction (max 100 chars)" defaultValue={selectedVendorProfile?.portfolio} className="bg-background h-24" />
                   </div>
-                )}
-
-                {vendorStep === 3 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-                    <Label className="text-xs uppercase font-bold text-secondary">Core Specializations</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {SPECIALIZATIONS.map(s => (
-                        <div key={s} className="flex items-center gap-3 p-3 bg-background border border-white/5 rounded-lg">
-                          <Checkbox id={s} name={`spec_${s}`} defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
-                          <label htmlFor={s} className="text-xs font-bold text-white cursor-pointer">{s}</label>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Years of Experience</Label><Input name="experienceYears" type="number" min={0} required defaultValue={selectedVendorProfile?.experienceYears || 0} className="bg-background" /></div>
+                    <div className="space-y-2"><Label>Registry Rating (0-5)</Label><Input name="rating" type="number" min={0} max={5} step="0.1" defaultValue={selectedVendorProfile?.rating || 0} className="bg-background" /></div>
                   </div>
-                )}
-
-                {vendorStep === 4 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-                    <div className="space-y-2"><Label>Facility Portfolio</Label><Textarea name="portfolio" defaultValue={selectedVendorProfile?.portfolio} className="bg-background h-32" /></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><Label>Experience (Yrs)</Label><Input name="experienceYears" type="number" defaultValue={selectedVendorProfile?.experienceYears || 5} className="bg-background" /></div>
-                      <div className="space-y-2"><Label>Registry Rating</Label><Input name="rating" type="number" step="0.1" defaultValue={selectedVendorProfile?.rating || 4.5} className="bg-background" /></div>
-                    </div>
-                    <div className="flex gap-4 pt-4">
-                      <div className="flex items-center gap-2"><Checkbox id="isActive" name="isActive" defaultChecked={true} /><Label htmlFor="isActive">Public Profile</Label></div>
-                      <div className="flex items-center gap-2"><Checkbox id="isVerified" name="isVerified" defaultChecked={selectedVendorProfile?.isVerified} /><Label htmlFor="isVerified" className="text-secondary">Verified Hub Partner</Label></div>
-                    </div>
+                  <div className="flex gap-4 pt-4">
+                    <div className="flex items-center gap-2"><Checkbox id="isActive" name="isActive" value="on" defaultChecked={true} /><Label htmlFor="isActive">Public Profile</Label></div>
+                    <div className="flex items-center gap-2"><Checkbox id="isVerified" name="isVerified" value="on" defaultChecked={selectedVendorProfile?.isVerified} /><Label htmlFor="isVerified" className="text-secondary">Verified Hub Partner</Label></div>
                   </div>
-                )}
+                </div>
               </div>
 
               <div className="p-6 bg-muted/20 border-t border-white/5 flex justify-between">
-                <Button type="button" variant="ghost" onClick={() => vendorStep > 1 ? setVendorStep(v => v-1) : setShowVendorModal(false)}>
+                <Button type="button" variant="ghost" onClick={() => vendorStep > 1 ? setVendorStep(v => v - 1) : setShowVendorModal(false)}>
                   {vendorStep === 1 ? 'Discard' : 'Back'}
                 </Button>
                 {vendorStep < totalVendorSteps ? (
-                  <Button type="button" onClick={() => setVendorStep(v => v+1)} className="gap-2">Continue <ChevronRight className="w-4 h-4" /></Button>
+                  <Button type="button" onClick={() => setVendorStep(v => v + 1)} className="gap-2">Continue <ChevronRight className="w-4 h-4" /></Button>
                 ) : (
                   <Button type="submit" className="bg-secondary text-background hover:bg-secondary/90 font-bold" disabled={isSubmittingVendor}>
                     {isSubmittingVendor ? <Loader2 className="animate-spin" /> : 'Commit to Registry'}
@@ -617,8 +694,31 @@ export default function AdminPanel() {
 
       {isRevising && revisingQuote && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-          <Card className="w-full max-w-md bg-card border-white/10 p-8 shadow-2xl">
+          <Card className="w-full max-w-lg bg-card border-white/10 p-8 shadow-2xl">
             <h2 className="text-xl font-headline font-bold mb-6 text-white flex items-center gap-2"><Gavel className="w-5 h-5 text-secondary" /> Administrative Revision</h2>
+
+            {revisingQuote.negotiationHistory && revisingQuote.negotiationHistory.length > 0 && (
+              <div className="max-h-[200px] overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Negotiation Audit Log</p>
+                {revisingQuote.negotiationHistory.map((hist: any, idx: number) => (
+                  <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                        {hist.party === 'admin' ? <ShieldCheck className="w-3 h-3 text-secondary" /> : hist.party === 'user' ? <User className="w-3 h-3 text-primary" /> : <Factory className="w-3 h-3" />}
+                        {hist.party}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-white text-xs mb-3 italic">"{hist.message}"</p>
+                    <div className="flex gap-4 text-xs font-bold">
+                      <span className="text-secondary">₹{hist.price}</span>
+                      <span className="text-primary">{hist.leadTime} Days</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>Price Override (₹)</Label><Input value={revPrice} onChange={e => setRevPrice(e.target.value)} type="number" className="bg-background" /></div>

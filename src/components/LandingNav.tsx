@@ -41,7 +41,7 @@ export function LandingNav() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/mechhub.jpg"
+            src="/mechhub.png"
             alt="MechHub Logo"
             width={60}
             height={60}

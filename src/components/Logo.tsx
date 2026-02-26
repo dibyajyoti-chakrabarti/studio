@@ -16,7 +16,7 @@ export function Logo({ className, size = 32 }: LogoProps) {
       style={{ width: size, height: size }}
     >
       <Image
-        src="/mechhub.jpg"
+        src="/mechhub.png"
         alt="MechHub Logo"
         fill
         className="object-contain"

@@ -4,6 +4,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ─────────────────────────────────────────
+    // Helper Functions
+    // ─────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -12,66 +16,186 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    function hasRole(role) {
-      return isAuthenticated() && getUserData().role == role;
-    }
-
     function isAdmin() {
-      return hasRole('admin');
+      return isAuthenticated() && getUserData().role == 'admin';
     }
 
-    // User profiles
+    function isVendor() {
+      return isAuthenticated() && getUserData().role == 'vendor';
+    }
+
+    function isCustomer() {
+      return isAuthenticated() && getUserData().role == 'customer';
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // ─────────────────────────────────────────
+    // users/{userId}
+    // ─────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated() || (resource != null && resource.data.role == 'vendor');
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Public: read active vendor cards for landing page (unauthenticated ok)
+      // Authenticated: any logged-in user can read any profile
+      allow read: if (resource != null && resource.data.role == 'vendor' && resource.data.isActive == true)
+                  || isAuthenticated();
+
+      // Users can create their own profile on registration
+      allow create: if isAuthenticated() && isOwner(userId);
+
+      // User updates own profile; admin can update anyone (e.g. verify vendor)
+      allow update: if isOwner(userId) || isAdmin();
+
+      // Only admin can delete
       allow delete: if isAdmin();
     }
 
-    // RFQs
+    // ─────────────────────────────────────────
+    // rfqs/{rfqId}
+    // ─────────────────────────────────────────
     match /rfqs/{rfqId} {
       allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        isAdmin() || 
-        (hasRole('vendor') && (request.auth.uid in resource.data.selectedVendorIds || request.auth.uid in resource.data.shortlistedVendorIds))
+        // Customer who owns the RFQ
+        resource.data.userId == request.auth.uid ||
+        // Admin has full visibility
+        isAdmin() ||
+        // Vendor shortlisted on this RFQ
+        (isVendor() && (
+          request.auth.uid in resource.data.shortlistedVendorIds ||
+          request.auth.uid == resource.data.assignedVendorId
+        ))
       );
+
+      // Any authenticated user can submit an RFQ
       allow create: if isAuthenticated();
+
       allow update: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        isAdmin() || 
-        (hasRole('vendor') && (request.auth.uid == resource.data.assignedVendorId))
+        // Owner can update their own RFQ (e.g. edit before submission)
+        resource.data.userId == request.auth.uid ||
+        // Admin can update anything (status, assignment, shortlist)
+        isAdmin() ||
+        // Assigned vendor can update production status
+        (isVendor() && request.auth.uid == resource.data.assignedVendorId)
       );
+
       allow delete: if isAdmin();
     }
 
-    // Quotations
+    // ─────────────────────────────────────────
+    // quotations/{quotationId}
+    // ─────────────────────────────────────────
     match /quotations/{quotationId} {
       allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        resource.data.vendorId == request.auth.uid || 
+        resource.data.userId == request.auth.uid ||
+        resource.data.vendorId == request.auth.uid ||
         isAdmin()
       );
-      allow create: if hasRole('vendor') || isAdmin();
+
+      // Only vendors or admins can create quotations
+      allow create: if isVendor() || isAdmin();
+
       allow update: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        resource.data.vendorId == request.auth.uid || 
+        // Customer accepts/rejects; vendor revises their own quote
+        resource.data.userId == request.auth.uid ||
+        resource.data.vendorId == request.auth.uid ||
         isAdmin()
       );
+
       allow delete: if isAdmin();
     }
 
-    // Reviews
-    match /reviews/{reviewId} {
-      allow read: if true;
+    // ─────────────────────────────────────────
+    // negotiations/{negotiationId}
+    // ─────────────────────────────────────────
+    match /negotiations/{negotiationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.vendorId == request.auth.uid ||
+        isAdmin()
+      );
+
       allow create: if isAuthenticated();
+
+      allow update: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.vendorId == request.auth.uid ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin();
+
+      // ── Subcollection: messages ──
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/negotiations/$(negotiationId)).data.customerId == request.auth.uid ||
+          get(/databases/$(database)/documents/negotiations/$(negotiationId)).data.vendorId == request.auth.uid ||
+          isAdmin()
+        );
+
+        // Parties in the negotiation + admin can write messages
+        allow create: if isAuthenticated() && (
+          get(/databases/$(database)/documents/negotiations/$(negotiationId)).data.customerId == request.auth.uid ||
+          get(/databases/$(database)/documents/negotiations/$(negotiationId)).data.vendorId == request.auth.uid ||
+          isAdmin()
+        );
+
+        // Messages are immutable after creation (no edits, no deletes by users)
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ─────────────────────────────────────────
+    // reviews/{reviewId}
+    // ─────────────────────────────────────────
+    match /reviews/{reviewId} {
+      // Public reviews readable by anyone for vendor profile pages
+      allow read: if resource.data.isPublic == true || isAuthenticated();
+
+      // Only the customer who completed the project can write a review
+      allow create: if isAuthenticated() && isOwner(request.resource.data.customerId);
+
+      // Only admin can edit/delete reviews
       allow update, delete: if isAdmin();
     }
 
-    // Notifications
+    // ─────────────────────────────────────────
+    // notifications/{notificationId}
+    // ─────────────────────────────────────────
     match /notifications/{notificationId} {
+      // User can read and mark-as-read their own notifications
       allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated(); // Usually created by server/admin context
-      allow delete: if isAdmin();
+
+      // Notifications are created by Cloud Functions / admin context
+      // Allow authenticated create so server actions (Next.js server side) can write
+      allow create: if isAuthenticated();
+
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
+
+    // ─────────────────────────────────────────
+    // vendorCapabilities/{capabilityId}
+    // ─────────────────────────────────────────
+    match /vendorCapabilities/{capabilityId} {
+      // Anyone authenticated can read capabilities (for RFQ matching)
+      allow read: if isAuthenticated();
+
+      // Vendor can manage their own capabilities; admin can manage any
+      allow create: if (isVendor() && request.resource.data.vendorId == request.auth.uid) || isAdmin();
+      allow update, delete: if (isVendor() && resource.data.vendorId == request.auth.uid) || isAdmin();
+    }
+
+    // ─────────────────────────────────────────
+    // consultationRequests/{requestId}
+    // ─────────────────────────────────────────
+    match /consultationRequests/{requestId} {
+      // Public submissions (unauthenticated contact form)
+      allow create: if true;
+
+      // Only admin reads and manages leads
+      allow read, update, delete: if isAdmin();
+    }
+
   }
 }

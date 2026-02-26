@@ -31,20 +31,23 @@ export default function LoginPage() {
           const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
 
-          let role = 'user'; 
+          let role = 'customer';
 
           if (!userSnap.exists()) {
             const initialProfile = {
+              uid: user.uid,
               fullName: user.displayName || '',
               email: user.email,
-              role: 'user', 
+              role: 'customer',
               onboarded: false,
+              status: 'active',
               createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
             };
             await setDoc(userRef, initialProfile);
-            role = 'user';
+            role = 'customer';
           } else {
-            role = userSnap.data().role || 'user';
+            role = userSnap.data().role || 'customer';
           }
 
           if (role === 'admin') {
@@ -85,7 +88,7 @@ export default function LoginPage() {
         } else {
           message = error.message;
         }
-        
+
         toast({
           variant: "destructive",
           title: "Sign In Failed",
@@ -117,12 +120,12 @@ export default function LoginPage() {
       <LandingNav />
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-8">
-          
+
           <div className="flex flex-col items-center gap-4">
-             <div className="text-center space-y-2">
-               <h1 className="text-3xl font-headline font-bold">Secure Access</h1>
-               <p className="text-sm text-muted-foreground">Sign in to your manufacturing workspace</p>
-             </div>
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-headline font-bold">Secure Access</h1>
+              <p className="text-sm text-muted-foreground">Sign in to your manufacturing workspace</p>
+            </div>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
@@ -130,7 +133,7 @@ export default function LoginPage() {
               <TabsTrigger value="login" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Sign In</TabsTrigger>
               <TabsTrigger value="register" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Register</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login">
               <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />

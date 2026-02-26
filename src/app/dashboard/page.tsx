@@ -10,23 +10,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
-import { 
-  FileText, 
-  Clock, 
-  ChevronRight, 
-  Plus, 
-  Loader2, 
+import {
+  FileText,
+  Clock,
+  ChevronRight,
+  Plus,
+  Loader2,
   Check,
   CreditCard,
   Truck,
@@ -35,17 +35,23 @@ import {
   History,
   TrendingUp,
   AlertCircle,
-  Gavel
+  Gavel,
+  Hammer,
+  CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const STATUS_MAP: Record<string, { label: string, color: string, icon: any }> = {
-  rfq_submitted: { label: 'RFQ Submitted', color: 'bg-blue-500/10 text-blue-500', icon: FileText },
-  quotation_sent: { label: 'Reviewing Quotes', color: 'bg-yellow-500/10 text-yellow-500', icon: CreditCard },
-  negotiation: { label: 'Negotiation', color: 'bg-purple-500/10 text-purple-500', icon: MessageSquare },
-  order_confirmed: { label: 'Order Confirmed', color: 'bg-green-500/10 text-green-500', icon: Check },
-  shipping: { label: 'Shipping', color: 'bg-orange-500/10 text-orange-500', icon: Truck },
-  delivered: { label: 'Delivered', color: 'bg-teal-500/10 text-teal-500', icon: Package },
+  submitted: { label: 'MATCHING IN PROGRESS', color: 'bg-primary/20 text-primary', icon: Package },
+  quotation_sent: { label: 'QUOTATION RECEIVED', color: 'bg-cyan-500/20 text-cyan-500', icon: FileText },
+  quotations_received: { label: 'BIDS READY', color: 'bg-secondary/20 text-secondary', icon: FileText },
+  under_negotiation: { label: 'NEGOTIATING', color: 'bg-yellow-500/20 text-yellow-500', icon: MessageSquare },
+  accepted: { label: 'DEAL ACCEPTED', color: 'bg-green-500/20 text-green-500', icon: Check },
+  assigned: { label: 'ASSIGNED', color: 'bg-green-500/20 text-green-500', icon: Check },
+  in_progress: { label: 'IN PRODUCTION', color: 'bg-blue-500/20 text-blue-500', icon: Hammer },
+  completed: { label: 'COMPLETED', color: 'bg-purple-500/20 text-purple-500', icon: CheckCircle2 },
+  rejected: { label: 'REJECTED', color: 'bg-red-500/20 text-red-500', icon: AlertCircle },
+  cancelled: { label: 'CANCELLED', color: 'bg-red-500/20 text-red-500', icon: AlertCircle }
 };
 
 export default function UserDashboard() {
@@ -53,12 +59,12 @@ export default function UserDashboard() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
-  
+
   const [isNegotiating, setIsNegotiating] = useState(false);
   const [negotiatingQuote, setNegotiatingQuote] = useState<any>(null);
   const [negPrice, setNegPrice] = useState('');
@@ -72,7 +78,7 @@ export default function UserDashboard() {
     if (!db || !user) return null;
     return query(collection(db, 'rfqs'), where('userId', '==', user.uid));
   }, [db, user?.uid]);
-  
+
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
   useEffect(() => {
@@ -90,16 +96,16 @@ export default function UserDashboard() {
   }, [isProfileLoading, profile, user]);
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
-  
+
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !user || !selectedOrder) return null;
     return query(
-      collection(db, 'quotations'), 
+      collection(db, 'quotations'),
       where('rfqId', '==', selectedOrder.id),
       where('userId', '==', user.uid)
     );
   }, [db, user?.uid, selectedOrder?.id]);
-  
+
   const { data: quotations } = useCollection(quotationQuery);
 
   const handleOnboardingSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -114,7 +120,7 @@ export default function UserDashboard() {
       onboarded: true,
       updatedAt: new Date().toISOString(),
     };
-    
+
     updateDocumentNonBlocking(doc(db, 'users', user.uid), profileData);
     setIsOnboardingOpen(false);
     setIsSubmittingProfile(false);
@@ -124,27 +130,44 @@ export default function UserDashboard() {
   const handleSelectVendor = (quotation: any) => {
     if (!db || !selectedOrder) return;
     setIsConfirming(true);
-    
-    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), { 
-      status: 'order_confirmed',
-      vendorId: quotation.vendorId,
+
+    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), {
+      status: 'accepted',
+      assignedVendorId: quotation.vendorId,
+      acceptedQuotationId: quotation.id,
       finalPrice: quotation.quotedPrice,
       finalLeadTime: quotation.leadTimeDays,
       updatedAt: new Date().toISOString()
     });
 
-    updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), { 
+    updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), {
       status: 'accepted',
       updatedAt: new Date().toISOString()
     });
 
     setIsConfirming(false);
-    toast({ title: "Vendor Selected!", description: "Production phase has been triggered." });
+    toast({ title: "Offer Accepted!", description: "Deal confirmed. Project moves to execution." });
+  };
+
+  const handleRejectQuotation = (quotation: any) => {
+    if (!db || !selectedOrder || !confirm('Are you sure you want to reject this quotation?')) return;
+
+    updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), {
+      status: 'rejected',
+      updatedAt: new Date().toISOString()
+    });
+
+    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), {
+      status: 'rejected',
+      updatedAt: new Date().toISOString()
+    });
+
+    toast({ title: "Quotation Rejected", description: "The offer has been declined." });
   };
 
   const handleProposeNegotiation = () => {
     if (!db || !negotiatingQuote) return;
-    
+
     const historyItem = {
       party: 'user',
       price: Number(negPrice),
@@ -162,7 +185,7 @@ export default function UserDashboard() {
     });
 
     updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder!.id), {
-      status: 'negotiation',
+      status: 'under_negotiation',
       updatedAt: new Date().toISOString()
     });
 
@@ -200,8 +223,8 @@ export default function UserDashboard() {
                   const statusInfo = STATUS_MAP[order.status] || { label: 'Processing', color: 'bg-muted', icon: History };
                   const StatusIcon = statusInfo.icon;
                   return (
-                    <Card 
-                      key={order.id} 
+                    <Card
+                      key={order.id}
                       className={`bg-card border-white/5 cursor-pointer transition-all ${selectedOrderId === order.id ? 'ring-2 ring-primary shadow-xl' : 'hover:border-primary/50'}`}
                       onClick={() => setSelectedOrderId(order.id)}
                     >
@@ -269,7 +292,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
 
-                    {(selectedOrder.status === 'rfq_submitted' || selectedOrder.status === 'quotation_sent' || selectedOrder.status === 'negotiation') && (
+                    {(selectedOrder.status === 'submitted' || selectedOrder.status === 'quotation_sent' || selectedOrder.status === 'quotations_received' || selectedOrder.status === 'under_negotiation') && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -277,13 +300,13 @@ export default function UserDashboard() {
                           </h3>
                           <Badge className="bg-primary/20 text-primary">{quotations?.length || 0} Offers</Badge>
                         </div>
-                        
+
                         {quotations && quotations.length > 0 ? (
                           <div className="space-y-4">
                             {quotations.map((quote) => {
                               const lastNeg = quote.negotiationHistory?.[quote.negotiationHistory.length - 1];
                               const isCounter = lastNeg?.party === 'vendor';
-                              
+
                               return (
                                 <Card key={quote.id} className="bg-background border-white/10 hover:border-secondary/30 transition-all overflow-hidden">
                                   <div className="p-4 space-y-4">
@@ -301,27 +324,40 @@ export default function UserDashboard() {
                                       </div>
                                     </div>
 
-                                    {isCounter && (
-                                      <div className="bg-secondary/5 border border-secondary/20 p-3 rounded-lg flex items-start gap-3">
-                                        <AlertCircle className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
-                                        <div className="text-xs">
-                                          <p className="font-bold text-secondary mb-1">Counter-Proposal Received</p>
-                                          <p className="text-muted-foreground italic">"{lastNeg.message}"</p>
+                                    {quote.negotiationHistory && quote.negotiationHistory.length > 0 && (
+                                      <div className="bg-secondary/5 border border-secondary/20 p-3 rounded-lg space-y-2 mt-2">
+                                        <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 flex items-center gap-1">
+                                          <TrendingUp className="w-3 h-3" /> Negotiation History
+                                        </p>
+                                        <div className="max-h-[120px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                                          {quote.negotiationHistory.map((hist: any, idx: number) => (
+                                            <div key={idx} className={`p-2 rounded text-[10px] ${hist.party === 'admin' ? 'bg-secondary/10 border-l-2 border-secondary' : hist.party === 'vendor' ? 'bg-orange-500/10 border-l-2 border-orange-500' : 'bg-primary/10 border-l-2 border-primary'}`}>
+                                              <div className="flex justify-between font-bold mb-1 uppercase tracking-wider text-muted-foreground">
+                                                <span>{hist.party}</span>
+                                                <span>{new Date(hist.createdAt).toLocaleDateString()}</span>
+                                              </div>
+                                              <p className="text-white text-xs mb-1 italic">"{hist.message}"</p>
+                                              <div className="flex gap-3 text-xs font-bold">
+                                                <span className="text-secondary">₹{hist.price}</span>
+                                                <span className="text-primary">{hist.leadTime} Days</span>
+                                              </div>
+                                            </div>
+                                          ))}
                                         </div>
                                       </div>
                                     )}
 
                                     <div className="flex gap-2">
-                                      <Button 
+                                      <Button
                                         className="flex-1 font-bold h-10 text-xs"
                                         onClick={() => handleSelectVendor(quote)}
                                         disabled={isConfirming}
                                       >
                                         {isConfirming ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Check className="w-3 h-3 mr-1" />}
-                                        Accept Project
+                                        Accept
                                       </Button>
-                                      <Button 
-                                        variant="outline" 
+                                      <Button
+                                        variant="outline"
                                         className="flex-1 font-bold h-10 text-xs border-white/10"
                                         onClick={() => {
                                           setNegotiatingQuote(quote);
@@ -331,6 +367,13 @@ export default function UserDashboard() {
                                         }}
                                       >
                                         <MessageSquare className="w-3 h-3 mr-1" /> Negotiate
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        className="font-bold h-10 text-xs px-4"
+                                        onClick={() => handleRejectQuotation(quote)}
+                                      >
+                                        <AlertCircle className="w-3 h-3 mr-1" /> Reject
                                       </Button>
                                     </div>
                                   </div>
@@ -410,10 +453,10 @@ export default function UserDashboard() {
             </div>
             <div className="space-y-2">
               <Label className="text-white">Message to Vendor</Label>
-              <Textarea 
-                value={negMessage} 
-                onChange={(e) => setNegMessage(e.target.value)} 
-                placeholder="Explain why you are requesting these changes..." 
+              <Textarea
+                value={negMessage}
+                onChange={(e) => setNegMessage(e.target.value)}
+                placeholder="Explain why you are requesting these changes..."
                 className="bg-background min-h-[100px]"
               />
             </div>
@@ -421,11 +464,11 @@ export default function UserDashboard() {
             {negotiatingQuote?.negotiationHistory?.length > 0 && (
               <div className="space-y-3">
                 <Label className="text-white uppercase text-[10px] font-bold">Negotiation History</Label>
-                <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2">
+                <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                   {negotiatingQuote.negotiationHistory.map((item: any, i: number) => (
-                    <div key={i} className={`p-2 rounded text-[10px] ${item.party === 'user' ? 'bg-primary/10 border-l-2 border-primary ml-4' : 'bg-secondary/10 border-l-2 border-secondary mr-4'}`}>
+                    <div key={i} className={`p-2 rounded text-[10px] ${item.party === 'user' || item.party === 'customer' ? 'bg-primary/10 border-l-2 border-primary ml-4' : item.party === 'admin' ? 'bg-secondary/10 border-l-2 border-secondary mr-4' : 'bg-orange-500/10 border-l-2 border-orange-500 mr-4'}`}>
                       <div className="flex justify-between font-bold mb-1">
-                        <span className="capitalize">{item.party} Proposal</span>
+                        <span className="capitalize">{item.party} Update</span>
                         <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                       </div>
                       <p>Price: ₹{item.price} • Time: {item.leadTime} Days</p>

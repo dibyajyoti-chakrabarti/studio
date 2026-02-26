@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Logo } from '@/components/Logo';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -19,13 +19,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
-  Settings, 
-  Zap, 
-  Flame, 
-  Layers, 
-  Cpu, 
-  Boxes, 
+import {
+  Settings,
+  Zap,
+  Flame,
+  Layers,
+  Cpu,
+  Boxes,
   ArrowRight,
   Upload,
   Search,
@@ -83,7 +83,7 @@ export default function Home() {
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const id = Math.random().toString(36).substring(2, 11);
-    
+
     const requestData = {
       id,
       name: formData.get('name') as string,
@@ -95,7 +95,7 @@ export default function Home() {
     };
 
     const docRef = doc(db, 'consultationRequests', id);
-    
+
     try {
       setDocumentNonBlocking(docRef, requestData, { merge: true });
       setIsSubmitted(true);
@@ -117,7 +117,7 @@ export default function Home() {
   return (
     <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
       <LandingNav />
-      
+
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-40 overflow-hidden">
         <div className="blueprint-grid opacity-20" suppressHydrationWarning />
         <RotatingGears />
@@ -185,7 +185,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             <div className="hidden md:block absolute top-10 left-1/4 right-1/4 h-px border-t border-dashed border-white/20 -z-10" />
-            
+
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-background border-2 border-primary flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">1</div>
               <h3 className="font-headline text-xl font-bold mb-3 text-white">Upload Design</h3>
@@ -223,19 +223,19 @@ export default function Home() {
             </div>
             <Link href="/upload" className="text-secondary hover:underline font-bold text-sm uppercase tracking-wider hidden sm:block">View All MechMasters →</Link>
           </div>
-          
+
           <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
             {landingVendors?.length ? landingVendors.map((vendor) => (
               <div key={vendor.id} className="min-w-[320px] md:min-w-[380px] snap-center group">
                 <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 h-full">
                   <div className="relative h-48 w-full bg-muted/20 overflow-hidden">
-                    <Image 
-                      src={vendor.imageUrl || "/mechhub.jpg"} 
-                      alt={vendor.fullName || 'Verified MechMaster Profile Image'} 
-                      fill 
-                      className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
+                    <Image
+                      src={vendor.imageUrl || "/mechhub.png"}
+                      alt={vendor.fullName || 'Verified MechMaster Profile Image'}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                     />
-                    
+
                     {vendor.isVerified && (
                       <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-secondary/90 text-background px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg">
                         <ShieldCheck className="w-3.5 h-3.5" /> VERIFIED
@@ -249,9 +249,9 @@ export default function Home() {
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-headline text-xl font-bold truncate pr-2 group-hover:text-secondary transition-colors text-white">{vendor.fullName || 'Verified MechMaster'}</h3>
+                      <h3 className="font-headline text-xl font-bold truncate pr-2 group-hover:text-secondary transition-colors text-white">{vendor.teamName || vendor.fullName || 'Verified MechMaster'}</h3>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
                       <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Location Pending'}</div>
                       <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '0'}+ Yrs Exp</div>
@@ -264,7 +264,7 @@ export default function Home() {
                         </Badge>
                       ))}
                     </div>
-                    
+
                     <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed italic border-l-2 border-secondary/20 pl-3 min-h-8">
                       {vendor.portfolio || 'Verified high-precision manufacturing facility within our trusted network.'}
                     </p>
@@ -283,7 +283,7 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <h2 className="font-headline text-3xl md:text-5xl font-bold mb-6 uppercase tracking-tight text-white">Why Join MechHub?</h2>
-            
+
             <Tabs defaultValue="innovators" className="w-full">
               <div className="flex justify-center mb-16">
                 <TabsList className="bg-card border border-white/10 p-1 h-12">
@@ -425,7 +425,7 @@ export default function Home() {
                 </Dialog>
               </div>
               <div className="hidden md:block relative h-[400px]">
-                <Image 
+                <Image
                   src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800"
                   alt="Engineering Consultation Session"
                   fill

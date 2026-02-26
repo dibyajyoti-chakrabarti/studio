@@ -27,12 +27,12 @@ export default function MatchingPage() {
   const vendorsQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(
-      collection(db, 'users'), 
+      collection(db, 'users'),
       where('role', '==', 'vendor'),
       where('isActive', '==', true)
     );
   }, [db]);
-  
+
   const { data: dbVendors, isLoading: isVendorsLoading } = useCollection(vendorsQuery);
 
   const userProfileRef = useMemoFirebase(() => {
@@ -49,7 +49,7 @@ export default function MatchingPage() {
   }, [isVendorsLoading]);
 
   const toggleVendor = (id: string) => {
-    setSelectedVendors(prev => 
+    setSelectedVendors(prev =>
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
     );
   };
@@ -90,10 +90,10 @@ export default function MatchingPage() {
       deliveryLocation: details.location,
       designFileName: details.designFileName || 'unnamed_design',
       designFileUrl: details.designFileUrl || null,
-      selectedVendors: selectedVendorObjects.map(v => v.fullName || v.email),
       selectedVendorIds: selectedVendors,
-      status: 'rfq_submitted',
-      vendorId: null,
+      shortlistedVendorIds: selectedVendors, // Initially shortlist all invited
+      assignedVendorId: null,
+      status: 'submitted',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -157,20 +157,20 @@ export default function MatchingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {dbVendors && dbVendors.length > 0 ? dbVendors.map((vendor) => (
-            <div 
-              key={vendor.id} 
+            <div
+              key={vendor.id}
               className={`relative cursor-pointer group rounded-xl transition-all ${selectedVendors.includes(vendor.id) ? 'ring-2 ring-primary shadow-2xl shadow-primary/20' : 'hover:shadow-xl hover:shadow-primary/5'}`}
               onClick={() => toggleVendor(vendor.id)}
             >
               <Card className="overflow-hidden border-white/5 bg-gradient-to-b from-card to-background hover:bg-card/80 h-full">
                 <div className="relative h-48 bg-muted/20 flex items-center justify-center">
-                  <Image 
-                    src={vendor.imageUrl || "/mechhub.jpg"} 
-                    alt={vendor.fullName || 'Verified MechMaster Profile Image'} 
-                    fill 
+                  <Image
+                    src={vendor.imageUrl || "/mechhub.png"}
+                    alt={vendor.fullName || 'Verified MechMaster Profile Image'}
+                    fill
                     className="object-cover transition-transform group-hover:scale-105 opacity-90 group-hover:opacity-100"
                   />
-                  
+
                   {vendor.isVerified && (
                     <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-secondary/90 text-background px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
                       <ShieldCheck className="w-3 h-3" /> VERIFIED
@@ -188,10 +188,10 @@ export default function MatchingPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-headline text-xl font-bold group-hover:text-secondary transition-colors truncate pr-2 text-white">
-                      {vendor.fullName || 'Verified MechMaster'}
+                      {vendor.teamName || vendor.fullName || 'Verified MechMaster'}
                     </h3>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-4">
                     <div className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-secondary" /> {vendor.location || 'Location Pending'}</div>
                     <div className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-secondary" /> {vendor.experienceYears || '0'}+ Yrs Exp</div>
@@ -225,9 +225,9 @@ export default function MatchingPage() {
               <Badge variant="secondary" className="text-lg px-3">{selectedVendors.length}</Badge>
               <span className="text-muted-foreground font-bold uppercase tracking-widest text-[11px]">Vendors Selected for Bidding</span>
             </div>
-            <Button 
-              size="lg" 
-              className="px-12 h-14 text-lg min-w-[240px] font-bold uppercase tracking-widest" 
+            <Button
+              size="lg"
+              className="px-12 h-14 text-lg min-w-[240px] font-bold uppercase tracking-widest"
               disabled={selectedVendors.length === 0 || isSubmitting}
               onClick={handleSubmit}
             >

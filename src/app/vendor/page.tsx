@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,8 +18,8 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { 
-  ClipboardList, 
+import {
+  ClipboardList,
   Loader2,
   Hammer,
   CheckCircle2,
@@ -54,12 +54,12 @@ export default function VendorPortal() {
   const [activeTab, setActiveTab] = useState('marketplace');
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
-  
+
   const [isQuoting, setIsQuoting] = useState(false);
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteLeadTime, setQuoteLeadTime] = useState('');
   const [quoteNotes, setQuoteNotes] = useState('');
-  
+
   const [isResponding, setIsResponding] = useState(false);
   const [negotiatingQuote, setNegotiatingQuote] = useState<any>(null);
   const [resPrice, setResPrice] = useState('');
@@ -96,17 +96,17 @@ export default function VendorPortal() {
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
-      collection(db, 'rfqs'), 
+      collection(db, 'rfqs'),
       where('shortlistedVendorIds', 'array-contains', user.uid),
-      where('status', 'in', ['submitted', 'quotations_received', 'under_negotiation']),
+      where('status', 'in', ['submitted', 'quotation_sent', 'quotations_received', 'under_negotiation']),
       orderBy('createdAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
-  
+
   const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
-      collection(db, 'rfqs'), 
+      collection(db, 'rfqs'),
       where('assignedVendorId', '==', user.uid),
       orderBy('updatedAt', 'desc')
     );
@@ -119,7 +119,7 @@ export default function VendorPortal() {
       where('vendorId', '==', user.uid)
     );
   }, [db, user, isVendorConfirmed]);
-  
+
   const { data: marketplaceRfqs, isLoading: isMarketplaceLoading } = useCollection(marketplaceQuery);
   const { data: myRfqs, isLoading: isMyProjectsLoading } = useCollection(myProjectsQuery);
   const { data: myQuotes } = useCollection(myQuotesQuery);
@@ -131,7 +131,7 @@ export default function VendorPortal() {
 
   const handleSubmitQuote = async () => {
     if (!db || !user || !selectedRfq) return;
-    
+
     const quotationData = {
       rfqId: selectedRfq.id,
       userId: selectedRfq.userId,
@@ -175,7 +175,7 @@ export default function VendorPortal() {
         createdAt: new Date().toISOString(),
       };
       const newHistory = [...(negotiatingQuote.negotiationHistory || []), historyItem];
-      
+
       updateDocumentNonBlocking(doc(db, 'quotations', negotiatingQuote.id), {
         negotiationHistory: newHistory,
         status: 'revised',
@@ -202,7 +202,7 @@ export default function VendorPortal() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Image src="/mechhub.jpg" alt="MechHub Logo" width={60} height={60} />
+          <Image src="/mechhub.png" alt="MechHub Logo" width={60} height={60} />
           <span className="font-headline font-bold text-xl text-white">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
@@ -241,7 +241,7 @@ export default function VendorPortal() {
                   const myQuote = myQuotes?.find(q => q.rfqId === rfq.id);
                   const lastNeg = myQuote?.negotiationHistory?.[myQuote.negotiationHistory.length - 1];
                   const needsResponse = lastNeg?.party === 'customer' || lastNeg?.party === 'admin';
-                  
+
                   return (
                     <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group overflow-hidden">
                       <CardHeader>
@@ -363,6 +363,50 @@ export default function VendorPortal() {
               )}
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isResponding} onOpenChange={setIsResponding}>
+        <DialogContent className="bg-card text-foreground border-white/10 sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline font-bold text-white">Negotiation Response</DialogTitle>
+            <DialogDescription>Review the latest terms and respond to secure this project.</DialogDescription>
+          </DialogHeader>
+
+          {negotiatingQuote?.negotiationHistory && negotiatingQuote.negotiationHistory.length > 0 && (
+            <div className="max-h-[150px] overflow-y-auto space-y-3 pr-2 mb-4 custom-scrollbar">
+              {negotiatingQuote.negotiationHistory.map((hist: any, idx: number) => (
+                <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'customer' || hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">{hist.party}</span>
+                    <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-white text-xs mb-3 italic">"{hist.message}"</p>
+                  <div className="flex gap-4 text-xs font-bold">
+                    <span className="text-secondary">₹{hist.price}</span>
+                    <span className="text-primary">{hist.leadTime} Days</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="space-y-4 py-2 border-t border-white/5 pt-4">
+            <h3 className="text-xs font-bold text-secondary uppercase tracking-widest">Counter-Offer Terms (Optional)</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>New Price (₹)</Label><Input value={resPrice} onChange={e => setResPrice(e.target.value)} type="number" className="bg-background" /></div>
+              <div className="space-y-2"><Label>New Lead Time (Days)</Label><Input value={resLeadTime} onChange={e => setResLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+            </div>
+            <div className="space-y-2"><Label>Message / Justification</Label><Textarea value={resMessage} onChange={e => setResMessage(e.target.value)} className="bg-background h-20" /></div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0 mt-4">
+            <Button variant="outline" className="border-white/10 h-11 font-bold w-full sm:w-auto" onClick={() => handleRespondNegotiation('counter')} disabled={!resPrice || !resLeadTime}>
+              Send Counter-Offer
+            </Button>
+            <Button className="font-bold h-11 w-full sm:w-auto" onClick={() => handleRespondNegotiation('accept')}>
+              <Check className="w-4 h-4 mr-2" /> Accept Latest Terms
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
