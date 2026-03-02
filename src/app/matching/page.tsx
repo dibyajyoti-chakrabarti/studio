@@ -88,8 +88,11 @@ export default function MatchingPage() {
       deliveryDate: details.deliveryDate,
       budgetRange: details.budget || '',
       deliveryLocation: details.location,
+      // Legacy single-file fields (backward compat)
       designFileName: details.designFileName || 'unnamed_design',
       designFileUrl: details.designFileUrl || null,
+      // Multi-file support: array of { name, size, dataUrl }
+      designFiles: details.designFiles || [],
       selectedVendorIds: selectedVendors,
       shortlistedVendorIds: selectedVendors, // Initially shortlist all invited
       assignedVendorId: null,

@@ -1,4 +1,4 @@
-
+﻿
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -43,7 +43,9 @@ import {
   Building2,
   Check,
   User,
-  Gavel
+  Gavel,
+  Menu,
+  PanelLeftClose
 } from 'lucide-react';
 import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -81,6 +83,7 @@ export default function AdminPanel() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('rfqs');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const [vendorStep, setVendorStep] = useState(1);
   const totalVendorSteps = 4;
@@ -308,35 +311,60 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
+      <header className="h-16 border-b border-white/5 flex items-center justify-between px-4 sm:px-8 bg-card sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Image src="/mechhub.png" alt="MechHub Logo" width={60} height={60} />
-          <span className="font-headline font-bold text-xl text-white">MechHub Admin</span>
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-white" onClick={() => setSidebarOpen(v => !v)}>
+            {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+          <Image src="/mechhub.png" alt="MechHub Logo" width={44} height={44} />
+          <span className="font-headline font-bold text-lg text-white hidden sm:inline">MechHub Admin</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">
-            <LogOut className="w-4 h-4" /> Logout
+            <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
       </header>
 
-      <div className="flex flex-1">
-        <aside className="w-64 border-r border-white/5 bg-card flex flex-col p-4 space-y-2">
-          <Button variant={activeTab === 'rfqs' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('rfqs')}><ClipboardList className="w-4 h-4" /> RFQs</Button>
-          <Button variant={activeTab === 'users' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('users')}><UserIcon className="w-4 h-4" /> Buyers</Button>
-          <Button variant={activeTab === 'vendors' ? 'secondary' : 'ghost'} className="justify-start gap-3" onClick={() => setActiveTab('vendors')}><Factory className="w-4 h-4" /> MechMasters</Button>
+      <div className="flex flex-1 relative overflow-hidden">
+        {/* Mobile backdrop */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
+        <aside className={`
+          border-r border-white/5 bg-card flex flex-col p-3 space-y-1.5 transition-all duration-200 ease-in-out shrink-0 z-40
+          fixed md:relative top-16 md:top-0 bottom-0 left-0
+          ${sidebarOpen ? 'w-56 translate-x-0' : 'w-[60px] -translate-x-full md:translate-x-0'}
+        `}>
+          {[
+            { key: 'rfqs', label: 'RFQs', icon: ClipboardList },
+            { key: 'users', label: 'Buyers', icon: UserIcon },
+            { key: 'vendors', label: 'MechMasters', icon: Factory },
+          ].map(item => (
+            <Button
+              key={item.key}
+              variant={activeTab === item.key ? 'secondary' : 'ghost'}
+              className={`gap-3 transition-all duration-200 ${sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'}`}
+              onClick={() => { setActiveTab(item.key); if (window.innerWidth < 768) setSidebarOpen(false); }}
+              title={item.label}
+            >
+              <item.icon className="w-4 h-4 shrink-0" />
+              {sidebarOpen && <span className="truncate text-sm">{item.label}</span>}
+            </Button>
+          ))}
         </aside>
 
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {activeTab === 'rfqs' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-headline font-bold text-white">Project Lifecycle Control</h1>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-white">Project Lifecycle Control</h1>
                 <Badge variant="outline" className="px-3 py-1 border-white/10 text-white">{rfqs?.length || 0} RFQs</Badge>
               </div>
 
-              <Card className="bg-card border-white/5">
-                <Table>
+              <Card className="bg-card border-white/5 overflow-x-auto">
+                <Table className="min-w-[700px]">
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
                       <TableHead className="text-white">Project & Buyer</TableHead>
@@ -357,7 +385,7 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           <div className="text-xs text-white">{rfq.manufacturingProcess}</div>
-                          <div className="text-[10px] text-muted-foreground uppercase">{rfq.material} • Qty: {rfq.quantity}</div>
+                          <div className="text-[10px] text-muted-foreground uppercase">{rfq.material} | Qty: {rfq.quantity}</div>
                         </TableCell>
                         <TableCell>
                           <Select value={rfq.status} onValueChange={(val) => handleUpdateStatus(rfq.id, val)}>
@@ -393,9 +421,9 @@ export default function AdminPanel() {
 
           {activeTab === 'users' && (
             <div className="space-y-6">
-              <h1 className="text-3xl font-headline font-bold text-white">Innovator Directory</h1>
-              <Card className="bg-card border-white/5">
-                <Table>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-white">Innovator Directory</h1>
+              <Card className="bg-card border-white/5 overflow-x-auto">
+                <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
                       <TableHead className="text-white">Full Name</TableHead>
@@ -424,14 +452,14 @@ export default function AdminPanel() {
 
           {activeTab === 'vendors' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-headline font-bold text-white">MechMaster Registry</h1>
-                <Button onClick={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }} className="gap-2">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-white">MechMaster Registry</h1>
+                <Button onClick={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }} className="gap-2" size="sm">
                   <Plus className="w-4 h-4" /> Add MechMaster
                 </Button>
               </div>
-              <Card className="bg-card border-white/5">
-                <Table>
+              <Card className="bg-card border-white/5 overflow-x-auto">
+                <Table className="min-w-[700px]">
                   <TableHeader>
                     <TableRow className="border-white/5 hover:bg-transparent">
                       <TableHead className="text-white">Company</TableHead>
@@ -481,142 +509,178 @@ export default function AdminPanel() {
         </main>
       </div>
 
-      {showDetailsModal && selectedRfq && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md overflow-y-auto">
-          <Card className="w-full max-w-5xl bg-card border-white/10 shadow-2xl p-8 my-8">
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <h2 className="text-3xl font-headline font-bold text-white">{selectedRfq.projectName}</h2>
-                <p className="text-muted-foreground">Admin Oversight • Project ID: {selectedRfq.id}</p>
-              </div>
-              <Badge className="text-lg px-6 py-2 bg-primary text-white border-none">{selectedRfq.status.replace('_', ' ')}</Badge>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              <div className="lg:col-span-5 space-y-8">
-                <div>
-                  <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Core Specifications</h3>
-                  <div className="space-y-3 text-sm bg-background/50 p-5 rounded-xl border border-white/5">
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq.manufacturingProcess}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq.material}</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Quantity:</span><span className="text-white">{selectedRfq.quantity} units</span></div>
-                    <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-muted-foreground">Deadline:</span><span className="text-white">{new Date(selectedRfq.deliveryDate).toLocaleDateString()}</span></div>
+      {showDetailsModal && selectedRfq && (() => {
+        const fileList: { name: string; dataUrl: string; size?: number }[] =
+          selectedRfq.designFiles?.length > 0
+            ? selectedRfq.designFiles
+            : selectedRfq.designFileUrl
+              ? [{ name: selectedRfq.designFileName || 'design_file', dataUrl: selectedRfq.designFileUrl }]
+              : [];
+        const getExt = (n: string) => { const e = n.split('.').pop()?.toUpperCase() || 'FILE'; return e.length > 4 ? e.slice(0, 4) : e; };
+        const sc: Record<string, string> = {
+          submitted: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
+          quotation_sent: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/25',
+          under_negotiation: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/25',
+          accepted: 'bg-green-500/15 text-green-400 border-green-500/25',
+          assigned: 'bg-green-500/15 text-green-400 border-green-500/25',
+          in_progress: 'bg-purple-500/15 text-purple-400 border-purple-500/25',
+          completed: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+          rejected: 'bg-red-500/15 text-red-400 border-red-500/25',
+          cancelled: 'bg-red-500/15 text-red-400 border-red-500/25',
+        };
+        return (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm">
+            <Card className="w-full max-w-5xl max-h-[92vh] bg-card border-white/[0.06] shadow-2xl shadow-black/50 overflow-hidden flex flex-col">
+              <div className="h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
+              <div className="px-4 sm:px-8 pt-4 sm:pt-6 pb-3 sm:pb-5 flex items-start justify-between gap-3 sm:gap-4 shrink-0">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-2xl font-headline font-bold text-white truncate">{selectedRfq.projectName}</h2>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground flex-wrap">
+                    <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/5">{selectedRfq.id.slice(0, 14)}</span>
+                    <span className="opacity-40">|</span>
+                    <span>{selectedRfq.userName}</span>
                   </div>
                 </div>
-
-                {/* Design Files Section */}
-                <div>
-                  <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Design Files</h3>
-                  {selectedRfq.designFileUrl ? (
-                    <div className="bg-background/50 p-4 rounded-xl border border-white/5 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-primary shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{selectedRfq.designFileName || 'design_file'}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">Uploaded with RFQ</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full gap-2 border-white/10 hover:bg-white/5"
-                        onClick={() => {
-                          const url = selectedRfq.designFileUrl;
-                          const fileName = selectedRfq.designFileName || 'design_file';
-                          // Handle data URIs (base64 encoded files)
-                          if (url.startsWith('data:')) {
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = fileName;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                          } else {
-                            // Regular URL — open in new tab
-                            window.open(url, '_blank', 'noopener,noreferrer');
-                          }
-                        }}
-                      >
-                        <Download className="w-4 h-4" /> Download Design File
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="bg-background/30 p-4 rounded-xl border border-dashed border-white/10 text-center">
-                      <p className="text-xs text-muted-foreground italic">No design file attached to this RFQ.</p>
-                    </div>
-                  )}
+                <div className="flex items-center gap-3 shrink-0">
+                  <Badge className={`text-[10px] px-3 py-1.5 font-bold uppercase tracking-wider border ${sc[selectedRfq.status] || 'bg-white/10 text-white border-white/20'}`}>
+                    {selectedRfq.status.replace(/_/g, ' ')}
+                  </Badge>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-white" onClick={() => setShowDetailsModal(false)}>
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
+              </div>
+              <div className="h-px bg-white/5" />
 
-                <div>
-                  <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Vendor Invitation List</h3>
-                  <div className="space-y-2">
-                    {vendors?.filter(v => selectedRfq.selectedVendorIds?.includes(v.id)).map(v => (
-                      <div key={v.id} className="p-3 bg-background border border-white/5 rounded-lg flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-8 h-8"><AvatarImage src={v.imageUrl} /><AvatarFallback>{v.fullName?.[0] || 'V'}</AvatarFallback></Avatar>
-                          <div className="text-xs">
-                            <p className="font-bold text-white">{v.fullName}</p>
-                            <p className="text-muted-foreground">{v.teamName}</p>
+              <div className="px-4 sm:px-8 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 overflow-y-auto flex-1 min-h-0">
+                {/* Left */}
+                <div className="lg:col-span-5 space-y-6">
+                  <div>
+                    <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-secondary mb-3"><ClipboardList className="w-3.5 h-3.5" /> Specifications</h3>
+                    <div className="rounded-xl bg-background/60 border border-white/5 overflow-hidden divide-y divide-white/[0.03]">
+                      {[
+                        ['Process', selectedRfq.manufacturingProcess],
+                        ['Material', selectedRfq.material],
+                        ['Quantity', `${selectedRfq.quantity} units`],
+                        ['Tolerance', selectedRfq.tolerance || '-'],
+                        ['Surface', selectedRfq.surfaceFinish || '-'],
+                        ['Budget', selectedRfq.budgetRange || '-'],
+                        ['Location', selectedRfq.deliveryLocation || '-'],
+                        ['Deadline', new Date(selectedRfq.deliveryDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })],
+                      ].map(([l, v], i) => (
+                        <div key={i} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                          <span className="text-muted-foreground text-xs">{l}</span>
+                          <span className="text-white font-medium text-right max-w-[55%] truncate">{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-secondary mb-3">
+                      <FileText className="w-3.5 h-3.5" /> Design Files
+                      {fileList.length > 0 && <span className="ml-auto text-[10px] text-muted-foreground bg-white/5 px-2 py-0.5 rounded-full">{fileList.length}</span>}
+                    </h3>
+                    {fileList.length === 0 ? (
+                      <div className="rounded-xl bg-background/30 border border-dashed border-white/[0.08] p-6 text-center">
+                        <FileText className="w-7 h-7 mx-auto text-muted-foreground/15 mb-2" />
+                        <p className="text-xs text-muted-foreground">No files attached</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {fileList.map((f: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background/50 border border-white/5 group hover:border-white/10 transition-all">
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                              <span className="text-[9px] font-extrabold text-primary uppercase">{getExt(f.name)}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-white truncate">{f.name}</p>
+                              {f.size && <p className="text-[10px] text-muted-foreground">{(f.size / 1024 / 1024).toFixed(2)} MB</p>}
+                            </div>
+                            <Button size="sm" variant="ghost" className="gap-1 text-xs text-primary hover:text-primary/80 opacity-50 group-hover:opacity-100 transition-opacity"
+                              onClick={() => {
+                                const url = f.dataUrl;
+                                if (url.startsWith('data:')) { const a = document.createElement('a'); a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+                                else { window.open(url, '_blank', 'noopener,noreferrer'); }
+                              }}>
+                              <Download className="w-3.5 h-3.5" /> Save
+                            </Button>
                           </div>
-                        </div>
-                        <Checkbox
-                          checked={selectedRfq.shortlistedVendorIds?.includes(v.id)}
-                          onCheckedChange={() => handleShortlistVendor(selectedRfq.id, v.id)}
-                        />
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-2 italic">* Check to shortlist for final review.</p>
-                </div>
-              </div>
 
-              <div className="lg:col-span-7 space-y-8">
-                <div>
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" /> Bidding & Negotiations
-                  </h3>
-                  <div className="space-y-4">
+                  <div>
+                    <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-secondary mb-3"><Factory className="w-3.5 h-3.5" /> Vendor Shortlist</h3>
+                    <div className="space-y-1.5">
+                      {vendors?.filter(v => selectedRfq.selectedVendorIds?.includes(v.id)).map(v => {
+                        const sl = selectedRfq.shortlistedVendorIds?.includes(v.id);
+                        return (
+                          <div key={v.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${sl ? 'bg-secondary/5 border-secondary/20 hover:border-secondary/30' : 'bg-background/50 border-white/5 hover:border-white/10'}`}
+                            onClick={() => handleShortlistVendor(selectedRfq.id, v.id)}>
+                            <Avatar className="w-9 h-9 border border-white/10"><AvatarImage src={v.imageUrl} /><AvatarFallback className="text-xs font-bold bg-white/5">{v.fullName?.[0] || 'V'}</AvatarFallback></Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-white truncate">{v.fullName}</p>
+                              <p className="text-[11px] text-muted-foreground">{v.teamName}</p>
+                            </div>
+                            <Checkbox checked={sl} onCheckedChange={() => handleShortlistVendor(selectedRfq.id, v.id)} className="data-[state=checked]:bg-secondary data-[state=checked]:border-secondary" />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2 pl-1">Check to shortlist for assignment.</p>
+                  </div>
+                </div>
+
+                {/* Right */}
+                <div className="lg:col-span-7">
+                  <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-primary mb-4"><TrendingUp className="w-3.5 h-3.5" /> Bidding & Negotiations</h3>
+                  <div className="space-y-3">
                     {selectedRfqQuotes?.map(quote => (
-                      <Card key={quote.id} className="bg-background border-white/10 p-5 group">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <p className="font-bold text-white text-lg">{quote.vendorName}</p>
-                            <Badge variant="outline" className="text-[10px] uppercase">{quote.status}</Badge>
+                      <Card key={quote.id} className="bg-background/60 border-white/[0.06] overflow-hidden hover:border-white/10 transition-all">
+                        <div className="p-5">
+                          <div className="flex items-start justify-between gap-4 mb-4">
+                            <div className="min-w-0">
+                              <p className="font-bold text-white text-base truncate">{quote.vendorName}</p>
+                              <Badge variant="outline" className={`text-[9px] uppercase mt-1 ${quote.status === 'pending' ? 'border-yellow-500/25 text-yellow-400' : quote.status === 'accepted' ? 'border-green-500/25 text-green-400' : 'border-white/15 text-muted-foreground'}`}>{quote.status}</Badge>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-xl font-bold text-secondary">INR {Number(quote.quotedPrice).toLocaleString('en-IN')}</p>
+                              <p className="text-xs text-muted-foreground">{quote.leadTimeDays} days</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-secondary">₹{quote.quotedPrice}</p>
-                            <p className="text-xs text-muted-foreground">{quote.leadTimeDays} Days</p>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1 font-semibold border-white/10 hover:bg-white/5 gap-1.5" onClick={() => { setRevisingQuote(quote); setIsRevising(true); }}>
+                              <History className="w-3.5 h-3.5" /> Review
+                            </Button>
+                            <Button size="sm" className="flex-1 font-semibold gap-1.5 bg-secondary/10 text-secondary hover:bg-secondary/20 border border-secondary/20" onClick={() => handleAssignVendor(selectedRfq.id, quote.vendorId)}>
+                              <UserCheck className="w-3.5 h-3.5" /> Assign
+                            </Button>
                           </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button size="sm" className="flex-1 font-bold" onClick={() => { setRevisingQuote(quote); setIsRevising(true); }}>
-                            <History className="w-3 h-3 mr-1" /> Oversee
-                          </Button>
-                          <Button size="sm" variant="secondary" className="flex-1 font-bold" onClick={() => handleAssignVendor(selectedRfq.id, quote.vendorId)}>
-                            <UserCheck className="w-3 h-3 mr-1" /> Assign Build
-                          </Button>
                         </div>
                       </Card>
                     ))}
                     {(!selectedRfqQuotes || selectedRfqQuotes.length === 0) && (
-                      <div className="p-12 text-center bg-background/30 rounded-2xl border border-dashed border-white/10">
-                        <Clock className="w-10 h-10 mx-auto text-muted-foreground opacity-20 mb-3" />
-                        <p className="text-sm text-muted-foreground italic">No active bids for this project lifecycle phase.</p>
+                      <div className="p-8 sm:p-14 text-center rounded-2xl bg-background/30 border border-dashed border-white/[0.06]">
+                        <Clock className="w-10 h-10 mx-auto text-muted-foreground/15 mb-3" />
+                        <p className="text-sm text-muted-foreground">No active bids yet</p>
+                        <p className="text-xs text-muted-foreground/50 mt-1">Send a quotation to start receiving bids.</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-10 flex justify-end gap-3 pt-8 border-t border-white/5">
-              <Button variant="outline" className="px-10 border-white/10" onClick={() => setShowDetailsModal(false)}>Close Oversight</Button>
-              <Button className="px-10 font-bold gap-2" onClick={() => setShowSendQuoteModal(true)}><Send className="w-4 h-4" /> Send Quotation</Button>
-            </div>
-          </Card>
-        </div>
-      )}
+              <div className="px-4 sm:px-8 py-3 sm:py-5 bg-background/40 border-t border-white/5 flex items-center justify-end gap-3 shrink-0">
+                <Button variant="outline" className="px-8 border-white/10 hover:bg-white/5" onClick={() => setShowDetailsModal(false)}>Close</Button>
+                <Button className="px-8 font-bold gap-2" onClick={() => setShowSendQuoteModal(true)}><Send className="w-4 h-4" /> Send Quotation</Button>
+              </div>
+            </Card>
+          </div>
+        );
+      })()}
 
       {showSendQuoteModal && selectedRfq && (
         <div className="fixed inset-0 z-[105] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
@@ -629,13 +693,13 @@ export default function AdminPanel() {
                   <SelectTrigger className="bg-background border-white/10"><SelectValue placeholder="Select a MechMaster" /></SelectTrigger>
                   <SelectContent className="z-[200]">
                     {vendors?.map((v: any) => (
-                      <SelectItem key={v.id} value={v.id}>{v.teamName || v.fullName} — {v.location}</SelectItem>
+                      <SelectItem key={v.id} value={v.id}>{v.teamName || v.fullName} - {v.location}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Quoted Price (₹)</Label><Input value={sendQuotePrice} onChange={e => setSendQuotePrice(e.target.value)} type="number" className="bg-background" /></div>
+                <div className="space-y-2"><Label>Quoted Price (INR)</Label><Input value={sendQuotePrice} onChange={e => setSendQuotePrice(e.target.value)} type="number" className="bg-background" /></div>
                 <div className="space-y-2"><Label>Lead Time (Days)</Label><Input value={sendQuoteLeadTime} onChange={e => setSendQuoteLeadTime(e.target.value)} type="number" className="bg-background" /></div>
               </div>
               <div className="space-y-2"><Label>Admin Remarks</Label><Textarea value={sendQuoteRemarks} onChange={e => setSendQuoteRemarks(e.target.value)} className="bg-background h-24" placeholder="Notes about this quotation for the customer..." /></div>
@@ -646,136 +710,141 @@ export default function AdminPanel() {
             </div>
           </Card>
         </div>
-      )}
+      )
+      }
 
-      {showVendorModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/95 backdrop-blur-md overflow-y-auto">
-          <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl">
-            <div className="bg-primary/10 p-6 border-b border-white/5 flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-headline font-bold text-white">MechMaster Wizard</h2>
-                <p className="text-sm text-muted-foreground">Step {vendorStep} of {totalVendorSteps}</p>
-              </div>
-              <div className="flex gap-1.5">
-                {[1, 2, 3, 4].map(s => <div key={s} className={`w-2 h-2 rounded-full ${vendorStep >= s ? 'bg-secondary' : 'bg-white/10'}`} />)}
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveVendor}>
-              <div className="p-8">
-                <div className={`${vendorStep !== 1 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-bottom-2`}>
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-24 h-24 rounded-lg bg-background border border-white/10 overflow-hidden flex items-center justify-center">
-                      {profileImage ? <Image src={profileImage} alt="Preview" fill className="object-cover" /> : <ImageIcon className="opacity-10 w-8 h-8" />}
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs uppercase font-bold text-secondary">MechMaster Identity</Label>
-                      <Button type="button" variant="outline" className="w-full border-white/10 gap-2 h-10" onClick={() => fileInputRef.current?.click()}>
-                        <Upload className="w-4 h-4" /> Upload Brand Logo
-                      </Button>
-                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Company Name</Label><Input name="teamName" defaultValue={selectedVendorProfile?.teamName} required className="bg-background" /></div>
-                    <div className="space-y-2"><Label>Primary Contact</Label><Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required className="bg-background" /></div>
-                  </div>
+      {
+        showVendorModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/95 backdrop-blur-md overflow-y-auto">
+            <Card className="w-full max-w-2xl bg-card border-white/10 shadow-2xl">
+              <div className="bg-primary/10 p-6 border-b border-white/5 flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-headline font-bold text-white">MechMaster Wizard</h2>
+                  <p className="text-sm text-muted-foreground">Step {vendorStep} of {totalVendorSteps}</p>
                 </div>
-
-                <div className={`${vendorStep !== 2 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Work Email</Label><Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required className="bg-background" /></div>
-                    <div className="space-y-2"><Label>Direct Phone</Label><Input name="phone" defaultValue={selectedVendorProfile?.phone} required className="bg-background" /></div>
-                    <div className="space-y-2 col-span-2"><Label>Workshop Location</Label><Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State" className="bg-background" /></div>
-                  </div>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4].map(s => <div key={s} className={`w-2 h-2 rounded-full ${vendorStep >= s ? 'bg-secondary' : 'bg-white/10'}`} />)}
                 </div>
+              </div>
 
-                <div className={`${vendorStep !== 3 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
-                  <Label className="text-xs uppercase font-bold text-secondary">Core Specializations</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {SPECIALIZATIONS.map(s => (
-                      <div key={s} className="flex items-center gap-3 p-3 bg-background border border-white/5 rounded-lg">
-                        <Checkbox id={s} name={s} value="on" defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
-                        <label htmlFor={s} className="text-xs font-bold text-white cursor-pointer">{s}</label>
+              <form onSubmit={handleSaveVendor}>
+                <div className="p-8">
+                  <div className={`${vendorStep !== 1 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-bottom-2`}>
+                    <div className="flex items-center gap-6">
+                      <div className="relative w-24 h-24 rounded-lg bg-background border border-white/10 overflow-hidden flex items-center justify-center">
+                        {profileImage ? <Image src={profileImage} alt="Preview" fill className="object-cover" /> : <ImageIcon className="opacity-10 w-8 h-8" />}
                       </div>
-                    ))}
+                      <div className="space-y-2 flex-1">
+                        <Label className="text-xs uppercase font-bold text-secondary">MechMaster Identity</Label>
+                        <Button type="button" variant="outline" className="w-full border-white/10 gap-2 h-10" onClick={() => fileInputRef.current?.click()}>
+                          <Upload className="w-4 h-4" /> Upload Brand Logo
+                        </Button>
+                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><Label>Company Name</Label><Input name="teamName" defaultValue={selectedVendorProfile?.teamName} required className="bg-background" /></div>
+                      <div className="space-y-2"><Label>Primary Contact</Label><Input name="fullName" defaultValue={selectedVendorProfile?.fullName} required className="bg-background" /></div>
+                    </div>
+                  </div>
+
+                  <div className={`${vendorStep !== 2 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><Label>Work Email</Label><Input name="email" type="email" defaultValue={selectedVendorProfile?.email} required className="bg-background" /></div>
+                      <div className="space-y-2"><Label>Direct Phone</Label><Input name="phone" defaultValue={selectedVendorProfile?.phone} required className="bg-background" /></div>
+                      <div className="space-y-2 col-span-2"><Label>Workshop Location</Label><Input name="location" defaultValue={selectedVendorProfile?.location} placeholder="City, State" className="bg-background" /></div>
+                    </div>
+                  </div>
+
+                  <div className={`${vendorStep !== 3 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                    <Label className="text-xs uppercase font-bold text-secondary">Core Specializations</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {SPECIALIZATIONS.map(s => (
+                        <div key={s} className="flex items-center gap-3 p-3 bg-background border border-white/5 rounded-lg">
+                          <Checkbox id={s} name={s} value="on" defaultChecked={selectedVendorProfile?.specializations?.includes(s)} />
+                          <label htmlFor={s} className="text-xs font-bold text-white cursor-pointer">{s}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={`${vendorStep !== 4 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
+                    <div className="space-y-2">
+                      <Label>About Vendor / Company Description</Label>
+                      <Textarea name="portfolio" required maxLength={100} placeholder="Brief company introduction (max 100 chars)" defaultValue={selectedVendorProfile?.portfolio} className="bg-background h-24" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><Label>Years of Experience</Label><Input name="experienceYears" type="number" min={0} required defaultValue={selectedVendorProfile?.experienceYears || 0} className="bg-background" /></div>
+                      <div className="space-y-2"><Label>Registry Rating (0-5)</Label><Input name="rating" type="number" min={0} max={5} step="0.1" defaultValue={selectedVendorProfile?.rating || 0} className="bg-background" /></div>
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <div className="flex items-center gap-2"><Checkbox id="isActive" name="isActive" value="on" defaultChecked={true} /><Label htmlFor="isActive">Public Profile</Label></div>
+                      <div className="flex items-center gap-2"><Checkbox id="isVerified" name="isVerified" value="on" defaultChecked={selectedVendorProfile?.isVerified} /><Label htmlFor="isVerified" className="text-secondary">Verified Hub Partner</Label></div>
+                    </div>
                   </div>
                 </div>
 
-                <div className={`${vendorStep !== 4 ? 'hidden' : ''} space-y-6 animate-in fade-in slide-in-from-right-2`}>
-                  <div className="space-y-2">
-                    <Label>About Vendor / Company Description</Label>
-                    <Textarea name="portfolio" required maxLength={100} placeholder="Brief company introduction (max 100 chars)" defaultValue={selectedVendorProfile?.portfolio} className="bg-background h-24" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Years of Experience</Label><Input name="experienceYears" type="number" min={0} required defaultValue={selectedVendorProfile?.experienceYears || 0} className="bg-background" /></div>
-                    <div className="space-y-2"><Label>Registry Rating (0-5)</Label><Input name="rating" type="number" min={0} max={5} step="0.1" defaultValue={selectedVendorProfile?.rating || 0} className="bg-background" /></div>
-                  </div>
-                  <div className="flex gap-4 pt-4">
-                    <div className="flex items-center gap-2"><Checkbox id="isActive" name="isActive" value="on" defaultChecked={true} /><Label htmlFor="isActive">Public Profile</Label></div>
-                    <div className="flex items-center gap-2"><Checkbox id="isVerified" name="isVerified" value="on" defaultChecked={selectedVendorProfile?.isVerified} /><Label htmlFor="isVerified" className="text-secondary">Verified Hub Partner</Label></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 bg-muted/20 border-t border-white/5 flex justify-between">
-                <Button type="button" variant="ghost" onClick={() => vendorStep > 1 ? setVendorStep(v => v - 1) : setShowVendorModal(false)}>
-                  {vendorStep === 1 ? 'Discard' : 'Back'}
-                </Button>
-                {vendorStep < totalVendorSteps ? (
-                  <Button type="button" onClick={() => setVendorStep(v => v + 1)} className="gap-2">Continue <ChevronRight className="w-4 h-4" /></Button>
-                ) : (
-                  <Button type="submit" className="bg-secondary text-background hover:bg-secondary/90 font-bold" disabled={isSubmittingVendor}>
-                    {isSubmittingVendor ? <Loader2 className="animate-spin" /> : 'Commit to Registry'}
+                <div className="p-6 bg-muted/20 border-t border-white/5 flex justify-between">
+                  <Button type="button" variant="ghost" onClick={() => vendorStep > 1 ? setVendorStep(v => v - 1) : setShowVendorModal(false)}>
+                    {vendorStep === 1 ? 'Discard' : 'Back'}
                   </Button>
-                )}
-              </div>
-            </form>
-          </Card>
-        </div>
-      )}
+                  {vendorStep < totalVendorSteps ? (
+                    <Button type="button" onClick={() => setVendorStep(v => v + 1)} className="gap-2">Continue <ChevronRight className="w-4 h-4" /></Button>
+                  ) : (
+                    <Button type="submit" className="bg-secondary text-background hover:bg-secondary/90 font-bold" disabled={isSubmittingVendor}>
+                      {isSubmittingVendor ? <Loader2 className="animate-spin" /> : 'Commit to Registry'}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Card>
+          </div>
+        )
+      }
 
-      {isRevising && revisingQuote && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-          <Card className="w-full max-w-lg bg-card border-white/10 p-8 shadow-2xl">
-            <h2 className="text-xl font-headline font-bold mb-6 text-white flex items-center gap-2"><Gavel className="w-5 h-5 text-secondary" /> Administrative Revision</h2>
+      {
+        isRevising && revisingQuote && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+            <Card className="w-full max-w-lg bg-card border-white/10 p-8 shadow-2xl">
+              <h2 className="text-xl font-headline font-bold mb-6 text-white flex items-center gap-2"><Gavel className="w-5 h-5 text-secondary" /> Administrative Revision</h2>
 
-            {revisingQuote.negotiationHistory && revisingQuote.negotiationHistory.length > 0 && (
-              <div className="max-h-[200px] overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Negotiation Audit Log</p>
-                {revisingQuote.negotiationHistory.map((hist: any, idx: number) => (
-                  <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-                        {hist.party === 'admin' ? <ShieldCheck className="w-3 h-3 text-secondary" /> : hist.party === 'user' ? <User className="w-3 h-3 text-primary" /> : <Factory className="w-3 h-3" />}
-                        {hist.party}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
+              {revisingQuote.negotiationHistory && revisingQuote.negotiationHistory.length > 0 && (
+                <div className="max-h-[200px] overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Negotiation Audit Log</p>
+                  {revisingQuote.negotiationHistory.map((hist: any, idx: number) => (
+                    <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                          {hist.party === 'admin' ? <ShieldCheck className="w-3 h-3 text-secondary" /> : hist.party === 'user' ? <User className="w-3 h-3 text-primary" /> : <Factory className="w-3 h-3" />}
+                          {hist.party}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <p className="text-white text-xs mb-3 italic">&quot;{hist.message}&quot;</p>
+                      <div className="flex gap-4 text-xs font-bold">
+                        <span className="text-secondary">INR {hist.price}</span>
+                        <span className="text-primary">{hist.leadTime} Days</span>
+                      </div>
                     </div>
-                    <p className="text-white text-xs mb-3 italic">"{hist.message}"</p>
-                    <div className="flex gap-4 text-xs font-bold">
-                      <span className="text-secondary">₹{hist.price}</span>
-                      <span className="text-primary">{hist.leadTime} Days</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Price Override (₹)</Label><Input value={revPrice} onChange={e => setRevPrice(e.target.value)} type="number" className="bg-background" /></div>
-                <div className="space-y-2"><Label>Lead Time Override</Label><Input value={revLeadTime} onChange={e => setRevLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+              <div className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Price Override (INR)</Label><Input value={revPrice} onChange={e => setRevPrice(e.target.value)} type="number" className="bg-background" /></div>
+                  <div className="space-y-2"><Label>Lead Time Override</Label><Input value={revLeadTime} onChange={e => setRevLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+                </div>
+                <div className="space-y-2"><Label>Internal Justification</Label><Textarea value={revMessage} onChange={e => setRevMessage(e.target.value)} className="bg-background h-24" /></div>
+                <div className="flex gap-3 pt-6">
+                  <Button className="flex-1 font-bold h-12" onClick={handleAdminReviseQuote}>Update Quotation</Button>
+                  <Button variant="outline" className="flex-1 border-white/10 h-12" onClick={() => setIsRevising(false)}>Cancel</Button>
+                </div>
               </div>
-              <div className="space-y-2"><Label>Internal Justification</Label><Textarea value={revMessage} onChange={e => setRevMessage(e.target.value)} className="bg-background h-24" /></div>
-              <div className="flex gap-3 pt-6">
-                <Button className="flex-1 font-bold h-12" onClick={handleAdminReviseQuote}>Update Quotation</Button>
-                <Button variant="outline" className="flex-1 border-white/10 h-12" onClick={() => setIsRevising(false)}>Cancel</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-    </div>
+            </Card>
+          </div>
+        )
+      }
+    </div >
   );
 }
