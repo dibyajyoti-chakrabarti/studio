@@ -49,12 +49,14 @@ export async function GET(req: Request) {
             emailVerified: true
         });
 
-        // 4. Update the User profile in Firestore
-        await adminFirestore.collection('users').doc(uid).update({
+        // 4. Update the User profile in Firestore (use set with merge since it might not exist yet)
+        await adminFirestore.collection('users').doc(uid).set({
             emailVerified: true,
             status: 'active',
+            email: email,
+            role: 'customer',
             updatedAt: new Date().toISOString()
-        });
+        }, { merge: true });
 
         // 5. Mark token as used
         await tokenRef.update({
