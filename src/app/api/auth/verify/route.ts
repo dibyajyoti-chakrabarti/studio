@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminAuth, adminFirestore } from '@/lib/firebase-admin';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 
 export async function GET(req: Request) {
     try {
@@ -13,6 +13,8 @@ export async function GET(req: Request) {
         if (!token) {
             return NextResponse.redirect(`${loginUrl}?error=missing_token`);
         }
+
+        const { adminFirestore, adminAuth } = getFirebaseAdmin();
 
         if (!adminFirestore || !adminAuth) {
             return NextResponse.redirect(`${loginUrl}?error=server_error`);

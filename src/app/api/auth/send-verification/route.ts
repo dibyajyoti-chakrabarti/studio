@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
-import { adminAuth, adminFirestore } from '@/lib/firebase-admin';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendInstance: Resend | null = null;
+const getResend = () => {
+    if (!resendInstance) {
+        resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
+    }
+    return resendInstance;
+};
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 
 export async function POST(req: Request) {
@@ -13,6 +20,9 @@ export async function POST(req: Request) {
         if (!email || !uid) {
             return NextResponse.json({ error: 'Email and UID are required' }, { status: 400 });
         }
+
+        const { adminFirestore, adminAuth } = getFirebaseAdmin();
+        const resend = getResend();
 
         if (!adminFirestore || !adminAuth) {
             return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
