@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LandingNav } from '@/components/LandingNav';
 import { Loader2, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -22,10 +22,44 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [verificationState, setVerificationState] = useState<{ email: string, uid: string, name: string } | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Handle verified=true from callback
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      toast({
+        title: "Email Verified",
+        description: "Your account is now verified. You can sign in.",
+        variant: "default"
+      });
+      // Clean up URL
+      router.replace('/login');
+    }
+  }, [searchParams, router, toast]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   useEffect(() => {
     async function syncUserAndRedirect() {
       if (user && db) {
+        // Enforce email verification (Google sign-in is typically verified automatically)
+        if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+          setVerificationState({
+            email: user.email || '',
+            uid: user.uid,
+            name: user.displayName || 'Innovator'
+          });
+          await signOut(auth); // Force them out until verified
+          return;
+        }
+
         setLoading(true);
         try {
           const userRef = doc(db, 'users', user.uid);
@@ -68,52 +102,143 @@ export default function LoginPage() {
     syncUserAndRedirect();
   }, [user, db, router, searchParams]);
 
-  const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    signInWithEmailAndPassword(auth, email, password)
-      .catch((error) => {
-        setLoading(false);
-        let message = "An unexpected error occurred.";
-        if (error.code === 'auth/invalid-credential') {
-          message = "Invalid email or password. Please verify your credentials.";
-        } else if (error.code === 'auth/user-not-found') {
-          message = "No account found with this email.";
-        } else if (error.code === 'auth/wrong-password') {
-          message = "Incorrect password.";
-        } else {
-          message = error.message;
-        }
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
 
-        toast({
-          variant: "destructive",
-          title: "Sign In Failed",
-          description: message,
+      // If not verified, the useEffect will catch it, update state, and sign out.
+      // But we can also handle it right here for an immediate UI response:
+      if (!userCred.user.emailVerified) {
+        setVerificationState({
+          email: userCred.user.email || '',
+          uid: userCred.user.uid,
+          name: userCred.user.displayName || 'Innovator'
         });
+        await signOut(auth);
+        setLoading(false);
+        return;
+      }
+
+      // If verified, useEffect will redirect
+    } catch (error: any) {
+      setLoading(false);
+      let message = "An unexpected error occurred.";
+      if (error.code === 'auth/invalid-credential') {
+        message = "Invalid email or password. Please verify your credentials.";
+      } else if (error.code === 'auth/user-not-found') {
+        message = "No account found with this email.";
+      } else if (error.code === 'auth/wrong-password') {
+        message = "Incorrect password.";
+      } else {
+        message = error.message;
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Sign In Failed",
+        description: message,
       });
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
+    const fullName = formData.get('fullName') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .catch((error) => {
-        setLoading(false);
-        toast({
-          variant: "destructive",
-          title: "Registration Failed",
-          description: error.message,
-        });
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+      await updateProfile(userCred.user, { displayName: fullName });
+
+      // Call API to send verification
+      await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: fullName, uid: userCred.user.uid })
       });
+
+      setVerificationState({ email, uid: userCred.user.uid, name: fullName });
+      setResendCooldown(60);
+
+      // Sign out to prevent access
+      await signOut(auth);
+      setLoading(false);
+
+    } catch (error: any) {
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: error.message,
+      });
+    }
   };
+
+  const handleResend = async () => {
+    if (!verificationState || resendCooldown > 0) return;
+
+    try {
+      setResendCooldown(60); // Start cooldown immediately
+      toast({ title: "Sending...", description: "Requesting a new verification email.", variant: "default" });
+
+      const res = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(verificationState)
+      });
+
+      if (!res.ok) throw new Error("Failed to send");
+
+      toast({ title: "Email Sent", description: "A new verification link has been sent to your inbox.", variant: "default" });
+    } catch (error) {
+      setResendCooldown(0); // Reset on error
+      toast({ title: "Error", description: "Failed to resend email. Try again later.", variant: "destructive" });
+    }
+  };
+
+  if (verificationState) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col pt-24">
+        <LandingNav />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-card border-white/10 shadow-2xl relative overflow-hidden text-center p-8">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
+            <div className="mx-auto w-16 h-16 bg-primary/20 flex items-center justify-center rounded-full mb-6">
+              <ShieldCheck className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-2xl font-headline font-bold mb-2">Check Your Inbox</h2>
+            <p className="text-muted-foreground mb-8">
+              We've sent a verification link to <strong className="text-white">{verificationState.email}</strong>.
+              Please click the link in that email to activate your account and access your dashboard.
+            </p>
+            <div className="space-y-4">
+              <Button onClick={() => setVerificationState(null)} className="w-full h-12 font-bold variant-outline bg-white/5 hover:bg-white/10 border-white/10">
+                Back to Sign In
+              </Button>
+              <Button
+                onClick={handleResend}
+                disabled={resendCooldown > 0}
+                className="w-full h-12 font-bold gap-2 text-primary"
+                variant="ghost"
+              >
+                {resendCooldown > 0 ? `Resend available in ${resendCooldown}s` : "Resend Verification Email"}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col pt-24">
@@ -182,6 +307,10 @@ export default function LoginPage() {
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-name">Full Name</Label>
+                      <Input id="reg-name" name="fullName" type="text" placeholder="John Doe" className="bg-background border-white/10 focus:border-primary/50" required />
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="reg-email">Work Email</Label>
                       <Input id="reg-email" name="email" type="email" placeholder="name@organization.com" className="bg-background border-white/10 focus:border-primary/50" required />
