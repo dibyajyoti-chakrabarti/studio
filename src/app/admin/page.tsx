@@ -504,6 +504,49 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
+                {/* Design Files Section */}
+                <div>
+                  <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Design Files</h3>
+                  {selectedRfq.designFileUrl ? (
+                    <div className="bg-background/50 p-4 rounded-xl border border-white/5 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{selectedRfq.designFileName || 'design_file'}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Uploaded with RFQ</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full gap-2 border-white/10 hover:bg-white/5"
+                        onClick={() => {
+                          const url = selectedRfq.designFileUrl;
+                          const fileName = selectedRfq.designFileName || 'design_file';
+                          // Handle data URIs (base64 encoded files)
+                          if (url.startsWith('data:')) {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          } else {
+                            // Regular URL — open in new tab
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
+                      >
+                        <Download className="w-4 h-4" /> Download Design File
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-background/30 p-4 rounded-xl border border-dashed border-white/10 text-center">
+                      <p className="text-xs text-muted-foreground italic">No design file attached to this RFQ.</p>
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <h3 className="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Vendor Invitation List</h3>
                   <div className="space-y-2">
