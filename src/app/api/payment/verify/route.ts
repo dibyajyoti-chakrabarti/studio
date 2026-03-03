@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getApps, initializeApp, cert } from 'firebase-admin/app';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
-if (!getApps().length) {
-    initializeApp({
-        credential: cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-    });
-}
+// Firebase Admin is handled by getFirebaseAdmin() central logic
 
 export async function POST(req: NextRequest) {
     try {
@@ -49,7 +40,8 @@ export async function POST(req: NextRequest) {
         }
 
         // ── Validate RFQ ownership ────────────────────────────────────────────────
-        const db = getFirestore();
+        const { adminFirestore: db } = getFirebaseAdmin();
+        if (!db) throw new Error('Firebase Admin not initialized');
         const rfqSnap = await db.collection('rfqs').doc(rfqId).get();
 
         if (!rfqSnap.exists) {
