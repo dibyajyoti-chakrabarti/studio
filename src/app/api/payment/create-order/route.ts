@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Advance payment only available after order is accepted' }, { status: 400 });
         }
 
-        if (paymentType === 'completion' && rfq.status !== 'shipping') {
+        if (paymentType === 'completion' && rfq.status !== 'shipped' && rfq.status !== 'delivered' && rfq.status !== 'shipping') {
             return NextResponse.json({ error: 'Completion payment only available after order is shipped' }, { status: 400 });
         }
 

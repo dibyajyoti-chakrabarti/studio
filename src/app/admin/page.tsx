@@ -62,6 +62,8 @@ const STATUS_OPTIONS = [
   { value: 'accepted', label: 'Accepted' },
   { value: 'assigned', label: 'Vendor Assigned' },
   { value: 'in_progress', label: 'In Production' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'delivered', label: 'Delivered' },
   { value: 'completed', label: 'Completed' },
   { value: 'rejected', label: 'Rejected' },
   { value: 'cancelled', label: 'Cancelled' },

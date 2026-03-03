@@ -51,7 +51,8 @@ const STATUS_MAP: Record<string, { label: string, color: string, icon: any }> = 
   accepted: { label: 'ADVANCE PAYMENT DUE', color: 'bg-orange-500/20 text-orange-400', icon: CreditCard },
   assigned: { label: 'ASSIGNED', color: 'bg-green-500/20 text-green-500', icon: Check },
   in_progress: { label: 'IN PRODUCTION', color: 'bg-blue-500/20 text-blue-500', icon: Hammer },
-  shipping: { label: 'OUT FOR DELIVERY', color: 'bg-orange-500/20 text-orange-500', icon: Truck },
+  shipped: { label: 'SHIPPED', color: 'bg-orange-500/20 text-orange-500', icon: Truck },
+  delivered: { label: 'DELIVERED (PAYMENT DUE)', color: 'bg-indigo-500/20 text-indigo-400', icon: Package },
   completed: { label: 'COMPLETED', color: 'bg-purple-500/20 text-purple-500', icon: CheckCircle2 },
   rejected: { label: 'REJECTED', color: 'bg-red-500/20 text-red-500', icon: AlertCircle },
   cancelled: { label: 'CANCELLED', color: 'bg-red-500/20 text-red-500', icon: AlertCircle }
@@ -523,7 +524,7 @@ export default function UserDashboard() {
                       </div>
                     )}
 
-                    {/* ── IN PRODUCTION (advance paid, not yet shipped) ── */}
+                    {/* ── IN PRODUCTION (advance paid) ── */}
                     {selectedOrder.status === 'in_progress' && (
                       <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5 space-y-4">
                         <div className="flex items-center gap-3">
@@ -554,8 +555,8 @@ export default function UserDashboard() {
                       </div>
                     )}
 
-                    {/* ── SHIPPED — Completion Payment ── */}
-                    {selectedOrder.status === 'shipping' && (
+                    {/* ── SHIPPED OR DELIVERED — Completion Payment ── */}
+                    {(selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered' || selectedOrder.status === 'shipping') && (
                       <div className="space-y-4">
                         <div className="rounded-2xl border border-orange-500/30 bg-orange-500/5 p-5 space-y-3">
                           <div className="flex items-center gap-3">
@@ -563,8 +564,8 @@ export default function UserDashboard() {
                               <Truck className="w-5 h-5 text-orange-400" />
                             </div>
                             <div>
-                              <p className="font-bold text-white text-sm">Parts Out for Delivery</p>
-                              <p className="text-xs text-muted-foreground">Confirm delivery to release final payment to your MechMaster.</p>
+                              <p className="font-bold text-white text-sm">Parts Ready for Arrival</p>
+                              <p className="text-xs text-muted-foreground">Complete full payment to receive your order.</p>
                             </div>
                           </div>
                           {selectedOrder.paymentStatus?.advance?.paid && (
@@ -577,8 +578,8 @@ export default function UserDashboard() {
                         {!selectedOrder.paymentStatus?.completion?.paid && (
                           <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-5 space-y-4">
                             <div>
-                              <p className="text-sm font-bold text-white mb-1">Confirm Delivery & Pay Balance</p>
-                              <p className="text-xs text-muted-foreground">Once you receive the parts and are satisfied, complete the final payment.</p>
+                              <p className="text-sm font-bold text-white mb-1">Pay Balance & Complete Order</p>
+                              <p className="text-xs text-muted-foreground">Once full payment is received, your MechMaster will ensure delivery of your parts.</p>
                             </div>
                             <div className="flex items-center justify-between p-3 bg-background/50 rounded-xl border border-white/5">
                               <p className="text-xs text-muted-foreground">Balance Due (50%)</p>
@@ -591,7 +592,7 @@ export default function UserDashboard() {
                             >
                               {isPayingCompletion
                                 ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>
-                                : <><Check className="w-4 h-4 mr-2" />Confirm Delivery & Pay ₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</>
+                                : <><Check className="w-4 h-4 mr-2" />Pay ₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()} & Complete Order</>
                               }
                             </Button>
                           </div>
