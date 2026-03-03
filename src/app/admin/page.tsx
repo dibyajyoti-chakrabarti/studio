@@ -401,7 +401,15 @@ export default function AdminPanel() {
                         </TableCell>
                         <TableCell>
                           {rfq.assignedVendorId ? (
-                            <Badge className="bg-green-500/20 text-green-500 border-none">Assigned</Badge>
+                            <div className="space-y-1.5">
+                              <Badge className="bg-green-500/20 text-green-500 border-none">Assigned</Badge>
+                              {rfq.paymentStatus?.advance?.paid && (
+                                <div className="text-[10px] flex items-center gap-1 text-green-400 font-bold">
+                                  <Check className="w-3 h-3" />
+                                  {rfq.paymentStatus?.completion?.paid ? 'Fully Paid' : 'Advance Paid'}
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <Badge variant="outline" className="border-white/10 text-muted-foreground">Pending Selection</Badge>
                           )}
@@ -635,8 +643,68 @@ export default function AdminPanel() {
                 </div>
 
                 {/* Right */}
-                <div className="lg:col-span-7">
-                  <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-primary mb-4"><TrendingUp className="w-3.5 h-3.5" /> Bidding & Negotiations</h3>
+                <div className="lg:col-span-7 space-y-6">
+                  {/* Payment & Milestone Tracking (Only visible if a finalPrice exists meaning order is accepted) */}
+                  {selectedRfq.finalPrice > 0 && (
+                    <div>
+                      <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-orange-400 mb-4">
+                        <DollarSign className="w-3.5 h-3.5" /> Financial & Milestone Tracking
+                      </h3>
+                      <div className="rounded-xl border border-white/[0.06] bg-background/60 overflow-hidden text-sm">
+                        <div className="p-4 border-b border-white/[0.06] flex justify-between items-center bg-white/[0.02]">
+                          <span className="text-muted-foreground">Total Order Value</span>
+                          <span className="font-bold text-white text-lg">INR {Number(selectedRfq.finalPrice).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">
+                          {/* Advance Payment Block */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-white">50% Advance</span>
+                              {selectedRfq.paymentStatus?.advance?.paid ? (
+                                <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-[10px]">PAID</Badge>
+                              ) : (
+                                <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20 text-[10px]">PENDING</Badge>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xl font-bold text-white">INR {Math.round(selectedRfq.finalPrice * 0.5).toLocaleString('en-IN')}</p>
+                            </div>
+                            {selectedRfq.paymentStatus?.advance?.paid && (
+                              <div className="text-[10px] text-muted-foreground space-y-1 bg-black/20 p-2 rounded border border-white/5">
+                                <p>On: {new Date(selectedRfq.paymentStatus.advance.paidAt).toLocaleString('en-IN')}</p>
+                                <p className="font-mono text-[9px] truncate">Ref: {selectedRfq.paymentStatus.advance.razorpayPaymentId}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Completion Payment Block */}
+                          <div className="space-y-3 md:pl-4 pt-4 md:pt-0">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-white">50% Completion</span>
+                              {selectedRfq.paymentStatus?.completion?.paid ? (
+                                <Badge className="bg-green-500/10 text-green-400 border-green-500/20 text-[10px]">PAID</Badge>
+                              ) : (
+                                <Badge className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 text-[10px]">{selectedRfq.paymentStatus?.advance?.paid ? 'AWAITING DELIVERY' : 'PENDING'}</Badge>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xl font-bold text-white">INR {Math.round(selectedRfq.finalPrice * 0.5).toLocaleString('en-IN')}</p>
+                            </div>
+                            {selectedRfq.paymentStatus?.completion?.paid && (
+                              <div className="text-[10px] text-muted-foreground space-y-1 bg-black/20 p-2 rounded border border-white/5">
+                                <p>On: {new Date(selectedRfq.paymentStatus.completion.paidAt).toLocaleString('en-IN')}</p>
+                                <p className="font-mono text-[9px] truncate">Ref: {selectedRfq.paymentStatus.completion.razorpayPaymentId}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-primary mb-4">
+                    <TrendingUp className="w-3.5 h-3.5" /> Bidding & Negotiations
+                  </h3>
                   <div className="space-y-3">
                     {selectedRfqQuotes?.map(quote => (
                       <Card key={quote.id} className="bg-background/60 border-white/[0.06] overflow-hidden hover:border-white/10 transition-all">
