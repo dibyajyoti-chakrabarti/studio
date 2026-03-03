@@ -132,13 +132,13 @@ export default function Home() {
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
 
             {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-[11px] font-bold uppercase tracking-[0.2em] mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white-500/30 bg-blue-600/5 text-blue-600 text-[11px] font-bold uppercase tracking-[0.2em] mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-600 animate-pulse" />
               India's Precision Manufacturing Platform
             </div>
 
             {/* Main headline */}
-            <h1 className="font-headline text-4xl sm:text-5xl md:text-[64px] font-bold leading-[1.1] tracking-tight text-white mb-6">
+            <h1 className="font-medium text-balance text-center font-heading text-heading-lg-sm md:text-heading-lg text-white-900 dark:text-white mb-6">
               From Laser-Cut Prototypes to{' '}
               <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
                 Full Production Runs
@@ -210,8 +210,8 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           {/* Header */}
           <div className="text-center mb-12">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 mb-3">// PROCESS</p>
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-white">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">PROCESS</p>
+            <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
               How It Works
             </h2>
             <p className="text-zinc-500 max-w-lg mx-auto text-sm leading-relaxed">
@@ -297,9 +297,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-6">
             <div className="max-w-xl">
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">// VERIFIED MARKETPLACE</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600">VERIFIED MARKETPLACE</span>
               </div>
-              <h2 className="font-headline text-3xl md:text-4xl font-bold uppercase tracking-tight text-white mb-3">
+              <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
                 Meet Our MechMasters
               </h2>
               <p className="text-zinc-500 text-sm leading-relaxed">
@@ -394,8 +394,8 @@ export default function Home() {
               {/* Left panel: header + tabs + CTA */}
               <div className="flex flex-col gap-6 md:sticky md:top-28">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 mb-3">// WHY MECHHUB</p>
-                  <h2 className="font-headline text-3xl md:text-4xl font-bold uppercase tracking-tight text-white mb-4 leading-tight">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">WHY MECHHUB</p>
+                  <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
                     Built for both sides of manufacturing
                   </h2>
                   <p className="text-zinc-500 text-sm leading-relaxed">
@@ -530,8 +530,8 @@ export default function Home() {
 
               {/* Left: Content */}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">// EXPERT SUPPORT</p>
-                <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-zinc-900 leading-tight">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">EXPERT SUPPORT</p>
+                <h2 className="font-heading font-bold text-3xl tracking-tight text-white text-zinc-900 leading-tight">
                   Need Expert Manufacturing Guidance?
                 </h2>
                 <p className="text-zinc-600 text-sm leading-relaxed mb-8 max-w-md">
@@ -571,7 +571,7 @@ export default function Home() {
                   <DialogContent className="sm:max-w-[500px] bg-zinc-950 border border-white/10 text-foreground">
                     <DialogHeader>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-cyan-400">// FREE CONSULTATION</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600">FREE CONSULTATION</span>
                       </div>
                       <DialogTitle className="font-headline text-xl text-white">Expert Manufacturing Consultation</DialogTitle>
                       <DialogDescription className="text-zinc-500 text-sm">
@@ -655,7 +655,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <h3 className="font-headline text-xl font-bold text-white mb-1">Ready to build your next part?</h3>
+                <h3 className="font-heading text-2xl tracking-tight text-white">Ready to build your next part?</h3>
                 <p className="text-zinc-500 text-sm">Upload your design and get matched with a verified MechMaster in minutes.</p>
               </div>
               <div className="flex gap-3 shrink-0">
@@ -683,7 +683,7 @@ export default function Home() {
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-2.5 mb-5">
                 <Logo size={32} />
-                <span className="font-headline font-bold text-lg tracking-tight text-white uppercase">MechHub</span>
+                <span className="font-heading text-2xl tracking-tight text-white">MechHub</span>
               </Link>
               <p className="text-zinc-500 text-sm leading-relaxed mb-6 max-w-xs">
                 India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.

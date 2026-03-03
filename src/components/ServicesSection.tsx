@@ -515,8 +515,8 @@ export function ServicesSection() {
             <div className="container mx-auto px-4">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 mb-3">// OUR CAPABILITIES</p>
-                    <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4 uppercase tracking-tight text-white">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">OUR CAPABILITIES</p>
+                    <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
                         Precision Manufacturing Services
                     </h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">

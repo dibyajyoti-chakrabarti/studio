@@ -1,4 +1,4 @@
-import type {Config} from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: ['class'],
@@ -12,7 +12,12 @@ export default {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['Space Grotesk', 'sans-serif'],
+        heading: ['Instrument Serif', 'serif'],
         code: ['monospace'],
+      },
+      fontSize: {
+        'heading-lg': ['4rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'heading-lg-sm': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
       },
       colors: {
         background: 'hsl(var(--background))',

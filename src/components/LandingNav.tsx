@@ -114,7 +114,7 @@ export function LandingNav() {
                 className="object-contain rounded-sm"
               />
             </div>
-            <span className="font-headline font-bold text-lg tracking-tight bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
+            <span className="font-heading text-2xl tracking-tight text-white">
               MechHub
             </span>
           </Link>
