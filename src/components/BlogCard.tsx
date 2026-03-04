@@ -56,7 +56,7 @@ export function BlogCard({ post, index }: BlogCardProps) {
                         </span>
                     </div>
 
-                    <h3 className="text-base font-bold font-heading text-white group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
+                    <h3 className="text-base font-bold font-libre text-white group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
                         {post.title}
                     </h3>
 

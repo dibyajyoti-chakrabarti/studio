@@ -3,8 +3,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { allPosts } from 'contentlayer/generated';
 import { format, parseISO } from 'date-fns';
-import { ChevronLeft, Calendar, Clock, Share2, Bookmark, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Calendar, Clock, ArrowRight } from 'lucide-react';
 import { Mdx } from '@/components/MDXComponents';
+import { ShareButtons } from '@/components/ShareButtons';
+import { TableOfContents } from '@/components/TableOfContents';
+import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { BlogLayout } from '@/components/BlogLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -100,7 +103,7 @@ export default async function PostPage({ params }: PostPageProps) {
                             ))}
                         </div>
 
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-white tracking-tight leading-[1.1]">
+                        <h1 className="text-left font-libre font-bold tracking-tight text-balance text-2xl md:text-3xl lg:text-3xl text-white mb-8">
                             {post.title}
                         </h1>
 
@@ -157,41 +160,16 @@ export default async function PostPage({ params }: PostPageProps) {
                         <Mdx code={post.body.code} />
 
                         {/* Share & Actions */}
-                        <div className="mt-16 pt-8 border-t border-white/5 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Support the Team:</span>
-                                <Button variant="outline" size="sm" className="h-9 px-4 rounded-full border-white/10 bg-white/5 text-zinc-400 hover:text-white gap-2">
-                                    <Bookmark className="w-4 h-4" /> Save
-                                </Button>
-                                <Button variant="outline" size="sm" className="h-9 px-4 rounded-full border-white/10 bg-white/5 text-zinc-400 hover:text-white gap-2">
-                                    <Share2 className="w-4 h-4" /> Share
-                                </Button>
-                            </div>
-                        </div>
+                        <ShareButtons title={post.title} summary={post.summary} slug={post.slug} />
                     </div>
 
                     {/* Sidebar */}
                     <aside className="sticky top-32 space-y-12 hidden lg:block">
-                        {/* Table of Contents - Placeholder for refined TOC logic */}
-                        <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] space-y-4">
-                            <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">On this page</h4>
-                            <nav className="space-y-3">
-                                <p className="text-sm font-semibold text-white">Introduction</p>
-                                <p className="text-sm text-zinc-500 hover:text-white cursor-pointer transition-colors">Key Advantages</p>
-                                <p className="text-sm text-zinc-500 hover:text-white cursor-pointer transition-colors">Technical Deep Dive</p>
-                                <p className="text-sm text-zinc-500 hover:text-white cursor-pointer transition-colors">Final Thoughts</p>
-                            </nav>
-                        </div>
+                        {/* Table of Contents */}
+                        <TableOfContents />
 
                         {/* Newsletter */}
-                        <div className="p-6 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-4 border-t-2 border-t-blue-500">
-                            <h4 className="text-sm font-bold text-white">MechHub Precision</h4>
-                            <p className="text-xs text-zinc-400 leading-relaxed">Join 500+ professionals receiving manufacturing insights.</p>
-                            <Input className="h-9 text-xs bg-zinc-950 border-white/10" placeholder="Email address" />
-                            <Button size="sm" className="w-full h-9 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider">
-                                Join Now
-                            </Button>
-                        </div>
+                        <NewsletterSignup />
                     </aside>
                 </div>
 

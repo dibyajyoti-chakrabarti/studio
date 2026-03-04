@@ -138,12 +138,13 @@ export default function Home() {
             </div>
 
             {/* Main headline */}
-            <h1 className="font-medium text-balance text-center font-heading text-heading-lg-sm md:text-heading-lg text-white-900 dark:text-white mb-6">
-              From Laser-Cut Prototypes to{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-center font-libre font-bold tracking-tight text-balance leading-[1.1] text-3xl md:text-4xl lg:text-5xl text-white mb-8">
+              From Laser-Cut Prototypes to <br className="hidden md:block" />
+              <span className="bg-gradient-to-r from-blue-400 via-emerald-300 to-cyan-400 bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">
                 Full Production Runs
               </span>
             </h1>
+
 
             {/* Sub-headline */}
             <p className="text-sm text-zinc-400 max-w-2xl leading-relaxed mb-4">
@@ -703,11 +704,11 @@ export default function Home() {
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Company</h4>
               <ul className="space-y-3">
                 {[
-                  { label: 'About Us', href: '#' },
+                  { label: 'About Us', href: '/about' },
                   { label: 'How It Works', href: '#how-it-works' },
                   { label: 'MechMasters', href: '#vendors' },
-                  { label: 'Contact', href: '#' },
-                  { label: 'Careers', href: '#' },
+                  { label: 'Blog', href: '/blog' },
+                  { label: 'Contact', href: '#contact' },
                 ].map(l => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
@@ -721,10 +722,10 @@ export default function Home() {
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Legal</h4>
               <ul className="space-y-3">
                 {[
-                  { label: 'Privacy Policy', href: '#' },
-                  { label: 'Terms of Service', href: '#' },
-                  { label: 'Refund Policy', href: '#' },
-                  { label: 'NDA Policy', href: '#' },
+                  { label: 'Privacy Policy', href: '/privacy-policy' },
+                  { label: 'Terms of Service', href: '/terms-of-service' },
+                  { label: 'Refund Policy', href: '/refund-policy' },
+                  { label: 'NDA Policy', href: '/nda-policy' },
                 ].map(l => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>

@@ -10,9 +10,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Space Grotesk', 'sans-serif'],
+        body: ['Lora', 'serif'],
+        headline: ['Cormorant Garamond', 'serif'],
         heading: ['Instrument Serif', 'serif'],
+        libre: ['Libre Baskerville', 'serif'],
         code: ['monospace'],
       },
       fontSize: {

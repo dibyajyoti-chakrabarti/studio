@@ -197,5 +197,16 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ─────────────────────────────────────────
+    // newsletter_subscribers/{docId}
+    // ─────────────────────────────────────────
+    match /newsletter_subscribers/{docId} {
+      // Public: anyone can subscribe (unauthenticated)
+      allow create: if true;
+
+      // Only admin can read and manage subscribers
+      allow read, update, delete: if isAdmin();
+    }
+
   }
 }

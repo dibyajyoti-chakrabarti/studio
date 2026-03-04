@@ -8,7 +8,7 @@ const components = {
     h1: ({ className, ...props }: any) => (
         <h1
             className={cn(
-                'mt-8 scroll-m-20 font-heading text-4xl font-bold tracking-tight text-white',
+                'text-left font-libre tracking-tight text-balance leading-[1.1] text-2xl md:text-3xl lg:text-4xl text-white mb-8',
                 className
             )}
             {...props}
@@ -17,7 +17,7 @@ const components = {
     h2: ({ className, ...props }: any) => (
         <h2
             className={cn(
-                'mt-10 scroll-m-20 border-b border-white/10 pb-2 font-heading text-3xl font-semibold tracking-tight text-white first:mt-0',
+                'text-left font-libre font-bold tracking-tight text-balance leading-[1.1] text-2xl md:text-3xl lg:text-4xl text-white mb-8',
                 className
             )}
             {...props}
