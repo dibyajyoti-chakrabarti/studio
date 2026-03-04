@@ -23,6 +23,7 @@ const NAV_LINKS = [
   { href: '/#services', label: 'Services' },
   { href: '/#how-it-works', label: 'How it Works' },
   { href: '/#vendors', label: 'MechMasters' },
+  { href: '/blog', label: 'Blog' },
 ];
 
 export function LandingNav() {

@@ -1,0 +1,186 @@
+---
+title: "Rapid Prototyping in India: How to Get Your First Metal Part in 24 Hours"
+date: 2024-03-20
+summary: From design file to physical metal prototype in 24–72 hours — a practical guide to rapid prototyping services in India, including process selection, DFM tips, and how to avoid the most common delays.
+image: https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop
+tags:
+  - Rapid Prototyping
+  - Product Development
+  - Engineering
+  - Startups
+author: MechHub Team
+---
+
+# Rapid Prototyping in India: How to Get Your First Metal Part in 24 Hours
+
+The gap between a CAD model on your screen and a physical part in your hands used to take weeks. Today, India's growing precision manufacturing ecosystem makes it possible to hold a metal prototype within 24–72 hours of finalising your design — if you know how to use it.
+
+This guide is for engineers, founders, and product teams who need physical prototypes fast. We cover process selection, what your files need to look like, the hidden delays that cost time, and how to get the most out of rapid prototyping services in India.
+
+---
+
+## Why Rapid Prototyping Matters
+
+Physical prototypes reveal things CAD models cannot. A part that looks perfect in Fusion 360 may have an assembly interference you only notice when holding both components. A bracket that appears structurally adequate on screen may feel alarmingly thin when you pick it up. A surface finish that renders beautifully in a render may look cheap and unprofessional on the actual part.
+
+The faster you can get physical parts into your hands — and into the hands of customers, investors, and your manufacturing team — the faster you can iterate toward a design that actually works.
+
+> At MechHub, our fastest turnaround for a single CNC-machined aluminium prototype is **24 hours** from confirmed order to dispatch. For laser-cut and bent sheet metal parts, same-day dispatch is achievable for simple geometry submitted before noon.
+
+---
+
+## Choosing the Right Prototyping Process
+
+Not every prototype needs the same process. The right choice depends on the geometry, material, required finish, and — critically — what you are trying to validate.
+
+### CNC Machining: Best for Functional Metal Prototypes
+
+CNC machining is the gold standard for metal prototypes that need to function like the final production part. Material properties are identical to production — because it is the same material, machined to the same geometry. Tolerances achieved in prototyping are achievable in production.
+
+**Use CNC machining when:**
+- The prototype will be functionally tested under load, pressure, or temperature
+- Tolerances tighter than ±0.1mm are required
+- The part has complex 3D geometry (pockets, contours, undercuts)
+- You need to verify assembly fit with mating components
+
+**Lead time:** 24–72 hours for single parts; 3–5 days for small batches
+
+### Laser Cutting + Bending: Best for Sheet Metal Prototypes
+
+For enclosures, brackets, frames, and panels, laser cutting followed by press brake bending is the fastest route to a functional sheet metal prototype. DXF files cut within hours; bending and any fastener insertion adds a few hours more.
+
+**Use laser + bending when:**
+- The part is a sheet metal component (enclosure, panel, bracket, clip)
+- You need to test fit and form before committing to tooling
+- Multiple flat configurations need to be tested quickly
+
+**Lead time:** 24–48 hours for simple parts
+
+### Wire-Cut and Sinker EDM: Best for Hardened Tool Prototypes
+
+When the prototype is itself a tool — a mould insert, punch, or die — EDM is often required because the material is too hard to machine conventionally. Wire EDM can achieve ±0.005mm tolerances in hardened steel, making it indispensable for tooling validation.
+
+**Lead time:** 3–7 days depending on complexity
+
+---
+
+## The 5 Files You Need Before You Call a Supplier
+
+Nothing delays a prototype more than an incomplete or incorrect design package. Suppliers cannot quote accurately, and any assumptions they make about missing information may be wrong. Before contacting any rapid prototyping service, have these five things ready:
+
+**1. 3D CAD file (STEP format preferred)**
+STEP (ISO 10303) is the universal neutral CAD exchange format. It preserves solid geometry, tolerances, and threads without proprietary software dependencies. Export from SolidWorks, Fusion 360, CATIA, or any CAD platform.
+
+**2. 2D engineering drawing (PDF)**
+The STEP file tells the machinist the geometry. The drawing tells them everything else: tolerances, surface finish requirements, thread callouts, material specification, heat treatment, and inspection requirements. Never submit a STEP without a drawing.
+
+**3. Material specification**
+Do not write "aluminium" or "stainless steel." Write "Aluminium 6061-T6 to ASTM B209" or "Stainless Steel 316L to ASTM A240." Material grade determines machinability, cost, lead time (for procurement), and certification requirements.
+
+**4. Quantity and delivery requirement**
+"As fast as possible" is not a delivery requirement. State the quantity (e.g. "1 prototype, then 5 pre-production units") and the date you need them by. This allows the supplier to assess whether your timeline is achievable with their current machine loading.
+
+**5. Finish specification**
+Specify the required surface finish for each surface: as-machined (Ra 3.2µm), bead blasted, anodised (colour, type, thickness), or powder coated (RAL colour, gloss level). If some surfaces are non-critical and as-machined is acceptable, say so explicitly — it reduces cost.
+
+```typescript
+// Checklist object — use this as a pre-submission review
+const prototypeSubmissionChecklist = {
+  cadFile:         { format: 'STEP', version: 'AP214 or AP242', complete: true },
+  drawing:         { format: 'PDF', includes: ['tolerances', 'threads', 'finish', 'material'] },
+  material:        { specified: true, grade: 'Aluminium 6061-T6', standard: 'ASTM B209' },
+  quantity:        { prototype: 1, preProduction: 5 },
+  deliveryDate:    '2024-04-01',
+  surfaceFinish:   { primary: 'Anodised clear Type II', secondary: 'As-machined Ra 3.2' },
+};
+```
+
+---
+
+## Common Causes of Prototype Delays — and How to Avoid Them
+
+### 1. File Issues Caught at DFM Review
+
+The single most common cause of delay is a design that cannot be manufactured as submitted — or that would produce a poor result without modification. Common file issues include:
+
+- Wall thickness below 0.5mm on a CNC-machined part
+- Thread depth insufficient for the specified fastener
+- Surface finish specified as Ra 0.2µm on a feature that requires EDM or grinding to achieve
+- Tolerance specification of ±0.001mm on a feature that only requires ±0.05mm
+
+**Solution:** Request a DFM review before confirming the order. At MechHub, DFM review is included at the quoting stage — our team flags issues before the job enters the machine.
+
+### 2. Material Procurement Lead Time
+
+If your specified material is not in stock at the shop, procurement adds 1–3 days. Common stocked materials for rapid prototyping in India:
+
+- Aluminium 6061-T6 — almost always in stock
+- Mild Steel EN8, EN24 — widely stocked
+- Stainless 304 — widely stocked
+- Stainless 316L — may require procurement
+- Titanium Grade 5 — typically 3–5 day procurement
+
+**Solution:** Ask about material stock status when quoting. If your prototype timeline is tight and the exact grade is not critical, ask whether a closely equivalent stocked grade is acceptable.
+
+### 3. Ambiguous Tolerances Requiring Clarification
+
+A drawing with a general tolerance block of ±0.1mm and no feature-specific tolerances is technically complete — but a conscientious machinist may query whether certain features really need only ±0.1mm before running the part. This back-and-forth adds hours.
+
+**Solution:** Annotate all critical dimensions with explicit tolerances. If a feature is truly non-critical, mark it as "Reference" or add a note: "Non-critical features to general tolerance ±0.1mm."
+
+### 4. Design Changes After Order Confirmation
+
+"Can we just move that hole 2mm?" after an order is confirmed requires re-quoting, potential toolpath regeneration, and — if the job has already started — scrapping work in progress. Mid-production changes are expensive and time-consuming.
+
+**Solution:** Build a design freeze gate into your process. Once you confirm an order, the design is frozen. All changes go through a formal revision cycle and generate a new purchase order.
+
+---
+
+## Prototype to Production: Planning the Transition
+
+A successful prototype is only valuable if the learnings from it feed back into a production-ready design. The prototype stage should answer specific questions — not just "does it look right?" but:
+
+- Does it assemble correctly with all mating parts?
+- Does it meet the structural requirements (load, vibration, thermal)?
+- Does the surface finish meet aesthetic and functional requirements?
+- Are there any DFM issues that would increase production cost or reduce yield?
+
+Document the answers to these questions formally before signing off on the design for production. Small changes at the prototype stage are cheap. The same changes after tooling investment are expensive.
+
+### Pre-Production Checklist
+
+```
+□ All prototype dimensions verified against drawing
+□ Assembly fit confirmed with all mating components
+□ Structural/functional testing completed and passed
+□ Surface finish approved by stakeholders
+□ DFM review completed for production volumes (not just prototype)
+□ Material specification finalised and sourcing confirmed
+□ Packaging and handling requirements defined
+□ Quality inspection criteria documented (AQL level, critical dimensions)
+```
+
+---
+
+## Rapid Prototyping Costs in India: What to Expect
+
+Prototype pricing varies significantly by process, material, and complexity. Rough benchmarks for single-unit prototypes through MechHub:
+
+| Part Type | Material | Typical Price Range | Lead Time |
+|-----------|----------|---------------------|-----------|
+| Simple bracket (laser + bend) | CRCA 2mm | ₹800–₹2,500 | 24 hours |
+| Enclosure (laser + bend, 4 sides) | CRCA 1.5mm | ₹3,000–₹8,000 | 48 hours |
+| Machined block (simple) | Aluminium 6061 | ₹2,000–₹6,000 | 48 hours |
+| Machined part (complex) | Aluminium 6061 | ₹8,000–₹25,000 | 72 hours |
+| Machined part (stainless) | SS304 | ₹12,000–₹40,000 | 3–5 days |
+| Turned shaft | EN8 Steel | ₹500–₹2,000 | 24 hours |
+
+*Prices are indicative and vary with complexity, tolerances, finish, and supplier. Get an exact quote by uploading your files to MechHub.*
+
+---
+
+## Conclusion
+
+Rapid prototyping in India has never been more accessible. With the right files, a clear material and finish specification, and a manufacturing partner who does proper DFM review, getting a functional metal prototype in 24–72 hours is entirely achievable — not just for large companies, but for startups, independent engineers, and research teams.
+
+MechHub was built precisely for this: connecting design teams who need parts fast with verified Indian manufacturers who can deliver them. Upload your STEP file today, get a DFM review and quote within hours, and hold your prototype by the end of the week.

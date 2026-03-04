@@ -1,0 +1,230 @@
+---
+title: "TIG vs MIG Welding: Which Process Is Right for Your Industrial Parts?"
+date: 2024-04-08
+summary: TIG and MIG welding produce very different results on different materials. This guide explains when to use each process, how to specify welds on drawings, and what affects weld quality in precision fabrication.
+image: https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop
+tags:
+  - Welding
+  - Fabrication
+  - Manufacturing
+  - Engineering
+author: MechHub Team
+---
+
+# TIG vs MIG Welding: Which Process Is Right for Your Industrial Parts?
+
+Welding is one of the most widely used joining processes in Indian manufacturing — and one of the most frequently misspecified. Engineers who are expert at CAD design often have only a general understanding of welding processes, which leads to drawings that specify the wrong process, vague weld callouts that produce inconsistent results, or designs that make welding unnecessarily difficult.
+
+This guide demystifies TIG and MIG welding for mechanical engineers and product managers who are not welding specialists — covering the right process for your application, how to specify welds correctly on drawings, and the DFM principles that make welded assemblies easier and cheaper to produce.
+
+---
+
+## The Fundamental Difference Between TIG and MIG
+
+Both TIG (Tungsten Inert Gas, formally GTAW — Gas Tungsten Arc Welding) and MIG (Metal Inert Gas, formally GMAW — Gas Metal Arc Welding) use an electric arc to melt and fuse metal. The key difference is in how they add filler metal and control the arc.
+
+**TIG welding** uses a non-consumable tungsten electrode to maintain the arc while the welder feeds filler rod by hand. This gives the welder precise, independent control over heat input and filler addition — producing clean, narrow welds with a small heat-affected zone. TIG is slower than MIG and requires a higher skill level, but produces superior weld quality and cosmetic appearance.
+
+**MIG welding** uses a continuously fed wire electrode that simultaneously carries the arc current and acts as filler metal. The process is semi-automatic — the wire feeds at a set rate, and the welder controls travel speed and gun angle. MIG is faster than TIG, more forgiving of fit-up gaps, and suitable for thicker materials and higher deposition rates. It produces wider, slightly rougher welds with a larger heat-affected zone.
+
+---
+
+## When to Choose TIG Welding
+
+TIG is the correct choice when any of the following apply:
+
+### Stainless Steel and Aluminium
+
+TIG is the default process for both these materials. Stainless steel requires precise heat control to avoid sensitisation (chromium carbide precipitation at grain boundaries that reduces corrosion resistance). Aluminium requires AC TIG welding to break the oxide layer that forms on the surface.
+
+### Thin Material (Below 3mm)
+
+On thin sheet metal, the heat-affected zone from MIG welding causes warping and burn-through. TIG's precise heat input produces clean welds on 0.5mm stainless and 1mm aluminium without distortion.
+
+### Cosmetic or Sanitary Welds
+
+Wherever the weld bead will be visible on the finished product — architectural metalwork, food-processing equipment, consumer product enclosures, medical devices — TIG produces a smooth, consistent bead that requires minimal post-processing.
+
+### Critical Structural Joints
+
+For safety-critical applications where weld quality must be verified and documented, TIG welding produces welds with consistent, verifiable penetration and minimal porosity.
+
+### Exotic Alloys
+
+Titanium, Inconel, Hastelloy, and other high-performance alloys require TIG welding in a shielded environment (often a purge chamber or back-purge gas) to prevent oxidation and maintain alloy chemistry.
+
+---
+
+## When to Choose MIG Welding
+
+MIG is the correct choice when:
+
+### Mild Steel, Carbon Steel
+
+For structural mild steel fabrication — frames, brackets, supports, machine bases — MIG welding is faster and more economical than TIG, producing structurally sound welds at a lower cost per metre.
+
+### Material Thickness Above 3mm
+
+On thick material, TIG's lower deposition rate becomes a significant time and cost disadvantage. MIG's faster wire feed delivers the required filler volume efficiently.
+
+### High-Volume Production Welding
+
+MIG welding is amenable to semi-automation and robotic welding, making it the preferred process for production volumes where consistent speed matters.
+
+### Large Assemblies With Long Weld Runs
+
+MIG's higher travel speed and continuous wire feed make it practical for long weld runs on large structural assemblies.
+
+---
+
+## Process Comparison Summary
+
+| Factor | TIG (GTAW) | MIG (GMAW) |
+|--------|-----------|-----------|
+| Weld quality | Excellent | Good |
+| Speed | Slow | Fast |
+| Skill required | High | Moderate |
+| Thin material (< 3mm) | Excellent | Poor |
+| Thick material (> 6mm) | Slow | Excellent |
+| Aluminium | Excellent (AC TIG) | Good (push technique) |
+| Stainless Steel | Excellent | Good |
+| Mild Steel | Good | Excellent |
+| Cosmetic appearance | Superior | Moderate |
+| Cost per weld | Higher | Lower |
+| Suitable for automation | Limited | Excellent |
+
+---
+
+## How to Specify Welds on Engineering Drawings
+
+Weld callouts on engineering drawings follow ISO 2553 (international) or AWS A2.4 (American standard). Most Indian fabrication shops use ISO 2553. A complete weld symbol communicates:
+
+1. **Weld type** — fillet, butt, plug, seam, spot
+2. **Weld dimensions** — leg size for fillets, groove depth for butt welds
+3. **Process** — TIG, MIG, spot (specified in the tail)
+4. **Position** — arrow side, other side, or both sides
+5. **Extent** — full-length, intermittent, or specific weld length and pitch
+
+### Common Weld Types
+
+**Fillet weld** — the most common weld type; joins two surfaces meeting at an angle (typically 90°). Specified by leg size (e.g. 5mm fillet weld).
+
+**Butt weld** — joins two edges end-to-end. Can be square, single-V, double-V, or J-groove depending on thickness and access.
+
+**Plug / slot weld** — fills a hole in one piece to join it to the piece beneath.
+
+### Specifying a Fillet Weld (Example)
+
+A 5mm fillet weld on the arrow side of the joint, continuous, TIG process:
+
+```
+Symbol breakdown:
+- "5" before the fillet symbol = 5mm leg size
+- Fillet weld symbol on arrow side = weld is on arrow side of joint
+- No pitch/length specified = continuous weld
+- "GTAW" in the tail = TIG process
+```
+
+For intermittent (stitch) welds — used to reduce heat input on thin material — specify weld length and pitch:
+
+```
+50-150 fillet: 50mm weld lengths at 150mm intervals
+```
+
+---
+
+## Weld Quality Grades
+
+Not all welds need the same quality level. Specifying the appropriate quality class prevents over-engineering and unnecessary cost.
+
+**ISO 5817 Quality Levels:**
+
+| Level | Designation | Typical Application |
+|-------|-------------|---------------------|
+| D | Lower | Non-structural, cosmetic or containment welds |
+| C | Intermediate | General structural applications |
+| B | Higher | Safety-critical structural welds |
+| B+ / Special | Not in ISO | Aerospace, nuclear (additional NDT) |
+
+Most industrial fabrication in India defaults to ISO 5817 Level C. Safety-critical applications — pressure vessels, lifting equipment, load-bearing structures — should specify Level B with appropriate inspection requirements.
+
+---
+
+## DFM Rules for Welded Assemblies
+
+### Rule 1: Design for Access
+
+A welder's torch has a physical size — typically 20–30mm in diameter — and requires a clear line of approach to the joint. Internal joints in tight enclosures, welds at the back of deep channels, and joints obscured by adjacent features are difficult or impossible to weld well.
+
+**Check your design from every weld joint's perspective:** Can a welding torch reach the joint with at least 30° approach angle and 50mm clearance? If not, redesign the geometry or access.
+
+### Rule 2: Minimise Fit-Up Gaps
+
+Weld quality is strongly influenced by fit-up — the gap between the parts being joined before welding. Large, inconsistent gaps produce inconsistent penetration, require more filler, and increase distortion.
+
+For fillet welds on structural steel: maximum fit-up gap = 2mm. For TIG-welded stainless or aluminium: maximum fit-up gap = 0.5–1mm. Design mating surfaces to be cut accurately (laser or waterjet) and verify fit before welding.
+
+### Rule 3: Manage Distortion With Symmetry and Sequence
+
+Heat causes metal to expand and then contract as it cools. If welds are laid asymmetrically on an assembly, this contraction pulls the structure out of flat. On thin panels, even short welds can produce significant warping.
+
+**Distortion management strategies:**
+- **Weld symmetrically** — if welding both sides of a joint, alternate between sides rather than completing one side fully before starting the other
+- **Tack weld sequence** — place tack welds symmetrically around the assembly before running full welds
+- **Backstep welding** — on long welds, weld in short segments in the direction opposite to the overall weld progression
+- **Fixturing** — clamp the assembly in a fixture that constrains distortion-prone joints during welding
+
+### Rule 4: Specify Post-Weld Treatment
+
+After welding, assemblies typically require one or more of the following operations before they are usable:
+
+- **Grinding and dressing** — smooth weld beads to a flush or blended profile
+- **Pickling and passivation** — for stainless steel, removes heat-tint (the discolouration around the weld) and restores the passive oxide layer for corrosion resistance
+- **Stress relieving** — heat treatment to relieve residual welding stresses; required for pressure vessels and critical structural applications
+- **Straightening** — mechanical or thermal correction of distortion
+
+Specify required post-weld operations on your drawing. "Weld, grind flush, and passivate" is a complete specification. "Weld" alone is not.
+
+### Rule 5: Avoid Weld-on-Weld Intersections
+
+Crossing or intersecting weld beads create stress concentrations and can trap defects at the intersection. Where multiple welds meet, the sequence must be carefully managed — typically, one weld is completed and dressed before the crossing weld is laid over it.
+
+Where possible, design joints so welds run parallel rather than crossing. If intersection is unavoidable, specify the welding sequence on the drawing.
+
+---
+
+## Inspection Methods for Welds
+
+The appropriate inspection method depends on the criticality of the weld and the defect types of concern:
+
+| Method | Detects | Best For |
+|--------|---------|----------|
+| Visual Inspection (VT) | Surface defects, undercutting, incomplete fusion | All welds, minimum requirement |
+| Dye Penetrant Testing (PT) | Surface-breaking cracks and porosity | Stainless, aluminium, aerospace |
+| Magnetic Particle Testing (MT) | Near-surface defects | Ferromagnetic materials (steel) only |
+| Ultrasonic Testing (UT) | Subsurface defects, incomplete penetration | Thick plate, structural welds |
+| Radiographic Testing (RT) | Internal defects (porosity, inclusions) | Pressure vessels, piping |
+
+For most industrial fabrication, visual inspection to ISO 5817 Level C is the minimum requirement. Specify additional NDT methods only where the consequence of a weld failure justifies the additional cost.
+
+---
+
+## Welding on MechHub: What to Expect
+
+MechHub's MechMasters include AWS-certified TIG and MIG welders across India's major fabrication hubs. When you submit a welded assembly for fabrication:
+
+1. **Drawing review** — we check weld symbols, accessibility, and fit-up requirements
+2. **Material and process confirmation** — TIG or MIG is specified based on your drawing or recommended based on the application
+3. **Fit and tack** — laser or waterjet-cut components are assembled and tacked in fixture
+4. **Full weld** — completed to the specified weld class
+5. **Post-weld operations** — grinding, passivation, or stress relief as specified
+6. **Inspection** — dimensional check, visual weld inspection, and photography before dispatch
+7. **Documentation** — weld inspection report and material certificates included
+
+---
+
+## Conclusion
+
+TIG and MIG welding are both excellent processes — in their correct applications. Specifying the right process, designing for weld access and fit-up, managing distortion, and calling out post-weld treatment correctly are the key factors that determine whether a welded assembly comes back right the first time.
+
+If you are unsure which process or weld specification is appropriate for your application, MechHub's DFM review team can advise before you commit to a production run. Upload your assembly drawings today.

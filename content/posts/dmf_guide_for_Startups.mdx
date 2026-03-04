@@ -1,0 +1,101 @@
+---
+title: "Design for Manufacturability (DFM): A Startup Founder's Guide to Building Parts That Don't Come Back"
+date: 2024-03-25
+summary: Most manufacturing problems start in the CAD model, not on the shop floor. Here is a practical DFM guide for startups and product teams.
+image: https://images.unsplash.com/photo-1581092335397-9583eb92d232?q=80&w=2070&auto=format&fit=crop
+tags:
+  - DFM
+  - Product Development
+  - Startups
+  - Engineering
+author: MechHub Team
+---
+
+# Design for Manufacturability (DFM)
+
+Most manufacturing failures happen in a CAD file, not on the shop floor.
+
+The machinist who gets your part doesn't design it — they build what you've drawn. If your drawing has ambiguous tolerances, impossible corner radii, or wall thicknesses that require magic to hold in a fixture, the resulting parts will be late, expensive, or wrong.
+
+Design for Manufacturability (DFM) is the practice of designing parts with the manufacturing process in mind from the very beginning — not as an afterthought after the first batch comes back with problems.
+
+---
+
+## What DFM Actually Means
+
+DFM is not about compromising on design intent. It is about achieving the same functional outcome with geometry that is easier, faster, and more reliable to manufacture.
+
+---
+
+## Rule 1: Never Specify Tolerances Tighter Than Required
+
+This is the single most impactful DFM principle. Tight tolerances drive cost in every direction.
+
+| Feature Type | Recommended Tolerance |
+|-------------|----------------------|
+| Non-critical dimensions | ±0.5mm |
+| General machined features | ±0.1mm |
+| Fits and mating features | ±0.05mm |
+| Press fits and bearing seats | ±0.01-0.02mm |
+
+---
+
+## Rule 2: Design Internal Radii for Standard Tool Sizes
+
+CNC milling cutters are round. Any internal corner in a pocket will have a radius equal to the radius of the cutting tool.
+
+**Standard end mill diameters available from every Indian CNC shop:**
+2mm, 3mm, 4mm, 5mm, 6mm, 8mm, 10mm, 12mm, 16mm, 20mm
+
+---
+
+## Rule 3: Keep Wall Thickness Above Minimum Thresholds
+
+| Material | Minimum Wall Thickness |
+|----------|----------------------|
+| Aluminium | 0.8mm |
+| Mild Steel | 1.0mm |
+| Stainless Steel | 1.0mm |
+| Titanium | 1.2mm |
+
+---
+
+## Rule 4: Avoid Deep, Narrow Pockets
+
+Maximum pocket depth = tool_diameter x 3 (standard). A 6mm end mill can cleanly machine a pocket to 18-24mm depth.
+
+---
+
+## Rule 5: Use Through-Holes Instead of Blind Holes
+
+Through-holes are faster to machine, easier to clean, and easier to inspect.
+
+---
+
+## Rule 6: Specify Threads Correctly
+
+A complete thread callout includes standard, pitch, class of fit, depth, and whether through or blind.
+
+```
+Correct: M6 x 1.0 - 6H THRU
+Correct: M8 x 1.25 - 6H, MIN 16mm DEEP
+Wrong:   M6 thread (pitch and class unspecified)
+```
+
+---
+
+## Rule 7: Consolidate Setups
+
+Every repositioning adds time and alignment error. Design all critical features accessible from two or fewer faces.
+
+---
+
+## How MechHub DFM Review Works
+
+When you upload a part to MechHub, our team runs an automated and human DFM review before the job goes to a MechMaster. DFM review is included at no charge at the quoting stage.
+
+---
+
+## Conclusion
+
+DFM is not a constraint on creativity — it is the knowledge that turns creative designs into manufactured reality. Upload your next design to MechHub and get a free DFM review before committing to production.
