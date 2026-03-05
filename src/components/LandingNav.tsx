@@ -73,7 +73,7 @@ export function LandingNav() {
   const handleMouseEnter = (index: number) => {
     const el = navRefs.current[index];
     if (el) {
-      const parent = el.parentElement?.parentElement;
+      const parent = el.parentElement;
       const parentLeft = parent?.getBoundingClientRect().left ?? 0;
       const rect = el.getBoundingClientRect();
       setHoverStyle({
@@ -177,12 +177,12 @@ export function LandingNav() {
                         Signed in as <span className="font-semibold text-zinc-300">{user.email}</span>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-white/5 my-1" />
-                      <Link href="/dashboard">
+                      <Link href="/login">
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
                           <LayoutDashboard className="w-4 h-4 text-zinc-400" /> Dashboard
                         </DropdownMenuItem>
                       </Link>
-                      <Link href="/dashboard?tab=profile">
+                      <Link href="/login">
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
                           <UserIcon className="w-4 h-4 text-zinc-400" /> My Profile
                         </DropdownMenuItem>
@@ -197,26 +197,27 @@ export function LandingNav() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link href="/login">
-                    <button
-                      className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-all duration-200"
-                      suppressHydrationWarning
-                    >
-                      Sign In
-                    </button>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href="/login">
+                      <button
+                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-all duration-200"
+                        suppressHydrationWarning
+                      >
+                        Sign In
+                      </button>
+                    </Link>
+                    <Link href="http://localhost:9002/login">
+                      <button
+                        className="relative inline-flex items-center gap-1 px-1.5 py-1.5 text-sm font-semibold text-white rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)] transition-all duration-300"
+                        suppressHydrationWarning
+                      >
+                        Get Started
+                      </button>
+                    </Link>
+                  </div>
                 )}
               </>
             )}
-
-            <Link href="/upload">
-              <button
-                className="relative inline-flex items-center gap-1 px-1.5 py-1.5 text-sm font-semibold text-white rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)] transition-all duration-300"
-                suppressHydrationWarning
-              >
-                Get Started
-              </button>
-            </Link>
 
             {/* Mobile Hamburger */}
             <button

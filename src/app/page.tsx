@@ -138,7 +138,7 @@ export default function Home() {
             </div>
 
             {/* Main headline */}
-            <h1 className="text-center font-libre font-bold tracking-tight text-balance leading-[1.1] text-3xl md:text-4xl lg:text-5xl text-white mb-8">
+            <h1 className="text-center font-poppins font-bold tracking-tight text-balance leading-[1.1] text-3xl md:text-4xl lg:text-5xl text-white mb-8">
               From Laser-Cut Prototypes to <br className="hidden md:block" />
               <span className="bg-gradient-to-r from-blue-400 via-emerald-300 to-cyan-400 bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">
                 Full Production Runs

@@ -14,6 +14,7 @@ export default {
         headline: ['Cormorant Garamond', 'serif'],
         heading: ['Instrument Serif', 'serif'],
         libre: ['Libre Baskerville', 'serif'],
+        poppins: ['Poppins', 'sans-serif'],
         code: ['monospace'],
       },
       fontSize: {
