@@ -351,7 +351,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={searchParams.get('tab') === 'register' ? 'register' : 'login'} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8 bg-card border border-white/10 p-1">
               <TabsTrigger value="login" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Sign In</TabsTrigger>
               <TabsTrigger value="register" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Register</TabsTrigger>

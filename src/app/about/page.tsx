@@ -54,7 +54,7 @@ export default function AboutPage() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {[
-                            { title: 'Rapido-Speed Quoting', desc: 'Our quote engine delivers verified bids in under 2 hours. No competitor in India comes close.' },
+                            { title: 'Rapido-Speed Quoting', desc: 'Our quoting experts deliver verified bids in under 24 hours. No competitor in India comes close.' },
                             { title: 'AI DFM Quality Engine', desc: 'We auto-detect design errors before production. Every file is checked for manufacturability — eliminating wrong parts, the #1 customer complaint in custom manufacturing.' },
                             { title: 'Hyperlocal Network', desc: 'Same-city verified shops mean 24–72 hour delivery. We own the last-mile manufacturing relationship.' },
                             { title: 'Network Effect Moat', desc: 'Each order trains our pricing AI. Each shop onboarded makes quoting faster. This compounds over time — a 10× data advantage year over year.' },

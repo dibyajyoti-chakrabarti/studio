@@ -13,7 +13,7 @@ import {
   Upload, FileText, ChevronRight, Loader2, X, Check,
   CloudUpload, Layers, Cog, ArrowRight, Paperclip, Trash2, Shield
 } from 'lucide-react';
-import { MANUFACTURING_PROCESSES } from '../lib/mock-data';
+import { MANUFACTURING_PROCESSES, MATERIALS, FINISHES, TOLERANCES } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
 
 interface DesignFile {
@@ -326,7 +326,16 @@ export default function UploadPage() {
 
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-muted-foreground">Material</Label>
-                      <Input name="material" placeholder="e.g. Aluminum 6061-T6" required className="bg-background border-white/10 h-11" />
+                      <Select name="material" required>
+                        <SelectTrigger className="bg-background border-white/10 h-11">
+                          <SelectValue placeholder="e.g. Aluminum 6061-T6" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MATERIALS.map(m => (
+                            <SelectItem key={m} value={m}>{m}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">
@@ -338,12 +347,30 @@ export default function UploadPage() {
                       <Label className="text-xs font-semibold text-muted-foreground">
                         Surface Finish <span className="text-muted-foreground/40">(optional)</span>
                       </Label>
-                      <Input name="surfaceFinish" placeholder="e.g. Powder Coated, Anodized" className="bg-background border-white/10 h-11" />
+                      <Select name="surfaceFinish">
+                        <SelectTrigger className="bg-background border-white/10 h-11">
+                          <SelectValue placeholder="Select finish" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {FINISHES.map(f => (
+                            <SelectItem key={f} value={f}>{f}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold text-muted-foreground">Tolerance Requirement</Label>
-                      <Input name="tolerance" placeholder="e.g. ± 0.05 mm" required className="bg-background border-white/10 h-11" />
+                      <Select name="tolerance" required>
+                        <SelectTrigger className="bg-background border-white/10 h-11">
+                          <SelectValue placeholder="Select tolerance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TOLERANCES.map(t => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">

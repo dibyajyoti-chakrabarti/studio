@@ -12,14 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Logo } from '@/components/Logo';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Settings,
   Zap,
   Flame,
@@ -48,17 +40,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useFirestore, setDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useFirestore, setDocumentNonBlocking, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { doc, collection, query, where, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const db = useFirestore();
+  const router = useRouter();
+  const user = useUser();
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -76,43 +68,7 @@ export default function Home() {
   }, [db]);
   const { data: landingVendors } = useCollection(landingVendorsQuery);
 
-  async function handleConsultationSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!db) return;
 
-    setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
-    const id = Math.random().toString(36).substring(2, 11);
-
-    const requestData = {
-      id,
-      name: formData.get('name') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string,
-      message: formData.get('message') as string,
-      consultationOptions: [],
-      requestDate: new Date().toISOString(),
-    };
-
-    const docRef = doc(db, 'consultationRequests', id);
-
-    try {
-      setDocumentNonBlocking(docRef, requestData, { merge: true });
-      setIsSubmitted(true);
-      setIsSubmitting(false);
-      setTimeout(() => {
-        setDialogOpen(false);
-        setIsSubmitted(false);
-      }, 2000);
-    } catch (err) {
-      setIsSubmitting(false);
-      toast({
-        title: "Submission failed",
-        description: "Something went wrong while sending your request.",
-        variant: "destructive",
-      });
-    }
-  }
 
   return (
     <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
@@ -232,8 +188,8 @@ export default function Home() {
                   desc: 'Securely upload STEP, STL, DWG, or PDF files.'
                 },
                 {
-                  num: '02', icon: Search, title: 'Get Instant Quote',
-                  desc: 'Our system analyzes your design and matches it with capacity.',
+                  num: '02', icon: Search, title: 'Use Budget Estimator',
+                  desc: 'Our system analyzes your design and provides a rough cost range.',
                 },
                 {
                   num: '03', icon: Factory, title: 'Matched to MechMasters',
@@ -559,70 +515,20 @@ export default function Home() {
                   ))}
                 </div>
 
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      size="lg"
-                      className="h-12 px-10 text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-full shadow-[0_0_25px_rgba(59,130,246,0.3)] hover:shadow-[0_0_35px_rgba(59,130,246,0.5)] transition-all"
-                      suppressHydrationWarning
-                    >
-                      Book a Free Consultation <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px] bg-zinc-950 border border-white/10 text-foreground">
-                    <DialogHeader>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600">FREE CONSULTATION</span>
-                      </div>
-                      <DialogTitle className="font-headline text-xl text-white">Expert Manufacturing Consultation</DialogTitle>
-                      <DialogDescription className="text-zinc-500 text-sm">
-                        Share your project details and our experts will get back to you within 24 hours.
-                      </DialogDescription>
-                    </DialogHeader>
-                    {isSubmitted ? (
-                      <div className="py-12 flex flex-col items-center justify-center text-center">
-                        <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-                          <Check className="w-7 h-7 text-green-400" />
-                        </div>
-                        <h3 className="text-lg font-bold mb-1 text-white">Request Sent!</h3>
-                        <p className="text-zinc-500 text-sm">Our experts will contact you within 24 hours.</p>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleConsultationSubmit} className="space-y-3 mt-2">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1.5">
-                            <label htmlFor="name" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Name</label>
-                            <Input id="name" name="name" required className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-10 text-sm rounded-xl" suppressHydrationWarning />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label htmlFor="phone" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Phone</label>
-                            <Input id="phone" name="phone" required className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-10 text-sm rounded-xl" suppressHydrationWarning />
-                          </div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <label htmlFor="email" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Email</label>
-                          <Input id="email" name="email" type="email" required className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-10 text-sm rounded-xl" suppressHydrationWarning />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label htmlFor="message" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Project Brief</label>
-                          <Textarea id="message" name="message" required placeholder="Describe your design, material, quantity, and timeline..." className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 min-h-[90px] text-sm rounded-xl resize-none" suppressHydrationWarning />
-                        </div>
-                        <div className="flex items-center gap-3 p-3 border border-dashed border-white/10 rounded-xl hover:border-cyan-500/20 transition-colors cursor-pointer">
-                          <Upload className="w-4 h-4 text-zinc-500" />
-                          <span className="text-xs text-zinc-500">Attach design file (STEP, STL, PDF) — optional</span>
-                        </div>
-                        <Button
-                          type="submit"
-                          className="w-full h-11 font-bold text-sm bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-full"
-                          disabled={isSubmitting}
-                          suppressHydrationWarning
-                        >
-                          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Request'}
-                        </Button>
-                      </form>
-                    )}
-                  </DialogContent>
-                </Dialog>
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    if (user) {
+                      router.push('/consultation');
+                    } else {
+                      router.push('/login?tab=register&redirect=/consultation');
+                    }
+                  }}
+                  className="h-12 px-10 text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-full shadow-[0_0_25px_rgba(59,130,246,0.3)] hover:shadow-[0_0_35px_rgba(59,130,246,0.5)] transition-all"
+                  suppressHydrationWarning
+                >
+                  Book a Free Consultation <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
               </div>
 
               {/* Right: Image */}

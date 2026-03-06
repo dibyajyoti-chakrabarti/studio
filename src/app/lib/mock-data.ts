@@ -78,5 +78,38 @@ export const MANUFACTURING_PROCESSES = [
   'Welding & Fabrication',
   'Sheet Metal',
   'Prototype Manufacturing',
-  'Small Batch Production'
+  'Small Batch Production',
+  '3D Printing'
+];
+
+export const MATERIALS = [
+  'MS (Mild Steel)',
+  'SS 304',
+  'SS 316',
+  'Aluminium 6061',
+  'Aluminium 5052',
+  'Copper',
+  'Brass',
+  'EN8 Steel',
+  'EN24 Steel'
+];
+
+export const FINISHES = [
+  'Raw / As Machined',
+  'Powder Coating',
+  'Anodizing',
+  'Zinc Plating',
+  'Chrome Plating',
+  'Nickel Plating',
+  'Sand Blasting',
+  'Mirror Polish',
+  'Black Oxide'
+];
+
+export const TOLERANCES = [
+  'Standard ±0.5mm',
+  'Medium ±0.2mm',
+  'Fine ±0.1mm',
+  'Precision ±0.05mm',
+  'Ultra ±0.02mm'
 ];

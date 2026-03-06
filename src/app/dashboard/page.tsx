@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
 import {
@@ -37,9 +37,11 @@ import {
   AlertCircle,
   Gavel,
   Hammer,
-  CheckCircle2,
   ShieldCheck,
-  IndianRupee
+  IndianRupee,
+  Calculator,
+  PhoneCall,
+  CheckCircle2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -90,6 +92,29 @@ export default function UserDashboard() {
   useEffect(() => {
     if (!isUserLoading && !user) router.push('/login');
   }, [user, isUserLoading, router]);
+
+  // Intercept pending RFQs upon successful login
+  useEffect(() => {
+    if (user && db) {
+      const pendingRfq = localStorage.getItem('pendingRfqToSubmit');
+      if (pendingRfq) {
+        try {
+          const rfqData = JSON.parse(pendingRfq);
+          rfqData.userId = user.uid;
+          rfqData.userName = profile?.fullName || user.displayName || 'Guest User';
+          rfqData.userEmail = user.email || '';
+          rfqData.userPhone = profile?.phone || '';
+
+          addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+          localStorage.removeItem('pendingRfqToSubmit');
+          toast({ title: "Order Confirmed!", description: "Your pending order has been successfully saved to your dashboard." });
+        } catch (e) {
+          console.error("Failed to recover pending RFQ", e);
+          localStorage.removeItem('pendingRfqToSubmit');
+        }
+      }
+    }
+  }, [user, db, profile, toast]);
 
   // Load Razorpay checkout script once
   useEffect(() => {
@@ -295,12 +320,31 @@ export default function UserDashboard() {
     <div className="min-h-screen pt-24 pb-12">
       <LandingNav />
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between mb-10 gap-6">
           <div>
             <h1 className="font-headline text-3xl font-bold tracking-tight text-white">Project Hub</h1>
             <p className="text-muted-foreground mt-1 text-lg">Manage your manufacturing pipeline.</p>
           </div>
-          <Button size="lg" className="h-12 px-8 font-bold" onClick={() => router.push('/upload')}><Plus className="w-5 h-5 mr-2" /> Start New Design</Button>
+          <div className="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Button
+              className="h-11 px-6 font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors"
+              onClick={() => router.push('/consultation')}
+            >
+              <PhoneCall className="w-4 h-4 mr-2 text-blue-400" /> Book Free Consultation
+            </Button>
+            <Button
+              className="h-11 px-6 font-bold bg-[#1A1A1A] hover:bg-[#222222] text-white border border-secondary/30 transition-colors shadow-[0_0_15px_rgba(0,212,160,0.1)] hover:shadow-[0_0_20px_rgba(0,212,160,0.2)]"
+              onClick={() => router.push('/quote')}
+            >
+              <Calculator className="w-4 h-4 mr-2 text-secondary" /> Budget Estimator
+            </Button>
+            <Button
+              className="h-11 px-6 font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/20 transition-all"
+              onClick={() => router.push('/upload')}
+            >
+              <Plus className="w-5 h-5 mr-2" /> Start New Design
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
