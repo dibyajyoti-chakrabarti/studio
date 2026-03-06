@@ -206,7 +206,7 @@ export function LandingNav() {
                         Sign In
                       </button>
                     </Link>
-                    <Link href="http://localhost:9002/login">
+                    <Link href="/login">
                       <button
                         className="relative inline-flex items-center gap-1 px-1.5 py-1.5 text-sm font-semibold text-white rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)] transition-all duration-300"
                         suppressHydrationWarning

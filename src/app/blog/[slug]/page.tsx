@@ -9,6 +9,8 @@ import { ShareButtons } from '@/components/ShareButtons';
 import { TableOfContents } from '@/components/TableOfContents';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { BlogLayout } from '@/components/BlogLayout';
+import { BlogEngagement } from '@/components/BlogEngagement';
+import { BlogComments } from '@/components/BlogComments';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -161,6 +163,10 @@ export default async function PostPage({ params }: PostPageProps) {
 
                         {/* Share & Actions */}
                         <ShareButtons title={post.title} summary={post.summary} slug={post.slug} />
+
+                        {/* Engagement (Likes) & Comments */}
+                        <BlogEngagement slug={post.slug} />
+                        <BlogComments slug={post.slug} />
                     </div>
 
                     {/* Sidebar */}

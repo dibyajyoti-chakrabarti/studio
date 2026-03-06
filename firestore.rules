@@ -208,5 +208,36 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ─────────────────────────────────────────
+    // blog_stats/{slug}
+    // ─────────────────────────────────────────
+    match /blog_stats/{slug} {
+      // Anyone can read blog stats (likes, views)
+      allow read: if true;
+      
+      // Anyone authenticated can create/update stats (e.g. increment likes)
+      allow create, update: if isAuthenticated();
+      
+      // Only admin can delete stats
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────
+    // blog_comments/{commentId}
+    // ─────────────────────────────────────────
+    match /blog_comments/{commentId} {
+      // Anyone can read comments
+      allow read: if true;
+
+      // Any authenticated user can create a comment
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+
+      // Only the comment author or an admin can delete it
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+
+      // Comments are currently immutable (cannot be updated)
+      allow update: if false;
+    }
+
   }
 }
