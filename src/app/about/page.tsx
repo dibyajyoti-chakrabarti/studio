@@ -25,7 +25,7 @@ export default function AboutPage() {
                 {/* Hero */}
                 <div className="text-center space-y-6 mb-20 pt-8 relative z-10">
                     <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 font-consolas border border-cyan-500/20 px-3 py-1 rounded-full bg-cyan-950/30">About MechHub</span>
-                    <h1 className="text-4xl md:text-6xl font-bankgothic text-white tracking-tight leading-[1.1] drop-shadow-sm">
+                    <h1 className="text-4xl md:text-6xl  text-white tracking-tight leading-[1.1] drop-shadow-sm">
                         Building India&apos;s Manufacturing
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Infrastructure</span>
                     </h1>
@@ -36,7 +36,7 @@ export default function AboutPage() {
 
                 {/* Mission */}
                 <section className="mb-16 relative z-10">
-                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
+                    <h2 className="text-2xl  text-white mb-6 flex items-center gap-3">
                         <Target className="w-6 h-6 text-cyan-400" /> Our Mission
                     </h2>
                     <div className="prose prose-invert max-w-none">
@@ -51,7 +51,7 @@ export default function AboutPage() {
 
                 {/* What Makes Us Different */}
                 <section className="mb-16 relative z-10">
-                    <h2 className="text-2xl font-bankgothic text-white mb-8 flex items-center gap-3">
+                    <h2 className="text-2xl  text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-cyan-400" /> What Makes MechHub Different
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -73,7 +73,7 @@ export default function AboutPage() {
 
                 {/* The Team */}
                 <section className="mb-16 relative z-10">
-                    <h2 className="text-2xl font-bankgothic text-white mb-8 flex items-center gap-3">
+                    <h2 className="text-2xl  text-white mb-8 flex items-center gap-3">
                         <Users className="w-6 h-6 text-cyan-400" /> The Team
                     </h2>
                     <p className="text-zinc-400 mb-8 leading-relaxed">Engineers who lived this problem every day.</p>
@@ -104,7 +104,7 @@ export default function AboutPage() {
 
                 {/* Why Us */}
                 <section className="mb-16 relative z-10">
-                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
+                    <h2 className="text-2xl  text-white mb-6 flex items-center gap-3">
                         <Shield className="w-6 h-6 text-cyan-400" /> Why Us
                     </h2>
                     <ul className="space-y-3">
@@ -124,7 +124,7 @@ export default function AboutPage() {
 
                 {/* Contact */}
                 <section className="p-8 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 to-[#040f25]/40 backdrop-blur-sm relative z-10 shadow-[0_0_30px_rgba(34,211,238,0.05)]">
-                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
+                    <h2 className="text-2xl  text-white mb-6 flex items-center gap-3">
                         <MapPin className="w-6 h-6 text-cyan-400" /> Get in Touch
                     </h2>
                     <div className="space-y-3 text-sm text-zinc-400">

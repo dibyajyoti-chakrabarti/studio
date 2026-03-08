@@ -132,7 +132,7 @@ export default function MatchingPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#020617] text-zinc-300 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
         <Sparkles className="w-12 h-12 text-cyan-400 animate-pulse mb-4 relative z-10" />
-        <h2 className="text-2xl font-bankgothic text-white mb-2 relative z-10">Analyzing Design...</h2>
+        <h2 className="text-2xl  text-white mb-2 relative z-10">Analyzing Design...</h2>
         <p className="text-zinc-400 font-light relative z-10">Our Matching Engine is finding specialized MechMasters for your project.</p>
         <div className="mt-8 flex gap-2 relative z-10">
           <div className="w-3 h-3 bg-cyan-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ animationDelay: '0s' }} />
@@ -154,7 +154,7 @@ export default function MatchingPage() {
               <Sparkles className="w-4 h-4 text-cyan-400" />
               <span className="text-[10px] font-bold uppercase tracking-[0.3em] font-consolas text-cyan-400 border border-cyan-500/20 px-3 py-1 rounded-full bg-cyan-950/30">Recommended MechMasters</span>
             </div>
-            <h1 className="font-bankgothic text-3xl md:text-5xl text-white drop-shadow-sm">Invite Production Partners</h1>
+            <h1 className=" text-3xl md:text-5xl text-white drop-shadow-sm">Invite Production Partners</h1>
             <p className="text-zinc-400 font-light mt-4">Select multiple vendors to receive competitive quotations and ensure the best price.</p>
           </div>
           <div className="bg-gradient-to-r from-cyan-950/20 to-[#040f25]/40 border border-cyan-500/20 backdrop-blur-sm p-4 rounded-xl flex items-center gap-3">
@@ -195,7 +195,7 @@ export default function MatchingPage() {
                 </div>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bankgothic text-xl group-hover:text-cyan-50 transition-colors truncate pr-2 text-white">
+                    <h3 className=" text-xl group-hover:text-cyan-50 transition-colors truncate pr-2 text-white">
                       {vendor.teamName || vendor.fullName || 'Verified MechMaster'}
                     </h3>
                   </div>
@@ -235,7 +235,7 @@ export default function MatchingPage() {
             </div>
             <Button
               size="lg"
-              className="px-12 h-14 text-[13px] min-w-[240px] font-bold uppercase tracking-[0.2em] font-bankgothic bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all"
+              className="px-12 h-14 text-[13px] min-w-[240px] font-bold uppercase tracking-[0.2em]  bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all"
               disabled={selectedVendors.length === 0 || isSubmitting}
               onClick={handleSubmit}
             >

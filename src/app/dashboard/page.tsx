@@ -335,24 +335,24 @@ export default function UserDashboard() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row md:items-start justify-between mb-10 gap-6">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h1 className="font-bankgothic text-3xl font-bold tracking-wide uppercase text-white shadow-cyan-500/20 drop-shadow-md">Project Hub</h1>
+            <h1 className=" text-3xl font-bold tracking-wide uppercase text-white shadow-cyan-500/20 drop-shadow-md">Project Hub</h1>
             <p className="text-cyan-100/60 mt-2 text-xs font-bold uppercase tracking-widest">Manage your manufacturing pipeline</p>
           </div>
           <div className="flex w-full md:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: '100ms' }}>
             <Button
-              className="h-11 px-6 font-bankgothic tracking-widest uppercase text-[10px] font-bold bg-[#040f25]/50 hover:bg-cyan-950/30 text-white border border-white/10 hover:border-cyan-500/50 transition-all backdrop-blur-md"
+              className="h-11 px-6  tracking-widest uppercase text-[10px] font-bold bg-[#040f25]/50 hover:bg-cyan-950/30 text-white border border-white/10 hover:border-cyan-500/50 transition-all backdrop-blur-md"
               onClick={() => router.push('/consultation')}
             >
               <PhoneCall className="w-4 h-4 mr-2 text-cyan-400" /> Book Free Consultation
             </Button>
             <Button
-              className="h-11 px-6 font-bankgothic tracking-widest uppercase text-[10px] font-bold bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+              className="h-11 px-6  tracking-widest uppercase text-[10px] font-bold bg-cyan-950/20 hover:bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.1)]"
               onClick={() => router.push('/quote')}
             >
               <Calculator className="w-4 h-4 mr-2 text-cyan-400" /> Budget Estimator
             </Button>
             <Button
-              className="h-11 px-6 font-bankgothic tracking-widest uppercase text-[10px] font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all border-none"
+              className="h-11 px-6  tracking-widest uppercase text-[10px] font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all border-none"
               onClick={() => router.push('/upload')}
             >
               <Plus className="w-4 h-4 mr-2" /> Start New Design
@@ -384,7 +384,7 @@ export default function UserDashboard() {
                         <div className="flex items-center gap-5">
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${statusInfo.color} bg-opacity-10 border border-white/5 shadow-inner`}><StatusIcon className="w-5 h-5" /></div>
                           <div>
-                            <p className="font-bold text-white font-bankgothic uppercase tracking-wide text-sm drop-shadow-sm group-hover:text-cyan-400 transition-colors">{order.projectName || 'Untitled Design'}</p>
+                            <p className="font-bold text-white  uppercase tracking-wide text-sm drop-shadow-sm group-hover:text-cyan-400 transition-colors">{order.projectName || 'Untitled Design'}</p>
                             <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-3 mt-1.5 border-t border-white/5 pt-1.5">
                               <span className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-cyan-500/70" /> <span className="font-consolas pt-0.5">{new Date(order.createdAt).toLocaleDateString()}</span></span>
                               <Badge variant="outline" className={`border-none ${statusInfo.color} bg-opacity-10 font-bold text-[8px] uppercase tracking-widest px-2 py-0 h-5 shadow-inner`}>{statusInfo.label}</Badge>
@@ -407,7 +407,7 @@ export default function UserDashboard() {
               <TabsContent value="profile" className="space-y-6">
                 <Card className="bg-[#040f25]/40 border-white/10 backdrop-blur-md shadow-2xl">
                   <CardHeader className="border-b border-white/5 pb-5">
-                    <CardTitle className="text-xl font-bankgothic uppercase tracking-wide text-white">Profile Details</CardTitle>
+                    <CardTitle className="text-xl  uppercase tracking-wide text-white">Profile Details</CardTitle>
                     <CardDescription className="text-xs uppercase tracking-widest font-bold text-zinc-500 mt-1">Information used for your RFQ submissions</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6 pt-6">
@@ -432,7 +432,7 @@ export default function UserDashboard() {
                       <Badge className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 box-shadow-[0_0_10px_rgba(34,211,238,0.2)]">{selectedOrder.manufacturingProcess}</Badge>
                       <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 border-white/10">{STATUS_MAP[selectedOrder.status]?.label}</Badge>
                     </div>
-                    <CardTitle className="text-xl text-white font-bankgothic tracking-wide uppercase">{selectedOrder.projectName}</CardTitle>
+                    <CardTitle className="text-xl text-white  tracking-wide uppercase">{selectedOrder.projectName}</CardTitle>
                     <CardDescription className="text-xs uppercase tracking-widest text-zinc-500 font-bold mt-2 max-w-[80%] leading-relaxed border-l-2 border-cyan-500/30 pl-3">
                       <MapPin className="w-3.5 h-3.5 inline-block mr-1 text-cyan-400" />
                       {selectedOrder.deliveryLocation}
@@ -453,7 +453,7 @@ export default function UserDashboard() {
                     {(selectedOrder.status === 'submitted' || selectedOrder.status === 'quotation_sent' || selectedOrder.status === 'quotations_received' || selectedOrder.status === 'under_negotiation') && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-sm font-bold text-white font-bankgothic uppercase tracking-wider flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-white  uppercase tracking-wider flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-cyan-400" /> Received Quotations
                           </h3>
                           <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest text-[10px] font-bold">{quotations?.length || 0} Offers</Badge>
@@ -470,7 +470,7 @@ export default function UserDashboard() {
                                   <div className="p-5 space-y-4">
                                     <div className="flex justify-between items-start">
                                       <div>
-                                        <p className="font-bold text-white font-bankgothic tracking-wide uppercase">{quote.vendorName || 'MechMaster'}</p>
+                                        <p className="font-bold text-white  tracking-wide uppercase">{quote.vendorName || 'MechMaster'}</p>
                                         <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">
                                           <TrendingUp className="w-3 h-3 text-cyan-500" />
                                           {quote.vendorRating || '4.5'} Rating
@@ -508,7 +508,7 @@ export default function UserDashboard() {
 
                                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                       <Button
-                                        className="flex-1 font-bankgothic tracking-widest h-11 text-xs bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all border-none"
+                                        className="flex-1  tracking-widest h-11 text-xs bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all border-none"
                                         onClick={() => handleSelectVendor(quote)}
                                         disabled={isConfirming}
                                       >
@@ -518,7 +518,7 @@ export default function UserDashboard() {
                                       <div className="flex flex-1 gap-3">
                                         <Button
                                           variant="outline"
-                                          className="flex-1 font-bankgothic tracking-widest h-11 text-[10px] uppercase border-cyan-500/30 text-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all hover:border-cyan-500/50"
+                                          className="flex-1  tracking-widest h-11 text-[10px] uppercase border-cyan-500/30 text-cyan-400 bg-cyan-950/10 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all hover:border-cyan-500/50"
                                           onClick={() => {
                                             setNegotiatingQuote(quote);
                                             setNegPrice(quote.quotedPrice.toString());
@@ -530,7 +530,7 @@ export default function UserDashboard() {
                                         </Button>
                                         <Button
                                           variant="destructive"
-                                          className="flex-1 font-bankgothic tracking-widest h-11 text-[10px] uppercase bg-red-950/20 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:text-red-400 transition-all"
+                                          className="flex-1  tracking-widest h-11 text-[10px] uppercase bg-red-950/20 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:text-red-400 transition-all"
                                           onClick={() => handleRejectQuotation(quote)}
                                         >
                                           <AlertCircle className="w-3 h-3 mr-1" /> Reject
@@ -557,7 +557,7 @@ export default function UserDashboard() {
                         <div className="p-5 border-b border-orange-500/20 bg-orange-950/20">
                           <div className="flex items-center gap-2 mb-1">
                             <CreditCard className="w-4 h-4 text-orange-400" />
-                            <p className="text-sm font-bold text-white font-bankgothic uppercase tracking-wider">Advance Payment Required</p>
+                            <p className="text-sm font-bold text-white  uppercase tracking-wider">Advance Payment Required</p>
                           </div>
                           <p className="text-[10px] text-orange-200/60 uppercase tracking-widest font-bold">Pay 50% to lock in your MechMaster and start production.</p>
                         </div>
@@ -577,7 +577,7 @@ export default function UserDashboard() {
                             <p className="leading-relaxed font-bold tracking-wide">Advance is held securely in escrow. Remaining 50% is due only after you confirm delivery of your parts.</p>
                           </div>
                           <Button
-                            className="w-full h-12 font-bold font-bankgothic tracking-widest uppercase text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all border-none"
+                            className="w-full h-12 font-bold  tracking-widest uppercase text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transition-all border-none"
                             onClick={() => handlePayment('advance')}
                             disabled={isPayingAdvance}
                           >
@@ -598,7 +598,7 @@ export default function UserDashboard() {
                             <Hammer className="w-5 h-5 text-cyan-400" />
                           </div>
                           <div>
-                            <p className="font-bold text-white text-sm font-bankgothic uppercase tracking-wide">In Production</p>
+                            <p className="font-bold text-white text-sm  uppercase tracking-wide">In Production</p>
                             <p className="text-[10px] text-cyan-100/60 font-bold uppercase tracking-widest">Your MechMaster is manufacturing your parts.</p>
                           </div>
                         </div>
@@ -630,7 +630,7 @@ export default function UserDashboard() {
                               <Truck className="w-5 h-5 text-orange-400" />
                             </div>
                             <div>
-                              <p className="font-bold text-white text-sm font-bankgothic uppercase tracking-wide">Parts Ready for Arrival</p>
+                              <p className="font-bold text-white text-sm  uppercase tracking-wide">Parts Ready for Arrival</p>
                               <p className="text-[10px] text-orange-200/60 font-bold uppercase tracking-widest">Complete full payment to receive your order.</p>
                             </div>
                           </div>
@@ -644,7 +644,7 @@ export default function UserDashboard() {
                         {!selectedOrder.paymentStatus?.completion?.paid && (
                           <div className="rounded-2xl border border-cyan-500/30 bg-[#040f25]/50 shadow-[0_0_20px_rgba(34,211,238,0.1)] p-6 space-y-5">
                             <div>
-                              <p className="text-sm font-bold text-white mb-1 font-bankgothic uppercase tracking-wider">Pay Balance & Complete Order</p>
+                              <p className="text-sm font-bold text-white mb-1  uppercase tracking-wider">Pay Balance & Complete Order</p>
                               <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Once full payment is received, your MechMaster will ensure delivery of your parts.</p>
                             </div>
                             <div className="flex items-center justify-between p-4 bg-[#020617]/50 rounded-xl border border-white/5 shadow-inner">
@@ -652,7 +652,7 @@ export default function UserDashboard() {
                               <p className="text-2xl font-bold text-cyan-400 font-consolas drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</p>
                             </div>
                             <Button
-                              className="w-full h-12 font-bold font-bankgothic tracking-widest uppercase text-xs bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all border-none"
+                              className="w-full h-12 font-bold  tracking-widest uppercase text-xs bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all border-none"
                               onClick={() => handlePayment('completion')}
                               disabled={isPayingCompletion}
                             >
@@ -673,7 +673,7 @@ export default function UserDashboard() {
                           <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(34,197,94,0.2)]">
                             <CheckCircle2 className="text-green-400 w-8 h-8 filter drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
                           </div>
-                          <p className="text-2xl font-bold font-bankgothic uppercase tracking-widest text-white drop-shadow-md">Order Complete!</p>
+                          <p className="text-2xl font-bold  uppercase tracking-widest text-white drop-shadow-md">Order Complete!</p>
                           <p className="text-[10px] uppercase font-bold tracking-widest text-purple-200/60">All payments settled. Thanks for building with MechHub.</p>
                         </div>
                         <div className="space-y-3 pt-4 border-t border-white/5">
@@ -737,7 +737,7 @@ export default function UserDashboard() {
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500" />
 
           <DialogHeader className="pt-4">
-            <DialogTitle className="text-2xl font-bankgothic tracking-wide font-bold text-white flex items-center gap-3">
+            <DialogTitle className="text-2xl  tracking-wide font-bold text-white flex items-center gap-3">
               <UserIcon className="w-6 h-6 text-cyan-400" />
               Complete Your Profile
             </DialogTitle>
@@ -777,7 +777,7 @@ export default function UserDashboard() {
 
             <Button
               type="submit"
-              className="w-full h-14 font-bankgothic tracking-[0.2em] mt-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all border-none rounded-xl text-sm font-bold uppercase"
+              className="w-full h-14  tracking-[0.2em] mt-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all border-none rounded-xl text-sm font-bold uppercase"
               disabled={isSubmittingProfile}
             >
               {isSubmittingProfile ? (
@@ -797,7 +797,7 @@ export default function UserDashboard() {
       <Dialog open={isNegotiating} onOpenChange={setIsNegotiating}>
         <DialogContent className="bg-[#020617] text-zinc-300 border-white/[0.05] shadow-[0_0_50px_rgba(34,211,238,0.1)] rounded-3xl sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bankgothic tracking-wide font-bold text-white">Negotiate Terms</DialogTitle>
+            <DialogTitle className="text-2xl  tracking-wide font-bold text-white">Negotiate Terms</DialogTitle>
             <DialogDescription className="font-consolas text-cyan-50/50">Propose your preferred price and timeline to the MechMaster.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
@@ -845,7 +845,7 @@ export default function UserDashboard() {
           </div>
           <DialogFooter className="gap-2 sm:gap-0 mt-4">
             <Button variant="outline" onClick={() => setIsNegotiating(false)} className="border-white/[0.05] text-zinc-400 hover:text-white hover:bg-white/[0.02]">Cancel</Button>
-            <Button onClick={handleProposeNegotiation} className="bg-cyan-600 hover:bg-cyan-500 text-white font-bankgothic tracking-wider shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all border-none">Send Counter-Proposal</Button>
+            <Button onClick={handleProposeNegotiation} className="bg-cyan-600 hover:bg-cyan-500 text-white  tracking-wider shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all border-none">Send Counter-Proposal</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -523,7 +523,7 @@ export function ServicesSection() {
                         OUR CAPABILITIES
                         <span className="w-8 h-px bg-cyan-500/30"></span>
                     </p>
-                    <h2 className="font-bankgothic text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-white mb-6 drop-shadow-sm">
+                    <h2 className="text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-white mb-6 drop-shadow-sm">
                         Precision Manufacturing Services
                     </h2>
                     <p className="text-zinc-400 max-w-2xl mx-auto font-light text-sm md:text-base">
@@ -559,7 +559,7 @@ export function ServicesSection() {
                                         <p className="text-[10px] font-bold tracking-[0.2em] text-cyan-400 font-consolas mb-1 flex items-center gap-2">
                                             <span className="text-zinc-500">[{svc.num}]</span> {svc.title}
                                         </p>
-                                        <h3 className="font-bankgothic text-base font-bold text-white leading-snug group-hover:text-cyan-50 transition-colors">{svc.sub}</h3>
+                                        <h3 className="text-base font-bold text-white leading-snug group-hover:text-cyan-50 transition-colors">{svc.sub}</h3>
                                     </div>
 
                                     <p className="text-xs text-zinc-400 leading-relaxed">{svc.desc}</p>

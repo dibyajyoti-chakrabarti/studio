@@ -82,7 +82,7 @@ function ConsultationPageContent() {
     return (
         <div className="pt-32 pb-20 px-4 container mx-auto">
             <div className="max-w-xl mx-auto">
-                <h1 className="text-3xl font-bankgothic font-bold text-white mb-2 tracking-wide uppercase">Talk to a Manufacturing Expert</h1>
+                <h1 className="text-3xl  font-bold text-white mb-2 tracking-wide uppercase">Talk to a Manufacturing Expert</h1>
                 <p className="text-cyan-100/60 mb-8 text-sm">
                     Get your design reviewed, value-engineered, or fully optimised by our in-house manufacturing experts.
                 </p>

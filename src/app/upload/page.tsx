@@ -134,7 +134,7 @@ export default function UploadPage() {
                 `}>
                   {step > s.num ? <Check className="w-4 h-4" /> : s.num}
                 </div>
-                <span className={`text-sm font-bankgothic tracking-widest uppercase hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-zinc-500'}`}>
+                <span className={`text-sm  tracking-widest uppercase hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-zinc-500'}`}>
                   {s.label}
                 </span>
               </div>
@@ -146,7 +146,7 @@ export default function UploadPage() {
         {step === 1 && (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="text-center mb-2">
-              <h1 className="font-bankgothic text-3xl sm:text-4xl font-bold text-white tracking-wide">
+              <h1 className=" text-3xl sm:text-4xl font-bold text-white tracking-wide">
                 Upload Your Design Files
               </h1>
               <p className="text-cyan-50/50 font-consolas mt-2 text-sm sm:text-base">
@@ -186,7 +186,7 @@ export default function UploadPage() {
                   <CloudUpload className={`w-12 h-12 transition-all duration-500 ${isDragging ? 'text-cyan-400 scale-110' : 'text-cyan-500/50'}`} />
                 </div>
 
-                <p className="text-xl font-bankgothic tracking-wider text-white mb-2">
+                <p className="text-xl  tracking-wider text-white mb-2">
                   {isDragging ? 'Release to upload' : files.length === 0 ? 'Drag & drop files here' : 'Add more files'}
                 </p>
                 <p className="text-sm font-consolas text-zinc-400 mb-6">
@@ -295,7 +295,7 @@ export default function UploadPage() {
               {/* Header with gradient accent */}
               <div className="h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500" />
               <CardHeader className="pb-4 pt-8 px-8">
-                <CardTitle className="font-bankgothic text-2xl font-bold text-white tracking-wide">Manufacturing Specifications</CardTitle>
+                <CardTitle className=" text-2xl font-bold text-white tracking-wide">Manufacturing Specifications</CardTitle>
                 <CardDescription className="text-zinc-400">Configure tolerances, materials, and delivery for precision matching.</CardDescription>
               </CardHeader>
 

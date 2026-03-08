@@ -292,7 +292,7 @@ export default function QuoteEngine() {
 
                 {/* Header & Stepper */}
                 <div className="mb-12">
-                    <h1 className="text-3xl md:text-5xl font-bankgothic uppercase tracking-wide text-white mb-4">Budget Estimator</h1>
+                    <h1 className="text-3xl md:text-5xl  uppercase tracking-wide text-white mb-4">Budget Estimator</h1>
                     <p className="text-cyan-100/60 text-lg mb-8">Get a rough cost range to plan your project — before speaking to a MechMaster.</p>
 
                     <div className="flex items-center justify-between relative max-w-2xl mx-auto">
@@ -313,7 +313,7 @@ export default function QuoteEngine() {
                                         isPast ? 'bg-cyan-500 border-cyan-400 text-slate-950' :
                                             'bg-[#020617] border-white/20 text-zinc-500'
                                         }`}>
-                                        {isPast ? <CheckCircle size={18} /> : <span className="font-bankgothic">{s}</span>}
+                                        {isPast ? <CheckCircle size={18} /> : <span className="">{s}</span>}
                                     </div>
                                     <span className={`mt-2 text-[10px] font-bold uppercase tracking-wider ${isActive || isPast ? 'text-cyan-400' : 'text-zinc-500'}`}>
                                         {s === 1 ? 'Your Part' : s === 2 ? 'Specs' : 'Budget Range'}
@@ -353,7 +353,7 @@ export default function QuoteEngine() {
                             <div className="w-20 h-20 bg-cyan-950/50 border border-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-cyan-500/20 group-hover:border-cyan-400 transitions-transform shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                                 <UploadCloud className="w-10 h-10 text-cyan-400 group-hover:text-cyan-300" />
                             </div>
-                            <h3 className="text-2xl font-bankgothic uppercase font-semibold mb-2 text-white">Upload 3D CAD File</h3>
+                            <h3 className="text-2xl  uppercase font-semibold mb-2 text-white">Upload 3D CAD File</h3>
                             <p className="text-zinc-500 font-consolas mb-6 text-sm">Drag and drop or click to browse</p>
                             <div className="flex flex-wrap justify-center gap-2 text-[10px] text-cyan-400 font-bold tracking-widest uppercase">
                                 <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.STEP</span>
@@ -510,7 +510,7 @@ export default function QuoteEngine() {
                 {step === 'loading' && (
                     <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-16 flex flex-col items-center justify-center min-h-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
                         <Loader2 className="w-16 h-16 text-cyan-500 animate-[spin_3s_linear_infinite] mb-8" />
-                        <h3 className="text-2xl font-bankgothic uppercase tracking-wider text-white mb-6">Analyzing Constraints</h3>
+                        <h3 className="text-2xl  uppercase tracking-wider text-white mb-6">Analyzing Constraints</h3>
 
                         <div className="w-full max-w-md bg-[#020617] rounded-full h-2 mb-4 overflow-hidden border border-white/10 shadow-inner">
                             <div
@@ -542,7 +542,7 @@ export default function QuoteEngine() {
                             {/* Header & Ref */}
                             <div className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 relative z-10">
                                 <div>
-                                    <h2 className="text-xl font-bankgothic uppercase font-bold text-white tracking-wide">Est. Budget Range</h2>
+                                    <h2 className="text-xl  uppercase font-bold text-white tracking-wide">Est. Budget Range</h2>
                                     <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest font-bold">Based on provided requirements</p>
                                 </div>
                                 <div className="flex items-center gap-2 bg-[#020617]/50 border border-white/10 rounded-lg px-3 py-1.5 w-fit shadow-inner">
@@ -611,7 +611,7 @@ export default function QuoteEngine() {
 
                             {/* Detailed Breakdown Table */}
                             <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-8 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                                <h3 className="text-lg font-bankgothic uppercase text-cyan-50 mb-6 tracking-wide">Cost Breakdown</h3>
+                                <h3 className="text-lg  uppercase text-cyan-50 mb-6 tracking-wide">Cost Breakdown</h3>
 
                                 <div className="space-y-4 font-consolas text-sm">
                                     <div className="flex justify-between border-b border-white/5 pb-2">
@@ -648,7 +648,7 @@ export default function QuoteEngine() {
 
                             {/* What Affects Your Final Quote */}
                             <div className="bg-[#040f25]/40 border border-white/10 rounded-2xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                                <h3 className="text-white font-bankgothic uppercase tracking-wide text-lg mb-6 flex items-center gap-2">
+                                <h3 className="text-white  uppercase tracking-wide text-lg mb-6 flex items-center gap-2">
                                     <Info size={18} className="text-cyan-500" />
                                     What Could Affect Your Final Quote
                                 </h3>

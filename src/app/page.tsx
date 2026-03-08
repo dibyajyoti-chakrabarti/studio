@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { RotatingGears } from '@/components/Gears';
 import { ServicesSection } from '@/components/ServicesSection';
+import { LaserArrow } from '@/components/LaserArrow';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -155,11 +156,15 @@ export default function Home() {
               <Link href="/upload" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto h-14 px-10 text-base font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 transition-all duration-300 group"
+                  className="w-full sm:w-auto h-14 px-10 text-base font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 transition-all duration-300 group overflow-hidden relative"
                   suppressHydrationWarning
                 >
-                  Upload Your Design
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                  <span className="relative z-10 flex items-center">
+                    Upload Your Design
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                  </span>
+                  {/* High-end shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                 </Button>
               </Link>
               <Button
@@ -193,6 +198,12 @@ export default function Home() {
             </div>
 
           </div>
+
+          {/* Scroll Down Indicator - High-end Laser Animation */}
+          <div className="flex flex-col items-center mt-20 animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both" style={{ animationDelay: '1000ms' }}>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-600 font-bold mb-4">Discover MechHub</span>
+            <LaserArrow size={32} color="#22d3ee" className="opacity-50" />
+          </div>
         </div>
       </section>
 
@@ -206,7 +217,7 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-12">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">PROCESS</p>
-            <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
+            <h2 className="text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
               How It Works
             </h2>
             <p className="text-zinc-500 max-w-lg mx-auto text-sm leading-relaxed">
@@ -216,10 +227,20 @@ export default function Home() {
 
           {/* Steps */}
           <div className="relative max-w-5xl mx-auto">
-            {/* Connector line (desktop) */}
-            <div className="hidden md:block absolute top-[52px] left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+            {/* Desktop Flow Indicators - Professional Laser Animation */}
+            <div className="hidden md:block absolute top-[52px] left-0 w-full z-0 pointer-events-none">
+              <div className="flex items-center justify-around px-[10%]">
+                <LaserArrow direction="right" size={24} color="#22d3ee" className="opacity-40" />
+                <LaserArrow direction="right" size={24} color="#22d3ee" className="opacity-40" />
+                <LaserArrow direction="right" size={24} color="#22d3ee" className="opacity-40" />
+                <LaserArrow direction="right" size={24} color="#22d3ee" className="opacity-40" />
+              </div>
+            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-4">
+            {/* Connector line (desktop) */}
+
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-6">
               {[
                 {
                   num: '01', icon: Upload, title: 'Upload Design',
@@ -246,9 +267,11 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/0 to-cyan-500/0 group-hover:from-cyan-500/5 group-hover:to-transparent transition-all duration-500" />
 
                   {/* Number + Icon badge */}
-                  <div className="relative mb-6 z-10">
-                    <div className="w-[56px] h-[56px] rounded-xl bg-zinc-950/80 border border-white/10 flex items-center justify-center group-hover:border-cyan-400/50 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 backdrop-blur-md">
-                      <step.icon className="w-6 h-6 text-zinc-400 group-hover:text-cyan-300 transition-colors" />
+                  <div className="relative mb-6 z-10 group-hover:scale-110 transition-transform duration-500">
+                    <div className="w-[56px] h-[56px] rounded-xl bg-zinc-950/80 border border-white/10 flex items-center justify-center group-hover:border-cyan-400/50 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 backdrop-blur-md relative overflow-hidden">
+                      {/* Inner pulse effect */}
+                      <div className="absolute inset-0 bg-cyan-500/5 animate-pulse" />
+                      <step.icon className="w-6 h-6 text-zinc-400 group-hover:text-cyan-300 transition-colors relative z-10" />
                     </div>
                     <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-zinc-900 border-2 border-[#040f25] flex items-center justify-center shadow-lg group-hover:bg-cyan-950 group-hover:border-cyan-500/50 transition-all duration-300">
                       <span className="text-[10px] font-bold text-cyan-500 group-hover:text-cyan-300 font-mono tracking-tighter">{step.num}</span>
@@ -256,7 +279,7 @@ export default function Home() {
                   </div>
 
                   {/* Content */}
-                  <h3 className="font-bankgothic text-sm md:text-base font-bold text-white mb-2 group-hover:text-cyan-50 transition-colors z-10">
+                  <h3 className=" text-sm md:text-base font-bold text-white mb-2 group-hover:text-cyan-50 transition-colors z-10">
                     {step.title}
                   </h3>
                   <p className="text-zinc-500 text-xs leading-relaxed mb-2 px-1 z-10 group-hover:text-zinc-400 transition-colors">
@@ -297,7 +320,7 @@ export default function Home() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500">VERIFIED MARKETPLACE</span>
                 <span className="w-12 h-px bg-cyan-500/30"></span>
               </div>
-              <h2 className="font-bankgothic text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-white mb-6 drop-shadow-sm">
+              <h2 className="text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-white mb-6 drop-shadow-sm">
                 Meet Our MechMasters
               </h2>
               <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light">
@@ -398,7 +421,7 @@ export default function Home() {
                     <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500">WHY MECHHUB</span>
                     <span className="w-10 h-px bg-cyan-500/30"></span>
                   </div>
-                  <h2 className="font-bankgothic text-4xl sm:text-5xl lg:text-[52px] leading-[1.2] tracking-tight text-white mb-6 drop-shadow-sm pr-4 lg:pr-10">
+                  <h2 className="text-4xl sm:text-5xl lg:text-[52px] leading-[1.2] tracking-tight text-white mb-6 drop-shadow-sm pr-4 lg:pr-10">
                     Built for both sides of manufacturing
                   </h2>
                   <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light">
@@ -533,7 +556,7 @@ export default function Home() {
               {/* Left: Content */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500 mb-3">EXPERT SUPPORT</p>
-                <h2 className="font-bankgothic font-bold text-3xl md:text-4xl tracking-tight text-white leading-tight">
+                <h2 className="font-bold text-3xl md:text-4xl tracking-tight text-white leading-tight">
                   Need Expert Manufacturing Guidance?
                 </h2>
                 <p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-10 max-w-md font-light">
@@ -609,7 +632,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
-                <h3 className="font-bankgothic text-2xl tracking-tight text-white mb-2">Ready to build your next part?</h3>
+                <h3 className="text-2xl tracking-tight text-white mb-2">Ready to build your next part?</h3>
                 <p className="text-zinc-500 text-sm">Upload your design and get matched with a verified MechMaster in minutes.</p>
               </div>
               <div className="flex gap-3 shrink-0">
@@ -637,7 +660,7 @@ export default function Home() {
             <div className="col-span-2 md:col-span-1 relative z-10">
               <Link href="/" className="flex items-center gap-2.5 mb-5 group">
                 <Logo size={32} />
-                <span className="font-bankgothic text-2xl tracking-tight text-zinc-100 group-hover:text-white transition-colors">MechHub</span>
+                <span className="text-2xl tracking-tight text-zinc-100 group-hover:text-white transition-colors">MechHub</span>
               </Link>
               <p className="text-zinc-500 text-sm leading-relaxed mb-6 max-w-xs">
                 India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.

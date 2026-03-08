@@ -321,7 +321,7 @@ export default function LoginPage() {
               <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full" />
               <ShieldCheck className="w-8 h-8 text-cyan-400 relative z-10" />
             </div>
-            <h2 className="text-2xl font-bankgothic text-white mb-2 drop-shadow-sm">Check Your Inbox</h2>
+            <h2 className="text-2xl  text-white mb-2 drop-shadow-sm">Check Your Inbox</h2>
             <p className="text-zinc-400 mb-8 font-light leading-relaxed">
               We've sent a verification link to <strong className="text-white">{verificationState.email}</strong>.
               Please click the link in that email to activate your account and access your dashboard.
@@ -354,7 +354,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col items-center gap-4">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bankgothic text-white drop-shadow-sm">Secure Access</h1>
+              <h1 className="text-3xl  text-white drop-shadow-sm">Secure Access</h1>
               <p className="text-sm text-zinc-400 font-light">Sign in to your manufacturing workspace</p>
             </div>
           </div>
@@ -370,7 +370,7 @@ export default function LoginPage() {
                 <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                   <CardHeader>
-                    <CardTitle className="font-bankgothic text-2xl text-white">
+                    <CardTitle className=" text-2xl text-white">
                       Reset Password
                     </CardTitle>
                     <CardDescription className="text-zinc-400 font-light">
@@ -409,7 +409,7 @@ export default function LoginPage() {
                 <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                   <CardHeader>
-                    <CardTitle className="font-bankgothic text-2xl text-white">
+                    <CardTitle className=" text-2xl text-white">
                       Account Access
                     </CardTitle>
                     <CardDescription className="text-zinc-400 font-light">Enter your verified credentials to continue.</CardDescription>
@@ -451,7 +451,7 @@ export default function LoginPage() {
               <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                 <CardHeader>
-                  <CardTitle className="font-bankgothic text-2xl text-white">
+                  <CardTitle className=" text-2xl text-white">
                     Create Hub Account
                   </CardTitle>
                   <CardDescription className="text-zinc-400 font-light">Join the managed manufacturing network.</CardDescription>

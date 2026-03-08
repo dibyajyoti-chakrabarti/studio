@@ -209,7 +209,7 @@ export default function VendorPortal() {
       <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-[#020617]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Image src="/mechhub.png" alt="MechHub Logo" width={60} height={60} />
-          <span className="font-bankgothic font-bold text-lg text-white tracking-widest uppercase mt-1">MechMaster Workspace</span>
+          <span className=" font-bold text-lg text-white tracking-widest uppercase mt-1">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white transition-colors">
@@ -221,7 +221,7 @@ export default function VendorPortal() {
       <div className="container mx-auto p-8 space-y-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bankgothic font-bold text-white uppercase tracking-wide">Production Control</h1>
+            <h1 className="text-3xl  font-bold text-white uppercase tracking-wide">Production Control</h1>
             <p className="text-cyan-100/60 mt-1">Manage bids and track active manufacturing assignments.</p>
           </div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-[#040f25]/40 backdrop-blur-md border border-white/10 p-1.5 rounded-xl shadow-inner">
@@ -236,7 +236,7 @@ export default function VendorPortal() {
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-cyan-400">
               <Gavel className="w-5 h-5" />
-              <h2 className="text-xl font-bold font-bankgothic uppercase tracking-wide">Available Opportunities</h2>
+              <h2 className="text-xl font-bold  uppercase tracking-wide">Available Opportunities</h2>
             </div>
 
             {isMarketplaceLoading ? (
@@ -271,10 +271,10 @@ export default function VendorPortal() {
                               <p className="text-white font-consolas font-bold text-xs uppercase tracking-wider">Target: ₹{lastNeg.price} <span className="text-zinc-500 mx-1">•</span> {lastNeg.leadTime} Days</p>
                               <p className="text-cyan-100/70 italic mt-2 line-clamp-2 border-l-2 border-cyan-500/50 pl-2">"{lastNeg.message}"</p>
                             </div>
-                            <Button className="w-full h-11 font-bankgothic tracking-widest uppercase text-[10px] bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all" onClick={() => { setNegotiatingQuote(myQuote); setIsResponding(true); }}>Respond to Bid</Button>
+                            <Button className="w-full h-11  tracking-widest uppercase text-[10px] bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all" onClick={() => { setNegotiatingQuote(myQuote); setIsResponding(true); }}>Respond to Bid</Button>
                           </div>
                         ) : (
-                          <Button variant="outline" className="w-full gap-2 font-bankgothic tracking-widest uppercase text-[10px] h-11 border-white/10 hover:bg-cyan-950/30 hover:text-cyan-400 hover:border-cyan-500/50 transition-all font-bold" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
+                          <Button variant="outline" className="w-full gap-2  tracking-widest uppercase text-[10px] h-11 border-white/10 hover:bg-cyan-950/30 hover:text-cyan-400 hover:border-cyan-500/50 transition-all font-bold" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
                             <Eye className="w-4 h-4" /> {myQuote ? 'View Bid Status' : 'Submit Quotation'}
                           </Button>
                         )}
@@ -322,8 +322,8 @@ export default function VendorPortal() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {rfq.status === 'assigned' && <Button size="sm" className="font-bankgothic uppercase tracking-widest text-[10px] bg-cyan-600 hover:bg-cyan-500 text-white border-none shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all" onClick={() => handleUpdateStatus(rfq.id, 'in_progress')}><Zap className="w-3 h-3 mr-1" /> Start Build</Button>}
-                          {rfq.status === 'in_progress' && <Button size="sm" variant="outline" className="font-bankgothic uppercase tracking-widest text-[10px] border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all font-bold" onClick={() => handleUpdateStatus(rfq.id, 'completed')}><Check className="w-3 h-3 mr-1" /> Complete Build</Button>}
+                          {rfq.status === 'assigned' && <Button size="sm" className=" uppercase tracking-widest text-[10px] bg-cyan-600 hover:bg-cyan-500 text-white border-none shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all" onClick={() => handleUpdateStatus(rfq.id, 'in_progress')}><Zap className="w-3 h-3 mr-1" /> Start Build</Button>}
+                          {rfq.status === 'in_progress' && <Button size="sm" variant="outline" className=" uppercase tracking-widest text-[10px] border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all font-bold" onClick={() => handleUpdateStatus(rfq.id, 'completed')}><Check className="w-3 h-3 mr-1" /> Complete Build</Button>}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -337,7 +337,7 @@ export default function VendorPortal() {
 
       <Dialog open={showDetails && !!selectedRfq} onOpenChange={setShowDetails}>
         <DialogContent className="bg-[#040f25]/90 backdrop-blur-2xl border-white/10 text-white max-w-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-          <DialogHeader><DialogTitle className="text-2xl font-bankgothic uppercase tracking-wide font-bold text-white">{selectedRfq?.projectName}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-2xl  uppercase tracking-wide font-bold text-white">{selectedRfq?.projectName}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-8 py-6">
             <div className="space-y-4">
               <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-sans flex items-center gap-2"><Eye className="w-3 h-3" /> Requirements</h3>
@@ -347,7 +347,7 @@ export default function VendorPortal() {
                 <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Qty:</span><span className="text-white font-consolas">{selectedRfq?.quantity}</span></div>
               </div>
               {selectedRfq?.designFileUrl && (
-                <Button variant="outline" className="w-full gap-2 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all font-bankgothic tracking-widest uppercase text-[10px] h-11 font-bold" onClick={() => window.open(selectedRfq.designFileUrl)}>
+                <Button variant="outline" className="w-full gap-2 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all  tracking-widest uppercase text-[10px] h-11 font-bold" onClick={() => window.open(selectedRfq.designFileUrl)}>
                   <Download className="w-4 h-4" /> Download Design Data
                 </Button>
               )}
@@ -359,12 +359,12 @@ export default function VendorPortal() {
                 <div className="space-y-4">
                   <div className="space-y-3"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Price (₹)</Label><Input value={quotePrice} onChange={e => setQuotePrice(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas shadow-inner h-11" /></div>
                   <div className="space-y-3"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Lead Time (Days)</Label><Input value={quoteLeadTime} onChange={e => setQuoteLeadTime(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas shadow-inner h-11" /></div>
-                  <Button className="w-full font-bankgothic uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all font-bold" onClick={handleSubmitQuote}><Zap className="w-3 h-3 mr-2" /> Submit Official Quotation</Button>
+                  <Button className="w-full  uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all font-bold" onClick={handleSubmitQuote}><Zap className="w-3 h-3 mr-2" /> Submit Official Quotation</Button>
                 </div>
               ) : (
                 <div className="p-8 bg-cyan-950/20 border border-cyan-500/30 rounded-2xl text-center shadow-inner">
                   <Check className="w-10 h-10 text-cyan-400 mx-auto mb-3 filter drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                  <p className="text-sm font-bold text-white font-bankgothic tracking-widest uppercase">Bid Live</p>
+                  <p className="text-sm font-bold text-white  tracking-widest uppercase">Bid Live</p>
                 </div>
               )}
             </div>
@@ -375,7 +375,7 @@ export default function VendorPortal() {
       <Dialog open={isResponding} onOpenChange={setIsResponding}>
         <DialogContent className="bg-[#040f25]/90 backdrop-blur-2xl border-white/10 text-white sm:max-w-[500px] shadow-[0_0_50px_rgba(0,0,0,0.8)]">
           <DialogHeader className="mb-4">
-            <DialogTitle className="text-2xl font-bankgothic uppercase tracking-wide font-bold text-white">Negotiation Response</DialogTitle>
+            <DialogTitle className="text-2xl  uppercase tracking-wide font-bold text-white">Negotiation Response</DialogTitle>
             <DialogDescription className="text-cyan-100/60 mt-1">Review the latest terms and respond to secure this project.</DialogDescription>
           </DialogHeader>
 
@@ -407,10 +407,10 @@ export default function VendorPortal() {
             <div className="space-y-2"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Message / Justification</Label><Textarea value={resMessage} onChange={e => setResMessage(e.target.value)} className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white min-h-[100px]" placeholder="Explain why this adjustment is needed..." /></div>
           </div>
           <DialogFooter className="gap-3 sm:gap-3 mt-6">
-            <Button variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 font-bankgothic uppercase tracking-widest text-[10px] h-11 font-bold w-full sm:w-auto flex-1 transition-all" onClick={() => handleRespondNegotiation('counter')} disabled={!resPrice || !resLeadTime}>
+            <Button variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300  uppercase tracking-widest text-[10px] h-11 font-bold w-full sm:w-auto flex-1 transition-all" onClick={() => handleRespondNegotiation('counter')} disabled={!resPrice || !resLeadTime}>
               <MessageSquare className="w-4 h-4 mr-2" /> Send Counter-Offer
             </Button>
-            <Button className="font-bankgothic uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] font-bold w-full sm:w-auto flex-1 transition-all border-none" onClick={() => handleRespondNegotiation('accept')}>
+            <Button className=" uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] font-bold w-full sm:w-auto flex-1 transition-all border-none" onClick={() => handleRespondNegotiation('accept')}>
               <Check className="w-4 h-4 mr-2" /> Accept Latest Terms
             </Button>
           </DialogFooter>
