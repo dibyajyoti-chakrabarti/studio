@@ -78,7 +78,7 @@ export default function AboutPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             { name: 'Ujjawal Kumar', role: 'Founder & CEO', focus: 'Product · Growth · Sales', bio: 'VIT Vellore. 40+ customer interviews. Led all traction.', image: '/team/ujjawal.jpg' },
-                            { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Platform · Technology · AI', bio: 'VIT Vellore. Built MVP from scratch. Full-stack + AI/ML.', image: '/team/divyanshu.jpg' },
+                            { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Platform · Technology · AI', bio: 'Techno Main Salt Lake . Built MVP from scratch. Full-stack + AI/ML.', image: '/team/divyanshu.jpg' },
                             { name: 'Dristi Sengupta', role: 'Co-Founder & Ops', focus: 'Vendors · Ops · QA', bio: 'VIT Vellore. Onboarded all 20 vendors. Mech background.', image: '/team/dristi.png' },
                         ].map(member => (
                             <div key={member.name} className="p-6 rounded-xl border border-white/5 bg-white/[0.02] space-y-3 text-center">
