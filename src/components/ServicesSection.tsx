@@ -511,15 +511,22 @@ const SERVICES = [
 ───────────────────────────────────────────── */
 export function ServicesSection() {
     return (
-        <section id="services" className="py-12">
-            <div className="container mx-auto px-4">
+        <section id="services" className="py-20 relative overflow-hidden bg-[#020617]">
+            {/* Background mesh */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
+
+            <div className="container mx-auto px-4 relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-600 mb-3">OUR CAPABILITIES</p>
-                    <h2 className="font-heading text-4xl sm:text-5xl md:text-[64px]leading-[1.1] tracking-tight text-white mb-6">
+                <div className="text-center mb-16 relative">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500 mb-4 inline-flex items-center gap-3">
+                        <span className="w-8 h-px bg-cyan-500/30"></span>
+                        OUR CAPABILITIES
+                        <span className="w-8 h-px bg-cyan-500/30"></span>
+                    </p>
+                    <h2 className="font-bankgothic text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-white mb-6 drop-shadow-sm">
                         Precision Manufacturing Services
                     </h2>
-                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                    <p className="text-zinc-400 max-w-2xl mx-auto font-light text-sm md:text-base">
                         Our network of MechMasters covers a wide range of industrial processes to meet your specific requirements.
                     </p>
                 </div>
@@ -531,10 +538,12 @@ export function ServicesSection() {
                         return (
                             <div
                                 key={svc.num}
-                                className="group rounded-2xl border border-white/[0.08] bg-[#0d1822] overflow-hidden hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(0,229,255,0.07)] transition-all duration-500"
+                                className="group rounded-2xl border border-white/[0.05] bg-[#040f25]/50 backdrop-blur-md overflow-hidden hover:border-cyan-500/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.15)] transition-all duration-500 relative"
                             >
+                                <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/0 to-cyan-500/0 group-hover:from-cyan-500/5 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
+
                                 {/* Animated Canvas Panel */}
-                                <div className="relative h-48 bg-[#080f18] overflow-hidden">
+                                <div className="relative h-48 bg-[#020617] overflow-hidden border-b border-white/[0.05]">
                                     <Canvas />
                                     {/* Scan line */}
                                     <div className="absolute inset-0 pointer-events-none" style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,0.015) 3px, rgba(0,229,255,0.015) 4px)' }} />
@@ -545,10 +554,12 @@ export function ServicesSection() {
                                 </div>
 
                                 {/* Card Body */}
-                                <div className="p-5 space-y-4">
+                                <div className="p-6 space-y-4 relative z-10">
                                     <div>
-                                        <p className="text-[10px] font-bold tracking-[0.2em] text-cyan-500/70 font-mono mb-1">{svc.num} / {svc.title}</p>
-                                        <h3 className="font-headline text-base font-bold text-white leading-snug">{svc.sub}</h3>
+                                        <p className="text-[10px] font-bold tracking-[0.2em] text-cyan-400 font-consolas mb-1 flex items-center gap-2">
+                                            <span className="text-zinc-500">[{svc.num}]</span> {svc.title}
+                                        </p>
+                                        <h3 className="font-bankgothic text-base font-bold text-white leading-snug group-hover:text-cyan-50 transition-colors">{svc.sub}</h3>
                                     </div>
 
                                     <p className="text-xs text-zinc-400 leading-relaxed">{svc.desc}</p>

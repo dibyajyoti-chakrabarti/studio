@@ -627,6 +627,8 @@ export default function AdminPanel() {
                       {[
                         ['Process', selectedRfq.manufacturingProcess],
                         ['Material', selectedRfq.material],
+                        ['Thickness', selectedRfq.thickness || '-'],
+                        ['Weight', selectedRfq.weight || '-'],
                         ['Quantity', `${selectedRfq.quantity} units`],
                         ['Tolerance', selectedRfq.tolerance || '-'],
                         ['Surface', selectedRfq.surfaceFinish || '-'],
@@ -634,13 +636,22 @@ export default function AdminPanel() {
                         ['Location', selectedRfq.deliveryLocation || '-'],
                         ['Deadline', new Date(selectedRfq.deliveryDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })],
                       ].map(([l, v], i) => (
-                        <div key={i} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                          <span className="text-muted-foreground text-xs">{l}</span>
-                          <span className="text-white font-medium text-right max-w-[55%] truncate">{v}</span>
+                        <div key={i} className="grid grid-cols-[auto_1fr] gap-4 px-4 py-2.5 text-sm items-start">
+                          <span className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold pt-0.5">{l}</span>
+                          <span className="text-white font-bold text-right break-words leading-relaxed">{v}</span>
                         </div>
                       ))}
                     </div>
                   </div>
+
+                  {selectedRfq.extraRequirements && (
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                      <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-secondary mb-3"><MessageCircleQuestion className="w-3.5 h-3.5" /> Extra Requirements</h3>
+                      <div className="rounded-xl bg-zinc-950/40 border border-white/5 p-4 text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap italic">
+                        "{selectedRfq.extraRequirements}"
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-secondary mb-3">

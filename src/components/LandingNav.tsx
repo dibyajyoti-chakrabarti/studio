@@ -50,6 +50,9 @@ export function LandingNav() {
   };
 
   const displayName = profile?.fullName || user?.email?.split('@')[0] || 'Account';
+  const role = profile?.role || 'customer';
+  const dashboardHref = role === 'admin' ? '/admin' : role === 'vendor' ? '/vendor' : '/dashboard';
+
   const initials = displayName
     .split(' ')
     .map((n: string) => n[0])
@@ -63,6 +66,9 @@ export function LandingNav() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Automatically float nav on non-home pages or when scrolled
+  const isNavFloated = scrolled || pathname !== '/';
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -93,15 +99,15 @@ export function LandingNav() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isNavFloated
           ? 'top-3 mx-4 md:mx-auto md:max-w-6xl'
           : 'mx-0 top-0'
           }`}
       >
         <div
-          className={`relative flex items-center justify-between px-4 md:px-6 h-[68px] transition-all duration-500 ease-in-out ${scrolled
-            ? 'rounded-2xl bg-[#1f282d]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(56, 62, 66, 0.1)] mx-auto'
-            : 'bg-[#1f282d]/60 backdrop-blur-md border-b border-white/[0.06]'
+          className={`relative flex items-center justify-between px-4 md:px-6 h-[68px] transition-all duration-500 ease-in-out ${isNavFloated
+            ? 'rounded-2xl bg-[#020617]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] mx-auto'
+            : 'bg-[#020617]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] mx-auto'
             }`}
         >
           {/* Logo */}
@@ -115,7 +121,7 @@ export function LandingNav() {
                 className="object-contain rounded-sm"
               />
             </div>
-            <span className="font-heading text-2xl tracking-tight text-white">
+            <span className="font-bankgothic text-2xl tracking-tight text-white mt-1">
               MechHub
             </span>
           </Link>
@@ -161,7 +167,7 @@ export function LandingNav() {
                         className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/5 transition-colors group"
                         suppressHydrationWarning
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/10 group-hover:ring-white/20 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/10 group-hover:ring-white/20 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                           {initials}
                         </div>
                         <span className="hidden sm:inline-block max-w-[100px] truncate text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">
@@ -177,12 +183,12 @@ export function LandingNav() {
                         Signed in as <span className="font-semibold text-zinc-300">{user.email}</span>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-white/5 my-1" />
-                      <Link href="/login">
+                      <Link href={dashboardHref}>
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
                           <LayoutDashboard className="w-4 h-4 text-zinc-400" /> Dashboard
                         </DropdownMenuItem>
                       </Link>
-                      <Link href="/login">
+                      <Link href={dashboardHref}>
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
                           <UserIcon className="w-4 h-4 text-zinc-400" /> My Profile
                         </DropdownMenuItem>
@@ -208,7 +214,7 @@ export function LandingNav() {
                     </Link>
                     <Link href="/login">
                       <button
-                        className="relative inline-flex items-center gap-1 px-1.5 py-1.5 text-sm font-semibold text-white rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)] transition-all duration-300"
+                        className="relative inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_28px_rgba(34,211,238,0.5)] transition-all duration-300"
                         suppressHydrationWarning
                       >
                         Get Started
@@ -235,7 +241,7 @@ export function LandingNav() {
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
-          <div className={`mx-2 mt-1 rounded-2xl bg-zinc-950/90 backdrop-blur-xl border border-white/10 shadow-2xl p-3 flex flex-col gap-1`}>
+          <div className={`mx-2 mt-1 rounded-2xl bg-[#020617]/95 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-3 flex flex-col gap-1`}>
             {NAV_LINKS.map(link => (
               <Link
                 key={link.href}

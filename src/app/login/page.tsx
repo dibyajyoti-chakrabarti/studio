@@ -25,7 +25,7 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
   const auth = useAuth();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -304,23 +304,30 @@ export default function LoginPage() {
     }
   };
 
+  // Prevent flash for authenticated users during sync/redirect
+  if (isUserLoading || (user && !verificationState)) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#020617]"><Loader2 className="w-10 h-10 animate-spin text-cyan-500" /></div>;
+  }
+
   if (verificationState) {
     return (
-      <div className="min-h-screen bg-background flex flex-col pt-24">
+      <div className="min-h-screen bg-[#020617] text-zinc-300 relative overflow-hidden flex flex-col pt-24">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
         <LandingNav />
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md bg-card border-white/10 shadow-2xl relative overflow-hidden text-center p-8">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
-            <div className="mx-auto w-16 h-16 bg-primary/20 flex items-center justify-center rounded-full mb-6">
-              <ShieldCheck className="w-8 h-8 text-primary" />
+        <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+          <Card className="w-full max-w-md bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden text-center p-8">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
+            <div className="mx-auto w-16 h-16 bg-cyan-950/30 border border-cyan-500/20 flex items-center justify-center rounded-full mb-6 relative">
+              <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full" />
+              <ShieldCheck className="w-8 h-8 text-cyan-400 relative z-10" />
             </div>
-            <h2 className="text-2xl font-headline font-bold mb-2">Check Your Inbox</h2>
-            <p className="text-muted-foreground mb-8">
+            <h2 className="text-2xl font-bankgothic text-white mb-2 drop-shadow-sm">Check Your Inbox</h2>
+            <p className="text-zinc-400 mb-8 font-light leading-relaxed">
               We've sent a verification link to <strong className="text-white">{verificationState.email}</strong>.
               Please click the link in that email to activate your account and access your dashboard.
             </p>
             <div className="space-y-4">
-              <Button onClick={() => setVerificationState(null)} className="w-full h-12 font-bold variant-outline bg-white/5 hover:bg-white/10 border-white/10">
+              <Button onClick={() => setVerificationState(null)} className="w-full h-12 font-bold variant-outline bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-full transition-all">
                 Back to Sign In
               </Button>
               <Button
@@ -339,33 +346,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pt-24">
+    <div className="min-h-screen bg-[#020617] text-zinc-300 relative overflow-hidden flex flex-col pt-24">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
       <LandingNav />
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <div className="w-full max-w-md space-y-8">
 
           <div className="flex flex-col items-center gap-4">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-headline font-bold">Secure Access</h1>
-              <p className="text-sm text-muted-foreground">Sign in to your manufacturing workspace</p>
+              <h1 className="text-3xl font-bankgothic text-white drop-shadow-sm">Secure Access</h1>
+              <p className="text-sm text-zinc-400 font-light">Sign in to your manufacturing workspace</p>
             </div>
           </div>
 
           <Tabs defaultValue={searchParams.get('tab') === 'register' ? 'register' : 'login'} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-card border border-white/10 p-1">
-              <TabsTrigger value="login" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Sign In</TabsTrigger>
-              <TabsTrigger value="register" className="data-[state=active]:bg-secondary data-[state=active]:text-background font-bold">Register</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-[#040f25]/50 backdrop-blur-sm border border-white/[0.05] p-1 rounded-xl">
+              <TabsTrigger value="login" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white font-bold rounded-lg transition-all text-zinc-400">Sign In</TabsTrigger>
+              <TabsTrigger value="register" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white font-bold rounded-lg transition-all text-zinc-400">Register</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
               {isForgotPassword ? (
-                <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
+                <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                   <CardHeader>
-                    <CardTitle className="font-headline text-2xl">
+                    <CardTitle className="font-bankgothic text-2xl text-white">
                       Reset Password
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-zinc-400 font-light">
                       {resetEmailSent
                         ? "Check your email for a reset link."
                         : "Enter your verified email to receive a reset link."}
@@ -375,12 +383,12 @@ export default function LoginPage() {
                     <form onSubmit={handleForgotPassword}>
                       <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="reset-email">Work Email</Label>
-                          <Input id="reset-email" name="email" type="email" placeholder="engineering@company.com" className="bg-background border-white/10 focus:border-primary/50" required />
+                          <Label htmlFor="reset-email" className="text-zinc-300">Work Email</Label>
+                          <Input id="reset-email" name="email" type="email" placeholder="engineering@company.com" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                         </div>
                       </CardContent>
                       <CardFooter className="flex flex-col gap-4">
-                        <Button type="submit" className="w-full h-12 font-bold bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
+                        <Button type="submit" className="w-full h-12 font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all" disabled={loading}>
                           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                           Send Reset Link
                         </Button>
@@ -398,38 +406,38 @@ export default function LoginPage() {
                   )}
                 </Card>
               ) : (
-                <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
+                <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                   <CardHeader>
-                    <CardTitle className="font-headline text-2xl">
+                    <CardTitle className="font-bankgothic text-2xl text-white">
                       Account Access
                     </CardTitle>
-                    <CardDescription>Enter your verified credentials to continue.</CardDescription>
+                    <CardDescription className="text-zinc-400 font-light">Enter your verified credentials to continue.</CardDescription>
                   </CardHeader>
                   <form onSubmit={handleSignIn}>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email">Work Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="engineering@company.com" className="bg-background border-white/10 focus:border-primary/50" required />
+                        <Label htmlFor="email" className="text-zinc-300">Work Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="engineering@company.com" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="password">Security Password</Label>
-                          <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-primary hover:underline">Forgot password?</button>
+                          <Label htmlFor="password" className="text-zinc-300">Security Password</Label>
+                          <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors tracking-wide">Forgot password?</button>
                         </div>
-                        <Input id="password" name="password" type="password" placeholder="••••••••" className="bg-background border-white/10 focus:border-primary/50" required />
+                        <Input id="password" name="password" type="password" placeholder="••••••••" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                       </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">
-                      <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
+                      <Button type="submit" className="w-full h-12 font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all" disabled={loading}>
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
                         Log In to Hub
                       </Button>
                       <div className="relative w-full py-2">
-                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/5"></span></div>
-                        <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest"><span className="bg-card px-3 text-muted-foreground">Secure Authentication</span></div>
+                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
+                        <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest font-consolas"><span className="bg-[#040f25] px-3 text-cyan-500/70 border border-white/[0.05] rounded-full">Secure Authentication</span></div>
                       </div>
-                      <Button variant="outline" type="button" className="w-full h-12 bg-white hover:bg-zinc-100 text-zinc-900 border-zinc-200 rounded-full font-semibold text-base gap-3 transition-colors" onClick={handleGoogleSignIn} disabled={loading}>
+                      <Button variant="outline" type="button" className="w-full h-12 bg-white hover:bg-zinc-200 text-zinc-900 border-transparent rounded-full font-bold text-sm gap-3 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]" onClick={handleGoogleSignIn} disabled={loading}>
                         <GoogleIcon className="w-5 h-5" />
                         Sign in with Google
                       </Button>
@@ -440,35 +448,35 @@ export default function LoginPage() {
             </TabsContent>
 
             <TabsContent value="register">
-              <Card className="bg-card border-white/10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-primary/30" />
+              <Card className="bg-[#040f25]/50 backdrop-blur-md border-white/[0.05] shadow-[0_0_40px_rgba(34,211,238,0.1)] relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-600 to-blue-600" />
                 <CardHeader>
-                  <CardTitle className="font-headline text-2xl">
+                  <CardTitle className="font-bankgothic text-2xl text-white">
                     Create Hub Account
                   </CardTitle>
-                  <CardDescription>Join the managed manufacturing network.</CardDescription>
+                  <CardDescription className="text-zinc-400 font-light">Join the managed manufacturing network.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="reg-name">Full Name</Label>
-                      <Input id="reg-name" name="fullName" type="text" placeholder="John Doe" className="bg-background border-white/10 focus:border-primary/50" required />
+                      <Label htmlFor="reg-name" className="text-zinc-300">Full Name</Label>
+                      <Input id="reg-name" name="fullName" type="text" placeholder="John Doe" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="reg-email">Work Email</Label>
-                      <Input id="reg-email" name="email" type="email" placeholder="name@organization.com" className="bg-background border-white/10 focus:border-primary/50" required />
+                      <Label htmlFor="reg-email" className="text-zinc-300">Work Email</Label>
+                      <Input id="reg-email" name="email" type="email" placeholder="name@organization.com" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="reg-password">Create Password</Label>
-                      <Input id="reg-password" name="password" type="password" placeholder="Min. 8 characters" className="bg-background border-white/10 focus:border-primary/50" required />
+                      <Label htmlFor="reg-password" className="text-zinc-300">Create Password</Label>
+                      <Input id="reg-password" name="password" type="password" placeholder="Min. 8 characters" className="bg-[#020617]/50 border-white/[0.1] focus:border-cyan-500/50 text-white placeholder:text-zinc-600" required />
                     </div>
-                    <div className="pt-2 flex items-center gap-2 text-[10px] text-muted-foreground">
-                      <ShieldCheck className="w-4 h-4 text-secondary" />
+                    <div className="pt-2 flex items-center gap-2 text-[10px] text-zinc-500 font-light">
+                      <ShieldCheck className="w-4 h-4 text-cyan-400" />
                       All accounts are subject to verification and NDA protocols.
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full h-12 font-bold" disabled={loading}>
+                    <Button type="submit" className="w-full h-12 font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-full shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all" disabled={loading}>
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
                       Register as Innovator
                     </Button>

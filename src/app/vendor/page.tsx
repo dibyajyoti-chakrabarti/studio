@@ -199,42 +199,48 @@ export default function VendorPortal() {
   if (!isVendorConfirmed) return null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-card sticky top-0 z-50">
+    <div className="min-h-screen bg-[#020617] font-sans text-zinc-300 flex flex-col relative overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[#020617]" style={{
+        backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+        backgroundSize: '30px 30px'
+      }} />
+
+      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-[#020617]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Image src="/mechhub.png" alt="MechHub Logo" width={60} height={60} />
-          <span className="font-headline font-bold text-xl text-white">MechMaster Workspace</span>
+          <span className="font-bankgothic font-bold text-lg text-white tracking-widest uppercase mt-1">MechMaster Workspace</span>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5">
+          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white transition-colors">
             <LogOut className="w-4 h-4" /> Logout
           </Button>
         </div>
       </header>
 
-      <div className="container mx-auto p-8 space-y-8">
+      <div className="container mx-auto p-8 space-y-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-headline font-bold text-white">Production Control</h1>
-            <p className="text-muted-foreground mt-1">Manage bids and track active manufacturing assignments.</p>
+            <h1 className="text-3xl font-bankgothic font-bold text-white uppercase tracking-wide">Production Control</h1>
+            <p className="text-cyan-100/60 mt-1">Manage bids and track active manufacturing assignments.</p>
           </div>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-card border border-white/10 p-1 rounded-lg">
-            <TabsList className="bg-transparent">
-              <TabsTrigger value="marketplace" className="gap-2 px-6"><Zap className="w-4 h-4" /> Opportunities</TabsTrigger>
-              <TabsTrigger value="projects" className="gap-2 px-6"><ClipboardList className="w-4 h-4" /> Active Runs</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-[#040f25]/40 backdrop-blur-md border border-white/10 p-1.5 rounded-xl shadow-inner">
+            <TabsList className="bg-transparent w-full flex">
+              <TabsTrigger value="marketplace" className="gap-2 px-6 flex-1 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px]"><Zap className="w-4 h-4" /> Opportunities</TabsTrigger>
+              <TabsTrigger value="projects" className="gap-2 px-6 flex-1 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px]"><ClipboardList className="w-4 h-4" /> Active Runs</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
         {activeTab === 'marketplace' ? (
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-secondary">
+            <div className="flex items-center gap-2 text-cyan-400">
               <Gavel className="w-5 h-5" />
-              <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Available Opportunities</h2>
+              <h2 className="text-xl font-bold font-bankgothic uppercase tracking-wide">Available Opportunities</h2>
             </div>
 
             {isMarketplaceLoading ? (
-              <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>
+              <div className="flex items-center justify-center h-64"><Loader2 className="animate-[spin_3s_linear_infinite] text-cyan-500 w-10 h-10" /></div>
             ) : marketplaceRfqs?.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {marketplaceRfqs.map((rfq) => {
@@ -243,32 +249,32 @@ export default function VendorPortal() {
                   const needsResponse = lastNeg?.party === 'customer' || lastNeg?.party === 'admin';
 
                   return (
-                    <Card key={rfq.id} className="bg-card border-white/10 hover:border-secondary/30 transition-all group overflow-hidden">
-                      <CardHeader>
+                    <Card key={rfq.id} className="bg-[#040f25]/40 border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md hover:border-cyan-500/50 hover:bg-cyan-950/20 transition-all group overflow-hidden">
+                      <CardHeader className="pb-4">
                         <div className="flex justify-between items-start mb-2">
-                          <Badge className="bg-primary/20 text-primary border-none text-[10px] font-bold uppercase">{rfq.manufacturingProcess}</Badge>
-                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-500">{myQuote.status.toUpperCase()}</Badge>}
+                          <Badge className="bg-cyan-500/20 text-cyan-400 border-none text-[10px] font-bold uppercase tracking-widest">{rfq.manufacturingProcess}</Badge>
+                          {myQuote && <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-400 border border-green-500/30 uppercase tracking-widest">{myQuote.status}</Badge>}
                         </div>
-                        <CardTitle className="text-xl font-headline text-white group-hover:text-secondary truncate">{rfq.projectName}</CardTitle>
-                        <CardDescription className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {rfq.deliveryLocation}</CardDescription>
+                        <CardTitle className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors truncate font-sans">{rfq.projectName}</CardTitle>
+                        <CardDescription className="flex items-center gap-1.5 text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1"><MapPin className="w-3 h-3 text-cyan-500" /> {rfq.deliveryLocation}</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="p-3 bg-background/50 rounded-lg border border-white/5 space-y-2 text-xs">
-                          <div className="flex justify-between text-muted-foreground"><span>Material:</span><span className="text-white font-bold">{rfq.material}</span></div>
-                          <div className="flex justify-between text-muted-foreground"><span>Qty:</span><span className="text-white font-bold">{rfq.quantity}</span></div>
+                        <div className="p-4 bg-[#020617]/50 rounded-xl border border-white/5 space-y-3 text-[11px] font-bold uppercase tracking-widest font-sans shadow-inner">
+                          <div className="flex justify-between text-zinc-500"><span>Material:</span><span className="text-white font-consolas">{rfq.material}</span></div>
+                          <div className="flex justify-between text-zinc-500"><span>Qty:</span><span className="text-white font-consolas">{rfq.quantity} pcs</span></div>
                         </div>
 
                         {needsResponse ? (
                           <div className="space-y-3">
-                            <div className="bg-secondary/5 border border-secondary/20 rounded-lg p-3 text-[10px]">
-                              <p className="font-bold text-secondary mb-1 flex items-center gap-1 uppercase tracking-wider"><History className="w-3 h-3" /> Negotiation Update</p>
-                              <p className="text-white font-bold">Target: ₹{lastNeg.price} • {lastNeg.leadTime} Days</p>
-                              <p className="text-muted-foreground italic mt-1 line-clamp-1">"{lastNeg.message}"</p>
+                            <div className="bg-cyan-950/30 border border-cyan-500/20 rounded-xl p-4 text-[10px] shadow-inner">
+                              <p className="font-bold text-cyan-400 mb-2 flex items-center gap-2 uppercase tracking-widest"><History className="w-3 h-3" /> Negotiation Update</p>
+                              <p className="text-white font-consolas font-bold text-xs uppercase tracking-wider">Target: ₹{lastNeg.price} <span className="text-zinc-500 mx-1">•</span> {lastNeg.leadTime} Days</p>
+                              <p className="text-cyan-100/70 italic mt-2 line-clamp-2 border-l-2 border-cyan-500/50 pl-2">"{lastNeg.message}"</p>
                             </div>
-                            <Button variant="secondary" className="w-full h-11" onClick={() => { setNegotiatingQuote(myQuote); setIsResponding(true); }}>Respond to Bid</Button>
+                            <Button className="w-full h-11 font-bankgothic tracking-widest uppercase text-[10px] bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all" onClick={() => { setNegotiatingQuote(myQuote); setIsResponding(true); }}>Respond to Bid</Button>
                           </div>
                         ) : (
-                          <Button variant="secondary" className="w-full gap-2 font-bold h-11" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
+                          <Button variant="outline" className="w-full gap-2 font-bankgothic tracking-widest uppercase text-[10px] h-11 border-white/10 hover:bg-cyan-950/30 hover:text-cyan-400 hover:border-cyan-500/50 transition-all font-bold" onClick={() => { setSelectedRfq(rfq); setShowDetails(true); }}>
                             <Eye className="w-4 h-4" /> {myQuote ? 'View Bid Status' : 'Submit Quotation'}
                           </Button>
                         )}
@@ -290,38 +296,38 @@ export default function VendorPortal() {
               <Hammer className="w-5 h-5" />
               <h2 className="text-xl font-bold font-headline uppercase tracking-wider">Active Build Log</h2>
             </div>
-            <Card className="bg-card border-white/10 overflow-hidden">
+            <Card className="bg-[#040f25]/40 border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md overflow-hidden">
               <Table>
-                <TableHeader className="bg-muted/30">
-                  <TableRow className="border-white/10 hover:bg-transparent">
-                    <TableHead className="text-white">Build Details</TableHead>
-                    <TableHead className="text-white">Specs</TableHead>
-                    <TableHead className="text-white">Stage</TableHead>
-                    <TableHead className="text-white">Actions</TableHead>
+                <TableHeader className="bg-[#020617]/50 border-b border-white/10">
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableHead className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Build Details</TableHead>
+                    <TableHead className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Specs</TableHead>
+                    <TableHead className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Stage</TableHead>
+                    <TableHead className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {myRfqs?.length ? myRfqs.map((rfq) => (
-                    <TableRow key={rfq.id} className="border-b border-white/5">
+                    <TableRow key={rfq.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                       <TableCell>
-                        <div className="font-bold text-white">{rfq.projectName}</div>
-                        <div className="text-xs text-muted-foreground">{rfq.userName}</div>
+                        <div className="font-bold text-white font-sans">{rfq.projectName}</div>
+                        <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1"><span className="text-cyan-500">CLIENT:</span> {rfq.userName}</div>
                       </TableCell>
                       <TableCell className="text-xs">
-                        <div className="text-white">{rfq.manufacturingProcess}</div>
-                        <div className="text-muted-foreground">{rfq.material} • {rfq.quantity}u</div>
+                        <div className="text-white font-bold uppercase tracking-widest text-[10px]">{rfq.manufacturingProcess}</div>
+                        <div className="text-zinc-500 font-consolas mt-1">{rfq.material} • {rfq.quantity} pcs</div>
                       </TableCell>
                       <TableCell>
-                        <Badge className="bg-primary/20 text-primary border-none uppercase text-[10px]">{rfq.status.replace('_', ' ')}</Badge>
+                        <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 uppercase tracking-widest text-[10px] font-bold">{rfq.status.replace('_', ' ')}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {rfq.status === 'assigned' && <Button size="sm" onClick={() => handleUpdateStatus(rfq.id, 'in_progress')}>Start Build</Button>}
-                          {rfq.status === 'in_progress' && <Button size="sm" variant="secondary" onClick={() => handleUpdateStatus(rfq.id, 'completed')}>Complete Build</Button>}
+                          {rfq.status === 'assigned' && <Button size="sm" className="font-bankgothic uppercase tracking-widest text-[10px] bg-cyan-600 hover:bg-cyan-500 text-white border-none shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all" onClick={() => handleUpdateStatus(rfq.id, 'in_progress')}><Zap className="w-3 h-3 mr-1" /> Start Build</Button>}
+                          {rfq.status === 'in_progress' && <Button size="sm" variant="outline" className="font-bankgothic uppercase tracking-widest text-[10px] border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all font-bold" onClick={() => handleUpdateStatus(rfq.id, 'completed')}><Check className="w-3 h-3 mr-1" /> Complete Build</Button>}
                         </div>
                       </TableCell>
                     </TableRow>
-                  )) : <TableRow><TableCell colSpan={4} className="text-center py-20 opacity-30 italic">No assigned builds at this time.</TableCell></TableRow>}
+                  )) : <TableRow><TableCell colSpan={4} className="text-center py-20 opacity-30 italic text-zinc-400">No assigned builds at this time.</TableCell></TableRow>}
                 </TableBody>
               </Table>
             </Card>
@@ -330,35 +336,35 @@ export default function VendorPortal() {
       </div>
 
       <Dialog open={showDetails && !!selectedRfq} onOpenChange={setShowDetails}>
-        <DialogContent className="bg-card text-foreground border-white/10 max-w-2xl">
-          <DialogHeader><DialogTitle className="text-2xl font-headline font-bold text-white">{selectedRfq?.projectName}</DialogTitle></DialogHeader>
+        <DialogContent className="bg-[#040f25]/90 backdrop-blur-2xl border-white/10 text-white max-w-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+          <DialogHeader><DialogTitle className="text-2xl font-bankgothic uppercase tracking-wide font-bold text-white">{selectedRfq?.projectName}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-8 py-6">
             <div className="space-y-4">
-              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-widest">Requirements</h3>
-              <div className="space-y-3 text-xs bg-background/50 p-4 rounded-xl border border-white/5">
-                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Process:</span><span className="text-white">{selectedRfq?.manufacturingProcess}</span></div>
-                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Material:</span><span className="text-white">{selectedRfq?.material}</span></div>
-                <div className="flex justify-between border-b border-white/5 pb-1"><span className="text-muted-foreground">Qty:</span><span className="text-white">{selectedRfq?.quantity}</span></div>
+              <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-sans flex items-center gap-2"><Eye className="w-3 h-3" /> Requirements</h3>
+              <div className="space-y-3 text-xs bg-[#020617]/60 p-5 rounded-xl border border-white/5 shadow-inner">
+                <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Process:</span><span className="text-white font-bold">{selectedRfq?.manufacturingProcess}</span></div>
+                <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Material:</span><span className="text-white font-consolas">{selectedRfq?.material}</span></div>
+                <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Qty:</span><span className="text-white font-consolas">{selectedRfq?.quantity}</span></div>
               </div>
               {selectedRfq?.designFileUrl && (
-                <Button variant="outline" className="w-full gap-2 border-white/10" onClick={() => window.open(selectedRfq.designFileUrl)}>
+                <Button variant="outline" className="w-full gap-2 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all font-bankgothic tracking-widest uppercase text-[10px] h-11 font-bold" onClick={() => window.open(selectedRfq.designFileUrl)}>
                   <Download className="w-4 h-4" /> Download Design Data
                 </Button>
               )}
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[10px] font-bold text-secondary uppercase tracking-widest">Your Bid</h3>
+              <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-sans flex items-center gap-2"><Gavel className="w-3 h-3" /> Your Bid</h3>
               {!myQuotes?.find(q => q.rfqId === selectedRfq?.id) ? (
                 <div className="space-y-4">
-                  <div className="space-y-2"><Label className="text-xs">Price (₹)</Label><Input value={quotePrice} onChange={e => setQuotePrice(e.target.value)} type="number" className="bg-background" /></div>
-                  <div className="space-y-2"><Label className="text-xs">Lead Time (Days)</Label><Input value={quoteLeadTime} onChange={e => setQuoteLeadTime(e.target.value)} type="number" className="bg-background" /></div>
-                  <Button className="w-full font-bold h-11" onClick={handleSubmitQuote}>Submit Official Quotation</Button>
+                  <div className="space-y-3"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Price (₹)</Label><Input value={quotePrice} onChange={e => setQuotePrice(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas shadow-inner h-11" /></div>
+                  <div className="space-y-3"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Lead Time (Days)</Label><Input value={quoteLeadTime} onChange={e => setQuoteLeadTime(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas shadow-inner h-11" /></div>
+                  <Button className="w-full font-bankgothic uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all font-bold" onClick={handleSubmitQuote}><Zap className="w-3 h-3 mr-2" /> Submit Official Quotation</Button>
                 </div>
               ) : (
-                <div className="p-6 bg-green-500/10 border border-green-500/20 rounded-2xl text-center">
-                  <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-white">Bid Live</p>
+                <div className="p-8 bg-cyan-950/20 border border-cyan-500/30 rounded-2xl text-center shadow-inner">
+                  <Check className="w-10 h-10 text-cyan-400 mx-auto mb-3 filter drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                  <p className="text-sm font-bold text-white font-bankgothic tracking-widest uppercase">Bid Live</p>
                 </div>
               )}
             </div>
@@ -367,43 +373,44 @@ export default function VendorPortal() {
       </Dialog>
 
       <Dialog open={isResponding} onOpenChange={setIsResponding}>
-        <DialogContent className="bg-card text-foreground border-white/10 sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-headline font-bold text-white">Negotiation Response</DialogTitle>
-            <DialogDescription>Review the latest terms and respond to secure this project.</DialogDescription>
+        <DialogContent className="bg-[#040f25]/90 backdrop-blur-2xl border-white/10 text-white sm:max-w-[500px] shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-2xl font-bankgothic uppercase tracking-wide font-bold text-white">Negotiation Response</DialogTitle>
+            <DialogDescription className="text-cyan-100/60 mt-1">Review the latest terms and respond to secure this project.</DialogDescription>
           </DialogHeader>
 
           {negotiatingQuote?.negotiationHistory && negotiatingQuote.negotiationHistory.length > 0 && (
-            <div className="max-h-[150px] overflow-y-auto space-y-3 pr-2 mb-4 custom-scrollbar">
+            <div className="max-h-[180px] overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar">
               {negotiatingQuote.negotiationHistory.map((hist: any, idx: number) => (
-                <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'customer' || hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground">{hist.party}</span>
-                    <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
+                <div key={idx} className={`p-4 rounded-xl text-xs border ${hist.party === 'admin' ? 'bg-blue-950/20 border-blue-500/20' : hist.party === 'customer' || hist.party === 'user' ? 'bg-amber-950/20 border-amber-500/20' : 'bg-cyan-950/20 border-cyan-500/20'}`}>
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`font-bold text-[10px] uppercase tracking-widest ${hist.party === 'admin' ? 'text-blue-400' : hist.party === 'customer' || hist.party === 'user' ? 'text-amber-400' : 'text-cyan-400'}`}>{hist.party}</span>
+                    <span className="text-[10px] text-zinc-500 font-consolas font-bold">{new Date(hist.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p className="text-white text-xs mb-3 italic">"{hist.message}"</p>
-                  <div className="flex gap-4 text-xs font-bold">
-                    <span className="text-secondary">₹{hist.price}</span>
-                    <span className="text-primary">{hist.leadTime} Days</span>
+                  <p className="text-zinc-200 text-xs mb-3 italic leading-relaxed">"{hist.message}"</p>
+                  <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest bg-[#020617]/40 p-2 rounded-md">
+                    <span className="text-cyan-400">₹{hist.price}</span>
+                    <span className="text-zinc-500">|</span>
+                    <span className="text-cyan-400">{hist.leadTime} Days</span>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="space-y-4 py-2 border-t border-white/5 pt-4">
-            <h3 className="text-xs font-bold text-secondary uppercase tracking-widest">Counter-Offer Terms (Optional)</h3>
+          <div className="space-y-5 py-4 border-t border-white/5 pt-6 bg-[#020617]/30 -mx-6 px-6 shadow-inner">
+            <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2"><MessageSquare className="w-3 h-3" /> Counter-Offer Terms (Optional)</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>New Price (₹)</Label><Input value={resPrice} onChange={e => setResPrice(e.target.value)} type="number" className="bg-background" /></div>
-              <div className="space-y-2"><Label>New Lead Time (Days)</Label><Input value={resLeadTime} onChange={e => setResLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+              <div className="space-y-2"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">New Price (₹)</Label><Input value={resPrice} onChange={e => setResPrice(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas h-11" /></div>
+              <div className="space-y-2"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">New Lead Time (Days)</Label><Input value={resLeadTime} onChange={e => setResLeadTime(e.target.value)} type="number" className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white font-consolas h-11" /></div>
             </div>
-            <div className="space-y-2"><Label>Message / Justification</Label><Textarea value={resMessage} onChange={e => setResMessage(e.target.value)} className="bg-background h-20" /></div>
+            <div className="space-y-2"><Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Message / Justification</Label><Textarea value={resMessage} onChange={e => setResMessage(e.target.value)} className="bg-[#020617] border-white/10 focus-visible:ring-cyan-500/50 text-white min-h-[100px]" placeholder="Explain why this adjustment is needed..." /></div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4">
-            <Button variant="outline" className="border-white/10 h-11 font-bold w-full sm:w-auto" onClick={() => handleRespondNegotiation('counter')} disabled={!resPrice || !resLeadTime}>
-              Send Counter-Offer
+          <DialogFooter className="gap-3 sm:gap-3 mt-6">
+            <Button variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 font-bankgothic uppercase tracking-widest text-[10px] h-11 font-bold w-full sm:w-auto flex-1 transition-all" onClick={() => handleRespondNegotiation('counter')} disabled={!resPrice || !resLeadTime}>
+              <MessageSquare className="w-4 h-4 mr-2" /> Send Counter-Offer
             </Button>
-            <Button className="font-bold h-11 w-full sm:w-auto" onClick={() => handleRespondNegotiation('accept')}>
+            <Button className="font-bankgothic uppercase tracking-widest text-[10px] h-11 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.2)] font-bold w-full sm:w-auto flex-1 transition-all border-none" onClick={() => handleRespondNegotiation('accept')}>
               <Check className="w-4 h-4 mr-2" /> Accept Latest Terms
             </Button>
           </DialogFooter>

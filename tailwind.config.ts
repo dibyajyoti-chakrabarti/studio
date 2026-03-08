@@ -16,6 +16,8 @@ export default {
         libre: ['Libre Baskerville', 'serif'],
         poppins: ['Poppins', 'sans-serif'],
         code: ['monospace'],
+        consolas: ['Consolas', 'Monaco', 'monospace'],
+        bankgothic: ['"BankGothic Md BT"', '"Bank Gothic Light"', 'Orbitron', 'sans-serif'],
       },
       fontSize: {
         'heading-lg': ['4rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],

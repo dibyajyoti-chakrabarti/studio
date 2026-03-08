@@ -282,18 +282,23 @@ export default function QuoteEngine() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto">
+        <div className="min-h-screen bg-[#020617] text-zinc-300 py-12 px-4 sm:px-6 lg:px-8 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-hidden">
+            {/* Background Grid */}
+            <div className="absolute inset-0 bg-[#020617]" style={{
+                backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+                backgroundSize: '30px 30px'
+            }} />
+            <div className="max-w-5xl mx-auto relative z-10">
 
                 {/* Header & Stepper */}
                 <div className="mb-12">
-                    <h1 className="text-3xl md:text-5xl font-heading text-white mb-4">Budget Estimator</h1>
-                    <p className="text-muted-foreground text-lg mb-8">Get a rough cost range to plan your project — before speaking to a MechMaster.</p>
+                    <h1 className="text-3xl md:text-5xl font-bankgothic uppercase tracking-wide text-white mb-4">Budget Estimator</h1>
+                    <p className="text-cyan-100/60 text-lg mb-8">Get a rough cost range to plan your project — before speaking to a MechMaster.</p>
 
                     <div className="flex items-center justify-between relative max-w-2xl mx-auto">
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-border z-0 rounded">
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/10 z-0 rounded">
                             <div
-                                className="h-full bg-primary transition-all duration-300"
+                                className="h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)] transition-all duration-300"
                                 style={{ width: step === 1 ? '0%' : step === 2 || step === 'loading' ? '50%' : '100%' }}
                             />
                         </div>
@@ -304,13 +309,13 @@ export default function QuoteEngine() {
 
                             return (
                                 <div key={s} className="relative z-10 flex flex-col items-center">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 ${isActive ? 'bg-primary border-primary text-white shadow-[0_0_15px_rgba(41,98,255,0.5)]' :
-                                        isPast ? 'bg-primary border-primary text-white' :
-                                            'bg-card border-border text-muted-foreground'
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 ${isActive ? 'bg-cyan-500 border-cyan-400 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)]' :
+                                        isPast ? 'bg-cyan-500 border-cyan-400 text-slate-950' :
+                                            'bg-[#020617] border-white/20 text-zinc-500'
                                         }`}>
-                                        {isPast ? <CheckCircle size={18} /> : s}
+                                        {isPast ? <CheckCircle size={18} /> : <span className="font-bankgothic">{s}</span>}
                                     </div>
-                                    <span className={`mt-2 text-xs font-semibold ${isActive || isPast ? 'text-white' : 'text-muted-foreground'}`}>
+                                    <span className={`mt-2 text-[10px] font-bold uppercase tracking-wider ${isActive || isPast ? 'text-cyan-400' : 'text-zinc-500'}`}>
                                         {s === 1 ? 'Your Part' : s === 2 ? 'Specs' : 'Budget Range'}
                                     </span>
                                 </div>
@@ -323,7 +328,7 @@ export default function QuoteEngine() {
                 {step === 1 && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div
-                            className="border-2 border-dashed border-border rounded-xl p-12 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer group hover:border-primary/50"
+                            className="border-2 border-dashed border-white/20 rounded-2xl p-12 text-center bg-[#040f25]/40 hover:bg-cyan-950/20 transition-all cursor-pointer group hover:border-cyan-500/50 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <input
@@ -345,36 +350,36 @@ export default function QuoteEngine() {
                                     }
                                 }}
                             />
-                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                                <UploadCloud className="w-10 h-10 text-primary" />
+                            <div className="w-20 h-20 bg-cyan-950/50 border border-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-cyan-500/20 group-hover:border-cyan-400 transitions-transform shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                                <UploadCloud className="w-10 h-10 text-cyan-400 group-hover:text-cyan-300" />
                             </div>
-                            <h3 className="text-2xl font-semibold mb-2 text-white">Upload 3D CAD File</h3>
-                            <p className="text-muted-foreground mb-6">Drag and drop or click to browse</p>
-                            <div className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground font-code">
-                                <span className="bg-background px-3 py-1 rounded-md border border-border">.STEP</span>
-                                <span className="bg-background px-3 py-1 rounded-md border border-border">.STP</span>
-                                <span className="bg-background px-3 py-1 rounded-md border border-border">.STL</span>
-                                <span className="bg-background px-3 py-1 rounded-md border border-border">.DXF</span>
-                                <span className="bg-background px-3 py-1 rounded-md border border-border">.DWG</span>
+                            <h3 className="text-2xl font-bankgothic uppercase font-semibold mb-2 text-white">Upload 3D CAD File</h3>
+                            <p className="text-zinc-500 font-consolas mb-6 text-sm">Drag and drop or click to browse</p>
+                            <div className="flex flex-wrap justify-center gap-2 text-[10px] text-cyan-400 font-bold tracking-widest uppercase">
+                                <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.STEP</span>
+                                <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.STP</span>
+                                <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.STL</span>
+                                <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.DXF</span>
+                                <span className="bg-[#020617] px-3 py-1.5 rounded-lg border border-white/10">.DWG</span>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-2"><CheckCircle size={16} className="text-secondary" /> NDA Protected</span>
-                            <span className="flex items-center gap-2"><CheckCircle size={16} className="text-secondary" /> IP Confidential</span>
-                            <span className="flex items-center gap-2"><CheckCircle size={16} className="text-secondary" /> Instant Analysis</span>
+                        <div className="flex items-center justify-center gap-6 text-[11px] font-bold tracking-widest uppercase text-zinc-500">
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-cyan-500" /> NDA Protected</span>
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-cyan-500" /> IP Confidential</span>
+                            <span className="flex items-center gap-2"><CheckCircle size={14} className="text-cyan-500" /> Instant Analysis</span>
                         </div>
 
-                        <div className="pt-8 border-t border-border">
-                            <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider text-center">Or try a sample part</p>
+                        <div className="pt-8 border-t border-white/10">
+                            <p className="text-[10px] font-bold text-zinc-500 mb-4 uppercase tracking-[0.2em] text-center">Or try a sample part</p>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {['Flange Plate', 'Shaft Collar', 'Mounting Bracket', 'Custom Housing'].map((sample) => (
                                     <button
                                         key={sample}
                                         onClick={() => handleSampleSelect(sample)}
-                                        className="p-4 rounded-lg bg-card border border-border hover:border-primary/50 hover:-translate-y-1 transition-all text-sm font-medium flex flex-col items-center gap-3 text-white"
+                                        className="p-4 rounded-xl bg-[#040f25]/40 border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-950/30 hover:-translate-y-1 transition-all text-[11px] uppercase tracking-widest font-bold flex flex-col items-center gap-3 text-zinc-300 hover:text-cyan-50 shadow-sm"
                                     >
-                                        <FileType className="w-6 h-6 text-muted-foreground" />
+                                        <FileType className="w-5 h-5 text-cyan-500/70" />
                                         {sample}
                                     </button>
                                 ))}
@@ -386,42 +391,45 @@ export default function QuoteEngine() {
                 {/* --- STEP 2: PARAMETERS --- */}
                 {step === 2 && (
                     <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-                        <div className="flex items-center justify-between mb-6 bg-card border border-border p-4 rounded-xl">
+                        <div className="flex items-center justify-between mb-6 bg-[#040f25]/40 border border-white/10 p-4 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary/10 rounded-lg"><FileType size={20} className="text-primary" /></div>
-                                <span className="font-code text-sm font-medium text-white">{fileName}</span>
+                                <div className="p-2 bg-cyan-950/50 rounded-lg"><FileType size={20} className="text-cyan-400" /></div>
+                                <span className="font-consolas text-sm font-medium text-white">{fileName}</span>
                             </div>
-                            <button onClick={() => setStep(1)} className="text-sm text-muted-foreground hover:text-white flex items-center gap-1">
+                            <button onClick={() => setStep(1)} className="text-sm text-zinc-500 hover:text-cyan-400 flex items-center gap-1 transition-colors">
                                 <X size={16} /> Change file
                             </button>
                         </div>
 
-                        <div className="bg-card border border-border rounded-xl p-6 md:p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden">
+                            {/* Glow accent */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 opacity-50" />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                                 {/* Left Col */}
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Material</label>
-                                        <select value={material} onChange={e => setMaterial(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select">
-                                            {Object.keys(MATERIALS).map(m => <option key={m} value={m}>{m}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Material</label>
+                                        <select value={material} onChange={e => setMaterial(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all">
+                                            {Object.keys(MATERIALS).map(m => <option key={m} value={m} className="bg-zinc-950">{m}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Manufacturing Process</label>
-                                        <select value={process} onChange={e => setProcess(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select">
-                                            {Object.keys(PROCESSES).map(p => <option key={p} value={p}>{p}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Manufacturing Process</label>
+                                        <select value={process} onChange={e => setProcess(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all">
+                                            {Object.keys(PROCESSES).map(p => <option key={p} value={p} className="bg-zinc-950">{p}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Surface Finish</label>
-                                        <select value={finish} onChange={e => setFinish(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select">
-                                            {Object.keys(FINISHES).map(f => <option key={f} value={f}>{f}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Surface Finish</label>
+                                        <select value={finish} onChange={e => setFinish(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all">
+                                            {Object.keys(FINISHES).map(f => <option key={f} value={f} className="bg-zinc-950">{f}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Tolerance Requirements</label>
-                                        <select value={tolerance} onChange={e => setTolerance(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select">
-                                            {Object.keys(TOLERANCES).map(t => <option key={t} value={t}>{t}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Tolerance Requirements</label>
+                                        <select value={tolerance} onChange={e => setTolerance(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all">
+                                            {Object.keys(TOLERANCES).map(t => <option key={t} value={t} className="bg-zinc-950">{t}</option>)}
                                         </select>
                                     </div>
                                 </div>
@@ -429,67 +437,67 @@ export default function QuoteEngine() {
                                 {/* Right Col */}
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Part Complexity</label>
-                                        <select value={complexity} onChange={e => setComplexity(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select mb-2">
-                                            {Object.keys(COMPLEXITIES).map(c => <option key={c} value={c}>{c}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Part Complexity</label>
+                                        <select value={complexity} onChange={e => setComplexity(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all mb-2">
+                                            {Object.keys(COMPLEXITIES).map(c => <option key={c} value={c} className="bg-zinc-950">{c}</option>)}
                                         </select>
-                                        <p className="text-xs text-muted-foreground italic">&quot;{COMPLEXITIES[complexity as keyof typeof COMPLEXITIES].desc}&quot;</p>
+                                        <p className="text-[11px] text-zinc-500 font-consolas italic">&quot;{COMPLEXITIES[complexity as keyof typeof COMPLEXITIES].desc}&quot;</p>
                                     </div>
 
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
-                                            <label className="block text-sm font-semibold text-muted-foreground">Bounding Box Dimensions (mm) <span className="text-muted-foreground/40 font-normal">(optional if weight provided)</span></label>
+                                            <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Bounding Box Dimensions (mm) <span className="text-zinc-600 font-semibold lowercase tracking-normal">(optional if weight provided)</span></label>
                                         </div>
                                         <div className="grid grid-cols-3 gap-3">
                                             <div className="relative">
-                                                <input type="number" placeholder="L" value={length} onChange={e => setLength(e.target.value ? Number(e.target.value) : '')} className="w-full bg-background border border-border rounded-lg px-3 py-3 text-white focus:border-primary focus:outline-none pl-8" />
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-code">L</span>
+                                                <input type="number" placeholder="L" value={length} onChange={e => setLength(e.target.value ? Number(e.target.value) : '')} className="w-full bg-[#020617] border border-white/10 rounded-xl px-3 py-3 text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 focus:outline-none pl-8 transition-all" />
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-600 text-sm font-consolas">L</span>
                                             </div>
                                             <div className="relative">
-                                                <input type="number" placeholder="W" value={width} onChange={e => setWidth(e.target.value ? Number(e.target.value) : '')} className="w-full bg-background border border-border rounded-lg px-3 py-3 text-white focus:border-primary focus:outline-none pl-8" />
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-code">W</span>
+                                                <input type="number" placeholder="W" value={width} onChange={e => setWidth(e.target.value ? Number(e.target.value) : '')} className="w-full bg-[#020617] border border-white/10 rounded-xl px-3 py-3 text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 focus:outline-none pl-8 transition-all" />
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-600 text-sm font-consolas">W</span>
                                             </div>
                                             <div className="relative">
-                                                <input type="number" placeholder="H" value={height} onChange={e => setHeight(e.target.value ? Number(e.target.value) : '')} className="w-full bg-background border border-border rounded-lg px-3 py-3 text-white focus:border-primary focus:outline-none pl-8" />
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-code">H</span>
+                                                <input type="number" placeholder="H" value={height} onChange={e => setHeight(e.target.value ? Number(e.target.value) : '')} className="w-full bg-[#020617] border border-white/10 rounded-xl px-3 py-3 text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 focus:outline-none pl-8 transition-all" />
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-600 text-sm font-consolas">H</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
-                                            <label className="block text-sm font-semibold text-muted-foreground">Estimated Weight (kg) <span className="text-muted-foreground/40 font-normal">(optional)</span></label>
+                                            <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Estimated Weight (kg) <span className="text-zinc-600 font-semibold lowercase tracking-normal">(optional)</span></label>
                                         </div>
-                                        <input type="number" placeholder="e.g. 1.25 (Overrides dimensions)" min="0" step="0.01" value={weight} onChange={e => setWeight(e.target.value ? Number(e.target.value) : '')} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-code" />
+                                        <input type="number" placeholder="e.g. 1.25 (Overrides dimensions)" min="0" step="0.01" value={weight} onChange={e => setWeight(e.target.value ? Number(e.target.value) : '')} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 transition-all font-consolas" />
                                     </div>
 
                                     <div>
                                         <div className="flex items-center justify-between mb-2">
-                                            <label className="block text-sm font-semibold text-muted-foreground">Quantity</label>
-                                            {quantity >= 25 && <span className="text-xs bg-secondary/20 text-secondary px-2 py-1 rounded-full flex items-center gap-1"><Info size={12} /> Bulk discount active</span>}
+                                            <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Quantity</label>
+                                            {quantity >= 25 && <span className="text-[10px] bg-cyan-950/50 text-cyan-400 border border-cyan-500/20 px-2 py-1.5 rounded-lg flex items-center gap-1 uppercase tracking-widest font-bold"><Info size={12} /> Bulk active</span>}
                                         </div>
-                                        <input type="number" min="1" max="10000" value={quantity} onChange={e => setQuantity(Math.max(1, Number(e.target.value)))} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-code" />
+                                        <input type="number" min="1" max="10000" value={quantity} onChange={e => setQuantity(Math.max(1, Number(e.target.value)))} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 transition-all font-consolas" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-muted-foreground mb-2">Delivery City</label>
-                                        <select value={city} onChange={e => setCity(e.target.value)} className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none custom-select">
-                                            {Object.keys(CITIES).map(c => <option key={c} value={c}>{c}</option>)}
+                                        <label className="block text-[11px] font-bold text-cyan-400 uppercase tracking-widest mb-2">Delivery City</label>
+                                        <select value={city} onChange={e => setCity(e.target.value)} className="w-full bg-[#020617] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 hover:border-white/20 appearance-none custom-select transition-all">
+                                            {Object.keys(CITIES).map(c => <option key={c} value={c} className="bg-zinc-950">{c}</option>)}
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-10 pt-6 border-t border-border flex justify-between items-center">
+                            <div className="mt-10 pt-6 border-t border-white/10 flex justify-between items-center relative z-10">
                                 <button
                                     onClick={() => setStep(1)}
-                                    className="px-6 py-3 rounded-xl border border-border text-muted-foreground hover:text-white transition-colors"
+                                    className="px-6 py-3 rounded-xl border border-white/10 bg-[#020617]/50 text-zinc-400 hover:text-white hover:border-white/30 transition-all"
                                 >
                                     ← Back
                                 </button>
                                 <button
                                     onClick={calculateQuote}
-                                    className="bg-[linear-gradient(135deg,#0052CC,#0082FF)] hover:shadow-[0_0_20px_rgba(41,98,255,0.4)] text-white font-semibold py-4 px-8 rounded-xl transition-all flex items-center gap-2 hover:scale-[1.02]"
+                                    className="bg-gradient-to-r from-cyan-600 to-blue-600 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] hover:from-cyan-500 hover:to-blue-500 text-white font-bold tracking-wide py-4 px-8 rounded-xl transition-all flex items-center gap-2"
                                 >
                                     Calculate Budget Range <ChevronRight size={20} />
                                 </button>
@@ -500,18 +508,18 @@ export default function QuoteEngine() {
 
                 {/* --- LOADING --- */}
                 {step === 'loading' && (
-                    <div className="bg-card border border-border rounded-xl p-16 flex flex-col items-center justify-center min-h-[400px]">
-                        <Loader2 className="w-16 h-16 text-primary animate-spin mb-8" />
-                        <h3 className="text-2xl font-bold text-white mb-6">Analyzing Constraints</h3>
+                    <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-16 flex flex-col items-center justify-center min-h-[400px] shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                        <Loader2 className="w-16 h-16 text-cyan-500 animate-[spin_3s_linear_infinite] mb-8" />
+                        <h3 className="text-2xl font-bankgothic uppercase tracking-wider text-white mb-6">Analyzing Constraints</h3>
 
-                        <div className="w-full max-w-md bg-background rounded-full h-2 mb-4 overflow-hidden border border-border">
+                        <div className="w-full max-w-md bg-[#020617] rounded-full h-2 mb-4 overflow-hidden border border-white/10 shadow-inner">
                             <div
-                                className="bg-primary h-full transition-all duration-300 ease-linear rounded-full"
+                                className="bg-cyan-500 h-full transition-all duration-300 ease-linear rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"
                                 style={{ width: `${loadingProgress}%` }}
                             />
                         </div>
 
-                        <p className="text-secondary font-code text-sm animate-pulse h-6">
+                        <p className="text-cyan-400 font-consolas text-sm animate-pulse h-6 tracking-widest uppercase">
                             {LOADING_MESSAGES[loadingMsgIdx]}
                         </p>
                     </div>
@@ -522,68 +530,68 @@ export default function QuoteEngine() {
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-5xl mx-auto">
 
                         {/* Unified SaaS Estimate Panel */}
-                        <div className="bg-card border border-border shadow-sm rounded-xl overflow-hidden text-white">
+                        <div className="bg-zinc-950/60 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-xl rounded-2xl overflow-hidden text-white relative">
                             {/* Alert Banner */}
-                            <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-4 flex items-start gap-3">
+                            <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-4 flex items-start gap-3 relative z-10">
                                 <Info size={18} className="text-amber-500 shrink-0 mt-0.5" />
-                                <p className="text-sm text-amber-500/90 leading-relaxed">
-                                    <strong className="text-amber-500 font-semibold">Planning estimate only.</strong> Actual quote may vary within indicative range based on CAD geometry, strict tolerances, and real-time machine availability. Use this to plan your budget, then request an exact quote.
+                                <p className="text-sm text-amber-500/90 leading-relaxed font-sans">
+                                    <strong className="text-amber-500 font-bold uppercase tracking-wider text-[11px]">Planning estimate only.</strong> Actual quote may vary within indicative range based on CAD geometry, strict tolerances, and real-time machine availability. Use this to plan your budget, then request an exact quote.
                                 </p>
                             </div>
 
                             {/* Header & Ref */}
-                            <div className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                            <div className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 relative z-10">
                                 <div>
-                                    <h2 className="text-xl font-bold text-white tracking-tight">Est. Budget Range</h2>
-                                    <p className="text-sm text-muted-foreground mt-1">Based on provided requirements</p>
+                                    <h2 className="text-xl font-bankgothic uppercase font-bold text-white tracking-wide">Est. Budget Range</h2>
+                                    <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest font-bold">Based on provided requirements</p>
                                 </div>
-                                <div className="flex items-center gap-2 bg-background/50 border border-border rounded-md px-3 py-1.5 w-fit">
-                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Ref</span>
-                                    <span className="text-sm font-code text-white">{quoteRef}</span>
+                                <div className="flex items-center gap-2 bg-[#020617]/50 border border-white/10 rounded-lg px-3 py-1.5 w-fit shadow-inner">
+                                    <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">Ref</span>
+                                    <span className="text-sm font-consolas text-cyan-50 shadow-sm">{quoteRef}</span>
                                 </div>
                             </div>
 
                             {/* Main Split Content */}
-                            <div className="flex flex-col md:flex-row">
+                            <div className="flex flex-col md:flex-row relative z-10">
                                 {/* Left Side: Pricing */}
-                                <div className="flex-1 p-8 md:border-r border-white/5 flex flex-col justify-center bg-white/[0.01]">
+                                <div className="flex-1 p-8 md:border-r border-white/5 flex flex-col justify-center bg-[#040f25]/30">
                                     <div className="mb-2">
-                                        <span className="text-5xl md:text-6xl font-bold tracking-tight text-white block">
-                                            ₹{results.low_estimate.toLocaleString('en-IN')} <span className="text-muted-foreground text-4xl font-normal mx-1">–</span> ₹{results.high_estimate.toLocaleString('en-IN')}
+                                        <span className="text-5xl md:text-6xl font-bold tracking-tight text-white block drop-shadow-md">
+                                            ₹{results.low_estimate.toLocaleString('en-IN')} <span className="text-zinc-600 text-4xl font-normal mx-1">–</span> ₹{results.high_estimate.toLocaleString('en-IN')}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                                        Indicative manufacturing band (incl. taxes)
+                                    <p className="text-xs text-zinc-400 flex items-center gap-1.5 uppercase tracking-widest font-bold mt-2">
+                                        <CheckCircle className="w-3.5 h-3.5 text-cyan-500" /> Indicative manufacturing band (incl. taxes)
                                     </p>
                                 </div>
 
                                 {/* Right Side: Specs Snapshot */}
-                                <div className="w-full md:w-80 p-8 bg-background/30 flex flex-col justify-center">
-                                    <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Specs Summary</h4>
+                                <div className="w-full md:w-80 p-8 bg-[#020617]/50 flex flex-col justify-center border-l border-white/5">
+                                    <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 mb-4">Specs Summary</h4>
                                     <ul className="space-y-3">
-                                        <li className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Material</span> <span className="text-sm font-medium text-white text-right">{material}</span></li>
-                                        <li className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Process</span> <span className="text-sm font-medium text-white text-right">{process}</span></li>
-                                        <li className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Finish</span> <span className="text-sm font-medium text-white text-right">{finish}</span></li>
-                                        <li className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Tolerance</span> <span className="text-sm font-medium text-white text-right">{tolerance}</span></li>
-                                        <li className="flex justify-between items-center"><span className="text-sm text-muted-foreground">Est. Weight</span> <span className="text-sm font-medium text-white text-right">{results.weight.toFixed(2)} kg/pc</span></li>
+                                        <li className="flex justify-between items-center"><span className="text-[11px] font-bold tracking-widest uppercase text-zinc-500">Material</span> <span className="text-xs font-consolas text-white text-right">{material}</span></li>
+                                        <li className="flex justify-between items-center"><span className="text-[11px] font-bold tracking-widest uppercase text-zinc-500">Process</span> <span className="text-xs font-consolas text-white text-right">{process}</span></li>
+                                        <li className="flex justify-between items-center"><span className="text-[11px] font-bold tracking-widest uppercase text-zinc-500">Finish</span> <span className="text-xs font-consolas text-white text-right">{finish}</span></li>
+                                        <li className="flex justify-between items-center"><span className="text-[11px] font-bold tracking-widest uppercase text-zinc-500">Tolerance</span> <span className="text-xs font-consolas text-white text-right">{tolerance}</span></li>
+                                        <li className="flex justify-between items-center"><span className="text-[11px] font-bold tracking-widest uppercase text-cyan-600">Est. Weight</span> <span className="text-xs font-consolas text-cyan-100 text-right">{results.weight.toFixed(2)} kg/pc</span></li>
                                     </ul>
                                 </div>
                             </div>
 
                             {/* Bottom Metric Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/5 border-t border-white/5 bg-background/20">
-                                <div className="p-6 flex flex-col items-center sm:items-start">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Per Part (incl. GST)</p>
-                                    <p className="text-2xl font-bold font-code text-white">₹{results.per_part.toLocaleString('en-IN')}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/5 border-t border-white/5 bg-[#020617]/80 relative z-10">
+                                <div className="p-6 flex flex-col items-center sm:items-start group hover:bg-[#040f25]/50 transition-colors">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 group-hover:text-cyan-400 transition-colors">Per Part (incl. GST)</p>
+                                    <p className="text-2xl font-bold font-consolas text-white">₹{results.per_part.toLocaleString('en-IN')}</p>
                                 </div>
-                                <div className="p-6 flex flex-col items-center sm:items-start">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Total Quantity</p>
-                                    <p className="text-2xl font-bold font-code text-white">{quantity} <span className="text-sm font-medium text-muted-foreground">pcs</span></p>
+                                <div className="p-6 flex flex-col items-center sm:items-start group hover:bg-[#040f25]/50 transition-colors">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 group-hover:text-cyan-400 transition-colors">Total Quantity</p>
+                                    <p className="text-2xl font-bold font-consolas text-white">{quantity} <span className="text-xs font-sans font-bold uppercase tracking-widest text-zinc-500 ml-1">pcs</span></p>
                                 </div>
-                                <div className="p-6 flex flex-col items-center sm:items-start relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-blue-500/5" />
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2 relative z-10">Est. Lead Time</p>
-                                    <p className="text-2xl font-bold font-code text-white relative z-10">{results.lead_time} <span className="text-sm font-medium text-muted-foreground">Days</span></p>
+                                <div className="p-6 flex flex-col items-center sm:items-start relative overflow-hidden group hover:bg-[#040f25]/50 transition-colors">
+                                    <div className="absolute inset-0 bg-cyan-500/5 group-hover:bg-cyan-500/10 transition-colors" />
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-2 relative z-10">Est. Lead Time</p>
+                                    <p className="text-2xl font-bold font-consolas text-white relative z-10">{results.lead_time} <span className="text-xs font-sans font-bold uppercase tracking-widest text-zinc-500 ml-1">Days</span></p>
                                 </div>
                             </div>
 
@@ -602,79 +610,78 @@ export default function QuoteEngine() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
 
                             {/* Detailed Breakdown Table */}
-                            <div className="bg-card border border-border rounded-xl p-8">
-                                <h3 className="text-lg font-bold text-white mb-6">Cost Breakdown</h3>
+                            <div className="bg-zinc-950/60 border border-white/10 rounded-2xl p-8 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                                <h3 className="text-lg font-bankgothic uppercase text-cyan-50 mb-6 tracking-wide">Cost Breakdown</h3>
 
-                                <div className="space-y-4 font-code text-sm">
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">Material Cost</span>
+                                <div className="space-y-4 font-consolas text-sm">
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-zinc-500">Material Cost</span>
                                         <span className="text-white">₹{results.material_cost_total?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">Machining / Process Cost</span>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-zinc-500">Machining / Process Cost</span>
                                         <span className="text-white">₹{results.machining_cost_total?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">Finish & Treatments</span>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-zinc-500">Finish & Treatments</span>
                                         <span className="text-white">₹{results.finish_cost_total?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">QC & Platform Fee (8%)</span>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-cyan-600">QC & Platform Fee (8%)</span>
                                         <span className="text-white">₹{results.platform_fee.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">Logistics to {city}</span>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-zinc-500">Logistics to {city}</span>
                                         <span className="text-white">₹{results.logistics.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="flex justify-between border-b border-border/50 pb-2">
-                                        <span className="text-muted-foreground">GST (18%)</span>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-zinc-500">GST (18%)</span>
                                         <span className="text-white">₹{results.gst.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
 
-                                    <div className="flex justify-between pt-2 text-lg font-bold text-white">
-                                        <span>Total Estimate</span>
+                                    <div className="flex justify-between pt-2 text-lg font-bold text-cyan-400">
+                                        <span className="uppercase tracking-widest font-sans text-xs pt-1">Total Estimate</span>
                                         <span>₹{results.total.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
                                 </div>
                             </div>
 
-                        </div>
-
-                        {/* What Affects Your Final Quote */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                                <Info size={16} className="text-primary" />
-                                What Could Affect Your Final Quote
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                {[
-                                    ["Exact geometry", "Complex features not visible from bounding box"],
-                                    ["Actual tolerances", "Tighter tolerances increase machining time"],
-                                    ["Material availability", "Spot prices fluctuate weekly in Indian markets"],
-                                    ["MechMaster location", "Logistics cost varies by city and weight"],
-                                    ["Finish complexity", "Multi-step finishing adds time and cost"],
-                                    ["Rush requirement", "24–48hr turnaround carries 30–50% premium"],
-                                ].map(([factor, desc]) => (
-                                    <div key={factor} className="flex gap-2">
-                                        <span className="text-primary mt-0.5">→</span>
-                                        <div>
-                                            <p className="text-white font-medium">{factor}</p>
-                                            <p className="text-muted-foreground text-xs">{desc}</p>
+                            {/* What Affects Your Final Quote */}
+                            <div className="bg-[#040f25]/40 border border-white/10 rounded-2xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                                <h3 className="text-white font-bankgothic uppercase tracking-wide text-lg mb-6 flex items-center gap-2">
+                                    <Info size={18} className="text-cyan-500" />
+                                    What Could Affect Your Final Quote
+                                </h3>
+                                <div className="grid grid-cols-1 gap-4 text-sm">
+                                    {[
+                                        ["Exact geometry", "Complex features not visible from bounding box"],
+                                        ["Actual tolerances", "Tighter tolerances increase machining time"],
+                                        ["Material availability", "Spot prices fluctuate weekly in Indian markets"],
+                                        ["MechMaster location", "Logistics cost varies by city and weight"],
+                                        ["Finish complexity", "Multi-step finishing adds time and cost"],
+                                        ["Rush requirement", "24–48hr turnaround carries 30–50% premium"],
+                                    ].map(([factor, desc]) => (
+                                        <div key={factor} className="flex gap-3 items-start bg-zinc-950/50 p-3 rounded-lg border border-white/5">
+                                            <span className="text-cyan-500 font-bold mt-0.5 font-consolas">→</span>
+                                            <div>
+                                                <p className="text-zinc-200 font-bold uppercase tracking-wider text-[11px] mb-1">{factor}</p>
+                                                <p className="text-zinc-500 text-xs leading-relaxed">{desc}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
                         {/* Action Bar */}
-                        <div className="bg-card/50 border border-border p-6 rounded-2xl flex flex-col xl:flex-row items-center justify-between gap-6 backdrop-blur-sm">
-                            <p className="text-xs text-muted-foreground max-w-[200px] xl:max-w-sm">
-                                * For exact pricing, request a quote. This is a planning estimate only — your actual quote may vary.
+                        <div className="bg-[#020617]/80 border border-cyan-500/20 p-6 rounded-2xl flex flex-col xl:flex-row items-center justify-between gap-6 backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+                            <p className="text-xs text-zinc-500 max-w-[200px] xl:max-w-sm uppercase tracking-widest leading-relaxed">
+                                <strong className="text-cyan-500">* For exact pricing, request a quote.</strong> This is a planning estimate only — your actual quote may vary.
                             </p>
                             <div className="flex flex-wrap gap-4 justify-end w-full xl:w-auto mt-4 xl:mt-0">
                                 <button
                                     onClick={() => setStep(1)}
-                                    className="px-6 py-3 rounded-xl border border-border bg-background text-white font-medium hover:bg-muted transition-colors flex-1 sm:flex-none"
+                                    className="px-6 py-3 rounded-xl border border-white/10 bg-[#040f25]/40 text-white font-bold uppercase tracking-widest text-[11px] hover:bg-cyan-950/50 hover:border-cyan-500/50 transition-all flex-1 sm:flex-none"
                                 >
                                     New Estimate
                                 </button>
@@ -687,7 +694,7 @@ export default function QuoteEngine() {
                                             router.push(`/login?tab=register&redirect=${encodeURIComponent(contactUrl)}`);
                                         }
                                     }}
-                                    className="px-8 py-3 rounded-xl bg-[linear-gradient(135deg,#0052CC,#0082FF)] text-white font-semibold shadow-lg hover:shadow-[0_0_20px_rgba(41,98,255,0.4)] transition-all hover:scale-[1.02] flex-1 sm:flex-none flex items-center justify-center gap-2"
+                                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold uppercase tracking-widest text-[11px] shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all hover:scale-[1.02] flex-1 sm:flex-none flex items-center justify-center gap-2"
                                 >
                                     Talk to an Expert → Free
                                 </button>

@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-300">
+        <div className="min-h-screen bg-[#020617] text-zinc-300 relative overflow-hidden">
+            {/* Background mesh */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
             {/* Nav */}
             <div className="container mx-auto px-4 py-6">
                 <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
@@ -21,9 +23,9 @@ export default function AboutPage() {
 
             <article className="container mx-auto px-4 max-w-4xl pb-24">
                 {/* Hero */}
-                <div className="text-center space-y-6 mb-20 pt-8">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">About MechHub</span>
-                    <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight leading-[1.1]">
+                <div className="text-center space-y-6 mb-20 pt-8 relative z-10">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 font-consolas border border-cyan-500/20 px-3 py-1 rounded-full bg-cyan-950/30">About MechHub</span>
+                    <h1 className="text-4xl md:text-6xl font-bankgothic text-white tracking-tight leading-[1.1] drop-shadow-sm">
                         Building India&apos;s Manufacturing
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> Infrastructure</span>
                     </h1>
@@ -33,8 +35,8 @@ export default function AboutPage() {
                 </div>
 
                 {/* Mission */}
-                <section className="mb-16">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <section className="mb-16 relative z-10">
+                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
                         <Target className="w-6 h-6 text-cyan-400" /> Our Mission
                     </h2>
                     <div className="prose prose-invert max-w-none">
@@ -48,8 +50,8 @@ export default function AboutPage() {
                 </section>
 
                 {/* What Makes Us Different */}
-                <section className="mb-16">
-                    <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                <section className="mb-16 relative z-10">
+                    <h2 className="text-2xl font-bankgothic text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-cyan-400" /> What Makes MechHub Different
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -61,17 +63,17 @@ export default function AboutPage() {
                             { title: 'India Price Points', desc: 'Designed for ₹5K–₹50K orders. Global platforms ignore this range. We serve it natively.' },
                             { title: 'Campus-First GTM', desc: 'Students are our acquisition wedge — organic, fast, viral. ₹0 CAC now, branded for 10 years.' },
                         ].map(item => (
-                            <div key={item.title} className="p-6 rounded-xl border border-white/5 bg-white/[0.02] space-y-2">
-                                <h3 className="text-sm font-bold text-white">{item.title}</h3>
-                                <p className="text-sm text-zinc-400 leading-relaxed">{item.desc}</p>
+                            <div key={item.title} className="group p-6 rounded-xl border border-white/[0.05] bg-[#040f25]/30 hover:border-cyan-500/30 hover:bg-cyan-950/20 transition-all duration-300 backdrop-blur-sm space-y-2">
+                                <h3 className="text-sm font-bold text-white group-hover:text-cyan-50 transition-colors">{item.title}</h3>
+                                <p className="text-sm text-zinc-400 leading-relaxed font-light">{item.desc}</p>
                             </div>
                         ))}
                     </div>
                 </section>
 
                 {/* The Team */}
-                <section className="mb-16">
-                    <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                <section className="mb-16 relative z-10">
+                    <h2 className="text-2xl font-bankgothic text-white mb-8 flex items-center gap-3">
                         <Users className="w-6 h-6 text-cyan-400" /> The Team
                     </h2>
                     <p className="text-zinc-400 mb-8 leading-relaxed">Engineers who lived this problem every day.</p>
@@ -81,28 +83,28 @@ export default function AboutPage() {
                             { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Platform · Technology · AI', bio: 'Techno Main Salt Lake . Built MVP from scratch. Full-stack + AI/ML.', image: '/team/divyanshu.jpg' },
                             { name: 'Dristi Sengupta', role: 'Co-Founder & Ops', focus: 'Vendors · Ops · QA', bio: 'VIT Vellore. Onboarded all 20 vendors. Mech background.', image: '/team/dristi.png' },
                         ].map(member => (
-                            <div key={member.name} className="p-6 rounded-xl border border-white/5 bg-white/[0.02] space-y-3 text-center">
-                                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto ring-2 ring-white/10 ring-offset-2 ring-offset-zinc-950">
+                            <div key={member.name} className="group p-6 rounded-xl border border-white/[0.05] bg-[#040f25]/30 hover:border-cyan-500/30 hover:bg-cyan-950/20 transition-all duration-300 backdrop-blur-sm space-y-3 text-center">
+                                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto ring-2 ring-white/10 ring-offset-2 ring-offset-[#020617] group-hover:ring-cyan-500/50 transition-all">
                                     <Image
                                         src={member.image}
                                         alt={member.name}
                                         width={96}
                                         height={96}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>
-                                <h3 className="text-base font-bold text-white">{member.name}</h3>
-                                <p className="text-xs font-bold uppercase tracking-wider text-cyan-400">{member.role}</p>
+                                <h3 className="text-base font-bold text-white group-hover:text-cyan-50 transition-colors">{member.name}</h3>
+                                <p className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-consolas">{member.role}</p>
                                 <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">{member.focus}</p>
-                                <p className="text-xs text-zinc-400 leading-relaxed">{member.bio}</p>
+                                <p className="text-xs text-zinc-400 leading-relaxed font-light">{member.bio}</p>
                             </div>
                         ))}
                     </div>
                 </section>
 
                 {/* Why Us */}
-                <section className="mb-16">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <section className="mb-16 relative z-10">
+                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
                         <Shield className="w-6 h-6 text-cyan-400" /> Why Us
                     </h2>
                     <ul className="space-y-3">
@@ -121,8 +123,8 @@ export default function AboutPage() {
                 </section>
 
                 {/* Contact */}
-                <section className="p-8 rounded-2xl border border-blue-500/20 bg-blue-500/5">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <section className="p-8 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 to-[#040f25]/40 backdrop-blur-sm relative z-10 shadow-[0_0_30px_rgba(34,211,238,0.05)]">
+                    <h2 className="text-2xl font-bankgothic text-white mb-6 flex items-center gap-3">
                         <MapPin className="w-6 h-6 text-cyan-400" /> Get in Touch
                     </h2>
                     <div className="space-y-3 text-sm text-zinc-400">

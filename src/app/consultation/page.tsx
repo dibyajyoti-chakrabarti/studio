@@ -82,8 +82,8 @@ function ConsultationPageContent() {
     return (
         <div className="pt-32 pb-20 px-4 container mx-auto">
             <div className="max-w-xl mx-auto">
-                <h1 className="text-3xl font-headline font-bold text-white mb-2">Talk to a Manufacturing Expert</h1>
-                <p className="text-zinc-400 mb-8 text-sm">
+                <h1 className="text-3xl font-bankgothic font-bold text-white mb-2 tracking-wide uppercase">Talk to a Manufacturing Expert</h1>
+                <p className="text-cyan-100/60 mb-8 text-sm">
                     Get your design reviewed, value-engineered, or fully optimised by our in-house manufacturing experts.
                 </p>
 
@@ -100,41 +100,44 @@ function ConsultationPageContent() {
                         <p className="text-zinc-500 text-sm">Verifying Session...</p>
                     </div>
                 ) : (
-                    <div className="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl shadow-xl">
+                    <div className="bg-[#040f25]/40 border border-white/10 p-6 sm:p-8 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md relative overflow-hidden">
+                        {/* Glow effect */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 opacity-50"></div>
+
                         <form onSubmit={handleConsultationSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label htmlFor="name" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Name</label>
-                                    <Input id="name" name="name" defaultValue={user?.displayName || ''} required className="bg-zinc-950 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-11 text-sm rounded-xl" />
+                                    <label htmlFor="name" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Name</label>
+                                    <Input id="name" name="name" defaultValue={user?.displayName || ''} required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label htmlFor="phone" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Phone</label>
-                                    <Input id="phone" name="phone" required className="bg-zinc-950 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-11 text-sm rounded-xl" />
+                                    <label htmlFor="phone" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Phone</label>
+                                    <Input id="phone" name="phone" required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label htmlFor="email" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Email</label>
-                                <Input id="email" name="email" type="email" defaultValue={user?.email || ''} required className="bg-zinc-950 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 h-11 text-sm rounded-xl" />
+                                <label htmlFor="email" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Email</label>
+                                <Input id="email" name="email" type="email" defaultValue={user?.email || ''} required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
                             </div>
 
                             {prefilledRef && (
-                                <div className="p-4 bg-blue-950/30 border border-blue-500/20 rounded-xl flex items-start gap-3 mt-4 mb-4">
-                                    <FileText className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                                <div className="p-4 bg-cyan-950/30 border border-cyan-500/20 rounded-xl flex items-start gap-3 mt-4 mb-4 shadow-inner">
+                                    <FileText className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm font-semibold text-blue-100 mb-1">Quote {prefilledRef} Attached</p>
-                                        <p className="text-xs text-blue-300">Our engineers will have access to your estimated pricing, material choices, and quantities for faster context.</p>
+                                        <p className="text-sm font-bold text-cyan-50 mb-1 font-consolas">Quote {prefilledRef} Attached</p>
+                                        <p className="text-xs text-cyan-200/70">Our engineers will have access to your estimated pricing, material choices, and quantities for faster context.</p>
                                     </div>
                                 </div>
                             )}
 
                             <div className="space-y-1.5 pt-2">
-                                <label htmlFor="message" className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Project Brief & Questions</label>
-                                <Textarea id="message" name="message" defaultValue={defaultMessage} required placeholder="Describe your design, material, quantity, and any DFM questions..." className="bg-zinc-950 border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/40 min-h-[120px] text-sm rounded-xl resize-none" />
+                                <label htmlFor="message" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Project Brief & Questions</label>
+                                <Textarea id="message" name="message" defaultValue={defaultMessage} required placeholder="Describe your design, material, quantity, and any DFM questions..." className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 min-h-[120px] text-sm rounded-xl resize-none transition-all" />
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 font-bold text-base bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl mt-4"
+                                className="w-full h-14 font-bold text-base bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl mt-4 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Expert Consultation'}
@@ -149,15 +152,24 @@ function ConsultationPageContent() {
 
 export default function ConsultationPage() {
     return (
-        <div className="min-h-screen bg-zinc-950 font-sans">
-            <LandingNav />
-            <Suspense fallback={
-                <div className="min-h-screen flex items-center justify-center pt-24">
-                    <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
-                </div>
-            }>
-                <ConsultationPageContent />
-            </Suspense>
+        <div className="min-h-screen bg-[#020617] font-sans selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-hidden">
+            {/* Background Grid & Glows */}
+            <div className="absolute inset-0 bg-[#020617]" style={{
+                backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+                backgroundSize: '30px 30px'
+            }} />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-900/20 blur-[100px] rounded-full pointer-events-none" />
+
+            <div className="relative z-10">
+                <LandingNav />
+                <Suspense fallback={
+                    <div className="min-h-screen flex items-center justify-center pt-24">
+                        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+                    </div>
+                }>
+                    <ConsultationPageContent />
+                </Suspense>
+            </div>
         </div>
     );
 }
