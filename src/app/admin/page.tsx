@@ -46,9 +46,12 @@ import {
   Gavel,
   Menu,
   PanelLeftClose,
-  MessageCircleQuestion
+  MessageCircleQuestion,
+  Package,
+  ShoppingCart,
+  LayoutGrid
 } from 'lucide-react';
-import { useFirestore, useCollection, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -95,12 +98,15 @@ export default function AdminPanel() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [showSendQuoteModal, setShowSendQuoteModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   const [selectedRfq, setSelectedRfq] = useState<any>(null);
   const [selectedVendorProfile, setSelectedVendorProfile] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
   const [isSubmittingVendor, setIsSubmittingVendor] = useState(false);
+  const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
 
   const [isRevising, setIsRevising] = useState(false);
   const [revisingQuote, setRevisingQuote] = useState<any>(null);
@@ -119,15 +125,40 @@ export default function AdminPanel() {
   const db = useFirestore();
   const { toast } = useToast();
 
+  const userProfileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
   useEffect(() => {
-    // FORCE ADMIN FOR LOCAL UI VERIFICATION
-    setIsAdminConfirmed(true);
-  }, [user, isUserLoading, db, router]);
+    if (isUserLoading || isProfileLoading) return;
+
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (profile && profile.role === 'admin') {
+      setIsAdminConfirmed(true);
+    } else if (profile && profile.role !== 'admin') {
+      setIsAdminConfirmed(false);
+      toast({
+        title: "Access Denied",
+        description: "You do not have administrative privileges.",
+        variant: "destructive"
+      });
+      router.push('/dashboard');
+    }
+  }, [user, isUserLoading, profile, isProfileLoading, router, toast]);
 
   const buyersQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'customer')) : null, [db, isAdminConfirmed]);
   const vendorsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, isAdminConfirmed]);
   const rfqsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'rfqs'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
   const consultationsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'consultationRequests'), orderBy('requestDate', 'desc')) : null, [db, isAdminConfirmed]);
+  const productsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'products'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
+  const shopOrdersQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'orders'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
 
   const quotationsQuery = useMemoFirebase(() => {
     if (!db || !isAdminConfirmed || !selectedRfq) return null;
@@ -138,6 +169,8 @@ export default function AdminPanel() {
   const { data: vendors } = useCollection(vendorsQuery);
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
   const { data: consultations, isLoading: isConsultationsLoading } = useCollection(consultationsQuery);
+  const { data: products, isLoading: isProductsLoading, error: productError } = useCollection(productsQuery);
+  const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
   const { data: selectedRfqQuotes } = useCollection(quotationsQuery);
 
   const handleLogout = async () => {
@@ -292,6 +325,40 @@ export default function AdminPanel() {
     toast({ title: "Quotation Sent", description: "Customer will be notified of the new quotation." });
   };
 
+  const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!db) return;
+    setIsSubmittingProduct(true);
+    const formData = new FormData(e.currentTarget);
+    const productId = selectedProduct?.id || Math.random().toString(36).substring(2, 11);
+
+    const productData = {
+      name: formData.get('name') as string,
+      sku: formData.get('sku') as string,
+      categoryId: formData.get('categoryId') as string,
+      basePrice: Number(formData.get('basePrice')),
+      salePrice: Number(formData.get('salePrice')),
+      inventory: Number(formData.get('inventory')),
+      specs: formData.get('specs') as string,
+      description: formData.get('description') as string,
+      isActive: formData.get('isActive') === 'on',
+      updatedAt: new Date().toISOString(),
+      ...(selectedProduct ? {} : { createdAt: new Date().toISOString() })
+    };
+
+    setDocumentNonBlocking(doc(db, 'products', productId), productData, { merge: true });
+    setIsSubmittingProduct(false);
+    setShowProductModal(false);
+    setSelectedProduct(null);
+    toast({ title: "Catalogue Updated", description: "Product information synchronized." });
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    if (!db || !confirm("Permanently archive this product from the marketplace?")) return;
+    deleteDocumentNonBlocking(doc(db, 'products', productId));
+    toast({ title: "Product Archived" });
+  };
+
   if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
   if (!isAdminConfirmed) return null;
 
@@ -325,6 +392,8 @@ export default function AdminPanel() {
         `}>
           {[
             { key: 'rfqs', label: 'RFQs', icon: ClipboardList },
+            { key: 'shop_orders', label: 'Shop Orders', icon: Package },
+            { key: 'products', label: 'Products', icon: ShoppingCart },
             { key: 'users', label: 'Buyers', icon: UserIcon },
             { key: 'vendors', label: 'MechMasters', icon: Factory },
             { key: 'consultations', label: 'Consultations', icon: MessageCircleQuestion },
@@ -502,6 +571,79 @@ export default function AdminPanel() {
             </div>
           )}
 
+          {activeTab === 'products' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-white">Product Catalogue</h1>
+                <Button onClick={() => { setSelectedProduct(null); setShowProductModal(true); }} className="gap-2" size="sm">
+                  <Plus className="w-4 h-4" /> Add SKU
+                </Button>
+              </div>
+
+              <Card className="bg-card border-white/5 overflow-x-auto">
+                <Table className="min-w-[800px]">
+                  <TableHeader>
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead className="text-white">Product & SKU</TableHead>
+                      <TableHead className="text-white">Category</TableHead>
+                      <TableHead className="text-white">Pricing (INR)</TableHead>
+                      <TableHead className="text-white text-center">Stock</TableHead>
+                      <TableHead className="text-white">Status</TableHead>
+                      <TableHead className="text-white text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isProductsLoading ? (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
+                    ) : productError ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-10">
+                          <AlertCircle className="w-10 h-10 mx-auto text-destructive/50 mb-3" />
+                          <p className="text-sm font-bold text-destructive">Permission Denied</p>
+                          <p className="text-xs text-muted-foreground mt-1">Check Firestore security rules or authentication status.</p>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      products?.map((prod) => (
+                        <TableRow key={prod.id} className="border-b border-white/5 group hover:bg-white/[0.01]">
+                          <TableCell>
+                            <div className="font-bold text-white mb-0.5">{prod.name}</div>
+                            <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">{prod.sku}</div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-[10px] border-white/10 uppercase tracking-widest">{prod.categoryId}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm font-bold text-white">₹{prod.salePrice}</div>
+                            <div className="text-[10px] text-muted-foreground line-through opacity-40">₹{prod.basePrice}</div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={`text-sm font-bold ${prod.inventory < 10 ? 'text-orange-500' : 'text-zinc-400'}`}>{prod.inventory}</span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={prod.isActive ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-zinc-500/10 text-zinc-500 border-white/10'}>
+                              {prod.isActive ? 'Active' : 'Disabled'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-primary transition-colors" onClick={() => { setSelectedProduct(prod); setShowProductModal(true); }}>
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-destructive transition-colors" onClick={() => handleDeleteProduct(prod.id)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
           {activeTab === 'consultations' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-2">
@@ -563,6 +705,84 @@ export default function AdminPanel() {
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
                           No consultation requests found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'shop_orders' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-white uppercase italic">Shop Procurement Hub</h1>
+                <Badge variant="outline" className="px-3 py-1 border-white/10 text-white uppercase tracking-widest font-bold">{shopOrders?.length || 0} Orders</Badge>
+              </div>
+
+              <Card className="bg-card border-white/5 overflow-x-auto shadow-2xl">
+                <Table className="min-w-[900px]">
+                  <TableHeader>
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead className="text-white">Order Ref</TableHead>
+                      <TableHead className="text-white">Customer & Logistics</TableHead>
+                      <TableHead className="text-white">Component Lineage</TableHead>
+                      <TableHead className="text-white text-right">Value (INR)</TableHead>
+                      <TableHead className="text-white">Fulfillment Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isShopOrdersLoading ? (
+                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
+                    ) : shopOrders?.length ? shopOrders.map((order: any) => (
+                      <TableRow key={order.id} className="border-b border-white/5 group hover:bg-white/[0.01]">
+                        <TableCell>
+                          <div className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">#{order.id.slice(-8)}</div>
+                          <div className="text-[9px] text-zinc-600 mt-1 uppercase font-bold">{new Date(order.createdAt).toLocaleDateString()}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-bold text-zinc-200 text-sm italic underline decoration-cyan-500/30 underline-offset-4">{order.shippingAddress?.fullName}</div>
+                          <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter truncate max-w-[150px]">{order.shippingAddress?.city}, {order.shippingAddress?.state}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            {order.items.map((item: any, idx: number) => (
+                              <div key={idx} className="text-[10px] text-zinc-300 font-medium flex items-center gap-2">
+                                <span className="text-cyan-500/70">[{item.quantity}x]</span> {item.name}
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="text-sm font-bold font-mono text-zinc-200">₹{order.pricing.total.toLocaleString()}</div>
+                          <Badge variant="outline" className="text-[8px] border-emerald-500/20 text-emerald-500 uppercase py-0 leading-tight">GST PAID</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={order.status}
+                            onValueChange={(val) => {
+                              updateDocumentNonBlocking(doc(db, 'orders', order.id), { status: val, updatedAt: new Date().toISOString() });
+                              toast({ title: "Order Updated", description: `Order status set to ${val}` });
+                            }}
+                          >
+                            <SelectTrigger className="w-[140px] h-8 text-[10px] bg-background border-white/10 uppercase font-bold tracking-widest">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="paid" className="text-[10px] font-bold">PAID (TXN)</SelectItem>
+                              <SelectItem value="processing" className="text-[10px] font-bold">PROCESSING</SelectItem>
+                              <SelectItem value="shipped" className="text-[10px] font-bold">SHIPPED</SelectItem>
+                              <SelectItem value="delivered" className="text-[10px] font-bold">DELIVERED</SelectItem>
+                              <SelectItem value="cancelled" className="text-[10px] font-bold">CANCELLED</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                          No shop orders found.
                         </TableCell>
                       </TableRow>
                     )}
@@ -939,49 +1159,91 @@ export default function AdminPanel() {
         )
       }
 
-      {
-        isRevising && revisingQuote && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-            <Card className="w-full max-w-lg bg-card border-white/10 p-8 shadow-2xl">
-              <h2 className="text-xl font-headline font-bold mb-6 text-white flex items-center gap-2"><Gavel className="w-5 h-5 text-secondary" /> Administrative Revision</h2>
-
-              {revisingQuote.negotiationHistory && revisingQuote.negotiationHistory.length > 0 && (
-                <div className="max-h-[200px] overflow-y-auto space-y-3 pr-2 mb-6 custom-scrollbar">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Negotiation Audit Log</p>
-                  {revisingQuote.negotiationHistory.map((hist: any, idx: number) => (
-                    <div key={idx} className={`p-3 rounded-lg text-sm border ${hist.party === 'admin' ? 'bg-secondary/10 border-secondary/20' : hist.party === 'user' ? 'bg-primary/10 border-primary/20' : 'bg-muted/10 border-white/5'}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-                          {hist.party === 'admin' ? <ShieldCheck className="w-3 h-3 text-secondary" /> : hist.party === 'user' ? <User className="w-3 h-3 text-primary" /> : <Factory className="w-3 h-3" />}
-                          {hist.party}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">{new Date(hist.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <p className="text-white text-xs mb-3 italic">&quot;{hist.message}&quot;</p>
-                      <div className="flex gap-4 text-xs font-bold">
-                        <span className="text-secondary">INR {hist.price}</span>
-                        <span className="text-primary">{hist.leadTime} Days</span>
-                      </div>
-                    </div>
-                  ))}
+      {/* Product Modal */}
+      {showProductModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <Card className="w-full max-w-xl bg-card border-white/10 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary" />
+            <form onSubmit={handleSaveProduct}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="font-headline text-xl text-white">{selectedProduct ? 'Update Product Details' : 'Onboard New SKU'}</CardTitle>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-white" onClick={() => setShowProductModal(false)} type="button">
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-              )}
-
-              <div className="space-y-5">
+              </CardHeader>
+              <CardContent className="space-y-4 pt-0">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Price Override (INR)</Label><Input value={revPrice} onChange={e => setRevPrice(e.target.value)} type="number" className="bg-background" /></div>
-                  <div className="space-y-2"><Label>Lead Time Override</Label><Input value={revLeadTime} onChange={e => setRevLeadTime(e.target.value)} type="number" className="bg-background" /></div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Product Name</Label>
+                    <Input name="name" defaultValue={selectedProduct?.name} required className="bg-background/50 border-white/10 h-10" placeholder="e.g. 6201 Bearing" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">SKU / Model</Label>
+                    <Input name="sku" defaultValue={selectedProduct?.sku} required className="bg-background/50 border-white/10 h-10 font-mono" placeholder="BRG-001" />
+                  </div>
                 </div>
-                <div className="space-y-2"><Label>Internal Justification</Label><Textarea value={revMessage} onChange={e => setRevMessage(e.target.value)} className="bg-background h-24" /></div>
-                <div className="flex gap-3 pt-6">
-                  <Button className="flex-1 font-bold h-12" onClick={handleAdminReviseQuote}>Update Quotation</Button>
-                  <Button variant="outline" className="flex-1 border-white/10 h-12" onClick={() => setIsRevising(false)}>Cancel</Button>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Category</Label>
+                    <Select name="categoryId" defaultValue={selectedProduct?.categoryId || 'bearings'}>
+                      <SelectTrigger className="bg-background/50 border-white/10 h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bearings">Bearings</SelectItem>
+                        <SelectItem value="linear-motion">Linear Motion</SelectItem>
+                        <SelectItem value="transmission">Transmission</SelectItem>
+                        <SelectItem value="raw-materials">Raw Materials</SelectItem>
+                        <SelectItem value="fasteners">Fasteners</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 text-right flex flex-col justify-end pb-2">
+                    <div className="flex items-center justify-end gap-2">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live on Store</Label>
+                      <Checkbox name="isActive" defaultChecked={selectedProduct ? selectedProduct.isActive : true} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </div>
-        )
-      }
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Buy Price (₹)</Label>
+                    <Input name="basePrice" type="number" defaultValue={selectedProduct?.basePrice} required className="bg-background/50 border-white/10 h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sell Price (₹)</Label>
+                    <Input name="salePrice" type="number" defaultValue={selectedProduct?.salePrice} required className="bg-background/50 border-white/10 h-10 text-primary font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Current Stock</Label>
+                    <Input name="inventory" type="number" defaultValue={selectedProduct?.inventory} required className="bg-background/50 border-white/10 h-10" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Technical Specifications</Label>
+                  <Input name="specs" defaultValue={selectedProduct?.specs} required className="bg-background/50 border-white/10 h-10" placeholder="e.g. 12x32x10mm, Sealed" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
+                  <Textarea name="description" defaultValue={selectedProduct?.description} className="bg-background/50 border-white/10 min-h-[80px]" />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-3 pt-6 pb-6">
+                <Button variant="ghost" onClick={() => setShowProductModal(false)} type="button" className="text-zinc-500 hover:text-white">Cancel</Button>
+                <Button type="submit" disabled={isSubmittingProduct} className="min-w-[140px] bg-primary text-primary-foreground font-bold hover:bg-primary/90">
+                  {isSubmittingProduct ? <Loader2 className="animate-spin w-4 h-4" /> : 'Synchronize SKU'}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
+      )}
     </div >
   );
 }

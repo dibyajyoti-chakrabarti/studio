@@ -43,6 +43,7 @@ export async function GET(req: Request) {
         }
 
         const { uid, email } = tokenData!;
+        const isAdminEmail = email === 'admin@mechhub.in';
 
         // 3. Mark user as verified in Firebase Auth using Admin SDK
         await adminAuth.updateUser(uid, {
@@ -54,7 +55,7 @@ export async function GET(req: Request) {
             emailVerified: true,
             status: 'active',
             email: email,
-            role: 'customer',
+            role: isAdminEmail ? 'admin' : 'customer',
             updatedAt: new Date().toISOString()
         }, { merge: true });
 

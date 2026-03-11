@@ -4,12 +4,16 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@vercel/analytics/next';
 
+import { CartProvider } from '@/context/CartContext';
+
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'MechHub – From CAD to Reality Faster',
   description: 'A Managed Marketplace for Custom Manufacturing Needs.',
 };
+
+import Script from 'next/script';
 
 export default function RootLayout({
   children,
@@ -25,10 +29,16 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground" suppressHydrationWarning>
         <FirebaseClientProvider>
-          {children}
-          <Toaster />
+          <CartProvider>
+            {children}
+            <Toaster />
+          </CartProvider>
         </FirebaseClientProvider>
         <Analytics />
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

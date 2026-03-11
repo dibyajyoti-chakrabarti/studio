@@ -459,6 +459,74 @@ function BatchCanvas() {
 }
 
 /* ─────────────────────────────────────────────
+   7 · Standard Components Canvas
+   (Simulating a robotic picker in a warehouse)
+───────────────────────────────────────────── */
+function WarehouseCanvas() {
+    const ref = useRef<HTMLCanvasElement>(null);
+    useEffect(() => {
+        const canvas = ref.current; if (!canvas) return;
+        const ctx = canvas.getContext('2d')!;
+        let W = 0, H = 0, t = 0; let raf: number;
+
+        function init() { resizeCanvas(canvas!); W = canvas!.width; H = canvas!.height; }
+        init(); window.addEventListener('resize', init);
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#0a1420'; ctx.fillRect(0, 0, W, H);
+
+            // Grid background
+            ctx.strokeStyle = 'rgba(0,229,255,0.05)'; ctx.lineWidth = 1;
+            for (let i = 0; i < W; i += 20) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
+            for (let i = 0; i < H; i += 20) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
+
+            const cx = W / 2, cy = H / 2;
+            const armX = cx + Math.sin(t * 0.5) * W * 0.2;
+            const armY = cy + Math.cos(t * 0.8) * H * 0.1;
+
+            // Horizontal Rail
+            ctx.fillStyle = '#1e2e3e'; ctx.fillRect(0, cy - 2, W, 4);
+            ctx.fillStyle = '#3a5060'; ctx.fillRect(0, cy - 1, W, 1);
+
+            // Vertical Picker Arm
+            ctx.fillStyle = '#253545'; ctx.fillRect(armX - 4, 0, 8, armY);
+            ctx.fillStyle = '#00e5ff'; ctx.globalAlpha = 0.3; ctx.fillRect(armX - 1, 0, 2, armY); ctx.globalAlpha = 1;
+
+            // Picker Head
+            ctx.save(); ctx.translate(armX, armY);
+            ctx.fillStyle = '#1a2530'; ctx.beginPath(); (ctx as any).roundRect?.(-15, -10, 30, 20, 4) ?? ctx.rect(-15, -10, 30, 20); ctx.fill();
+            ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+            // "Sensor" light
+            const pulse = 0.5 + Math.sin(t * 10) * 0.5;
+            ctx.fillStyle = `rgba(0, 229, 255, ${0.2 + pulse * 0.4})`;
+            ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            // Product boxes on shelf
+            for (let i = 0; i < 6; i++) {
+                const bx = (W / 6) * i + 10;
+                const by = cy + 30;
+                const isTarget = Math.abs(bx + 15 - armX) < 20;
+                ctx.fillStyle = isTarget ? '#1e3040' : '#141e28';
+                ctx.beginPath(); (ctx as any).roundRect?.(bx, by, 30, 30, 2) ?? ctx.rect(bx, by, 30, 30); ctx.fill();
+                ctx.strokeStyle = isTarget ? '#00e5ff' : 'rgba(255,255,255,0.05)';
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = 'rgba(0,229,255,.5)'; ctx.font = 'bold 10px monospace';
+            ctx.fillText(`SKU-SCAN: ${Math.floor(t * 10) % 9999 + 1000}`, 10, H - 28);
+            ctx.fillText('INVENTORY REAL-TIME', 10, H - 14);
+
+            t += 0.02; raf = requestAnimationFrame(draw);
+        }
+        draw();
+        return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', init); };
+    }, []);
+    return <canvas ref={ref} className="absolute inset-0 w-full h-full" />;
+}
+
+/* ─────────────────────────────────────────────
    Services Data
 ───────────────────────────────────────────── */
 const SERVICES = [
@@ -504,6 +572,7 @@ const SERVICES = [
         stats: [{ val: '10 pcs', lbl: 'MIN BATCH' }, { val: '100%', lbl: 'INSPECTED' }, { val: '7-Day', lbl: 'DELIVERY' }],
         Canvas: BatchCanvas, label: 'BATCH ▸ PRODUCTION RUN',
     },
+
 ] as const;
 
 /* ─────────────────────────────────────────────
@@ -511,9 +580,9 @@ const SERVICES = [
 ───────────────────────────────────────────── */
 export function ServicesSection() {
     return (
-        <section id="services" className="py-20 relative overflow-hidden bg-[#020617]">
+        <section id="services" className="py-5 relative overflow-hidden bg-[#020617]">
             {/* Background mesh */}
-            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
+            <div className="blueprint-grid opacity-5 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
                 {/* Header */}
@@ -533,14 +602,15 @@ export function ServicesSection() {
 
                 {/* Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {SERVICES.map((svc) => {
+                    {SERVICES.map((svc: any) => {
                         const { Canvas } = svc;
                         return (
                             <div
                                 key={svc.num}
-                                className="group rounded-2xl border border-white/[0.05] bg-[#040f25]/50 backdrop-blur-md overflow-hidden hover:border-cyan-500/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.15)] transition-all duration-500 relative"
+                                className="group rounded-2xl border border-white/[0.05] bg-[#040f25]/50 backdrop-blur-md overflow-hidden hover:border-cyan-500/40 hover:shadow-[0_0_40px_rgba(34,211,238,0.15)] transition-all duration-500 relative cursor-pointer"
+                                onClick={() => svc.href && (window.location.href = svc.href)}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/0 to-cyan-500/0 group-hover:from-cyan-500/5 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-white-500/0 to-white-500/0 group-hover:from-white-500/5 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
 
                                 {/* Animated Canvas Panel */}
                                 <div className="relative h-48 bg-[#020617] overflow-hidden border-b border-white/[0.05]">
@@ -565,23 +635,27 @@ export function ServicesSection() {
                                     <p className="text-xs text-zinc-400 leading-relaxed">{svc.desc}</p>
 
                                     {/* Tags */}
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {svc.tags.map(tag => (
-                                            <span key={tag} className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/20 text-cyan-400/70 bg-cyan-500/5">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    {svc.tags && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {svc.tags.map((tag: string) => (
+                                                <span key={tag} className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/20 text-cyan-400/70 bg-cyan-500/5">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
 
                                     {/* Stats */}
-                                    <div className="flex gap-4 pt-2 border-t border-white/[0.06]">
-                                        {svc.stats.map(stat => (
-                                            <div key={stat.lbl} className="flex-1">
-                                                <div className="text-sm font-bold text-white font-mono">{stat.val}</div>
-                                                <div className="text-[9px] uppercase tracking-wider text-zinc-500 mt-0.5">{stat.lbl}</div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {svc.stats && (
+                                        <div className="flex gap-4 pt-2 border-t border-white/[0.06]">
+                                            {svc.stats.map((stat: { val: string; lbl: string }) => (
+                                                <div key={stat.lbl} className="flex-1">
+                                                    <div className="text-sm font-bold text-white font-mono">{stat.val}</div>
+                                                    <div className="text-[9px] uppercase tracking-wider text-zinc-500 mt-0.5">{stat.lbl}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );

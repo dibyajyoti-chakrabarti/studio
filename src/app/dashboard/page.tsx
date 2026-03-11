@@ -94,6 +94,13 @@ export default function UserDashboard() {
 
   const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
 
+  const shopOrdersQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return query(collection(db, 'orders'), where('userId', '==', user.uid));
+  }, [db, user?.uid]);
+
+  const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
+
   useEffect(() => {
     if (!isUserLoading && !user) router.push('/login');
   }, [user, isUserLoading, router]);
@@ -121,14 +128,6 @@ export default function UserDashboard() {
     }
   }, [user, db, profile, toast]);
 
-  // Load Razorpay checkout script once
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    document.body.appendChild(script);
-    return () => { document.body.removeChild(script); };
-  }, []);
 
   useEffect(() => {
     if (rfqs?.length && !selectedOrderId) setSelectedOrderId(rfqs[0].id);
@@ -222,7 +221,9 @@ export default function UserDashboard() {
 
       // Step 2: open Razorpay popup
       const RazorpayClass = (window as any).Razorpay;
-      if (!RazorpayClass) throw new Error('Razorpay script not loaded');
+      if (!RazorpayClass) {
+        throw new Error('Payment gateway is still initializing. Please wait a moment and try again.');
+      }
 
       const rzp = new RazorpayClass({
         key: orderData.keyId,
@@ -364,7 +365,8 @@ export default function UserDashboard() {
           <div className="lg:col-span-7 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: '200ms' }}>
             <Tabs defaultValue="projects" className="space-y-6">
               <TabsList className="bg-[#040f25]/40 backdrop-blur-md border border-white/10 p-1.5 rounded-xl shadow-inner w-full sm:w-auto flex">
-                <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Active Projects</TabsTrigger>
+                <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Project RFQs</TabsTrigger>
+                <TabsTrigger value="shop_orders" className="px-6 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Shop Orders</TabsTrigger>
                 <TabsTrigger value="profile" className="px-6 data-[state=active]:bg-cyan-950/50 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(34,211,238,0.2)] rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Settings</TabsTrigger>
               </TabsList>
 
@@ -400,6 +402,49 @@ export default function UserDashboard() {
                     <History className="w-12 h-12 mx-auto text-muted-foreground opacity-20" />
                     <p className="text-muted-foreground">You haven't submitted any designs yet.</p>
                     <Button variant="outline" onClick={() => router.push('/upload')}>Submit Your First Design</Button>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="shop_orders" className="space-y-4">
+                {isShopOrdersLoading ? (
+                  <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                ) : shopOrders?.length ? shopOrders.map((order: any) => (
+                  <Card
+                    key={order.id}
+                    className="bg-[#040f25]/30 border-white/5 hover:border-cyan-500/30 hover:bg-[#040f25]/50 backdrop-blur-md overflow-hidden relative group cursor-pointer transition-all"
+                    onClick={() => router.push(`/orders/${order.id}`)}
+                  >
+                    <CardContent className="p-5 flex items-center justify-between">
+                      <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-cyan-500/10 border border-white/5 shadow-inner">
+                          <Package className="w-5 h-5 text-cyan-500" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white uppercase tracking-wide text-sm truncate max-w-[200px]">
+                            {order.items.length} {order.items.length === 1 ? 'Component' : 'Components'} Procured
+                          </p>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-3 mt-1.5 border-t border-white/5 pt-1.5">
+                            <span className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-cyan-500/70" /> <span className="font-consolas">{new Date(order.createdAt).toLocaleDateString()}</span></span>
+                            <Badge variant="outline" className={`border-none ${order.status === 'paid' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-400'} font-bold text-[8px] uppercase tracking-widest px-2 py-0 h-5 shadow-inner`}>
+                              {order.status === 'paid' ? 'TXN SECURED' : order.status.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right flex items-center gap-4">
+                        <div className="hidden sm:block">
+                          <p className="text-xs font-bold text-white font-mono italic">₹{order.pricing.total.toLocaleString()}</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-cyan-500/50 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )) : (
+                  <div className="text-center py-20 bg-card/50 rounded-2xl border border-dashed border-white/10 space-y-4">
+                    <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20" />
+                    <p className="text-muted-foreground">No shop orders found.</p>
+                    <Button variant="outline" onClick={() => router.push('/shop')}>Visit Catalogue</Button>
                   </div>
                 )}
               </TabsContent>

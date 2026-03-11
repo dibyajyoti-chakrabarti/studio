@@ -1,9 +1,10 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { RotatingGears } from '@/components/Gears';
 import { ServicesSection } from '@/components/ServicesSection';
+import { Footer } from '@/components/Footer';
 import { LaserArrow } from '@/components/LaserArrow';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -96,119 +97,160 @@ export default function Home() {
     <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
       <LandingNav />
 
-      <section className="relative pt-28 pb-20 md:pt-40 md:pb-32 overflow-hidden bg-[#020617]">
+      <section className="relative pt-32 pb-24 overflow-hidden bg-[#020617]">
         {/* Advanced Background Elements */}
-        <div className="blueprint-grid opacity-15" suppressHydrationWarning />
-        <RotatingGears />
+        <div className="blueprint-grid opacity-[0.05]" suppressHydrationWarning />
 
-        {/* Multi-layered cinematic glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-cyan-600/20 blur-[150px] pointer-events-none" aria-hidden="true" />
-        <div className="absolute top-1/4 left-1/3 w-[400px] h-[400px] rounded-full bg-blue-600/20 blur-[120px] pointer-events-none" aria-hidden="true" />
+        {/* Cinematic glow effects */}
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-600/10 blur-[150px] pointer-events-none" aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#020617] to-transparent pointer-events-none z-10" />
 
         <div className="container mx-auto px-4 relative z-20">
-          <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-            {/* Premium Eyebrow badge */}
-            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-semibold tracking-widest uppercase mb-10 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              India's Premier Manufacturing Network
-            </div>
+            {/* LEFT: Messaging & Strategy */}
+            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
 
-            {/* Main headline - Precision Terminal Aesthetic */}
-            <div className="relative mb-8 min-h-[100px] md:min-h-[140px] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out" style={{ opacity: fade ? 1 : 0 }}>
+              {/* Premium Eyebrow badge */}
+              <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300 text-xs font-semibold tracking-widest uppercase mb-10 shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-md animate-in fade-in slide-in-from-left-4 duration-500">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                India's Premier Manufacturing Network
+              </div>
 
-              <h1 className="text-center font-verdana tracking-wide uppercase text-balance leading-[1.3] max-w-5xl drop-shadow-md flex flex-col items-center justify-center">
-                <div className="text-3xl md:text-5xl lg:text-[64px] text-zinc-100 font-bold mb-4 flex items-center justify-center gap-2">
-
-                  {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[0]}
-                </div>
-                {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1] && (
-                  <div className="text-xl md:text-2xl lg:text-2xl text-cyan-200/80 tracking-[0.1em] font-light mt-2">
-                    {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1]}
+              {/* Main headline - Precision Terminal Aesthetic */}
+              <div className="relative mb-8 min-h-[140px] md:min-h-[180px] lg:min-h-[140px] w-full transition-opacity duration-700 ease-in-out" style={{ opacity: fade ? 1 : 0 }}>
+                <h1 className="font-verdana tracking-tight uppercase text-balance leading-[1.05] drop-shadow-md">
+                  <div className="text-4xl md:text-6xl lg:text-[72px] text-zinc-100 font-bold mb-6">
+                    {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[0]}
                   </div>
-                )}
-              </h1>
-            </div>
+                  {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1] && (
+                    <div className="text-xl md:text-2xl lg:text-3xl text-cyan-400 font-bold tracking-tight mt-2 opacity-90">
+                      {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1]}
+                    </div>
+                  )}
+                </h1>
+              </div>
 
-            {/* Sub-headline */}
-            <p className="text-base md:text-md text-zinc-400 max-w-2xl leading-relaxed mb-10 font-light">
-              MechHub connects innovators with verified Indian manufacturers. <span className="text-cyan-400 font-medium">Upload a design</span> and get precision engineered parts delivered with unparalleled speed and quality transparency.
-            </p>
+              {/* Sub-headline */}
+              <p className="text-lg md:text-xl text-zinc-400 max-w-xl leading-relaxed mb-12 font-light animate-in fade-in slide-in-from-left-8 duration-1000">
+                MechHub connects innovators with verified Indian manufacturers. <span className="text-cyan-400 font-medium">Upload a design</span> and get precision engineered parts delivered with transparency.
+              </p>
 
-            {/* Interactive Capabilities cluster */}
-            <div className="flex flex-wrap justify-center gap-3 mb-14 max-w-4xl mx-auto">
-              {['CNC Machining', 'Laser Cutting', 'Sheet Metal', 'Welding & Fab', 'Rapid Prototyping', 'Small Batch'].map((cap) => (
-                <div key={cap} className="relative group cursor-default">
-                  <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative block text-sm font-medium px-5 py-2.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/50 hover:text-cyan-100 text-zinc-300 transition-all duration-300 backdrop-blur-sm">
-                    {cap}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Advanced CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-20 w-full sm:w-auto">
-              <Link href="/upload" className="w-full sm:w-auto">
+              {/* Advanced CTAs */}
+              <div className="flex flex-col sm:flex-row items-center gap-5 mb-16 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <Link href="/upload" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto h-16 px-12 text-base font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 transition-all duration-300 group overflow-hidden relative"
+                    suppressHydrationWarning
+                  >
+                    <span className="relative z-10 flex items-center">
+                      Upload Your Design
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                  </Button>
+                </Link>
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto h-14 px-10 text-base font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:-translate-y-0.5 transition-all duration-300 group overflow-hidden relative"
+                  variant="outline"
+                  className="w-full sm:w-auto h-16 px-12 text-base font-semibold border-2 border-zinc-800 bg-transparent hover:bg-white/5 hover:border-zinc-600 rounded-full text-zinc-200 transition-all duration-300 backdrop-blur-md"
                   suppressHydrationWarning
                 >
-                  <span className="relative z-10 flex items-center">
-                    Upload Your Design
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                  </span>
-                  {/* High-end shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                  Become a MechMaster
                 </Button>
-              </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto h-14 px-10 text-base font-semibold border-2 border-zinc-700 bg-transparent hover:bg-white/5 hover:border-zinc-500 rounded-full text-zinc-200 transition-all duration-300 backdrop-blur-md"
-                suppressHydrationWarning
-              >
-                Become a MechMaster
-              </Button>
-            </div>
+              </div>
 
-            {/* Floating Trust Dashboard Box */}
-            <div className="w-full max-w-5xl bg-zinc-950/40 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5" />
-              <div className="relative grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 divide-x-0 md:divide-x divide-white/10">
-                {[
-                  { val: '±0.05mm', lbl: 'Tolerance', icon: Settings },
-                  { val: '24 Hrs', lbl: 'Min Lead Time', icon: Zap },
-                  { val: '50+', lbl: 'MechMasters', icon: Factory },
-                  { val: '100%', lbl: 'QC Inspected', icon: ShieldCheck },
-                  { val: 'NDA', lbl: 'IP Protected', icon: Lock },
-                ].map((stat, i) => (
-                  <div key={stat.lbl} className={`flex flex-col items-center justify-center text-center ${i === 4 ? 'col-span-2 md:col-span-1' : ''}`}>
-                    <stat.icon className="w-5 h-5 text-cyan-500/70 mb-3" />
-                    <div className="text-white font-bold text-xl md:text-2xl font-mono mb-1">{stat.val}</div>
-                    <div className="text-zinc-400 text-[10px] md:text-xs uppercase tracking-widest font-medium">{stat.lbl}</div>
+              {/* Feature Tags */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 opacity-60 animate-in fade-in duration-1000">
+                {['CNC Machining', 'Laser Cutting', '3D Printing'].map((tag) => (
+                  <div key={tag} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                    {tag}
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* RIGHT: High-End Visual Showcase */}
+            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center animate-in fade-in zoom-in duration-1000">
+              <div className="relative w-full aspect-square">
+
+                {/* HUD Overlay Elements */}
+                <div className="absolute inset-x-0 top-1/2 h-px bg-cyan-500/20 border-dashed border-b border-cyan-500/10 flex justify-between items-center px-4">
+                  <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                  <span className="text-[9px] font-mono text-cyan-500/50 bg-[#020617] px-2">STRUCTURAL DATUM: V1.2</span>
+                  <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                </div>
+
+                <div className="absolute inset-y-0 left-1/2 w-px bg-cyan-500/20 border-dashed border-r border-cyan-500/10 flex flex-col justify-between items-center py-4">
+                  <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                  <span className="text-[9px] font-mono text-cyan-500/50 bg-[#020617] px-2 [writing-mode:vertical-lr] rotate-180">PRECISION ALIGNMENT</span>
+                  <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                </div>
+
+                {/* Main Visual Container */}
+                <div className="relative z-10 w-full h-full p-4 animate-float">
+                  <div className="relative w-full h-full rounded-[48px] bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 backdrop-blur-3xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(6,182,212,0.2)] flex items-center justify-center">
+                    <img
+                      src="/hero-industrial.png"
+                      alt="MechHub Industrial Cluster"
+                      className="w-full h-full object-cover scale-110 opacity-80 mix-blend-lighten grayscale hover:grayscale-0 transition-all duration-700"
+                    />
+
+                    {/* Corners */}
+                    <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-cyan-500/40" />
+                    <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-cyan-500/40" />
+
+                    {/* Dynamic Status Bar */}
+                    <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-2">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className={`w-1 h-8 rounded-full ${i <= 3 ? 'bg-cyan-500' : 'bg-white/10'} animate-pulse`} style={{ animationDelay: `${i * 150}ms` }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rotating Gears Background Element */}
+                <RotatingGears />
+              </div>
+            </div>
+
           </div>
 
-          {/* Scroll Down Indicator - High-end Laser Animation */}
-          <div className="flex flex-col items-center mt-20 animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both" style={{ animationDelay: '1000ms' }}>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-600 font-bold mb-4">Discover MechHub</span>
-            <LaserArrow size={32} color="#22d3ee" className="opacity-50" />
+          {/* Trust Bar */}
+          <div className="w-full max-w-6xl mx-auto mt-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
+            <div className="bg-[#0B1120]/40 border border-white/5 rounded-2xl p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-0 divide-x-0 md:divide-x divide-white/10">
+                {[
+                  { val: '±0.05mm', lbl: 'TOLERANCE', icon: Settings },
+                  { val: '24 Hrs', lbl: 'MIN LEAD TIME', icon: Zap },
+                  { val: '50+', lbl: 'MECHMASTERS', icon: Factory },
+                  { val: '100%', lbl: 'QC INSPECTED', icon: ShieldCheck },
+                  { val: 'NDA', lbl: 'IP PROTECTED', icon: Lock },
+                ].map((stat, i) => (
+                  <div key={stat.lbl} className={`flex flex-col items-center justify-center text-center px-2 ${i === 4 ? 'col-span-2 md:col-span-1 border-t md:border-t-0 pt-8 md:pt-0 border-white/10' : ''}`}>
+                    <stat.icon className="w-5 h-5 text-cyan-500/80 mb-5" />
+                    <div className="text-white font-bold text-2xl md:text-3xl font-mono mb-2 tracking-tight whitespace-nowrap">{stat.val}</div>
+                    <div className="text-zinc-500 text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-bold leading-none">{stat.lbl}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Down Indicator */}
+          <div className="flex flex-col items-center mt-20 animate-in fade-in duration-1000 fill-mode-both" style={{ animationDelay: '1500ms' }}>
+            <span className="text-[10px] uppercase tracking-[0.4em] text-zinc-600 font-bold mb-4">Discover MechHub Operations</span>
+            <LaserArrow size={32} color="#06b6d4" className="opacity-50" />
           </div>
         </div>
+
       </section>
-
       <ServicesSection />
-
       <section id="how-it-works" className="py-20 relative overflow-hidden bg-gradient-to-b from-[#020617] via-[#040f25] to-[#020617]">
         {/* Subtle background mesh */}
         <div className="blueprint-grid opacity-[0.03]" />
@@ -623,149 +665,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-[#020617] border-t border-white/[0.06] relative overflow-hidden">
-        {/* Subtle bottom glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-cyan-900/10 blur-[120px] pointer-events-none" />
-
-        {/* Top CTA strip */}
-        <div className="border-b border-white/[0.05] py-10 relative z-10">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h3 className="text-2xl tracking-tight text-white mb-2">Ready to build your next part?</h3>
-                <p className="text-zinc-500 text-sm">Upload your design and get matched with a verified MechMaster in minutes.</p>
-              </div>
-              <div className="flex gap-3 shrink-0">
-                <Link href="/upload">
-                  <Button
-                    className="h-10 px-7 text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-full shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.45)] transition-all"
-                    suppressHydrationWarning
-                  >
-                    Upload Your Design <ArrowRight className="ml-1.5 w-3.5 h-3.5 inline" />
-                  </Button>
-                </Link>
-                <Button variant="ghost" className="h-10 px-6 text-sm border border-white/10 text-zinc-400 hover:text-white rounded-full" suppressHydrationWarning>
-                  View Services
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main link grid */}
-        <div className="container mx-auto px-4 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-10 lg:gap-16">
-
-            {/* Brand column */}
-            <div className="col-span-2 md:col-span-1 relative z-10">
-              <Link href="/" className="flex items-center gap-2.5 mb-5 group">
-                <Logo size={32} />
-                <span className="text-2xl tracking-tight text-zinc-100 group-hover:text-white transition-colors">MechHub</span>
-              </Link>
-              <p className="text-zinc-500 text-sm leading-relaxed mb-6 max-w-xs">
-                India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.
-              </p>
-              {/* Mini trust badges */}
-              <div className="flex flex-wrap gap-2">
-                {['NDA Signed', 'ISO-Ready', 'QC Inspected', 'On-Time Delivery'].map(b => (
-                  <span key={b} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/[0.08] text-zinc-500 bg-white/[0.02]">
-                    {b}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Company</h4>
-              <ul className="space-y-3">
-                {[
-                  { label: 'About Us', href: '/about' },
-                  { label: 'How It Works', href: '#how-it-works' },
-                  { label: 'MechMasters', href: '#vendors' },
-                  { label: 'Blog', href: '/blog' },
-                  { label: 'Contact', href: '#contact' },
-                ].map(l => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Legal</h4>
-              <ul className="space-y-3">
-                {[
-                  { label: 'Privacy Policy', href: '/privacy-policy' },
-                  { label: 'Terms of Service', href: '/terms-of-service' },
-                  { label: 'Refund Policy', href: '/refund-policy' },
-                  { label: 'NDA Policy', href: '/nda-policy' },
-                ].map(l => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Vendors */}
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">For Vendors</h4>
-              <ul className="space-y-3">
-                {[
-                  { label: 'Onboarding Guide', href: '#' },
-                  { label: 'Seller Portal', href: '#' },
-                  { label: 'Quality Standards', href: '#' },
-                  { label: 'Partner FAQs', href: '#' },
-                ].map(l => (
-                  <li key={l.label}>
-                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="border-t border-white/[0.05] py-6">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
-              <span className="text-zinc-600 text-[11px] uppercase tracking-wider">
-                © {currentYear || new Date().getFullYear()} MechHub. All rights reserved.
-              </span>
-              <span className="hidden md:inline text-zinc-700">·</span>
-              <span className="text-zinc-700 text-[10px] uppercase tracking-widest font-semibold">
-                A Unit of Synchubb Innovations Pvt Ltd
-              </span>
-            </div>
-
-            {/* Social links (placeholder icons) */}
-            <div className="flex items-center gap-3">
-              {[
-                { label: 'LinkedIn', path: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
-                { label: 'Twitter/X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835-8.17-10.665H8.08l4.265 5.64L18.244 2.25z' },
-                { label: 'Instagram', path: 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01 M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z' },
-              ].map(s => (
-                <Link
-                  key={s.label}
-                  href="#"
-                  aria-label={s.label}
-                  className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-zinc-500 hover:text-white hover:border-cyan-500/30 hover:bg-cyan-950/20 transition-all"
-                >
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={s.path} />
-                  </svg>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
-
+      <Footer />
     </div>
   );
 }

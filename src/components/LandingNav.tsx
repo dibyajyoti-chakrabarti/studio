@@ -5,10 +5,12 @@ import Link from 'next/link';
 import Image from "next/image";
 import { Button } from '@/components/ui/button';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { LogOut, User as UserIcon, LayoutDashboard, Menu, X } from 'lucide-react';
+import { LogOut, User as UserIcon, LayoutDashboard, Menu, X, ShoppingCart, Search, ChevronDown, Package2 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
+import { CartSidebar } from '@/components/CartSidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +20,11 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { doc } from 'firebase/firestore';
+import { Input } from '@/components/ui/input';
 
 const NAV_LINKS = [
   { href: '/#services', label: 'Services' },
-  { href: '/#how-it-works', label: 'How it Works' },
+  { href: '/shop', label: 'Shop' },
   { href: '/#vendors', label: 'MechMasters' },
   { href: '/blog', label: 'Blog' },
 ];
@@ -31,10 +34,13 @@ export function LandingNav() {
   const auth = useAuth();
   const db = useFirestore();
   const pathname = usePathname();
+  const router = useRouter();
+  const { totalItems, setIsCartOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [hoverStyle, setHoverStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [searchQuery, setSearchQuery] = useState('');
   const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   // Fetch profile to get display name
@@ -126,9 +132,33 @@ export function LandingNav() {
             </span>
           </Link>
 
-          {/* Centered Nav Links with animated hover pill */}
+          {/* Search Bar - Center */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery.trim()) {
+                router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+              } else {
+                router.push('/shop');
+              }
+            }}
+            className="hidden lg:flex flex-1 max-w-md mx-8 relative group"
+          >
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-zinc-500 group-focus-within:text-cyan-500 transition-colors" />
+            </div>
+            <Input
+              type="text"
+              placeholder="Search industrial parts (SKU, Name, Category)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/5 border-white/10 pl-10 h-10 rounded-full text-sm focus:ring-cyan-500/20 focus:border-cyan-500/50 transition-all placeholder:text-zinc-600 focus:placeholder:text-zinc-500"
+            />
+          </form>
+
+          {/* Nav Links + Categories - Right Side (shifted) */}
           <div
-            className="hidden md:flex items-center gap-1 relative"
+            className="hidden md:flex items-center gap-1 relative mr-2"
             onMouseLeave={handleMouseLeave}
           >
             {/* Animated background pill */}
@@ -141,6 +171,40 @@ export function LandingNav() {
                 opacity: hoverStyle.opacity,
               }}
             />
+
+            {/* Categories Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="relative px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors"
+                  onMouseEnter={() => handleMouseEnter(-1)} // Special index for indicator
+                >
+                  Categories <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-blue-1000 border border-white/10 rounded-xl p-1.5 mt-2">
+                <Link href="/shop?category=bearings">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
+                    <Package2 className="w-4 h-4" /> Bearings
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/shop?category=linear-motion">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
+                    <Package2 className="w-4 h-4" /> Linear Motion
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/shop?category=transmission">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
+                    <Package2 className="w-4 h-4" /> Transmission
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/shop?category=raw-materials">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
+                    <Package2 className="w-4 h-4" /> Raw Materials
+                  </DropdownMenuItem>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {NAV_LINKS.map((link, i) => (
               <Link
@@ -156,8 +220,22 @@ export function LandingNav() {
             ))}
           </div>
 
-          {/* Right Side: Auth + CTA */}
+          {/* Right Side: Auth + Cart + CTA */}
           <div className="flex items-center gap-2 z-10">
+            {/* Cart Toggle */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 rounded-full hover:bg-white/5 text-zinc-400 hover:text-white transition-all group"
+              aria-label="View Cart"
+            >
+              <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              {totalItems > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-cyan-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#020617] animate-in zoom-in duration-300">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
             {!isUserLoading && (
               <>
                 {user ? (
@@ -264,6 +342,8 @@ export function LandingNav() {
 
       {/* Spacer to ensure content starts below the nav */}
       <div className="h-[68px]" />
+
+      <CartSidebar />
     </>
   );
 }
