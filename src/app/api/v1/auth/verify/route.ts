@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { isAdmin } from '@/lib/auth-utils';
 
 export async function GET(req: Request) {
     try {
@@ -43,7 +44,6 @@ export async function GET(req: Request) {
         }
 
         const { uid, email } = tokenData!;
-        const isAdminEmail = email === 'admin@mechhub.in';
 
         // 3. Mark user as verified in Firebase Auth using Admin SDK
         await adminAuth.updateUser(uid, {
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
             emailVerified: true,
             status: 'active',
             email: email,
-            role: isAdminEmail ? 'admin' : 'customer',
+            role: isAdmin(email) ? 'admin' : 'customer',
             updatedAt: new Date().toISOString()
         }, { merge: true });
 

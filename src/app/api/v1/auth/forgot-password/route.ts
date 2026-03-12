@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { Resend } from 'resend';
-import crypto from 'crypto';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
@@ -13,44 +12,66 @@ const getResend = () => {
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+
 export async function POST(req: Request) {
     try {
-        const { email, name, uid } = await req.json();
-
-        if (!email || !uid) {
-            return NextResponse.json({ error: 'Email and UID are required' }, { status: 400 });
+        const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+        const limiter = await rateLimit(`auth-forgot:${ip}`, 3, 60000);
+        if (!limiter.success) {
+            return rateLimitResponse(limiter.reset);
         }
 
-        const { adminFirestore, adminAuth } = getFirebaseAdmin();
+        const { email } = await req.json();
+
+        if (!email) {
+            return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+        }
+
+        const { adminAuth } = getFirebaseAdmin();
         const resend = getResend();
 
-        if (!adminFirestore || !adminAuth) {
+        if (!adminAuth) {
             return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
         }
 
-        // 1. Generate a secure random token
-        const token = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24); // 24 hour expiry
+        // 1. Check if user exists (optional, could just return success to prevent email enumeration, but Firebase will throw if not found)
+        try {
+            await adminAuth.getUserByEmail(email);
+        } catch (error: any) {
+            // If user not found, silently return success to prevent email enumeration attacks
+            if (error.code === 'auth/user-not-found') {
+                return NextResponse.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
+            }
+            throw error; // Re-throw other errors
+        }
 
-        // 2. Save token to Firestore
-        await adminFirestore.collection('verification_tokens').doc(token).set({
-            uid,
-            email,
-            token,
-            expiresAt: expiresAt.toISOString(),
-            createdAt: new Date().toISOString(),
-            used: false
+
+        // 2. Generate a secure password reset link pointing to our custom page
+        // The actionCodeSettings instruct Firebase to create a link like:
+        // http://localhost:9002/reset-password?mode=resetPassword&oobCode=...
+        const resetLink = await adminAuth.generatePasswordResetLink(email, {
+            url: `${APP_URL}/reset-password`,
+            handleCodeInApp: false
         });
 
-        // 3. Send email using Resend
-        const verificationUrl = `${APP_URL}/api/auth/verify?token=${token}`;
-        const safeName = name || 'Innovator';
+        // The generated link looks like: 
+        // https://[PROJECT_ID].firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=[CODE]...
+        // We want to extract the oobCode to build our own clean URL so the user stays on our domain.
+        const urlObj = new URL(resetLink);
+        const oobCode = urlObj.searchParams.get('oobCode');
 
+        if (!oobCode) {
+            throw new Error("Failed to extract reset code from Firebase.");
+        }
+
+        const customResetUrl = `${APP_URL}/reset-password?oobCode=${oobCode}`;
+
+        // 3. Send email using Resend
         const { data, error } = await resend.emails.send({
             from: 'MechHub <outreach@mechhub.in>',
             to: [email],
-            subject: 'Verify your MechHub Account',
+            subject: 'Reset Your MechHub Password',
             html: `
         <!DOCTYPE html>
         <html>
@@ -76,17 +97,17 @@ export async function POST(req: Request) {
               <h1>MechHub</h1>
             </div>
             <div class="content">
-              <h2>Welcome to MechHub, ${safeName}!</h2>
-              <p>Thanks for joining the platform that brings manufacturing from CAD to reality faster. To get started and access your dashboard, please verify your email address.</p>
+              <h2>Password Reset Request</h2>
+              <p>We received a request to reset the password for your MechHub account associated with ${email}. If you made this request, please click the button below to choose a new password.</p>
               
               <div class="button-container">
-                <a href="${verificationUrl}" class="button">Verify My Account</a>
+                <a href="${customResetUrl}" class="button">Reset My Password</a>
               </div>
               
-              <p style="font-size: 14px; text-align: center;">This link will expire in 24 hours.</p>
+              <p style="font-size: 14px; text-align: center;">This link will expire soon.</p>
             </div>
             <div class="footer">
-              <p>If you didn't create this account, you can safely ignore this email.</p>
+              <p>If you didn't request a password reset, you can safely ignore this email.</p>
               <p style="margin-top: 8px;">&copy; ${new Date().getFullYear()} MechHub Platform</p>
             </div>
           </div>
@@ -100,10 +121,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, message: 'Verification email sent' });
+        return NextResponse.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
 
     } catch (error: any) {
-        console.error('Send verification error:', error);
+        console.error('Forgot password error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

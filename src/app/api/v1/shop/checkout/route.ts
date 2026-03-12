@@ -1,23 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { z } from 'zod';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
+const AddressSchema = z.object({
+    fullName: z.string().min(1).max(100),
+    email: z.string().email(),
+    phone: z.string().min(10).max(15),
+    street: z.string().min(1).max(500),
+    city: z.string().min(1).max(100),
+    state: z.string().min(1).max(100),
+    pincode: z.string().min(6).max(10),
+    country: z.string().default('India'),
+});
+
+const CheckoutSchema = z.object({
+    items: z.array(z.object({
+        id: z.string(),
+        quantity: z.number().min(1),
+    })).min(1),
+    shippingAddress: AddressSchema,
+    userId: z.string().min(1),
+});
+
 export async function POST(req: NextRequest) {
     try {
-        const { items, shippingAddress, userId } = await req.json() as {
-            items: any[];
-            shippingAddress: any;
-            userId: string;
-        };
-
-        if (!items || !items.length || !shippingAddress || !userId) {
-            return NextResponse.json({ error: 'Missing required checkout fields' }, { status: 400 });
+        // 1. Rate Limiting
+        const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+        const limiter = await rateLimit(`shop-checkout:${ip}`, 5, 60000);
+        if (!limiter.success) {
+            return rateLimitResponse(limiter.reset);
         }
+
+        // 2. Data Validation
+        const body = await req.json();
+        const result = CheckoutSchema.safeParse(body);
+        if (!result.success) {
+            return NextResponse.json({ error: 'Invalid checkout data', details: result.error.format() }, { status: 400 });
+        }
+
+        const { items, shippingAddress, userId } = result.data;
 
         const { adminFirestore: db } = getFirebaseAdmin();
         if (!db) throw new Error('Firebase Admin not initialized');

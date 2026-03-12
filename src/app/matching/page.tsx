@@ -115,16 +115,34 @@ export default function MatchingPage() {
     }
 
     setIsSubmitting(true);
-    if (db) {
-      addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+    try {
+      const res = await fetch('/api/v1/rfq/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rfqData)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to submit project');
+      }
+
       localStorage.removeItem('pendingRfqDetails');
       toast({
         title: "RFQ Submitted Successfully!",
         description: "Selected MechMasters have been notified to review your design.",
       });
       router.push('/dashboard');
+    } catch (err: any) {
+      toast({
+        title: "Submission Failed",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   if (loading || isVendorsLoading) {

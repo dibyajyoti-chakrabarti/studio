@@ -206,7 +206,7 @@ export default function UserDashboard() {
 
     try {
       // Step 1: create a Razorpay order on the server
-      const res = await fetch('/api/payment/create-order', {
+      const res = await fetch('/api/v1/payment/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rfqId: selectedOrder.id, paymentType: type, userId: user.uid }),
@@ -241,7 +241,7 @@ export default function UserDashboard() {
         handler: async (response: any) => {
           // Step 3: verify on server
           try {
-            const verifyRes = await fetch('/api/payment/verify', {
+            const verifyRes = await fetch('/api/v1/payment/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

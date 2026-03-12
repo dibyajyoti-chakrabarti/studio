@@ -1,10 +1,45 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+
+const InsightSchema = z.object({
+    material: z.string().min(1).max(100),
+    process: z.string().min(1).max(100),
+    finish: z.string().min(1).max(100),
+    tolerance: z.string().min(1).max(100),
+    complexity: z.string().min(1).max(100),
+    quantity: z.number().min(1).max(100000),
+    city: z.string().min(1).max(50),
+    dimensions: z.object({
+        l: z.number().min(0.1).max(5000),
+        w: z.number().min(0.1).max(5000),
+        h: z.number().min(0.1).max(5000),
+    }),
+    estimate: z.object({
+        low: z.number().min(0),
+        high: z.number().min(0),
+    }),
+});
 
 export async function POST(request: Request) {
     try {
+        // 1. Rate Limiting (Limit to 5 requests per minute per IP)
+        const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+        const limiter = await rateLimit(`ai-insights:${ip}`, 5, 60000);
+        if (!limiter.success) {
+            return rateLimitResponse(limiter.reset);
+        }
+
+        // 2. Input Validation & Sanitization
         const body = await request.json();
-        const { material, process, finish, tolerance, complexity, quantity, city, dimensions, estimate } = body;
+        const result_v = InsightSchema.safeParse(body);
+        
+        if (!result_v.success) {
+            return NextResponse.json({ error: "Invalid request parameters", details: result_v.error.format() }, { status: 400 });
+        }
+
+        const { material, process: manufacturingProcess, finish, tolerance, complexity, quantity, city, dimensions, estimate } = result_v.data;
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -15,7 +50,7 @@ export async function POST(request: Request) {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
         const prompt = `You are MechHub's manufacturing expert AI for India. A customer wants:
-Material: ${material}, Process: ${process}, Finish: ${finish}
+Material: ${material}, Process: ${manufacturingProcess}, Finish: ${finish}
 Tolerance: ${tolerance}, Complexity: ${complexity}, Quantity: ${quantity} pcs
 City: ${city}, Dimensions: ${dimensions.l}×${dimensions.w}×${dimensions.h}mm
 Estimated price: ₹${estimate.low}–₹${estimate.high}

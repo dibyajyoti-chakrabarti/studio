@@ -126,7 +126,7 @@ export default function CheckoutPage() {
 
         try {
             // 1. Create Order on Backend
-            const res = await fetch('/api/shop/checkout', {
+            const res = await fetch('/api/v1/shop/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -152,7 +152,7 @@ export default function CheckoutPage() {
                 handler: async function (response: any) {
                     setIsProcessing(true);
                     try {
-                        const verifyRes = await fetch('/api/shop/verify', {
+                        const verifyRes = await fetch('/api/v1/shop/verify', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { isAdmin } from '@/lib/auth-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -76,23 +77,29 @@ export default function LoginPage() {
           const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
 
-          let role = 'customer';
+          let role = isAdmin(user.email) ? 'admin' : 'customer';
 
           if (!userSnap.exists()) {
             const initialProfile = {
               uid: user.uid,
               fullName: user.displayName || '',
               email: user.email,
-              role: 'customer',
+              role: role, // Use the calculated role
               onboarded: false,
               status: 'active',
               createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              emailVerified: user.emailVerified
             };
             await setDoc(userRef, initialProfile);
-            role = 'customer';
           } else {
-            role = userSnap.data().role || 'customer';
+            const profileData = userSnap.data();
+            // If it's an admin email but the role in Firestore is not admin, correct it
+            if (role === 'admin' && profileData.role !== 'admin') {
+              await setDoc(userRef, { role: 'admin' }, { merge: true });
+            } else {
+              role = profileData.role || 'customer';
+            }
           }
 
           if (role === 'admin') {
@@ -172,7 +179,7 @@ export default function LoginPage() {
       await updateProfile(userCred.user, { displayName: fullName });
 
       // Call API to send verification
-      await fetch('/api/auth/send-verification', {
+      await fetch('/api/v1/auth/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name: fullName, uid: userCred.user.uid })
@@ -202,7 +209,7 @@ export default function LoginPage() {
       setResendCooldown(60); // Start cooldown immediately
       toast({ title: "Sending...", description: "Requesting a new verification email.", variant: "default" });
 
-      const res = await fetch('/api/auth/send-verification', {
+      const res = await fetch('/api/v1/auth/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(verificationState)
@@ -224,7 +231,7 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch('/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -255,41 +262,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const additionalInfo = getAdditionalUserInfo(result);
-
-      // If it's a completely new user
-      if (additionalInfo?.isNewUser) {
-        // Delete the auto-created Google account immediately
-        await deleteUser(result.user);
-        await signOut(auth);
-        setLoading(false);
-        toast({
-          variant: "destructive",
-          title: "Registration Required",
-          description: "Please register with email and verify your account before using Google Sign In.",
-        });
-        return;
-      }
-
-      // If they are not new, check if they are verified.
-      // Easiest is to check their Firestore profile which we create during registration.
-      // If we don't find them in Firestore or they aren't verified, it means they never completed registration/verification.
-      if (db) {
-        const userRef = doc(db, 'users', result.user.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists() || !userSnap.data().emailVerified) {
-          await signOut(auth);
-          setLoading(false);
-          toast({
-            variant: "destructive",
-            title: "Verification Required",
-            description: "Please verify your email address before signing in.",
-          });
-          return;
-        }
-      }
+      await signInWithPopup(auth, provider);
+      // If verified or Google user, the useEffect (syncUserAndRedirect) will handle everything
+      // including profile creation and role-based redirection.
 
       // If verified, useEffect will handle redirect.
     } catch (error: any) {

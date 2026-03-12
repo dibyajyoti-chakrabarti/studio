@@ -222,7 +222,7 @@ export default function QuoteEngine() {
     const fetchInsights = async (resData: any) => {
         setInsightsLoading(true);
         try {
-            const res = await fetch('/api/ai-insights', {
+            const res = await fetch('/api/v1/ai-insights', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
