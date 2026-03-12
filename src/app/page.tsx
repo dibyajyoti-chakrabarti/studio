@@ -91,6 +91,14 @@ export default function Home() {
   }, [db]);
   const { data: landingVendors } = useCollection(landingVendorsQuery);
 
+  const handleWIPClick = (e: React.MouseEvent, feature: string) => {
+    e.preventDefault();
+    toast({
+      title: "Coming Soon!",
+      description: `We're currently working on the ${feature}. Check back soon for updates!`,
+    });
+  };
+
 
 
   return (
@@ -157,7 +165,8 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-16 px-12 text-base font-semibold border-2 border-zinc-800 bg-transparent hover:bg-white/5 hover:border-zinc-600 rounded-full text-zinc-200 transition-all duration-300 backdrop-blur-md"
+                  onClick={(e) => handleWIPClick(e, "MechMaster Portal")}
+                  className="w-full sm:w-auto h-16 px-12 text-base font-semibold border-2 border-zinc-800 bg-transparent hover:bg-yellow-300 rounded-full text-zinc-200 transition-all duration-300"
                   suppressHydrationWarning
                 >
                   Become a MechMaster
@@ -510,7 +519,12 @@ export default function Home() {
                   </Link>
                 </TabsContent>
                 <TabsContent value="manufacturers" className="mt-2">
-                  <Button className="w-full h-12 text-sm font-bold rounded-full border-cyan-500/50 text-cyan-400 hover:bg-cyan-950/30 hover:border-cyan-400 hover:text-cyan-300 transition-all" variant="outline" suppressHydrationWarning>
+                  <Button 
+                    onClick={(e) => handleWIPClick(e, "MechMaster Registration")}
+                    className="w-full h-12 text-sm font-bold rounded-full border-cyan-500/50 text-cyan-400 hover:bg-cyan-950/30 hover:border-cyan-400 hover:text-cyan-300 transition-all" 
+                    variant="outline" 
+                    suppressHydrationWarning
+                  >
                     Join as a MechMaster <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </TabsContent>

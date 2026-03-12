@@ -27,7 +27,8 @@ import {
     Store,
     Scale,
     X,
-    History
+    History,
+    ChevronLeft
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -111,6 +112,12 @@ export default function ShopPage() {
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full" />
                 
                 <div className="container mx-auto px-4 relative z-10">
+                    <div className="mb-8">
+                        <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                    </div>
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* LEFT: Messaging & Industrial Search */}
                         <div className="lg:col-span-6 max-w-2xl">

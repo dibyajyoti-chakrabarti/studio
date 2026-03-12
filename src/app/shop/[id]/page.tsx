@@ -354,8 +354,8 @@ export default function ProductDetailPage() {
                                 <h2 className="text-3xl font-bold text-white">Technical Specifications</h2>
                                 <p className="text-zinc-500 text-sm">Precise engineering data for professional industrial integration.</p>
                             </div>
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 className="border-white/10 text-xs gap-2 rounded-xl h-10 px-6 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-all"
                                 onClick={() => window.print()}
                             >
@@ -613,8 +613,8 @@ function PrintableDatasheet({ product }: { product: any }) {
                     </p>
                 </div>
                 <div className="col-span-4 aspect-square bg-zinc-50 rounded-2xl border border-zinc-200 flex items-center justify-center p-4">
-                    <img 
-                        src={product.images?.[0] || 'https://images.unsplash.com/photo-1594819047050-99def0f34101?q=80&w=800'} 
+                    <img
+                        src={product.images?.[0] || 'https://images.unsplash.com/photo-1594819047050-99def0f34101?q=80&w=800'}
                         alt={product.name}
                         className="max-sm:max-w-full max-h-full object-contain grayscale"
                     />

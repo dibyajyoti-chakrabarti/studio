@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { UploadCloud, FileType, CheckCircle, ChevronRight, X, Loader2, Info, Copy, Check } from 'lucide-react';
+import { UploadCloud, FileType, CheckCircle, ChevronRight, ChevronLeft, X, Loader2, Info, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
@@ -292,6 +292,12 @@ export default function QuoteEngine() {
 
                 {/* Header & Stepper */}
                 <div className="mb-12">
+                    <div className="mb-8">
+                        <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                    </div>
                     <h1 className="text-3xl md:text-5xl  uppercase tracking-wide text-white mb-4">Budget Estimator</h1>
                     <p className="text-cyan-100/60 text-lg mb-8">Get a rough cost range to plan your project — before speaking to a MechMaster.</p>
 

@@ -4,14 +4,24 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Construction } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export function Footer() {
     const [currentYear, setCurrentYear] = useState<number | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         setCurrentYear(new Date().getFullYear());
     }, []);
+
+    const handleWIPClick = (e: React.MouseEvent, feature: string) => {
+        e.preventDefault();
+        toast({
+            title: "Coming Soon!",
+            description: `We're currently working on the ${feature}. Check back soon for updates!`,
+        });
+    };
 
     return (
         <footer className="bg-[#020617] border-t border-white/[0.06] relative overflow-hidden">
@@ -75,7 +85,7 @@ export function Footer() {
                                 { label: 'How It Works', href: '#how-it-works' },
                                 { label: 'MechMasters', href: '#vendors' },
                                 { label: 'Blog', href: '/blog' },
-                                { label: 'Contact', href: '#contact' },
+                                { label: 'Contact', href: '/about' },
                             ].map(l => (
                                 <li key={l.label}>
                                     <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
@@ -112,7 +122,12 @@ export function Footer() {
                                 { label: 'Partner FAQs', href: '#' },
                             ].map(l => (
                                 <li key={l.label}>
-                                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
+                                    <button
+                                        onClick={(e) => handleWIPClick(e, l.label)}
+                                        className="text-sm text-zinc-500 hover:text-white transition-colors text-left"
+                                    >
+                                        {l.label}
+                                    </button>
                                 </li>
                             ))}
                         </ul>
@@ -134,19 +149,21 @@ export function Footer() {
                         </span>
                     </div>
 
-                    {/* Social links (placeholder icons) */}
+                    {/* Social links as per the platform*/}
+                    {/* use the icons of social media from the respective social media platform */}
+
                     <div className="flex items-center gap-3">
                         {[
-                            { label: 'LinkedIn', path: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
-                            { label: 'Twitter/X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835-8.17-10.665H8.08l4.265 5.64L18.244 2.25z' },
-                            { label: 'Instagram', path: 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01 M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z' },
+                            { label: 'LinkedIn', href: 'https://www.linkedin.com/company/mechhub-in/', path: "M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" },
+                            { label: 'Instagram', href: 'https://www.instagram.com/mechhub.in/', path: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z M17.5 6.5h.01 M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" },
                         ].map(s => (
                             <Link
                                 key={s.label}
-                                href="#"
+                                href={s.href}
                                 aria-label={s.label}
                                 className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-zinc-500 hover:text-white hover:border-cyan-500/30 hover:bg-cyan-950/20 transition-all"
                             >
+                                {/* Placeholder icons - replace with actual SVG paths */}
                                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d={s.path} />
                                 </svg>

@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import { allPosts } from 'contentlayer/generated';
 import { compareDesc } from 'date-fns';
-import { Search, SlidersHorizontal, ArrowRight, X } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowRight, X, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 import Fuse from 'fuse.js';
 import { BlogLayout } from '@/components/BlogLayout';
 import { BlogCard } from '@/components/BlogCard';
@@ -45,6 +46,12 @@ export default function BlogPage() {
     return (
         <BlogLayout>
             <div className="space-y-12">
+                <div className="mb-8">
+                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Back to Home
+                    </Link>
+                </div>
                 {/* Blog Hero */}
                 <div className="text-center max-w-3xl mx-auto space-y-6 mb-16">
                     <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-3 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">

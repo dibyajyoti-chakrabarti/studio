@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { ChevronLeft } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
 
 export const metadata: Metadata = {
@@ -14,6 +15,13 @@ export default function RefundPolicyPage() {
             <LandingNav />
 
             <article className="container mx-auto px-4 max-w-3xl pb-24 pt-20">
+                <div className="py-6 relative z-10">
+                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Back to Home
+                    </Link>
+                </div>
+
                 <div className="space-y-4 mb-16 pt-8 relative z-10">
                     <span className="text-[10px] font-bold uppercase tracking-[0.3em] font-consolas text-cyan-400 border border-cyan-500/20 px-3 py-1 rounded-full bg-cyan-950/30">Legal</span>
                     <h1 className="text-4xl md:text-5xl  text-white tracking-tight drop-shadow-sm">Refund Policy</h1>

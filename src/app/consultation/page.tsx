@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, Suspense, useEffect } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LandingNav } from '@/components/LandingNav';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useFirestore, setDocumentNonBlocking, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Check, Loader2, FileText, ArrowRight } from 'lucide-react';
+import { Check, Loader2, FileText, ArrowRight, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function ConsultationPageContent() {
@@ -162,6 +163,14 @@ export default function ConsultationPage() {
 
             <div className="relative z-10">
                 <LandingNav />
+                
+                <div className="container mx-auto px-4 pt-24 pb-0">
+                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Back to Home
+                    </Link>
+                </div>
+
                 <Suspense fallback={
                     <div className="min-h-screen flex items-center justify-center pt-24">
                         <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
