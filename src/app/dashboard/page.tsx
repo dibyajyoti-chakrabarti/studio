@@ -46,9 +46,12 @@ import {
   CheckCircle2,
   MapPin,
   Layers,
-  Hash
+  Hash,
+  ShieldAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { isAdmin } from '@/lib/auth-utils';
+
 
 const STATUS_MAP: Record<string, { label: string, color: string, icon: any }> = {
   submitted: { label: 'MATCHING IN PROGRESS', color: 'bg-primary/20 text-primary', icon: Package },
@@ -334,6 +337,23 @@ export default function UserDashboard() {
       }} />
       <LandingNav />
       <div className="container mx-auto px-4 relative z-10">
+        {isAdmin(user?.email) && (
+          <div className="mb-6 p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl flex items-center justify-between backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="flex items-center gap-3">
+              <ShieldAlert className="w-5 h-5 text-cyan-400" />
+              <div>
+                <p className="text-sm font-bold text-white uppercase tracking-wider">Admin Access Detected</p>
+                <p className="text-[10px] text-cyan-100/60 uppercase tracking-widest font-bold">You are currently in the customer view.</p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => router.push('/admin')}
+              className="bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl px-6 h-10 text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+            >
+              Go to Admin Panel
+            </Button>
+          </div>
+        )}
         <div className="flex flex-col md:flex-row md:items-start justify-between mb-10 gap-6">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <h1 className=" text-3xl font-bold tracking-wide uppercase text-white shadow-cyan-500/20 drop-shadow-md">Project Hub</h1>

@@ -52,6 +52,7 @@ export function getFirebaseAdmin() {
                         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
                         privateKey: privateKey,
                     }),
+                    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
                 });
                 console.log('Firebase Admin initialized successfully');
             } else {
@@ -65,5 +66,6 @@ export function getFirebaseAdmin() {
     return {
         adminAuth: admin.apps.length > 0 ? admin.auth() : null,
         adminFirestore: admin.apps.length > 0 ? admin.firestore() : null,
+        adminStorage: admin.apps.length > 0 ? admin.storage() : null,
     };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import Image from 'next/image';
 import { ShopHeroCanvas } from '@/components/ShopHeroCanvas';
+import { ProductCard } from '@/components/ProductCard';
 
 const CATEGORIES = [
     { id: 'all', label: 'All Components' },
@@ -65,7 +66,6 @@ export default function ShopPage() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('Popular');
     const { addItem, totalItems } = useCart();
-    const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
     const [compareList, setCompareList] = useState<any[]>([]);
 
     const productsRef = useMemoFirebase(() => {
@@ -125,53 +125,57 @@ export default function ShopPage() {
                                 <Settings className="w-3.5 h-3.5 mr-2 animate-spin-slow" /> INDUSTRIAL GRADE COMPONENTS
                             </Badge>
                             
-                            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-[1.05] text-white animate-in fade-in slide-in-from-left-6 duration-700">
+                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 tracking-tight leading-[1.1] md:leading-[1.05] text-white animate-in fade-in slide-in-from-left-6 duration-700">
                                 Reliable <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Mechanical</span> Parts Registry.
                             </h1>
                             
-                            <p className="text-zinc-400 text-lg font-light mb-10 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
+                            <p className="text-zinc-400 text-base md:text-lg font-light mb-8 md:mb-10 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
                                 Precision hardware for engineering scale. Verified tolerances, transparent bulk pricing, and rapid global procurement.
                             </p>
 
                             {/* Integrated Industrial Search */}
                             <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur opacity-25 group-focus-within:opacity-50 transition-opacity" />
-                                <div className="relative bg-[#0B1120]/80 backdrop-blur-2xl border border-white/10 rounded-full flex items-center p-1 px-2 shadow-2xl">
-                                    <div className="pl-5 pr-3">
-                                        <Search className="w-5 h-5 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+                                <div className="relative bg-[#0B1120]/80 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1 px-1 md:px-2 shadow-2xl gap-1">
+                                    <div className="flex items-center flex-1">
+                                        <div className="pl-4 md:pl-5 pr-2 md:pr-3">
+                                            <Search className="w-4 h-4 md:w-5 md:h-5 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+                                        </div>
+                                        <Input
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search parts (SKU, Name)..."
+                                            className="bg-transparent border-none h-12 md:h-14 text-white placeholder:text-zinc-600 focus-visible:ring-0 text-sm md:text-base flex-1"
+                                        />
                                     </div>
-                                    <Input
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search parts (SKU, Name, Category)..."
-                                        className="bg-transparent border-none h-14 text-white placeholder:text-zinc-600 focus-visible:ring-0 text-base"
-                                    />
-                                    <Button className="rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold h-12 px-8 shadow-lg shadow-cyan-900/40">
+                                    <Button className="rounded-xl md:rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-cyan-900/40 text-xs md:text-base">
                                         Find Parts
                                     </Button>
                                 </div>
                             </div>
 
                             {/* Category Quick-Filters */}
-                            <div className="flex flex-wrap items-center gap-2 mt-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mr-2">Top Groups:</span>
-                                {CATEGORIES.slice(1, 5).map(cat => (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => setSelectedCategory(cat.id)}
-                                        className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border ${selectedCategory === cat.id
-                                            ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
-                                            : 'bg-white/5 border-white/5 text-zinc-500 hover:text-white hover:border-white/10 hover:bg-white/[0.08]'
-                                            }`}
-                                    >
-                                        {cat.label}
-                                    </button>
-                                ))}
+                             <div className="flex items-center gap-2 mt-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 overflow-hidden">
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mr-2 shrink-0 hidden sm:block">Top Groups:</span>
+                                <div className="flex items-center gap-2 overflow-x-auto pb-4 -mb-4 scrollbar-none snap-x">
+                                    {CATEGORIES.slice(1, 6).map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => setSelectedCategory(cat.id)}
+                                            className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border shrink-0 snap-start ${selectedCategory === cat.id
+                                                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
+                                                : 'bg-white/5 border-white/5 text-zinc-500 hover:text-white hover:border-white/10 hover:bg-white/[0.08]'
+                                                }`}
+                                        >
+                                            {cat.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        {/* RIGHT: 3D Visualization & Blueprint Overlay */}
-                        <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end animate-in fade-in zoom-in duration-1000">
+                        {/* RIGHT: 3D Visualization & Blueprint Overlay (Hidden on Mobile) */}
+                        <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center lg:justify-end animate-in fade-in zoom-in duration-1000">
                             <div className="relative w-full aspect-square max-w-[500px]">
                                 {/* Blueprint technical lines overlay (CSS generated) */}
                                 <div className="absolute inset-x-0 top-1/2 h-px bg-cyan-500/20 border-dashed border-b border-cyan-500/10 flex justify-between items-center px-4">
@@ -247,137 +251,22 @@ export default function ShopPage() {
             <section className="py-12 min-h-[600px]">
                 <div className="container mx-auto px-4">
                     {isLoading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-[28px]">
                             {[...Array(8)].map((_, i) => (
-                                <div key={i} className="aspect-[3/4] rounded-2xl bg-white/5 animate-pulse border border-white/5" />
+                                <div key={i} className="aspect-[2/3] rounded-2xl bg-white/5 animate-pulse border border-white/5" />
                             ))}
                         </div>
                     ) : filteredProducts.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                            {filteredProducts.map(product => {
-                                const isComparing = compareList.find(p => p.id === product.id);
-                                return (
-                                    <div
-                                        key={product.id}
-                                        className="group relative"
-                                        onMouseEnter={() => setHoveredProduct(product.id)}
-                                        onMouseLeave={() => setHoveredProduct(null)}
-                                    >
-                                        <Card className="h-full bg-[#0B1120] border-white/[0.06] overflow-hidden hover:border-cyan-500/30 hover:shadow-[0_0_40px_rgba(6,182,212,0.1)] transition-all duration-500 rounded-2xl flex flex-col">
-                                            {/* Top Section: Image */}
-                                            <div className="relative aspect-square bg-white flex items-center justify-center p-8 overflow-hidden">
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                <div className="relative w-full h-full flex items-center justify-center transform group-hover:scale-105 transition-transform duration-700">
-                                                    <Image
-                                                        src="/images/placeholder-part.svg" // Replace with real product image if available
-                                                        alt={product.name}
-                                                        width={160}
-                                                        height={160}
-                                                        className="object-contain opacity-80"
-                                                        onError={(e: any) => {
-                                                            e.target.src = "https://cdn-icons-png.flaticon.com/512/822/822102.png";
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {/* Category Tag */}
-                                                <Badge className="absolute top-3 left-3 bg-[#020617] text-cyan-400 border border-cyan-500/20 text-[9px] font-bold tracking-[0.2em] font-mono px-2 py-0.5">
-                                                    {product.categoryId.toUpperCase()}
-                                                </Badge>
-
-                                                {/* Status Indicator */}
-                                                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                    <span className="text-[9px] font-bold text-emerald-500 uppercase">In Stock</span>
-                                                </div>
-
-                                                {/* Quick Specs Overlay */}
-                                                <div className={`absolute inset-x-0 bottom-0 bg-[#0B1120]/95 backdrop-blur-md p-4 border-t border-white/10 transition-all duration-300 transform ${hoveredProduct === product.id ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
-                                                    <div className="grid grid-cols-2 gap-y-2">
-                                                        <div>
-                                                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">SKU</div>
-                                                            <div className="text-[11px] text-white font-medium">{product.sku}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">Inventory</div>
-                                                            <div className="text-[11px] text-white font-medium">{product.inventory} Units</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">Category</div>
-                                                            <div className="text-[11px] text-emerald-400 font-bold uppercase tracking-tighter">{product.categoryId}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">Bulk Rate</div>
-                                                            <div className="text-[11px] text-cyan-400 font-bold font-mono">₹{Math.floor(product.salePrice * 0.85)}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Compare Toggle */}
-                                                <button
-                                                    onClick={() => toggleCompare(product)}
-                                                    className={`absolute bottom-3 left-3 p-2 rounded-lg border transition-all ${isComparing
-                                                        ? 'bg-cyan-500 border-cyan-400 text-white scale-110'
-                                                        : 'bg-black/20 border-white/10 text-white/50 hover:text-white hover:bg-black/40'
-                                                        }`}
-                                                >
-                                                    <Scale className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
-
-                                            <CardHeader className="p-4 pt-5 pb-1 flex-grow">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className="text-[10px] font-mono text-zinc-500 bg-white/5 px-1.5 rounded uppercase">{product.sku}</span>
-                                                    {product.inventory < 20 && <span className="text-[9px] text-orange-400 font-bold uppercase tracking-wider">🔥 Low Stock</span>}
-                                                </div>
-                                                <CardTitle className="text-sm font-bold leading-tight group-hover:text-cyan-400 transition-colors line-clamp-2">{product.name}</CardTitle>
-                                                <p className="text-[11px] text-zinc-400 mt-2 font-mono flex items-center gap-2">
-                                                    <History className="w-3 h-3 text-emerald-500/60" /> {product.specs}
-                                                </p>
-                                            </CardHeader>
-
-                                            <CardContent className="p-4 pt-2">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-zinc-500 line-through">MRP: ₹{product.basePrice.toLocaleString()}</span>
-                                                        <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-400 bg-emerald-500/5 px-1.5 py-0 h-4">
-                                                            SAVE ₹{(product.basePrice - product.salePrice).toLocaleString()}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="flex items-baseline gap-2">
-                                                        <div className="text-xl font-bold font-mono text-white">₹{product.salePrice.toLocaleString()}</div>
-                                                        <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-tight">Per PC</span>
-                                                    </div>
-                                                    <div className="text-[10px] text-emerald-500 uppercase font-bold tracking-wider mt-1">Bulk Pricing Available</div>
-                                                </div>
-                                            </CardContent>
-
-                                            <CardFooter className="p-4 pt-0 flex gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    className="flex-1 bg-transparent border-white/10 hover:bg-white/5 hover:text-white rounded-xl h-10 text-[11px] font-bold uppercase transition-all"
-                                                    asChild
-                                                >
-                                                    <Link href={`/shop/${product.id}`}>Specs</Link>
-                                                </Button>
-                                                <Button
-                                                    className="flex-[2] bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl h-10 text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-cyan-900/20 active:scale-[0.98] transition-all"
-                                                    onClick={() => addItem({
-                                                        id: product.id,
-                                                        name: product.name,
-                                                        salePrice: product.salePrice,
-                                                        basePrice: product.basePrice,
-                                                        sku: product.sku,
-                                                        quantity: 1
-                                                    })}
-                                                >
-                                                    Add to Cart
-                                                </Button>
-                                            </CardFooter>
-                                        </Card>
-                                    </div>
-                                );
-                            })}
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-[28px]">
+                            {filteredProducts.map(product => (
+                                <ProductCard 
+                                    key={product.id}
+                                    product={product}
+                                    isComparing={!!compareList.find(p => p.id === product.id)}
+                                    toggleCompare={toggleCompare}
+                                    addItem={addItem}
+                                />
+                            ))}
                         </div>
                     ) : (
                         <div className="text-center py-32 border border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
@@ -451,8 +340,19 @@ export default function ShopPage() {
                                     <div /> {/* Empty space for labels column */}
                                     {compareList.map(p => (
                                         <div key={p.id} className="text-center group">
-                                            <div className="w-20 h-20 mx-auto rounded-2xl bg-white mb-5 flex items-center justify-center text-[#0B1120] shadow-xl group-hover:scale-110 transition-transform">
-                                                <Package className="w-10 h-10" />
+                                            <div className="w-20 h-20 mx-auto rounded-2xl bg-white mb-5 flex items-center justify-center text-[#0B1120] shadow-xl group-hover:scale-110 transition-transform relative overflow-hidden p-2">
+                                                <Image
+                                                    src={p.images?.length > 0 
+                                                        ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].urls.thumb)
+                                                        : "/images/placeholder-part.svg"
+                                                    }
+                                                    alt={p.name}
+                                                    fill
+                                                    className="object-contain p-1"
+                                                    onError={(e: any) => {
+                                                        e.target.src = "/mechhub.png";
+                                                    }}
+                                                />
                                             </div>
                                             <div className="text-[12px] font-bold line-clamp-2 h-10 flex items-center justify-center px-2 text-white">
                                                 {p.name}

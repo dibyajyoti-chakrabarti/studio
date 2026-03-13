@@ -35,8 +35,19 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: 'https',
+        hostname: 'mechhub-product-images.s3.eu-north-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+
     ],
+    domains: [
+      "mechhub-product-images.s3.eu-north-1.amazonaws.com"
+    ]
   },
+
 };
 
 export default withContentlayer(nextConfig);

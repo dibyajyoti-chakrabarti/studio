@@ -1,4 +1,4 @@
-﻿
+
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -57,6 +57,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
+import { isAdmin } from '@/lib/auth-utils';
+
 
 const STATUS_OPTIONS = [
   { value: 'submitted', label: 'RFQ Submitted' },
@@ -120,7 +122,12 @@ export default function AdminPanel() {
   const [sendQuoteRemarks, setSendQuoteRemarks] = useState('');
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const productImageInputRef = useRef<HTMLInputElement>(null);
 
   const db = useFirestore();
   const { toast } = useToast();
@@ -133,14 +140,28 @@ export default function AdminPanel() {
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
   useEffect(() => {
-    if (isUserLoading || isProfileLoading) return;
+    if (isUserLoading || isProfileLoading || !db) return;
 
     if (!user) {
       router.push('/login');
       return;
     }
 
-    if (profile && profile.role === 'admin') {
+    const emailIsAdmin = isAdmin(user.email);
+    const profileIsAdmin = profile?.role === 'admin';
+
+    if (emailIsAdmin) {
+      setIsAdminConfirmed(true);
+      
+      // Auto-correct role in Firestore if it's missing or wrong
+      if (profile && profile.role !== 'admin') {
+        updateDocumentNonBlocking(doc(db, 'users', user.uid), { 
+          role: 'admin',
+          updatedAt: new Date().toISOString()
+        });
+      }
+    } else if (profileIsAdmin) {
+      // Trust the DB if the email isn't in the hardcoded list but role is admin
       setIsAdminConfirmed(true);
     } else if (profile && profile.role !== 'admin') {
       setIsAdminConfirmed(false);
@@ -151,7 +172,7 @@ export default function AdminPanel() {
       });
       router.push('/dashboard');
     }
-  }, [user, isUserLoading, profile, isProfileLoading, router, toast]);
+  }, [user, isUserLoading, profile, isProfileLoading, router, toast, db]);
 
   const buyersQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'customer')) : null, [db, isAdminConfirmed]);
   const vendorsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null, [db, isAdminConfirmed]);
@@ -353,10 +374,151 @@ export default function AdminPanel() {
     toast({ title: "Catalogue Updated", description: "Product information synchronized." });
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    if (!db || !confirm("Permanently archive this product from the marketplace?")) return;
-    deleteDocumentNonBlocking(doc(db, 'products', productId));
-    toast({ title: "Product Archived" });
+  const handleProductImageUpload = async (files: FileList | File[], type: string = 'angle') => {
+    if (!files || files.length === 0 || !selectedProduct) return;
+
+    const fileArray = Array.from(files);
+    
+    // Validate sizes
+    for (const file of fileArray) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "File too large", description: `"${file.name}" exceeds 5MB limit.`, variant: "destructive" });
+        return;
+      }
+    }
+
+    setIsUploadingImage(true);
+    setUploadProgress(0);
+
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('productId', selectedProduct.id);
+        formData.append('productName', selectedProduct.name);
+        formData.append('sku', selectedProduct.sku);
+        formData.append('type', type);
+
+        // Sub-progress for this file
+        setUploadProgress(Math.floor((i / fileArray.length) * 100) + 10);
+
+        const response = await fetch('/api/v1/admin/products/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result?.error || `Upload failed for ${file.name}`);
+        }
+
+        const result = await response.json();
+        
+        // Update local state for immediate UI feedback (must use functional update for concurrency)
+        setSelectedProduct((prev: any) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            images: [...(prev.images || []), result.image]
+          };
+        });
+      }
+
+      toast({ title: "Assets Deployed", description: `${fileArray.length} views optimized and indexed.` });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Upload Failed", description: err.message || "Could not process asset.", variant: "destructive" });
+    } finally {
+      setIsUploadingImage(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      handleProductImageUpload(e.dataTransfer.files, 'angle');
+    }
+  };
+
+  const handleProductImageDelete = async (image: any) => {
+    if (!selectedProduct || !confirm("Erase this asset from cloud storage and repository?")) return;
+
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/v1/admin/products/upload/delete', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          imageId: image.id,
+          urls: image.urls
+        })
+      });
+
+      if (!response.ok) throw new Error('Delete failed');
+
+      // Update local state
+      const updatedImages = selectedProduct.images.filter((img: any) => img.id !== image.id);
+      setSelectedProduct({ ...selectedProduct, images: updatedImages });
+
+      toast({ title: "Asset Erased", description: "Storage and metadata purged." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Delete Failed", description: "Could not purge asset.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("Permanently archive this product from the marketplace? This will also purge all cloud assets.")) return;
+    
+    setIsDeletingProduct(productId);
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      const response = await fetch('/api/v1/admin/products/delete', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result?.error || 'Cleanup failed');
+      }
+
+      toast({ title: "Product & Assets Purged", description: "Catalog synchronized and storage reclaimed." });
+    } catch (err: any) {
+      console.error(err);
+      toast({ 
+        title: "Purge Failed", 
+        description: err.message || "Manual cleanup may be required in Firestore/S3.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsDeletingProduct(null);
+    }
   };
 
   if (isAdminConfirmed === null || isUserLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
@@ -630,8 +792,18 @@ export default function AdminPanel() {
                               <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-primary transition-colors" onClick={() => { setSelectedProduct(prod); setShowProductModal(true); }}>
                                 <Edit3 className="w-3.5 h-3.5" />
                               </Button>
-                              <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-destructive transition-colors" onClick={() => handleDeleteProduct(prod.id)}>
-                                <Trash2 className="w-3.5 h-3.5" />
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                className="w-8 h-8 hover:text-destructive transition-colors" 
+                                onClick={() => handleDeleteProduct(prod.id)}
+                                disabled={!!isDeletingProduct}
+                              >
+                                {isDeletingProduct === prod.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
                               </Button>
                             </div>
                           </TableCell>
@@ -1233,6 +1405,81 @@ export default function AdminPanel() {
                   <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
                   <Textarea name="description" defaultValue={selectedProduct?.description} className="bg-background/50 border-white/10 min-h-[80px]" />
                 </div>
+
+                {/* Professional Image Management Section */}
+                {selectedProduct && selectedProduct.id !== 'new' && (
+                  <div className="space-y-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest text-secondary">Media Repository</Label>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-[10px] font-bold border-white/10 gap-1.5"
+                          disabled={isUploadingImage}
+                          onClick={() => productImageInputRef.current?.click()}
+                        >
+                          {isUploadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                          Add Perspective
+                        </Button>
+                        <input
+                          type="file"
+                          ref={productImageInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files) handleProductImageUpload(e.target.files, 'angle');
+                          }}
+                          multiple
+                        />
+                      </div>
+                    </div>
+
+                    <div 
+                      className={`grid grid-cols-4 gap-3 p-4 rounded-xl border-2 border-dashed transition-all ${
+                        isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-white/5 bg-white/[0.02]'
+                      }`}
+                      onDragOver={onDragOver}
+                      onDragLeave={onDragLeave}
+                      onDrop={onDrop}
+                    >
+                      {selectedProduct.images?.map((img: any) => (
+                        <div key={img.id} className="relative aspect-square rounded-lg bg-background border border-white/10 overflow-hidden group">
+                          <Image src={img.urls.thumb} alt="Product" fill className="object-cover" />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-white hover:text-red-400"
+                              onClick={() => handleProductImageDelete(img)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          <div className="absolute top-1 left-1">
+                            <Badge className="text-[8px] px-1 py-0 bg-secondary/80 text-background font-bold uppercase">{img.type}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                      {isUploadingImage && (
+                        <div className="aspect-square rounded-lg bg-white/5 border border-dashed border-white/20 flex flex-col items-center justify-center gap-2">
+                          <Loader2 className="w-5 h-5 animate-spin text-secondary" />
+                          <span className="text-[8px] font-bold text-secondary">{uploadProgress}%</span>
+                        </div>
+                      )}
+                      {!isUploadingImage && (!selectedProduct.images || selectedProduct.images.length === 0) && (
+                        <div className="col-span-4 py-8 text-center">
+                          <ImageIcon className="w-6 h-6 mx-auto text-muted-foreground/20 mb-2" />
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-widest px-4">
+                            Drag assets here
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-end gap-3 pt-6 pb-6">
                 <Button variant="ghost" onClick={() => setShowProductModal(false)} type="button" className="text-zinc-500 hover:text-white">Cancel</Button>
