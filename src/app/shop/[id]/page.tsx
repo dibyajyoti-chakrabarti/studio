@@ -299,7 +299,7 @@ export default function ProductDetailPage() {
 
                                 <div className="pt-2 md:pt-4 space-y-5 md:space-y-6">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div className="flex items-center bg-black/40 border border-white/10 rounded-xl md:rounded-2xl overflow-hidden h-12 md:h-14">
+                                        <div className="flex items-center bg-black/40 border border-white/10 rounded-xl md:rounded-2xl overflow-hidden h-10 md:h-10 w-26 md:w-26">
                                             <button
                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                                 className="w-12 md:w-14 h-full flex items-center justify-center hover:bg-white/5 text-zinc-400 hover:text-white transition-colors border-r border-white/5"
@@ -502,8 +502,13 @@ export default function ProductDetailPage() {
                         </div>
                         <Accordion type="single" collapsible className="w-full space-y-4">
                             {(product.faqs as FAQ[] || [
-                                { q: "What is the dispatch time?", a: "Standard dispatch time is within 24-48 business hours from order verification." },
-                                { q: "Do you provide bulk discounts?", a: "Yes, for quantities above 100 units, please contact our relationship manager." }
+                                { q: "What is the dispatch time?", a: "Standard dispatch time is within 24-48 business hours from order verification for in-stock items. Custom fabrications will have specific lead times." },
+                                { q: "Do you provide bulk discounts?", a: "Yes, for quantities above 100 units, please contact our relationship manager for a commercial quote." },
+                                { q: "Is this component compatible with SolidWorks/Fusion 360?", a: "Yes, our components follow standard industrial sizing. You can download the datasheet for precise dimensions to aid your CAD modeling." },
+                                { q: "What material grades are used?", a: "We specify the material grade (like 6061-T6 Aluminum or POM) in the 'Specifications' section above. All materials are source-verified." },
+                                { q: "Can I request custom modifications?", a: "Custom modifications (drilling, anodizing, etc.) are available through our Partner Fabrication Program for volume orders." },
+                                { q: "What is the return policy for precision parts?", a: "We accept returns within 7 days for unopened items in original packaging. Precision components must be in 'as-dispatched' condition to pass QC." },
+                                { q: "Do you ship internationally?", a: "Currently, we provide end-to-end logistics within the region. For international inquiries, please contact our logistics desk for shipping estimates." }
                             ]).map((faq, idx) => (
                                 <AccordionItem key={idx} value={`item-${idx}`} className="border border-white/5 bg-white/[0.01] rounded-2xl px-6">
                                     <AccordionTrigger className="text-sm font-bold text-zinc-200 hover:text-cyan-400 hover:no-underline py-6">
@@ -612,6 +617,8 @@ export default function ProductDetailPage() {
                                     salePrice: product.salePrice,
                                     basePrice: product.basePrice || product.salePrice,
                                     sku: product.sku,
+                                    image: productImages[0],
+                                    inventory: product.inventory,
                                     quantity: 1
                                 })}
                             >
@@ -627,6 +634,8 @@ export default function ProductDetailPage() {
                                         salePrice: product.salePrice,
                                         basePrice: product.basePrice || product.salePrice,
                                         sku: product.sku,
+                                        image: productImages[0],
+                                        inventory: product.inventory,
                                         quantity: 1
                                     });
                                     router.push('/checkout');
