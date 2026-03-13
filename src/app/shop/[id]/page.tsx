@@ -286,11 +286,11 @@ export default function ProductDetailPage() {
                             <div className="space-y-6 relative z-10">
                                 <div className="space-y-1">
                                     <div className="flex items-baseline flex-wrap gap-2 sm:gap-4">
-                                        <span className="text-4xl md:text-6xl font-bold text-white font-mono tracking-tighter">₹{product.salePrice.toLocaleString()}</span>
+                                        <span className="text-4xl md:text-6xl font-bold text-white font-mono tracking-tighter">₹{(product.salePrice * quantity).toLocaleString()}</span>
                                         {product.basePrice > product.salePrice && (
                                             <div className="flex flex-col">
-                                                <span className="text-base md:text-lg text-zinc-500 line-through font-mono opacity-50 decoration-1">₹{product.basePrice.toLocaleString()}</span>
-                                                <span className="text-[9px] md:text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">You Save ₹{product.basePrice - product.salePrice}</span>
+                                                <span className="text-base md:text-lg text-zinc-500 line-through font-mono opacity-50 decoration-1">₹{(product.basePrice * quantity).toLocaleString()}</span>
+                                                <span className="text-[9px] md:text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">You Save ₹{((product.basePrice - product.salePrice) * quantity).toLocaleString()}</span>
                                             </div>
                                         )}
                                     </div>
@@ -309,7 +309,8 @@ export default function ProductDetailPage() {
                                             <span className="w-14 md:w-20 text-center text-sm md:text-base font-bold font-mono text-zinc-200">{quantity}</span>
                                             <button
                                                 onClick={() => setQuantity(quantity + 1)}
-                                                className="w-12 md:w-14 h-full flex items-center justify-center hover:bg-white/5 text-zinc-400 hover:text-white transition-colors border-l border-white/5"
+                                                disabled={quantity >= product.inventory}
+                                                className={`w-12 md:w-14 h-full flex items-center justify-center hover:bg-white/5 text-zinc-400 hover:text-white transition-colors border-l border-white/5 ${quantity >= product.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
                                             >
                                                 <Plus className="w-4 h-4" />
                                             </button>
@@ -317,7 +318,7 @@ export default function ProductDetailPage() {
                                         <div className="text-left sm:text-right px-1">
                                             <p className="text-[9px] text-zinc-500 uppercase tracking-widest font-black mb-1">Availability</p>
                                             <div className="flex items-center sm:justify-end gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                                                <div className={`w-1.5 h-1.5 rounded-full ${product.inventory > 0 ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`} />
                                                 <span className="text-xs font-bold text-zinc-200">{product.inventory} Units In Reserve</span>
                                             </div>
                                         </div>
@@ -325,7 +326,8 @@ export default function ProductDetailPage() {
 
                                     <div className="flex flex-col gap-3">
                                         <Button
-                                            className="w-full h-14 md:h-16 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl md:rounded-2xl gap-3 shadow-xl shadow-cyan-900/20 transition-all active:scale-[0.98] text-sm md:text-base"
+                                            className="w-full h-14 md:h-16 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl md:rounded-2xl gap-3 shadow-xl shadow-cyan-900/20 transition-all active:scale-[0.98] text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={product.inventory <= 0}
                                             onClick={() => addItem({
                                                 id: product.id,
                                                 name: product.name,
@@ -333,13 +335,15 @@ export default function ProductDetailPage() {
                                                 basePrice: product.basePrice || product.salePrice,
                                                 sku: product.sku,
                                                 image: productImages[0],
+                                                inventory: product.inventory,
                                                 quantity: quantity
                                             })}
                                         >
-                                            <ShoppingCart className="w-5 h-5" /> Add to Procurement
+                                            <ShoppingCart className="w-5 h-5" /> {product.inventory > 0 ? 'Add to Procurement' : 'Out of Stock'}
                                         </Button>
                                         <Button
-                                            className="w-full h-14 md:h-16 bg-white text-black hover:bg-zinc-200 rounded-xl md:rounded-2xl font-black transition-all active:scale-[0.98] text-sm md:text-base shadow-lg"
+                                            className="w-full h-14 md:h-16 bg-white text-black hover:bg-zinc-200 rounded-xl md:rounded-2xl font-black transition-all active:scale-[0.98] text-sm md:text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={product.inventory <= 0}
                                             onClick={() => {
                                                 addItem({
                                                     id: product.id,
@@ -348,6 +352,7 @@ export default function ProductDetailPage() {
                                                     basePrice: product.basePrice || product.salePrice,
                                                     sku: product.sku,
                                                     image: productImages[0],
+                                                    inventory: product.inventory,
                                                     quantity: quantity
                                                 });
                                                 router.push('/checkout');

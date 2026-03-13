@@ -139,6 +139,7 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
                                     basePrice: product.basePrice,
                                     sku: product.sku,
                                     image: productImages[0],
+                                    inventory: product.inventory,
                                     quantity: 1
                                 });
                             }}

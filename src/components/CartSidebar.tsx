@@ -131,9 +131,10 @@ export function CartSidebar() {
                                                     <span className="w-9 text-center text-[11px] font-bold font-mono text-zinc-300">{item.quantity}</span>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
-                                                        className="w-8 h-full flex items-center justify-center hover:bg-white/5 text-zinc-500 hover:text-white transition-colors border-l border-white/5"
+                                                        disabled={item.quantity >= item.inventory}
+                                                        className={`w-7 h-7 flex items-center justify-center hover:bg-white/10 text-zinc-400 hover:text-white transition-colors ${item.quantity >= item.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
                                                     >
-                                                        <Plus className="w-2.5 h-2.5" />
+                                                        <Plus className="w-3 h-3" />
                                                     </button>
                                                 </div>
                                                 <div className="text-right">

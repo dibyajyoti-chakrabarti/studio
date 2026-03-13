@@ -12,6 +12,7 @@ export interface CartItem {
     quantity: number;
     image?: string;
     sku: string;
+    inventory: number;
 }
 
 interface CartContextType {
@@ -86,9 +87,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems(prev => {
             const existing = prev.find(i => i.id === newItem.id);
             if (existing) {
-                return prev.map(i => i.id === newItem.id ? { ...i, quantity: i.quantity + newItem.quantity } : i);
+                const totalQuantity = existing.quantity + newItem.quantity;
+                const cappedQuantity = Math.min(totalQuantity, newItem.inventory);
+                return prev.map(i => i.id === newItem.id ? { ...i, quantity: cappedQuantity } : i);
             }
-            return [...prev, newItem];
+            return [...prev, { ...newItem, quantity: Math.min(newItem.quantity, newItem.inventory) }];
         });
         setIsCartOpen(true);
     };
@@ -102,7 +105,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             removeItem(id);
             return;
         }
-        setItems(prev => prev.map(i => i.id === id ? { ...i, quantity } : i));
+        setItems(prev => prev.map(i => {
+            if (i.id === id) {
+                return { ...i, quantity: Math.min(quantity, i.inventory) };
+            }
+            return i;
+        }));
     };
 
     const clearCart = () => {
