@@ -60,6 +60,33 @@ flowchart LR
     Services --> Storage[Object Storage]
 ```
 
+### Request Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant CDN
+    participant API
+    participant Auth
+    participant DB
+
+    User->>Browser: Search Components
+    Browser->>CDN: Request App Runtime
+    CDN->>Browser: Serve Static Assets
+    
+    Browser->>API: GET /api/v1/products
+    
+    API->>Auth: Validate JWT/oobCode
+    Auth->>API: Token Verified
+    
+    API->>DB: Query Firestore (indexed)
+    DB->>API: Return Document Snapshots
+    
+    API->>Browser: JSON Response
+    Browser->>User: Render High-Density Grid
+```
+
 ### Frontend
 
 - React 19
@@ -88,32 +115,7 @@ flowchart LR
 
 The platform follows a layered architecture:
 
-```mermaid
-flowchart TD
-    subgraph Presentation Layer
-        UI[React / UI Components]
-        State[Context Providers]
-    end
-    
-    subgraph Application Layer
-        API[Next.js API Routes]
-        Auth[Firebase Auth Services]
-    end
-    
-    subgraph Data Layer
-        DB[(Firestore NoSQL)]
-        Storage[Firebase Storage]
-    end
-    
-    subgraph Infrastructure Layer
-        CDN[Vercel Edge Network]
-        Email[Resend Mail Service]
-    end
 
-    Presentation Layer --> Application Layer
-    Application Layer --> Data Layer
-    Data Layer --> Infrastructure Layer
-```
 *(Diagram modeled after Excalidraw/Whimsical architectural standards)*
 
 ---
@@ -135,11 +137,11 @@ mechhub/
 
 Clone the repository
 
-git clone https://github.com/yourusername/mechhub.git
+git clone https://github.com/DivyanshuRanjanDynamic/studio.git
 
 Navigate to the application directory
 
-cd mechhub/studio
+cd studio
 
 Install dependencies
 
@@ -179,6 +181,101 @@ POST /api/v1/auth/verify-action
 
 ---
 
+## Database Schema (Firestore)
+
+A high-level overview of our NoSQL document structures and relationships:
+
+```mermaid
+erDiagram
+    users {
+        string uid PK
+        string email
+        string displayName
+        string role "customer | vendor | admin"
+        timestamp createdAt
+    }
+    
+    products {
+        string id PK
+        string name
+        number basePrice
+        number salePrice
+        number inventory
+        string categoryId
+        array technicalSpecs
+    }
+    
+    orders {
+        string id PK
+        string userId FK
+        string status "pending | shipped | fulfilled"
+        number totalAmount
+        timestamp createdAt
+    }
+    
+    payments {
+        string id PK
+        string orderId FK
+        string status
+        number amount
+        timestamp processedAt
+    }
+    
+    rfqs {
+        string id PK
+        string userId FK
+        string status
+        string requirements
+        timestamp createdAt
+    }
+    
+    quotations {
+        string id PK
+        string rfqId FK
+        string vendorId FK
+        number price
+        string status
+    }
+    
+    blog_stats {
+        string slug PK
+        number Likes
+        array LikedBy
+    }
+    
+    consultationRequests {
+        string id PK
+        string email
+        string companyName
+        string status
+    }
+    
+    newsletter_subscribers {
+        string email PK
+        timestamp subscribedAt
+    }
+    
+    verification_tokens {
+        string token PK
+        string email
+        timestamp expiresAt
+    }
+    
+    rate_limits {
+        string ip PK
+        number count
+        timestamp resetAt
+    }
+    
+    users ||--o{ orders : places
+    users ||--o{ rfqs : submits
+    orders ||--o{ products : contains
+    orders ||--o| payments : requires
+    rfqs ||--o{ quotations : receives
+```
+
+---
+
 ## Scalability Design
 
 The platform is designed to support large scale industrial catalogs.
@@ -215,13 +312,30 @@ Security practices implemented:
 
 ---
 
-## Deployment
+## Deployment Architecture
 
-MechHub is built for zero-config Vercel deployments.
+ MechHub utilizes a tiered deployment strategy optimized for zero-config global scaling.
+
+```mermaid
+flowchart TD
+    User([Global User]) --> Route53[DNS Routing]
+    Route53 --> VercelEdge[Vercel Edge Network]
+    
+    VercelEdge --> NextJS[Next.js Serverless Functions]
+    VercelEdge --> Static[Static Asset CDN]
+    
+    NextJS --> FBAuth[Firebase Authentication]
+    NextJS --> Firestore[(Firestore NoSQL)]
+    NextJS --> Resend[Resend Email API]
+    
+    Static --> User
+```
 
 Deploy using Vercel CLI:
 
+```bash
 vercel deploy --prod
+```
 
 Ensure environment variables are configured in the Vercel dashboard prior to deployment.
 Private keys are automatically parsed and sanitized for OpenSSL compatibility.
