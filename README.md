@@ -20,7 +20,7 @@ MechHub solves this by providing a unified, real-time industrial commerce market
 - **Transactional Communications:** Branded, automated HTML verification and notification emails via Resend.
 
 ## Demo
-> Live Demo: [https://mechhub.in](https://mechhub.in) *(coming soon)*
+> Live Demo: [https://mechhub.in](https://mechhub.in) 
 
 ## Architecture
 MechHub follows a modern serverless architecture utilizing Next.js App Router for both SSR (Server-Side Rendering) and API routes. The frontend communicates with Firebase for real-time state and authentication. Serverless API routes (Node.js) handle secure operations like administrative bypassing, custom email triggers through Resend, and specialized Firebase Admin SDK invocations.
