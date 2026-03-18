@@ -109,17 +109,6 @@ sequenceDiagram
 - Vercel
 - Resend (Transactional Email provider)
 
----
-
-## System Design
-
-The platform follows a layered architecture:
-
-
-*(Diagram modeled after Excalidraw/Whimsical architectural standards)*
-
----
-
 ## Repository Structure
 
 mechhub/
@@ -158,11 +147,28 @@ npm run dev
 Create a `.env.local` file inside the `/studio` directory.
 
 FIREBASE_PROJECT_ID=
+
 FIREBASE_CLIENT_EMAIL=
+
 FIREBASE_PRIVATE_KEY=
+
 NEXT_PUBLIC_APP_URL=
+
 RESEND_API_KEY=
+
 RESEND_FROM_EMAIL=
+
+RAZORPAY_KEY_ID=
+
+RAZORPAY_KEY_SECRET=
+
+AWS_ACCESS_KEY_ID=
+
+AWS_SECRET_ACCESS_KEY=
+
+AWS_REGION=
+
+AWS_S3_BUCKET=
 
 ---
 
