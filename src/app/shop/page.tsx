@@ -101,15 +101,15 @@ export default function ShopPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-500/30">
             <LandingNav />
 
             {/* 1. Hero Section (Engineering-First Redesign) */}
-            <div className="relative pt-32 pb-24 overflow-hidden bg-[#020617]">
+            <div className="relative pt-32 pb-24 overflow-hidden bg-[#F8FAFC]">
                 {/* Visual Elements: Blueprint Grid & Background Glow */}
-                <div className="blueprint-grid opacity-[0.05] pointer-events-none" />
-                <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-cyan-500/10 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full" />
+                <div className="blueprint-grid opacity-[0.03] pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-500/5 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/5 blur-[120px] rounded-full" />
                 
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="mb-8">
@@ -121,34 +121,34 @@ export default function ShopPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                         {/* LEFT: Messaging & Industrial Search */}
                         <div className="lg:col-span-6 max-w-2xl">
-                            <Badge variant="outline" className="mb-6 border-cyan-500/30 text-cyan-400 font-mono tracking-widest px-4 py-1.5 bg-cyan-500/5 backdrop-blur-sm animate-in fade-in slide-in-from-left-4 duration-500">
+                            <Badge variant="outline" className="mb-6 border-blue-200 text-[#2F5FA7] font-mono tracking-widest px-4 py-1.5 bg-blue-50/50 backdrop-blur-sm animate-in fade-in slide-in-from-left-4 duration-500">
                                 <Settings className="w-3.5 h-3.5 mr-2 animate-spin-slow" /> INDUSTRIAL GRADE COMPONENTS
                             </Badge>
                             
-                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 tracking-tight leading-[1.1] md:leading-[1.05] text-white animate-in fade-in slide-in-from-left-6 duration-700">
-                                Reliable <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Mechanical</span> Parts Registry.
+                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 tracking-tight leading-[1.1] md:leading-[1.05] text-slate-900 animate-in fade-in slide-in-from-left-6 duration-700">
+                                Reliable <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2F5FA7] to-[#1E3A66]">Mechanical</span> Parts Registry.
                             </h1>
                             
-                            <p className="text-zinc-400 text-base md:text-lg font-light mb-8 md:mb-10 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
+                            <p className="text-slate-500 text-base md:text-lg font-light mb-8 md:mb-10 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
                                 Precision hardware for engineering scale. Verified tolerances, transparent bulk pricing, and rapid global procurement.
                             </p>
 
                             {/* Integrated Industrial Search */}
                             <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur opacity-25 group-focus-within:opacity-50 transition-opacity" />
-                                <div className="relative bg-[#0B1120]/80 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1 px-1 md:px-2 shadow-2xl gap-1">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-full blur opacity-25 group-focus-within:opacity-50 transition-opacity" />
+                                <div className="relative bg-white/80 backdrop-blur-2xl border border-blue-100 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1 px-1 md:px-2 shadow-xl gap-1">
                                     <div className="flex items-center flex-1">
                                         <div className="pl-4 md:pl-5 pr-2 md:pr-3">
-                                            <Search className="w-4 h-4 md:w-5 md:h-5 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+                                            <Search className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                                         </div>
                                         <Input
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             placeholder="Search parts (SKU, Name)..."
-                                            className="bg-transparent border-none h-12 md:h-14 text-white placeholder:text-zinc-600 focus-visible:ring-0 text-sm md:text-base flex-1"
+                                            className="bg-transparent border-none h-12 md:h-14 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1"
                                         />
                                     </div>
-                                    <Button className="rounded-xl md:rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-cyan-900/40 text-xs md:text-base">
+                                    <Button className="rounded-xl md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-blue-900/10 text-xs md:text-base">
                                         Find Parts
                                     </Button>
                                 </div>
@@ -204,41 +204,41 @@ export default function ShopPage() {
                                 </div>
 
                                 {/* Live Stats Card - Overlapping bottom right */}
-                                <div className="absolute -bottom-6 -right-6 lg:right-6 bg-[#0B1120]/90 backdrop-blur-xl border border-white/10 p-5 rounded-3xl shadow-2xl z-20 max-w-[240px] animate-in slide-in-from-bottom-8 duration-700">
+                                <div className="absolute -bottom-6 -right-6 lg:right-6 bg-white/90 backdrop-blur-xl border border-blue-100 p-5 rounded-3xl shadow-2xl z-20 max-w-[240px] animate-in slide-in-from-bottom-8 duration-700">
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-                                                <Boxes className="w-5 h-5 text-cyan-400" />
+                                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                                <Boxes className="w-5 h-5 text-[#2F5FA7]" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Available Parts</p>
-                                                <p className="text-sm font-bold text-white">15,000+ SKUs</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Parts</p>
+                                                <p className="text-sm font-bold text-slate-800">15,000+ SKUs</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                                <Truck className="w-5 h-5 text-emerald-400" />
+                                            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                                <Truck className="w-5 h-5 text-emerald-600" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Global Dispatch</p>
-                                                <p className="text-sm font-bold text-white">24-48 Hours</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Dispatch</p>
+                                                <p className="text-sm font-bold text-slate-800">24-48 Hours</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                                <Store className="w-5 h-5 text-blue-400" />
+                                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                                <Store className="w-5 h-5 text-[#2F5FA7]" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Trusted By</p>
-                                                <p className="text-sm font-bold text-white">120+ Eng. Teams</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trusted By</p>
+                                                <p className="text-sm font-bold text-slate-800">120+ Eng. Teams</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                                        <span className="text-[9px] font-bold text-emerald-500 uppercase flex items-center gap-1.5">
+                                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                                        <span className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1.5">
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Status
                                         </span>
-                                        <span className="text-[9px] font-mono text-zinc-600">ID: 9002-SRV</span>
+                                        <span className="text-[9px] font-mono text-slate-400">ID: 9002-SRV</span>
                                     </div>
                                 </div>
                             </div>
@@ -286,10 +286,10 @@ export default function ShopPage() {
             </section>
 
             {/* 5. Engineer Trust Section */}
-            <section className="py-20 bg-[#040f25]/30 border-y border-white/5">
+            <section className="py-20 bg-blue-50/30 border-y border-blue-100">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
-                        <h2 className="text-2xl font-bold opacity-80 uppercase tracking-widest font-mono">Why Engineers Choose MechHub</h2>
+                        <h2 className="text-2xl font-bold text-slate-400 uppercase tracking-widest font-mono">Why Engineers Choose MechHub</h2>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                         {[
@@ -298,10 +298,10 @@ export default function ShopPage() {
                             { icon: BarChart3, title: "Bulk Discounts", desc: "Pricing scales with volume" },
                             { icon: ShieldCheck, title: "Verified Suppliers", desc: "Full traceability reports" }
                         ].map((item, idx) => (
-                            <div key={idx} className="p-6 rounded-2xl bg-[#0B1120] border border-white/5 hover:border-cyan-500/20 transition-all group hover:-translate-y-1">
-                                <item.icon className="w-8 h-8 text-cyan-500 mb-4 group-hover:scale-110 transition-transform" />
-                                <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-                                <p className="text-[11px] text-zinc-500 leading-relaxed uppercase font-bold tracking-tighter opacity-70">{item.desc}</p>
+                            <div key={idx} className="p-6 rounded-2xl bg-white border border-blue-50 hover:border-blue-200 transition-all group hover:-translate-y-1 shadow-sm hover:shadow-md">
+                                <item.icon className="w-8 h-8 text-[#2F5FA7] mb-4 group-hover:scale-110 transition-transform" />
+                                <h4 className="font-bold text-sm text-slate-800 mb-1">{item.title}</h4>
+                                <p className="text-[11px] text-slate-400 leading-relaxed uppercase font-bold tracking-tighter">{item.desc}</p>
                             </div>
                         ))}
                     </div>

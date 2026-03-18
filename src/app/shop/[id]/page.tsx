@@ -43,10 +43,10 @@ import {
 } from "@/components/ui/accordion";
 
 interface Review {
-    user: string;
+    userName: string;
     rating: number;
     comment: string;
-    date: string;
+    createdAt: string;
 }
 
 interface FAQ {
@@ -86,24 +86,24 @@ export default function ProductDetailPage() {
 
     if (isLoading || !productRef) {
         return (
-            <div className="min-h-screen bg-[#020617] text-white font-sans flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2F5FA7]"></div>
             </div>
         );
     }
 
     if (error || !product) {
         return (
-            <div className="min-h-screen bg-[#020617] text-white font-sans flex flex-col items-center justify-center p-4">
-                <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
-                    <Package className="w-10 h-10 text-red-500" />
+            <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex flex-col items-center justify-center p-4">
+                <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-6 border border-red-100">
+                    <Package className="w-10 h-10 text-red-600" />
                 </div>
                 <h1 className="text-2xl font-bold mb-2">Product Not Found</h1>
-                <p className="text-zinc-500 mb-8 max-w-md text-center">
+                <p className="text-slate-500 mb-8 max-w-md text-center">
                     The component you are looking for does not exist in our registry or has been removed.
                 </p>
                 <Link href="/shop">
-                    <Button variant="outline" className="border-white/10 hover:bg-white/5 gap-2 h-12 px-8">
+                    <Button variant="outline" className="border-slate-200 hover:bg-slate-50 gap-2 h-12 px-8 text-slate-900">
                         <ArrowLeft className="w-4 h-4" /> Back to Catalogue
                     </Button>
                 </Link>
@@ -133,22 +133,22 @@ export default function ProductDetailPage() {
     const zoomImage = product.images?.[activeImage]?.urls?.zoom || productImages[activeImage];
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-500/30">
             <LandingNav />
 
             {/* Breadcrumbs */}
-            <div className="bg-[#020617]/50 border-b border-white/5 py-4">
+            <div className="bg-white/50 border-b border-slate-100 py-4">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
-                        <Link href="/" className="hover:text-cyan-400 flex items-center gap-1 transition-colors">
+                    <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                        <Link href="/" className="hover:text-[#2F5FA7] flex items-center gap-1 transition-colors">
                             <Home className="w-3 h-3" /> Home
                         </Link>
                         <ChevronRight className="w-3 h-3" />
-                        <Link href="/shop" className="hover:text-cyan-400 transition-colors">Shop</Link>
+                        <Link href="/shop" className="hover:text-[#2F5FA7] transition-colors">Shop</Link>
                         <ChevronRight className="w-3 h-3" />
-                        <Link href={`/shop?category=${product.categoryId}`} className="hover:text-cyan-400 transition-colors capitalize">{product.categoryId.replace('-', ' ')}</Link>
+                        <Link href={`/shop?category=${product.categoryId}`} className="hover:text-[#2F5FA7] transition-colors capitalize">{product.categoryId.replace('-', ' ')}</Link>
                         <ChevronRight className="w-3 h-3" />
-                        <span className="text-zinc-300 truncate max-w-[150px]">{product.name}</span>
+                        <span className="text-slate-600 truncate max-w-[150px]">{product.name}</span>
                     </div>
                 </div>
             </div>
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
 
                     {/* Left: Product Image & Gallery */}
                     <div className="lg:col-span-7 space-y-4 md:space-y-6 lg:sticky lg:top-24">
-                        <div className="aspect-square bg-black/40 rounded-2xl md:rounded-[2rem] border border-white/5 flex items-center justify-center relative overflow-hidden group shadow-2xl">
+                        <div className="aspect-square bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 flex items-center justify-center relative overflow-hidden group shadow-xl">
                             <Image
                                 src={productImages[activeImage]}
                                 alt={product.name}
@@ -170,14 +170,14 @@ export default function ProductDetailPage() {
                                 className="object-contain p-6 md:p-12 group-hover:scale-105 transition-transform duration-700 ease-out"
                                 sizes="(max-width: 768px) 100vw, 50vw"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-tr from-[#020617] via-transparent to-cyan-500/5 pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-[#F8FAFC] via-transparent to-blue-500/5 pointer-events-none" />
 
                             {/* Tags */}
                             <div className="absolute top-4 left-4 md:top-6 md:left-6 flex flex-col gap-2">
-                                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-2.5 py-0.5 md:px-3 md:py-1 font-bold text-[8px] md:text-[9px] uppercase tracking-tighter">
+                                <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-2.5 py-0.5 md:px-3 md:py-1 font-bold text-[8px] md:text-[9px] uppercase tracking-tighter shadow-sm">
                                     <CheckCircle2 className="w-3 h-3 mr-1.5" /> QC Tested
                                 </Badge>
-                                <Badge className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20 px-2.5 py-0.5 md:px-3 md:py-1 font-bold text-[8px] md:text-[9px] uppercase tracking-tighter">
+                                <Badge className="bg-blue-50 text-[#2F5FA7] border-blue-100 px-2.5 py-0.5 md:px-3 md:py-1 font-bold text-[8px] md:text-[9px] uppercase tracking-tighter shadow-sm">
                                     <Zap className="w-3 h-3 mr-1.5" /> Fast Dispatch
                                 </Badge>
                             </div>
@@ -187,13 +187,13 @@ export default function ProductDetailPage() {
                                 <>
                                     <button
                                         onClick={(e) => { e.preventDefault(); setActiveImage(prev => (prev - 1 + productImages.length) % productImages.length); }}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#020617]/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all opacity-0 group-hover:opacity-100 z-10"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#2F5FA7] hover:border-blue-200 hover:bg-blue-50 transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg"
                                     >
                                         <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                                     </button>
                                     <button
                                         onClick={(e) => { e.preventDefault(); setActiveImage(prev => (prev + 1) % productImages.length); }}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#020617]/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all opacity-0 group-hover:opacity-100 z-10"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#2F5FA7] hover:border-blue-200 hover:bg-blue-50 transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg"
                                     >
                                         <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                                     </button>
@@ -207,7 +207,7 @@ export default function ProductDetailPage() {
                                 <button
                                     key={idx}
                                     onClick={() => setActiveImage(idx)}
-                                    className={`relative w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl overflow-hidden border transition-all shrink-0 snap-start ${activeImage === idx ? 'border-cyan-500 ring-4 ring-cyan-500/10' : 'border-white/5 hover:border-white/20'
+                                    className={`relative w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl overflow-hidden border transition-all shrink-0 snap-start shadow-sm ${activeImage === idx ? 'border-[#2F5FA7] ring-4 ring-blue-50' : 'border-slate-200 hover:border-blue-200'
                                         }`}
                                 >
                                     <Image
@@ -229,104 +229,104 @@ export default function ProductDetailPage() {
                     <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8">
                         <section className="space-y-4 md:space-y-6">
                             <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 font-mono text-[8px] md:text-[9px] tracking-widest uppercase px-2 py-0">
+                                <Badge variant="outline" className="border-blue-100 text-[#2F5FA7] font-mono text-[8px] md:text-[9px] tracking-widest uppercase px-2 py-0 bg-blue-50/30">
                                     SKU: {product.sku}
                                 </Badge>
                                 {product.inventory < 50 && (
-                                    <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20 text-[8px] md:text-[9px] uppercase font-bold px-2 py-0">
+                                    <Badge className="bg-orange-50 text-orange-600 border-orange-100 text-[8px] md:text-[9px] uppercase font-bold px-2 py-0">
                                         Low Stock
                                     </Badge>
                                 )}
                             </div>
-                            <h1 className="text-3xl md:text-5xl font-bold text-zinc-100 leading-tight tracking-tight">
+                            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight tracking-tight">
                                 {product.name}
                             </h1>
 
                             <div className="flex items-center gap-3">
-                                <div className="flex items-center text-yellow-500">
+                                <div className="flex items-center text-amber-500">
                                     {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(avgRating) ? 'fill-current' : 'text-zinc-700'}`} />
+                                        <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(avgRating) ? 'fill-current' : 'text-slate-200'}`} />
                                     ))}
                                 </div>
-                                <span className="text-sm font-bold text-zinc-400">{avgRating}</span>
-                                <span className="text-zinc-700">|</span>
-                                <span className="text-xs font-medium text-zinc-500 underline underline-offset-4 cursor-pointer hover:text-cyan-400 transition-colors">
+                                <span className="text-sm font-bold text-slate-600">{avgRating}</span>
+                                <span className="text-slate-200">|</span>
+                                <span className="text-xs font-medium text-slate-500 underline underline-offset-4 cursor-pointer hover:text-[#2F5FA7] transition-colors">
                                     {reviews.length || 124} Reviews
                                 </span>
                             </div>
 
-                            <p className="text-zinc-500 text-sm leading-relaxed max-w-lg">
+                            <p className="text-slate-500 text-sm leading-relaxed max-w-lg">
                                 {product.description}
                             </p>
 
                             {/* Technical Highlights (Migrated from Listing) */}
-                            <div className="pt-6 border-t border-white/5 space-y-4">
+                            <div className="pt-6 border-t border-slate-100 space-y-4">
                                 <div className="grid grid-cols-2 gap-4 md:gap-8">
                                     <div className="space-y-1">
-                                        <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.2em]">Tolerance</div>
-                                        <div className="text-sm font-bold text-white font-mono">{product.technicalSpecs?.Tolerance || "±0.05mm"}</div>
+                                        <div className="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">Tolerance</div>
+                                        <div className="text-sm font-bold text-slate-800 font-mono">{product.technicalSpecs?.Tolerance || "±0.05mm"}</div>
                                     </div>
                                     <div className="space-y-1">
-                                        <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.2em]">Inventory</div>
-                                        <div className="text-sm font-bold text-emerald-400">{product.inventory} Units</div>
+                                        <div className="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">Inventory</div>
+                                        <div className="text-sm font-bold text-emerald-600">{product.inventory} Units</div>
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.2em]">Material Grade</div>
-                                    <div className="text-sm font-bold text-cyan-400 uppercase tracking-tight line-clamp-1">{product.technicalSpecs?.Material || "6061-T6 Aluminum / POM"}</div>
+                                    <div className="text-[10px] text-slate-400 uppercase font-bold tracking-[0.2em]">Material Grade</div>
+                                    <div className="text-sm font-bold text-[#2F5FA7] uppercase tracking-tight line-clamp-1">{product.technicalSpecs?.Material || "6061-T6 Aluminum / POM"}</div>
                                 </div>
                             </div>
                         </section>
 
                         {/* Pricing Block */}
                         {/* Pricing Block */}
-                        <section className="p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white/[0.03] border border-white/10 relative overflow-hidden backdrop-blur-xl">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-3xl rounded-full" />
+                        <section className="p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-white border border-slate-100 relative overflow-hidden shadow-xl">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl rounded-full" />
 
                             <div className="space-y-6 relative z-10">
                                 <div className="space-y-1">
                                     <div className="flex items-baseline flex-wrap gap-2 sm:gap-4">
-                                        <span className="text-4xl md:text-6xl font-bold text-white font-mono tracking-tighter">₹{(product.salePrice * quantity).toLocaleString()}</span>
+                                        <span className="text-4xl md:text-6xl font-bold text-slate-900 font-mono tracking-tighter">₹{(product.salePrice * quantity).toLocaleString()}</span>
                                         {product.basePrice > product.salePrice && (
                                             <div className="flex flex-col">
-                                                <span className="text-base md:text-lg text-zinc-500 line-through font-mono opacity-50 decoration-1">₹{(product.basePrice * quantity).toLocaleString()}</span>
-                                                <span className="text-[9px] md:text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">You Save ₹{((product.basePrice - product.salePrice) * quantity).toLocaleString()}</span>
+                                                <span className="text-base md:text-lg text-slate-400 line-through font-mono opacity-50 decoration-1">₹{(product.basePrice * quantity).toLocaleString()}</span>
+                                                <span className="text-[9px] md:text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">You Save ₹{((product.basePrice - product.salePrice) * quantity).toLocaleString()}</span>
                                             </div>
                                         )}
                                     </div>
-                                    <p className="text-[10px] text-zinc-500 font-medium pl-0.5 italic">Excl. GST (18%) & Standard ISO Packaging</p>
+                                    <p className="text-[10px] text-slate-400 font-medium pl-0.5 italic">Excl. GST (18%) & Standard ISO Packaging</p>
                                 </div>
 
                                 <div className="pt-2 md:pt-4 space-y-5 md:space-y-6">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div className="flex items-center bg-black/40 border border-white/10 rounded-xl md:rounded-2xl overflow-hidden h-10 md:h-10 w-26 md:w-26">
+                                        <div className="flex items-center bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl overflow-hidden h-10 md:h-10 w-26 md:w-26">
                                             <button
                                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                                className="w-12 md:w-14 h-full flex items-center justify-center hover:bg-white/5 text-zinc-400 hover:text-white transition-colors border-r border-white/5"
+                                                className="w-12 md:w-14 h-full flex items-center justify-center hover:bg-white text-slate-400 hover:text-[#2F5FA7] transition-colors border-r border-slate-100"
                                             >
                                                 <Minus className="w-4 h-4" />
                                             </button>
-                                            <span className="w-14 md:w-20 text-center text-sm md:text-base font-bold font-mono text-zinc-200">{quantity}</span>
+                                            <span className="w-14 md:w-20 text-center text-sm md:text-base font-bold font-mono text-slate-800">{quantity}</span>
                                             <button
                                                 onClick={() => setQuantity(quantity + 1)}
                                                 disabled={quantity >= product.inventory}
-                                                className={`w-12 md:w-14 h-full flex items-center justify-center hover:bg-white/5 text-zinc-400 hover:text-white transition-colors border-l border-white/5 ${quantity >= product.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
+                                                className={`w-12 md:w-14 h-full flex items-center justify-center hover:bg-white text-slate-400 hover:text-[#2F5FA7] transition-colors border-l border-slate-100 ${quantity >= product.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
                                             >
                                                 <Plus className="w-4 h-4" />
                                             </button>
                                         </div>
                                         <div className="text-left sm:text-right px-1">
-                                            <p className="text-[9px] text-zinc-500 uppercase tracking-widest font-black mb-1">Availability</p>
+                                            <p className="text-[9px] text-slate-400 uppercase tracking-widest font-black mb-1">Availability</p>
                                             <div className="flex items-center sm:justify-end gap-2">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${product.inventory > 0 ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`} />
-                                                <span className="text-xs font-bold text-zinc-200">{product.inventory} Units In Reserve</span>
+                                                <span className="text-xs font-bold text-slate-600">{product.inventory} Units In Reserve</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col gap-3">
                                         <Button
-                                            className="w-full h-14 md:h-16 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl md:rounded-2xl gap-3 shadow-xl shadow-cyan-900/20 transition-all active:scale-[0.98] text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full h-14 md:h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold rounded-xl md:rounded-2xl gap-3 shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98] text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={product.inventory <= 0}
                                             onClick={() => addItem({
                                                 id: product.id,
@@ -342,7 +342,7 @@ export default function ProductDetailPage() {
                                             <ShoppingCart className="w-5 h-5" /> {product.inventory > 0 ? 'Add to Procurement' : 'Out of Stock'}
                                         </Button>
                                         <Button
-                                            className="w-full h-14 md:h-16 bg-white text-black hover:bg-zinc-200 rounded-xl md:rounded-2xl font-black transition-all active:scale-[0.98] text-sm md:text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full h-14 md:h-16 bg-slate-900 text-white hover:bg-slate-800 rounded-xl md:rounded-2xl font-black transition-all active:scale-[0.98] text-sm md:text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={product.inventory <= 0}
                                             onClick={() => {
                                                 addItem({
@@ -372,11 +372,11 @@ export default function ProductDetailPage() {
                                 { icon: ShieldCheck, title: "Auth Guarantee", desc: "100% Genuine" },
                                 { icon: RotateCcw, title: "7-Day Return", desc: "Quality Assurance" }
                             ].map((item, i) => (
-                                <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-start gap-3">
-                                    <item.icon className="w-5 h-5 text-cyan-500 shrink-0" />
+                                <div key={i} className="p-4 rounded-2xl bg-white border border-slate-100 flex items-start gap-3 shadow-sm">
+                                    <item.icon className="w-5 h-5 text-[#2F5FA7] shrink-0" />
                                     <div>
-                                        <h5 className="text-[11px] font-bold text-zinc-200">{item.title}</h5>
-                                        <p className="text-[10px] text-zinc-500">{item.desc}</p>
+                                        <h5 className="text-[11px] font-bold text-slate-800">{item.title}</h5>
+                                        <p className="text-[10px] text-slate-400">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -384,26 +384,26 @@ export default function ProductDetailPage() {
 
                         {/* Highlights Section */}
                         <div className="space-y-6">
-                            <h3 className="text-lg font-bold flex items-center gap-2">
-                                <Zap className="w-5 h-5 text-cyan-500" /> Key Feature Highlights
+                            <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+                                <Zap className="w-5 h-5 text-[#2F5FA7]" /> Key Feature Highlights
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {(product.features as string[] || []).map((f, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/5">
-                                        <div className="w-5 h-5 rounded-full bg-cyan-500/10 flex items-center justify-center">
-                                            <Check className="w-3 h-3 text-cyan-500" />
+                                    <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                        <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center">
+                                            <Check className="w-3 h-3 text-[#2F5FA7]" />
                                         </div>
-                                        <span className="text-xs font-medium text-zinc-400">{f}</span>
+                                        <span className="text-xs font-medium text-slate-500">{f}</span>
                                     </div>
                                 ))}
                                 {(!product.features || product.features.length === 0) && (
                                     <>
                                         {["Precision Engineered", "Industrial Grade", "QC Certified", "Standard Dimensions"].map((f, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/5">
-                                                <div className="w-5 h-5 rounded-full bg-cyan-500/10 flex items-center justify-center">
-                                                    <Check className="w-3 h-3 text-cyan-500" />
+                                            <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                                <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center">
+                                                    <Check className="w-3 h-3 text-[#2F5FA7]" />
                                                 </div>
-                                                <span className="text-xs font-medium text-zinc-400">{f}</span>
+                                                <span className="text-xs font-medium text-slate-500">{f}</span>
                                             </div>
                                         ))}
                                     </>
@@ -419,38 +419,38 @@ export default function ProductDetailPage() {
                     <section id="specifications" className="scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                             <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-white">Technical Specifications</h2>
-                                <p className="text-zinc-500 text-sm">Precise engineering data for professional industrial integration.</p>
+                                <h2 className="text-3xl font-bold text-slate-900">Technical Specifications</h2>
+                                <p className="text-slate-500 text-sm">Precise engineering data for professional industrial integration.</p>
                             </div>
                             <Button
                                 variant="outline"
-                                className="border-white/10 text-xs gap-2 rounded-xl h-10 px-6 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-all"
+                                className="border-slate-200 text-xs gap-2 rounded-xl h-10 px-6 hover:bg-blue-50 hover:border-blue-200 transition-all text-slate-700"
                                 onClick={() => window.print()}
                             >
                                 <Download className="w-4 h-4" /> Download Datasheet (PDF)
                             </Button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-white/5 rounded-2xl md:rounded-[2rem] overflow-hidden divide-y md:divide-y-0 md:divide-x divide-white/5 bg-white/[0.01]">
-                            <div className="divide-y divide-white/5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-slate-100 rounded-2xl md:rounded-[2rem] overflow-hidden divide-y md:divide-y-0 md:divide-x divide-slate-100 bg-white shadow-sm">
+                            <div className="divide-y divide-slate-100">
                                 {Object.entries(product.technicalSpecs || {}).slice(0, Math.ceil(Object.entries(product.technicalSpecs || {}).length / 2)).map(([label, value]) => (
-                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-white/[0.02] transition-colors gap-4">
-                                        <span className="text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-wider">{label}</span>
-                                        <span className="text-xs md:text-sm text-zinc-200 font-bold font-mono break-all sm:break-normal">{value as string}</span>
+                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-4">
+                                        <span className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
+                                        <span className="text-xs md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
                                     </div>
                                 ))}
                                 {(!product.technicalSpecs) && (
                                     <div className="grid grid-cols-2 p-4 md:p-6 gap-4">
-                                        <span className="text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-wider">Part Code</span>
-                                        <span className="text-xs md:text-sm text-zinc-200 font-bold font-mono">{product.sku}</span>
+                                        <span className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider">Part Code</span>
+                                        <span className="text-xs md:text-sm text-slate-800 font-bold font-mono">{product.sku}</span>
                                     </div>
                                 )}
                             </div>
-                            <div className="divide-y divide-white/5">
+                            <div className="divide-y divide-slate-100">
                                 {Object.entries(product.technicalSpecs || {}).slice(Math.ceil(Object.entries(product.technicalSpecs || {}).length / 2)).map(([label, value]) => (
-                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-white/[0.02] transition-colors gap-4">
-                                        <span className="text-xs md:text-sm text-zinc-500 font-bold uppercase tracking-wider">{label}</span>
-                                        <span className="text-xs md:text-sm text-zinc-200 font-bold font-mono break-all sm:break-normal">{value as string}</span>
+                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-4">
+                                        <span className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
+                                        <span className="text-xs md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
                                     </div>
                                 ))}
                             </div>
@@ -461,16 +461,16 @@ export default function ProductDetailPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <section className="space-y-8">
                             <div className="space-y-2">
-                                <h3 className="text-2xl font-bold text-white">Ideal Applications</h3>
-                                <p className="text-zinc-500 text-sm">Where this component excels in efficiency and reliability.</p>
+                                <h3 className="text-2xl font-bold text-slate-800">Ideal Applications</h3>
+                                <p className="text-slate-500 text-sm">Where this component excels in efficiency and reliability.</p>
                             </div>
                             <div className="flex flex-wrap gap-3">
                                 {(product.applications as string[] || ["3D Printing", "CNC Machinery", "Robotics", "Automation"]).map((app, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 px-6 py-4 rounded-2xl bg-[#020617] border border-white/5 shadow-lg group hover:border-cyan-500/30 transition-all">
-                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-cyan-500/10 transition-colors">
-                                            <Package className="w-4 h-4 text-zinc-500 group-hover:text-cyan-500" />
+                                    <div key={idx} className="flex items-center gap-2 px-6 py-4 rounded-2xl bg-white border border-slate-100 shadow-lg group hover:border-blue-200 transition-all">
+                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+                                            <Package className="w-4 h-4 text-slate-400 group-hover:text-[#2F5FA7]" />
                                         </div>
-                                        <span className="text-sm font-bold text-zinc-300">{app}</span>
+                                        <span className="text-sm font-bold text-slate-600">{app}</span>
                                     </div>
                                 ))}
                             </div>
@@ -478,14 +478,14 @@ export default function ProductDetailPage() {
 
                         <section className="space-y-8">
                             <div className="space-y-2">
-                                <h3 className="text-2xl font-bold text-white">System Compatibility</h3>
-                                <p className="text-zinc-500 text-sm">Matching industrial standards and hardware ecosystems.</p>
+                                <h3 className="text-2xl font-bold text-slate-800">System Compatibility</h3>
+                                <p className="text-slate-500 text-sm">Matching industrial standards and hardware ecosystems.</p>
                             </div>
                             <div className="space-y-4">
                                 {(product.compatibility as string[] || ["Standard Shaft Assemblies", "Standard Mounting Brackets"]).map((comp, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/[0.01]">
-                                        <span className="text-sm font-medium text-zinc-400">{comp}</span>
-                                        <Badge variant="outline" className="text-emerald-400 font-bold text-[10px] uppercase border-emerald-500/20">
+                                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-white shadow-sm">
+                                        <span className="text-sm font-medium text-slate-500">{comp}</span>
+                                        <Badge variant="outline" className="text-emerald-600 font-bold text-[10px] uppercase border-emerald-100 bg-emerald-50">
                                             Verified
                                         </Badge>
                                     </div>
@@ -497,8 +497,8 @@ export default function ProductDetailPage() {
                     {/* FAQ Section */}
                     <section id="faq" className="max-w-4xl mx-auto w-full">
                         <div className="text-center space-y-4 mb-12">
-                            <h2 className="text-3xl font-bold text-white">Parts Procurement FAQ</h2>
-                            <p className="text-zinc-500 text-sm">Technical answers for procurement officers and engineers.</p>
+                            <h2 className="text-3xl font-bold text-slate-900">Parts Procurement FAQ</h2>
+                            <p className="text-slate-500 text-sm">Technical answers for procurement officers and engineers.</p>
                         </div>
                         <Accordion type="single" collapsible className="w-full space-y-4">
                             {(product.faqs as FAQ[] || [
@@ -510,11 +510,11 @@ export default function ProductDetailPage() {
                                 { q: "What is the return policy for precision parts?", a: "We accept returns within 7 days for unopened items in original packaging. Precision components must be in 'as-dispatched' condition to pass QC." },
                                 { q: "Do you ship internationally?", a: "Currently, we provide end-to-end logistics within the region. For international inquiries, please contact our logistics desk for shipping estimates." }
                             ]).map((faq, idx) => (
-                                <AccordionItem key={idx} value={`item-${idx}`} className="border border-white/5 bg-white/[0.01] rounded-2xl px-6">
-                                    <AccordionTrigger className="text-sm font-bold text-zinc-200 hover:text-cyan-400 hover:no-underline py-6">
+                                <AccordionItem key={idx} value={`item-${idx}`} className="border border-slate-100 bg-white rounded-2xl px-6 shadow-sm">
+                                    <AccordionTrigger className="text-sm font-bold text-slate-800 hover:text-[#2F5FA7] hover:no-underline py-6">
                                         {faq.q}
                                     </AccordionTrigger>
-                                    <AccordionContent className="text-zinc-500 leading-relaxed pb-6">
+                                    <AccordionContent className="text-slate-500 leading-relaxed pb-6">
                                         {faq.a}
                                     </AccordionContent>
                                 </AccordionItem>
@@ -522,64 +522,48 @@ export default function ProductDetailPage() {
                         </Accordion>
                     </section>
 
-                    {/* Reviews */}
-                    <section className="space-y-12">
-                        <div className="flex items-end justify-between">
-                            <div className="space-y-2">
-                                <h2 className="text-3xl font-bold text-white">Trust & Reviews</h2>
-                                <p className="text-zinc-500 text-sm">Feedback from professional engineers and labs.</p>
-                            </div>
-                            <div className="hidden md:flex items-center gap-6 p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold text-white">{avgRating}</p>
-                                    <div className="flex text-yellow-500 mt-1">
-                                        {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
+                    {/* Reviews Section */}
+                    <section id="reviews" className="bg-white border border-slate-100 rounded-[2rem] p-6 md:p-12 shadow-sm">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+                            <div className="space-y-4">
+                                <h2 className="text-3xl font-bold text-slate-900">Customer Intelligence</h2>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-5xl font-bold text-slate-900 font-mono tracking-tighter">{avgRating}</div>
+                                    <div>
+                                        <div className="flex items-center text-amber-500 mb-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} className={`w-4 h-4 ${i < Math.floor(avgRating) ? 'fill-current' : 'text-slate-200'}`} />
+                                            ))}
+                                        </div>
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{reviews.length || 124} Verified Reviews</p>
                                     </div>
                                 </div>
-                                <Separator orientation="vertical" className="h-10 bg-white/5" />
-                                <div className="text-left">
-                                    <p className="text-sm font-bold text-zinc-300">100% Recommended</p>
-                                    <p className="text-[11px] text-zinc-500 underline underline-offset-4 cursor-pointer">Based on verified orders</p>
-                                </div>
                             </div>
+                            <Button className="bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl px-8 h-12 shadow-lg shadow-blue-900/10">
+                                Submit Field Report
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {(product.reviews as Review[] || [{
-                                user: "Industrial Client",
-                                rating: 5,
-                                comment: "Consistently good quality across all batches. We use these for our prototype frames.",
-                                date: "2024-03-01"
-                            }, {
-                                user: "Lab Manager",
-                                rating: 4.5,
-                                comment: "Great precision and smooth operation. Dispatch was prompt.",
-                                date: "2024-02-28"
-                            }]).map((review, idx) => (
-                                <div key={idx} className="p-8 rounded-[2rem] bg-white/[0.01] border border-white/5 space-y-6 flex flex-col justify-between">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-400">
-                                                    {review.user[0]}
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-bold text-zinc-200">{review.user}</h4>
-                                                    <p className="text-[10px] text-zinc-600 font-mono tracking-tighter">{new Date(review.date).toLocaleDateString()}</p>
-                                                </div>
+                            {(product.reviews as Review[] || []).map((review, idx) => (
+                                <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 space-y-4 hover:border-blue-200 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-[#2F5FA7] shadow-sm">
+                                                {review.userName?.[0] || 'U'}
                                             </div>
-                                            <div className="flex text-yellow-500">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} className={`w-3 h-3 ${i < Math.floor(review.rating) ? 'fill-current' : 'text-zinc-800'}`} />
-                                                ))}
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">{review.userName || "Verified User"}</p>
+                                                <div className="flex items-center text-amber-500 scale-75 -ml-3">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} className={`w-3.5 h-3.5 ${i < (review.rating || 5) ? 'fill-current' : 'text-slate-200'}`} />
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-zinc-400 leading-relaxed italic">"{review.comment}"</p>
+                                        <span className="text-[10px] text-slate-400 font-medium">{review.createdAt || "Recent"}</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-emerald-500/70">
-                                        <CheckCircle2 className="w-3.5 h-3.5" />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">Verified Procurement</span>
-                                    </div>
+                                    <p className="text-sm text-slate-600 leading-relaxed italic">"{review.comment}"</p>
                                 </div>
                             ))}
                         </div>

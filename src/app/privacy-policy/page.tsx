@@ -10,119 +10,100 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
     return (
-        <div className="min-h-screen bg-[#020617] text-zinc-300 font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-100 selection:text-[#2F5FA7]">
             <LandingNav />
 
-            <article className="container mx-auto px-4 max-w-3xl pb-24 pt-20">
+            <article className="container mx-auto px-4 max-w-4xl pb-24 pt-20">
                 <div className="py-6">
-                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                    <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group">
                         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Back to Home
+                        Back to Hub
                     </Link>
                 </div>
 
-                <div className="space-y-4 mb-16 pt-8">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] font-consolas text-cyan-400 border border-cyan-500/20 px-3 py-1 rounded-full bg-cyan-950/30">Legal</span>
-                    <h1 className="text-4xl md:text-5xl  text-white tracking-tight drop-shadow-sm">Privacy Policy</h1>
-                    <p className="text-sm font-light text-zinc-500">Last Updated: 4 March 2025</p>
+                <div className="space-y-4 mb-12 pt-8">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2F5FA7] border border-blue-100 px-4 py-1.5 rounded-full bg-blue-50/50 shadow-sm">Legal Protocols</span>
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Privacy Policy</h1>
+                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Effective Date: 4 March 2025</p>
                 </div>
 
-                <div className="prose prose-invert max-w-none space-y-10 text-sm leading-relaxed text-zinc-400 p-8 md:p-12 rounded-3xl border border-white/[0.05] bg-[#040f25]/50 backdrop-blur-md shadow-[0_0_40px_rgba(34,211,238,0.05)]">
+                <div className="prose prose-slate max-w-none space-y-12 text-slate-600 p-8 md:p-14 rounded-[2.5rem] bg-white border border-slate-100 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#2F5FA7] to-[#1E3A66]" />
+                    
                     <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">1. Introduction</h2>
-                        <p>MechHub (&quot;Platform&quot;), operated by Synchubb Innovations Pvt Ltd (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;), is committed to protecting the privacy of every user who interacts with our platform at <Link href="https://www.mechhub.in" className="text-cyan-400 hover:text-cyan-300 transition-colors">www.mechhub.in</Link>. This Privacy Policy explains what information we collect, how we use it, how we store and protect it, and what rights you have regarding your data.</p>
-                        <p className="mt-3">By using the Platform, you consent to the practices described in this policy. If you do not agree, please discontinue use of the Platform.</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span className="text-[#2F5FA7]/20 font-black text-4xl">01</span> Introduction
+                        </h2>
+                        <p className="leading-relaxed font-medium">MechHub (&quot;Platform&quot;), operated by Synchubb Innovations Pvt Ltd (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;), is committed to protecting the privacy of every user who interacts with our platform at <Link href="https://www.mechhub.in" className="text-[#2F5FA7] hover:underline font-bold">www.mechhub.in</Link>. This Privacy Policy explains what information we collect, how we use it, how we store and protect it, and what rights you have regarding your data.</p>
+                        <p className="mt-4 font-medium opacity-80 italic">By using the Platform, you consent to the practices described in this policy. If you do not agree, please discontinue use of the Platform.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">2. Information We Collect</h2>
-                        <h3 className="text-base font-semibold text-zinc-200 mb-2 mt-6">2.1 Information You Provide</h3>
-                        <ul className="list-disc pl-5 space-y-1.5 marker:text-cyan-500">
-                            <li><strong className="text-zinc-200">Account Registration:</strong> Name, email address, phone number, company name, GST number (if applicable), and shipping address.</li>
-                            <li><strong className="text-zinc-200">RFQ Submissions:</strong> Part descriptions, CAD files (STEP, DXF, DWG, STL), drawings, material specifications, quantity, and delivery requirements.</li>
-                            <li><strong className="text-zinc-200">Payment Information:</strong> Payment is processed via Razorpay. We do not store credit card or UPI details on our servers. Razorpay&apos;s privacy policy applies to payment data.</li>
-                            <li><strong className="text-zinc-200">Communications:</strong> Messages exchanged with MechMasters (vendors), support requests, and consultation form submissions.</li>
-                            <li><strong className="text-zinc-200">Newsletter Subscriptions:</strong> Email address submitted via blog sidebar or landing page forms.</li>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span className="text-[#2F5FA7]/20 font-black text-4xl">02</span> Information Collection
+                        </h2>
+                        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">2.1 Information You Provide</h3>
+                        <ul className="space-y-4">
+                            <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Account Registration:</strong> Name, email address, phone number, company name, GST number (if applicable), and shipping address.</p></li>
+                            <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">RFQ Submissions:</strong> Part descriptions, CAD files (STEP, DXF, DWG, STL), drawings, material specifications, quantity, and delivery requirements.</p></li>
+                            <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Payment Information:</strong> Processed via Razorpay. We do not store financial details on our servers. Razorpay&apos;s encryption protocols apply.</p></li>
                         </ul>
 
-                        <h3 className="text-base font-semibold text-zinc-200 mb-2 mt-6">2.2 Information Collected Automatically</h3>
-                        <ul className="list-disc pl-5 space-y-1.5 marker:text-cyan-500">
-                            <li><strong className="text-zinc-200">Usage Data:</strong> Pages visited, time spent, click patterns, browser type, device information, and IP address.</li>
-                            <li><strong className="text-zinc-200">Cookies:</strong> We use essential cookies for authentication and session management, and analytics cookies (Google Analytics) to understand platform usage. You can disable non-essential cookies via your browser settings.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">3. How We Use Your Information</h2>
-                        <ul className="list-disc pl-5 space-y-1.5 marker:text-cyan-500">
-                            <li>To process RFQs and match you with suitable manufacturing partners</li>
-                            <li>To generate quotations and facilitate order execution</li>
-                            <li>To communicate project status, delivery updates, and quality reports</li>
-                            <li>To process payments via integrated payment gateways</li>
-                            <li>To send manufacturing insights and newsletter content (only if subscribed)</li>
-                            <li>To improve platform functionality, AI-based DFM checks, and pricing algorithms</li>
-                            <li>To comply with legal obligations (tax filings, regulatory requirements)</li>
+                        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">2.2 Information Collected Automatically</h3>
+                        <ul className="space-y-4">
+                            <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Usage & Device Data:</strong> Pages visited, interaction patterns, device type, and encrypted IP address for security auditing.</p></li>
+                            <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Cookies:</strong> Essential session management and anonymized Google Analytics to optimize platform performance.</p></li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">4. Data Sharing</h2>
-                        <p>We share your information only in the following circumstances:</p>
-                        <ul className="list-disc pl-5 space-y-1.5 mt-3 marker:text-cyan-500">
-                            <li><strong className="text-zinc-200">With MechMasters (Vendors):</strong> When you submit an RFQ, your part requirements, CAD files, and project specifications are shared with the assigned manufacturing partner. Your personal contact details are shared only after you confirm the order.</li>
-                            <li><strong className="text-zinc-200">Payment Processors:</strong> Razorpay processes all transactions. Financial details are governed by Razorpay&apos;s privacy policy.</li>
-                            <li><strong className="text-zinc-200">Analytics Providers:</strong> Anonymised usage data may be shared with Google Analytics for platform improvement.</li>
-                            <li><strong className="text-zinc-200">Legal Requirements:</strong> We may disclose information if required by law, court order, or government regulation.</li>
-                        </ul>
-                        <p className="mt-3"><strong className="text-zinc-200">We do not sell your personal data to third parties.</strong></p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">5. Data Storage and Security</h2>
-                        <p>All data is stored on Google Cloud Platform (Firebase / Firestore) servers with encryption at rest and in transit. We implement role-based access controls, ensuring that only authorised personnel can access customer data. CAD files and drawings are stored in secure cloud storage with access restricted to the relevant MechMaster and MechHub administration.</p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">6. Data Retention</h2>
-                        <ul className="list-disc pl-5 space-y-1.5 marker:text-cyan-500">
-                            <li><strong className="text-zinc-200">Account Data:</strong> Retained for the duration of your account activity, plus 3 years after account closure for legal compliance.</li>
-                            <li><strong className="text-zinc-200">RFQ and Order Data:</strong> Retained for 7 years for tax, audit, and dispute resolution purposes.</li>
-                            <li><strong className="text-zinc-200">Newsletter Subscriptions:</strong> Retained until you unsubscribe.</li>
-                            <li><strong className="text-zinc-200">CAD Files:</strong> Retained for 12 months after order completion, then permanently deleted unless the customer requests extended storage.</li>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span className="text-[#2F5FA7]/20 font-black text-4xl">03</span> Strategic Data Usage
+                        </h2>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                "RFQ processing & partner matching",
+                                "DFM check & algorithm optimization",
+                                "Institutional order status updates",
+                                "Secure payment gateway integration",
+                                "Compliance with regulatory filings",
+                                "Continuous platform UI/UX improvements"
+                            ].map(usage => (
+                                <li key={usage} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm font-bold text-slate-700 flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7]" />
+                                    {usage}
+                                </li>
+                            ))}
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">7. Your Rights</h2>
-                        <p>You have the right to:</p>
-                        <ul className="list-disc pl-5 space-y-1.5 mt-3 marker:text-cyan-500">
-                            <li><strong className="text-zinc-200">Access:</strong> Request a copy of all personal data we hold about you.</li>
-                            <li><strong className="text-zinc-200">Correction:</strong> Request correction of inaccurate or incomplete data.</li>
-                            <li><strong className="text-zinc-200">Deletion:</strong> Request deletion of your account and associated data, subject to legal retention obligations.</li>
-                            <li><strong className="text-zinc-200">Opt-Out:</strong> Unsubscribe from marketing communications at any time by clicking the unsubscribe link in any email or by contacting us.</li>
-                        </ul>
-                        <p className="mt-6">To exercise any of these rights, email us at <Link href="mailto:outreach@mechhub.in" className="text-cyan-400 hover:text-cyan-300 transition-colors">outreach@mechhub.in</Link>.</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span className="text-[#2F5FA7]/20 font-black text-4xl">04</span> Verified Data Governance
+                        </h2>
+                        <div className="space-y-6">
+                            <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100 shadow-sm">
+                                <p className="text-[#2F5FA7] font-bold text-lg mb-4">Zero-Sale Policy</p>
+                                <p className="text-slate-600 font-medium">We do not sell, trade, or rent your personal data to non-manufacturing third parties. Data is strictly shared with assigned MechMasters for production requirements.</p>
+                            </div>
+                            
+                            <p className="font-medium">Data is stored on <strong className="text-slate-900 underline decoration-[#2F5FA7]/20 decoration-4">Google Cloud Infrastructure</strong> with institutional-grade encryption (AES-256) at rest and in transit.</p>
+                        </div>
                     </section>
 
-                    <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">8. Third-Party Links</h2>
-                        <p>The Platform may contain links to third-party websites (payment gateways, vendor websites, etc.). We are not responsible for the privacy practices of these external sites. We encourage you to read their privacy policies before submitting any personal data.</p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-xl  text-cyan-50 mb-4 border-b border-white/[0.05] pb-2">9. Changes to This Policy</h2>
-                        <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated &quot;Last Updated&quot; date. Continued use of the Platform after any changes constitutes acceptance of the revised policy.</p>
-                    </section>
-
-                    <section className="p-6 md:p-8 rounded-2xl border border-cyan-500/20 bg-cyan-950/20 mt-12 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <h2 className="text-xl  text-cyan-400 mb-4 relative z-10">10. Contact</h2>
-                        <p className="relative z-10 text-cyan-100/70">For any privacy-related questions or requests:</p>
-                        <div className="mt-4 space-y-2 relative z-10 text-sm">
-                            <p><strong className="text-white">Synchubb Innovations Pvt Ltd</strong></p>
-                            <p>VIT Vellore, Tamil Nadu, India</p>
-                            <p>Email: <Link href="mailto:outreach@mechhub.in" className="text-cyan-400 hover:text-cyan-300 transition-colors">outreach@mechhub.in</Link></p>
-                            <p>Phone: <span className="font-consolas">+91 9117203884</span></p>
+                    <section className="p-10 rounded-[2rem] bg-slate-50 border border-slate-100 mt-12 relative overflow-hidden group">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-6 relative z-10">Legal Contact Support</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                            <div className="space-y-2">
+                                <p className="text-sm font-black uppercase tracking-widest text-[#2F5FA7]">Entity Oversight</p>
+                                <p className="text-slate-800 font-bold">Synchubb Innovations Pvt Ltd</p>
+                                <p className="text-slate-500 text-xs">VIT Vellore, Tamil Nadu, India</p>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-sm font-black uppercase tracking-widest text-[#2F5FA7]">Resolution Email</p>
+                                <Link href="mailto:outreach@mechhub.in" className="text-slate-900 font-bold hover:underline">outreach@mechhub.in</Link>
+                                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">+91 9117203884</p>
+                            </div>
                         </div>
                     </section>
                 </div>

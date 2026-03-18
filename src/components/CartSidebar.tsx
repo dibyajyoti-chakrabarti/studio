@@ -19,27 +19,27 @@ export function CartSidebar() {
 
     return (
         <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-            <SheetContent className="w-full sm:max-w-md bg-[#020617] border-l border-white/5 text-white flex flex-col p-0 overflow-hidden outline-none">
+            <SheetContent className="w-full sm:max-w-md bg-white border-l border-slate-100 text-[#1E3A66] flex flex-col p-0 overflow-hidden outline-none shadow-2xl">
                 {/* Custom Enhanced Header */}
-                <div className="p-6 pb-4">
+                <div className="p-6 pb-4 bg-slate-50/50">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-                                <ShoppingBag className="w-5 h-5 text-cyan-500" />
+                            <div className="w-10 h-10 rounded-xl bg-[#2F5FA7]/5 flex items-center justify-center border border-[#2F5FA7]/10">
+                                <ShoppingBag className="w-5 h-5 text-[#2F5FA7]" />
                             </div>
                             <div>
-                                <SheetTitle className="text-lg font-bold tracking-tight text-white leading-none">Procurement</SheetTitle>
-                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mt-1">Industrial Logistics</p>
+                                <SheetTitle className="text-lg font-bold tracking-tight text-[#1E3A66] leading-none">Procurement</SheetTitle>
+                                <p className="text-[10px] text-[#64748B] uppercase tracking-widest font-bold mt-1.5">Industrial Logistics</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="flex-1 h-[1px] bg-gradient-to-r from-cyan-500/20 to-transparent" />
-                        <span className="text-[9px] font-black text-cyan-400/60 uppercase tracking-[0.2em] whitespace-nowrap">
+                        <div className="flex-1 h-[1px] bg-slate-200" />
+                        <span className="text-[9px] font-black text-[#2F5FA7]/40 uppercase tracking-[0.2em] whitespace-nowrap">
                             {totalItems} Inventory Units
                         </span>
-                        <div className="flex-1 h-[1px] bg-gradient-to-l from-cyan-500/20 to-transparent" />
+                        <div className="flex-1 h-[1px] bg-slate-200" />
                     </div>
                 </div>
 
@@ -47,31 +47,30 @@ export function CartSidebar() {
                     {items.length > 0 && (
                         <button
                             onClick={clearCart}
-                            className="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 text-[10px] font-bold text-red-500 uppercase tracking-widest transition-all active:scale-[0.98]"
+                            className="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-100 text-[10px] font-bold text-red-600 uppercase tracking-widest transition-all active:scale-[0.98]"
                         >
                             <Trash2 className="w-3 h-3 group-hover:rotate-12 transition-transform" />
                             Clear Selection
                         </button>
                     )}
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                        <span className="text-[9px] font-bold text-zinc-400 uppercase">Live Registry</span>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#E8F1FF] border border-[#2F5FA7]/10">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] animate-pulse" />
+                        <span className="text-[9px] font-bold text-[#64748B] uppercase">Live Registry</span>
                     </div>
                 </div>
 
-                <Separator className="bg-white/5 mx-6 w-auto" />
+                <Separator className="bg-slate-100 mx-6 w-auto" />
 
                 <div className="flex-1 overflow-hidden">
                     {items.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                            <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/5 relative group">
-                                <Package className="w-10 h-10 text-zinc-700 group-hover:scale-110 transition-transform duration-500" />
-                                <div className="absolute inset-0 rounded-full bg-cyan-500/5 blur-xl group-hover:bg-cyan-500/10 transition-colors" />
+                            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 border border-slate-100 relative group">
+                                <Package className="w-10 h-10 text-slate-300 group-hover:scale-110 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Cart is empty</h3>
-                            <p className="text-sm text-zinc-500 max-w-[240px] leading-relaxed">Your procurement list is currently empty. Browse our catalogue to get started.</p>
+                            <h3 className="text-xl font-bold text-[#1E3A66] mb-2">Cart is empty</h3>
+                            <p className="text-sm text-[#64748B] max-w-[240px] leading-relaxed font-medium">Your procurement list is currently empty. Browse our catalogue to get started.</p>
                             <Button
-                                className="mt-8 bg-cyan-600 hover:bg-cyan-500 h-12 px-10 rounded-xl font-bold transition-all shadow-lg shadow-cyan-900/10"
+                                className="mt-8 bg-[#2F5FA7] hover:bg-[#1E3A66] h-12 px-10 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/10"
                                 onClick={() => setIsCartOpen(false)}
                             >
                                 Browse Catalogue
@@ -87,7 +86,7 @@ export function CartSidebar() {
                                         onDoubleClick={() => handleItemClick(item.id)}
                                         title="Double click to view details"
                                     >
-                                        <div className="relative w-24 h-24 bg-black/40 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-cyan-500/40 transition-all duration-500">
+                                        <div className="relative w-24 h-24 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-[#2F5FA7]/40 transition-all duration-500">
                                             {item.image ? (
                                                 <Image
                                                     src={item.image}
@@ -96,50 +95,50 @@ export function CartSidebar() {
                                                     className="object-contain p-2 group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             ) : (
-                                                <Package className="w-8 h-8 text-zinc-800 opacity-20" />
+                                                <Package className="w-8 h-8 text-slate-200" />
                                             )}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <ExternalLink className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+                                            <div className="absolute inset-0 bg-[#2F5FA7]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <ExternalLink className="w-5 h-5 text-[#2F5FA7]" />
                                             </div>
-                                            <div className="absolute inset-x-0 bottom-0 py-1 bg-black/40 backdrop-blur-sm border-t border-white/5">
-                                                <p className="text-[7px] font-mono text-zinc-500 text-center tracking-tighter uppercase font-bold">{item.sku}</p>
+                                            <div className="absolute inset-x-0 bottom-0 py-1 bg-white/80 backdrop-blur-sm border-t border-slate-100">
+                                                <p className="text-[7px] font-bold text-[#64748B] text-center tracking-tighter uppercase">{item.sku}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                                             <div>
                                                 <div className="flex justify-between items-start gap-2">
-                                                    <h4 className="text-sm font-bold text-zinc-100 truncate group-hover:text-cyan-400 transition-colors leading-tight tracking-tight uppercase">{item.name}</h4>
+                                                    <h4 className="text-sm font-bold text-[#1E3A66] truncate group-hover:text-[#2F5FA7] transition-colors leading-tight tracking-tight uppercase">{item.name}</h4>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                                        className="text-zinc-600 hover:text-red-500 transition-all p-1.5 hover:bg-red-500/10 rounded-lg group/trash"
+                                                        className="text-slate-400 hover:text-red-500 transition-all p-1.5 hover:bg-red-50 rounded-lg group/trash"
                                                     >
                                                         <Trash2 className="w-3.5 h-3.5 group-hover/trash:scale-110 transition-transform" />
                                                     </button>
                                                 </div>
-                                                <p className="text-[9px] font-bold text-cyan-500/40 uppercase tracking-widest mt-1">Verified Component</p>
+                                                <p className="text-[9px] font-bold text-[#2F5FA7]/60 uppercase tracking-widest mt-1">Verified Component</p>
                                             </div>
 
                                             <div className="flex justify-between items-end mt-2">
-                                                <div className="flex items-center bg-black/60 border border-white/10 rounded-xl overflow-hidden h-8 ring-1 ring-white/5">
+                                                <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden h-8">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
-                                                        className="w-8 h-full flex items-center justify-center hover:bg-white/5 text-zinc-500 hover:text-white transition-colors border-r border-white/5"
+                                                        className="w-8 h-full flex items-center justify-center hover:bg-slate-200 text-[#64748B] hover:text-[#1E3A66] transition-colors border-r border-slate-200"
                                                     >
                                                         <Minus className="w-2.5 h-2.5" />
                                                     </button>
-                                                    <span className="w-9 text-center text-[11px] font-bold font-mono text-zinc-300">{item.quantity}</span>
+                                                    <span className="w-9 text-center text-[11px] font-bold text-[#1E3A66]">{item.quantity}</span>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
                                                         disabled={item.quantity >= item.inventory}
-                                                        className={`w-7 h-7 flex items-center justify-center hover:bg-white/10 text-zinc-400 hover:text-white transition-colors ${item.quantity >= item.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
+                                                        className={`w-7 h-7 flex items-center justify-center hover:bg-slate-200 text-[#64748B] hover:text-[#1E3A66] transition-colors ${item.quantity >= item.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
                                                     >
                                                         <Plus className="w-3 h-3" />
                                                     </button>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[10px] text-zinc-600 font-mono leading-none mb-1 group-hover:text-zinc-500 transition-colors">₹{item.salePrice.toLocaleString()} ea</p>
-                                                    <p className="text-base font-bold text-white font-mono group-hover:text-cyan-400 transition-colors">₹{(item.salePrice * item.quantity).toLocaleString()}</p>
+                                                    <p className="text-[10px] text-[#64748B] font-bold leading-none mb-1">₹{item.salePrice.toLocaleString()} ea</p>
+                                                    <p className="text-base font-bold text-[#1E3A66] group-hover:text-[#2F5FA7] transition-colors">₹{(item.salePrice * item.quantity).toLocaleString()}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -151,34 +150,31 @@ export function CartSidebar() {
                 </div>
 
                 {items.length > 0 && (
-                    <div className="p-6 h-auto flex flex-col border-t border-white/10 bg-[#040f25]/95 backdrop-blur-3xl relative">
-                        <div className="absolute -top-px left-6 right-6 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-
+                    <div className="p-6 h-auto flex flex-col border-t border-slate-100 bg-slate-50/80 backdrop-blur-3xl relative">
                         <div className="w-full space-y-4">
                             <div className="space-y-1.5">
-                                <div className="flex justify-between items-center text-[11px] text-zinc-500 font-medium">
+                                <div className="flex justify-between items-center text-xs text-[#64748B] font-bold uppercase tracking-wider">
                                     <span>Subtotal</span>
-                                    <span className="font-mono text-zinc-400">₹{totalPrice.toLocaleString()}</span>
+                                    <span className="text-[#1E3A66]">₹{totalPrice.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-[11px] text-zinc-500 font-medium">
+                                <div className="flex justify-between items-center text-xs text-[#64748B] font-bold uppercase tracking-wider">
                                     <span className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                         Procurement Savings
                                     </span>
-                                    <span className="font-mono text-emerald-400 font-bold">- ₹{totalSavings.toLocaleString()}</span>
+                                    <span className="text-emerald-600">- ₹{totalSavings.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-[11px] text-zinc-500 font-medium">
+                                <div className="flex justify-between items-center text-xs text-[#64748B] font-bold uppercase tracking-wider">
                                     <span>Estimated Tax (GST 18%)</span>
-                                    <span className="font-mono text-zinc-400">₹{Math.round(totalPrice * 0.18).toLocaleString()}</span>
+                                    <span className="text-[#1E3A66]">₹{Math.round(totalPrice * 0.18).toLocaleString()}</span>
                                 </div>
 
-                                <div className="flex justify-between items-center py-3 border-t border-white/5 mt-4">
+                                <div className="flex justify-between items-center py-4 border-t border-slate-200 mt-4">
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest leading-none">Total Payable</span>
-                                        <span className="text-[9px] text-zinc-600 italic mt-1 font-medium italic">Net Payable (inc. GST)</span>
+                                        <span className="text-xs font-bold text-[#64748B] uppercase tracking-widest leading-none">Total Payable</span>
+                                        <span className="text-[9px] text-slate-400 mt-1.5 font-bold uppercase tracking-widest">(Inc. GST)</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-2xl font-bold text-cyan-400 font-mono tracking-tighter shadow-cyan-500/20 drop-shadow-md">
+                                        <span className="text-2xl font-bold text-[#2F5FA7] tracking-tighter">
                                             ₹{Math.round(totalPrice * 1.18).toLocaleString()}
                                         </span>
                                     </div>
@@ -187,15 +183,14 @@ export function CartSidebar() {
 
                             <div className="flex flex-col gap-3 pt-2">
                                 <Link href="/checkout" className="w-full" onClick={() => setIsCartOpen(false)}>
-                                    <Button className="w-full h-14 bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-3 rounded-2xl shadow-xl shadow-cyan-900/20 group transition-all duration-500 active:scale-[0.98] relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                    <Button className="w-full h-14 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold gap-3 rounded-2xl shadow-lg shadow-blue-900/10 group transition-all duration-300 active:scale-[0.98]">
                                         Proceed to Checkout
                                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </Button>
                                 </Link>
                                 <Button
                                     variant="ghost"
-                                    className="w-full h-11 text-zinc-400 hover:text-white hover:bg-white/5 text-[10px] uppercase font-bold tracking-widest transition-all"
+                                    className="w-full h-11 text-[#64748B] hover:text-[#1E3A66] hover:bg-slate-200/50 text-[10px] uppercase font-bold tracking-widest transition-all"
                                     onClick={() => setIsCartOpen(false)}
                                 >
                                     Continue Procuring

@@ -199,29 +199,48 @@
 
 @layer base {
   :root {
-    --background: 200 19% 17%;
-    /* #232F34 */
-    --foreground: 0 0% 100%;
-    --card: 200 19% 14%;
-    --card-foreground: 0 0% 100%;
-    --popover: 200 19% 14%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 224 100% 58%;
-    /* #2962FF Deep Blue */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 222 47% 11%; /* #0F172A - Dark slate/blue */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 216 56% 42%; /* #2F5FA7 MechHub Primary Blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 182 100% 74%;
-    /* #7DF9FF Electric Blue */
-    --secondary-foreground: 200 19% 10%;
-    --muted: 200 19% 25%;
-    --muted-foreground: 200 10% 70%;
-    --accent: 182 100% 74%;
-    --accent-foreground: 200 19% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 200 19% 25%;
-    --input: 200 19% 25%;
-    --ring: 224 100% 58%;
+    --secondary: 214 100% 95%; /* #E8F1FF Light Blue */
+    --secondary-foreground: 216 56% 42%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 214 100% 95%;
+    --accent-foreground: 216 56% 42%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 216 56% 42%;
     --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 47.4% 11.2%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 216 56% 42%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -232,9 +251,9 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
-    background-image:
-      linear-gradient(rgba(41, 98, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(41, 98, 255, 0.05) 1px, transparent 1px);
+    background-image: 
+      linear-gradient(rgba(47, 95, 167, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(47, 95, 167, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 }

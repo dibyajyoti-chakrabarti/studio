@@ -24,28 +24,28 @@ export function Footer() {
     };
 
     return (
-        <footer className="bg-[#020617] border-t border-white/[0.06] relative overflow-hidden">
+        <footer className="bg-[#1E3A66] border-t border-white/[0.06] relative overflow-hidden">
             {/* Subtle bottom glow */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-cyan-900/10 blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-blue-400/5 blur-[120px] pointer-events-none" />
 
             {/* Top CTA strip */}
             <div className="border-b border-white/[0.05] py-10 relative z-10">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
-                            <h3 className="text-2xl tracking-tight text-white mb-2">Ready to build your next part?</h3>
-                            <p className="text-zinc-500 text-sm">Upload your design and get matched with a verified MechMaster in minutes.</p>
+                            <h3 className="text-2xl font-bold tracking-tight text-white mb-2">Ready to build your next part?</h3>
+                            <p className="text-blue-100/60 text-sm font-medium">Upload your design and get matched with a verified MechMaster in minutes.</p>
                         </div>
                         <div className="flex gap-3 shrink-0">
                             <Link href="/upload">
                                 <Button
-                                    className="h-10 px-7 text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-full shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.45)] transition-all"
+                                    className="h-10 px-7 text-sm font-bold bg-white text-[#1E3A66] hover:bg-blue-50 rounded-full shadow-lg transition-all"
                                     suppressHydrationWarning
                                 >
                                     Upload Your Design <ArrowRight className="ml-1.5 w-3.5 h-3.5 inline" />
                                 </Button>
                             </Link>
-                            <Button variant="ghost" className="h-10 px-6 text-sm border border-white/10 text-zinc-400 hover:text-white rounded-full" suppressHydrationWarning>
+                            <Button variant="ghost" className="h-10 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold" suppressHydrationWarning>
                                 View Services
                             </Button>
                         </div>
@@ -61,15 +61,15 @@ export function Footer() {
                     <div className="col-span-2 md:col-span-1 relative z-10">
                         <Link href="/" className="flex items-center gap-2.5 mb-5 group">
                             <Logo size={32} />
-                            <span className="text-2xl tracking-tight text-zinc-100 group-hover:text-white transition-colors">MechHub</span>
+                            <span className="text-2xl font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">MechHub</span>
                         </Link>
-                        <p className="text-zinc-500 text-sm leading-relaxed mb-6 max-w-xs">
+                        <p className="text-blue-100/70 text-sm leading-relaxed mb-6 max-w-xs font-medium">
                             India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.
                         </p>
                         {/* Mini trust badges */}
                         <div className="flex flex-wrap gap-2">
                             {['NDA Signed', 'ISO-Ready', 'QC Inspected', 'On-Time Delivery'].map(b => (
-                                <span key={b} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/[0.08] text-zinc-500 bg-white/[0.02]">
+                                <span key={b} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/10 text-white/50 bg-white/5">
                                     {b}
                                 </span>
                             ))}
@@ -78,7 +78,7 @@ export function Footer() {
 
                     {/* Company */}
                     <div>
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Company</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-5">Company</h4>
                         <ul className="space-y-3">
                             {[
                                 { label: 'About Us', href: '/about' },
@@ -88,7 +88,7 @@ export function Footer() {
                                 { label: 'Contact', href: '/about' },
                             ].map(l => (
                                 <li key={l.label}>
-                                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
+                                    <Link href={l.href} className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium">{l.label}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -96,7 +96,7 @@ export function Footer() {
 
                     {/* Legal */}
                     <div>
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">Legal</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-5">Legal</h4>
                         <ul className="space-y-3">
                             {[
                                 { label: 'Privacy Policy', href: '/privacy-policy' },
@@ -105,7 +105,7 @@ export function Footer() {
                                 { label: 'NDA Policy', href: '/nda-policy' },
                             ].map(l => (
                                 <li key={l.label}>
-                                    <Link href={l.href} className="text-sm text-zinc-500 hover:text-white transition-colors">{l.label}</Link>
+                                    <Link href={l.href} className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium">{l.label}</Link>
                                 </li>
                             ))}
                         </ul>
@@ -113,7 +113,7 @@ export function Footer() {
 
                     {/* Vendors */}
                     <div>
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-5">For Vendors</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-5">For Vendors</h4>
                         <ul className="space-y-3">
                             {[
                                 { label: 'Onboarding Guide', href: '#' },
@@ -124,7 +124,7 @@ export function Footer() {
                                 <li key={l.label}>
                                     <button
                                         onClick={(e) => handleWIPClick(e, l.label)}
-                                        className="text-sm text-zinc-500 hover:text-white transition-colors text-left"
+                                        className="text-sm text-blue-100/60 hover:text-white transition-colors text-left font-medium"
                                     >
                                         {l.label}
                                     </button>
@@ -140,17 +140,14 @@ export function Footer() {
             <div className="border-t border-white/[0.05] py-6">
                 <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
-                        <span className="text-zinc-600 text-[11px] uppercase tracking-wider">
+                        <span className="text-white/40 text-[11px] uppercase tracking-wider font-bold">
                             © {currentYear || new Date().getFullYear()} MechHub. All rights reserved.
                         </span>
-                        <span className="hidden md:inline text-zinc-700">·</span>
-                        <span className="text-zinc-700 text-[10px] uppercase tracking-widest font-semibold">
+                        <span className="hidden md:inline text-white/10">·</span>
+                        <span className="text-white/50 text-[10px] uppercase tracking-widest font-bold">
                             A Unit of Synchubb Innovations Pvt Ltd
                         </span>
                     </div>
-
-                    {/* Social links as per the platform*/}
-                    {/* use the icons of social media from the respective social media platform */}
 
                     <div className="flex items-center gap-3">
                         {[
@@ -161,9 +158,8 @@ export function Footer() {
                                 key={s.label}
                                 href={s.href}
                                 aria-label={s.label}
-                                className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-zinc-500 hover:text-white hover:border-cyan-500/30 hover:bg-cyan-950/20 transition-all"
+                                className="w-8 h-8 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all"
                             >
-                                {/* Placeholder icons - replace with actual SVG paths */}
                                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d={s.path} />
                                 </svg>

@@ -29,6 +29,14 @@ const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
 ];
 
+const MATERIAL_CATEGORIES = [
+  { name: "METAL", items: ["2024 T3 Aluminum", "AR400", "AR500", "Brass", "Copper", "Mild Steel"] },
+  { name: "COMPOSITE", items: ["Carbon Fiber", "G10"] },
+  { name: "PLASTIC", items: ["ABS", "Acrylic", "Delrin", "HDPE"] },
+  { name: "RUBBER/GASKET", items: ["Neoprene", "Viton"] },
+  { name: "WOOD/BOARD", items: ["Birch Plywood", "MDF"] }
+];
+
 export function LandingNav() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
@@ -106,14 +114,14 @@ export function LandingNav() {
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isNavFloated
-          ? 'top-3 mx-4 md:mx-auto md:max-w-6xl'
+          ? 'mx-0 top-0'
           : 'mx-0 top-0'
           }`}
       >
         <div
           className={`relative flex items-center justify-between px-4 md:px-6 h-[68px] transition-all duration-500 ease-in-out ${isNavFloated
-            ? 'rounded-2xl bg-[#020617]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] mx-auto'
-            : 'bg-[#020617]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] mx-auto'
+            ? 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
+            : 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
             }`}
         >
           {/* Logo */}
@@ -127,7 +135,7 @@ export function LandingNav() {
                 className="object-contain rounded-sm"
               />
             </div>
-            <span className=" text-2xl tracking-tight text-white mt-1">
+            <span className="text-2xl font-bold tracking-tight text-[#1E3A66] mt-1">
               MechHub
             </span>
           </Link>
@@ -145,14 +153,14 @@ export function LandingNav() {
             className="hidden lg:flex flex-1 max-w-md mx-8 relative group"
           >
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-zinc-500 group-focus-within:text-cyan-500 transition-colors" />
+              <Search className="w-4 h-4 text-slate-400 group-focus-within:text-[#2F5FA7] transition-colors" />
             </div>
             <Input
               type="text"
               placeholder="Search industrial parts (SKU, Name, Category)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border-white/10 pl-10 h-10 rounded-full text-sm focus:ring-cyan-500/20 focus:border-cyan-500/50 transition-all placeholder:text-zinc-600 focus:placeholder:text-zinc-500"
+              className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-full text-sm focus:ring-[#2F5FA7]/20 focus:border-[#2F5FA7]/50 transition-all placeholder:text-slate-400 focus:placeholder:text-slate-500 text-slate-900"
             />
           </form>
 
@@ -164,7 +172,7 @@ export function LandingNav() {
             {/* Animated background pill */}
             <span
               aria-hidden="true"
-              className="absolute top-0 h-full rounded-full bg-white/[0.07] transition-all duration-300 ease-out pointer-events-none"
+              className="absolute top-0 h-full rounded-full bg-[#2F5FA7]/5 transition-all duration-300 ease-out pointer-events-none"
               style={{
                 left: hoverStyle.left,
                 width: hoverStyle.width,
@@ -172,35 +180,34 @@ export function LandingNav() {
               }}
             />
 
-            {/* Categories Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="relative px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors"
-                  onMouseEnter={() => handleMouseEnter(-1)} // Special index for indicator
+                  className="relative px-4 py-2 text-sm font-semibold text-[#64748B] hover:text-[#2F5FA7] flex items-center gap-1.5 transition-colors"
+                  onMouseEnter={() => handleMouseEnter(-1)}
                 >
                   Categories <ChevronDown className="w-3.5 h-3.5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-blue-1000 border border-white/10 rounded-xl p-1.5 mt-2">
+              <DropdownMenuContent className="w-56 bg-white border border-slate-100 rounded-xl p-1.5 mt-2 shadow-xl">
                 <Link href="/shop?category=bearings">
-                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
-                    <Package2 className="w-4 h-4" /> Bearings
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Bearings
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/shop?category=linear-motion">
-                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
-                    <Package2 className="w-4 h-4" /> Linear Motion
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Linear Motion
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/shop?category=transmission">
-                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
-                    <Package2 className="w-4 h-4" /> Transmission
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Transmission
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/shop?category=raw-materials">
-                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 focus:bg-blue-900">
-                    <Package2 className="w-4 h-4" /> Raw Materials
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Raw Materials
                   </DropdownMenuItem>
                 </Link>
               </DropdownMenuContent>
@@ -212,7 +219,7 @@ export function LandingNav() {
                 href={link.href}
                 ref={el => { navRefs.current[i] = el; }}
                 onMouseEnter={() => handleMouseEnter(i)}
-                className={`relative px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 ${activeIndex === i ? 'text-white' : 'text-zinc-400 hover:text-white'
+                className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${activeIndex === i ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
                   }`}
               >
                 {link.label}
@@ -225,12 +232,12 @@ export function LandingNav() {
             {/* Cart Toggle */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 rounded-full hover:bg-white/5 text-zinc-400 hover:text-white transition-all group"
+              className="relative p-2 rounded-full hover:bg-slate-50 text-[#64748B] hover:text-[#2F5FA7] transition-all group"
               aria-label="View Cart"
             >
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-cyan-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#020617] animate-in zoom-in duration-300">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#2F5FA7] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-in zoom-in duration-300">
                   {totalItems}
                 </span>
               )}
@@ -242,24 +249,18 @@ export function LandingNav() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/5 transition-colors group"
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-slate-50 transition-colors group"
                         suppressHydrationWarning
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/10 group-hover:ring-white/20 transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                        <div className="w-8 h-8 rounded-full bg-[#2F5FA7] flex items-center justify-center text-xs font-bold text-white ring-2 ring-white group-hover:shadow-[0_0_15px_rgba(47,95,167,0.2)] transition-all">
                           {initials}
                         </div>
-                        <span className="hidden sm:inline-block max-w-[100px] truncate text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">
-                          {displayName}
-                        </span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
                       className="w-56 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl p-1.5 mt-2"
                     >
-                      <DropdownMenuLabel className="px-2 py-1.5 text-xs text-zinc-500 font-normal">
-                        Signed in as <span className="font-semibold text-zinc-300">{user.email}</span>
-                      </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-white/5 my-1" />
                       <Link href={dashboardHref}>
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
@@ -284,7 +285,7 @@ export function LandingNav() {
                   <div className="flex items-center gap-2">
                     <Link href="/login">
                       <button
-                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-all duration-200"
+                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-full hover:bg-slate-50 transition-all duration-200"
                         suppressHydrationWarning
                       >
                         Sign In
@@ -292,7 +293,7 @@ export function LandingNav() {
                     </Link>
                     <Link href="/login">
                       <button
-                        className="relative inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_28px_rgba(34,211,238,0.5)] transition-all duration-300"
+                        className="relative inline-flex items-center gap-1.5 px-6 py-2 text-sm font-bold text-white rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] shadow-[0_4px_14px_rgba(47,95,167,0.3)] hover:shadow-[0_6px_20px_rgba(47,95,167,0.4)] transition-all duration-300"
                         suppressHydrationWarning
                       >
                         Get Started
@@ -305,7 +306,7 @@ export function LandingNav() {
 
             {/* Mobile Hamburger */}
             <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-zinc-400 hover:text-white"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 transition-colors text-[#64748B] hover:text-[#2F5FA7]"
               onClick={() => setMobileOpen(v => !v)}
               aria-label="Toggle menu"
             >
@@ -314,34 +315,73 @@ export function LandingNav() {
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
-          <div className={`mx-2 mt-1 rounded-2xl bg-[#020617]/95 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-3 flex flex-col gap-1`}>
+          <div className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-3 flex flex-col gap-1`}>
             {NAV_LINKS.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+                className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
-            <div className="border-t border-white/5 mt-1 pt-1">
+            <div className="border-t border-slate-100 mt-1 pt-1">
               {!user && (
-                <Link href="/login" className="flex items-center px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors">
+                <Link href="/login" className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors">
                   Sign In
                 </Link>
               )}
             </div>
           </div>
         </div>
+
+        {/* 2. Material Sub-Nav Bar - Unified MechHub Design */}
+        {pathname.includes('/materials') && (
+          <div className="hidden lg:block bg-white border-b-2 border-slate-100">
+            <div className="container mx-auto px-6">
+              <div className="flex items-center gap-10 py-4">
+                {MATERIAL_CATEGORIES.map((cat) => (
+                  <div key={cat.name} className="group relative">
+                    <button className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-[#2F5FA7] transition-all uppercase tracking-[0.2em] py-1">
+                      {cat.name}
+                      <ChevronDown className="w-3 h-3 text-slate-300 transition-transform group-hover:rotate-180" />
+                    </button>
+                    {/* Professional Dropdown */}
+                    <div className="absolute top-[calc(100%+0px)] left-0 w-64 bg-white border border-slate-100 p-5 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all z-50 shadow-[0_30px_60px_-15px_rgba(47,95,167,0.15)] rounded-2xl">
+                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Select {cat.name}</div>
+                      <ul className="space-y-2.5">
+                        {cat.items.map((item) => (
+                          <li key={item}>
+                            <Link href={`/materials/${item.toLowerCase().replace(/ /g, '-')}`} className="text-[11px] font-bold text-slate-700 hover:text-[#2F5FA7] transition-all block py-1 border-l-2 border-transparent hover:border-[#2F5FA7] hover:pl-3">
+                              {item}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex-1" />
+                <div className="relative group/msearch">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300 group-focus-within/msearch:text-[#2F5FA7] transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="SEARCH MATERIALS..."
+                    className="bg-slate-50 border border-slate-200 rounded-full px-10 py-1.5 text-[9px] font-black text-[#1E3A66] outline-none focus:border-[#2F5FA7]/50 w-64 transition-all placeholder:text-slate-300 tracking-wider"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Spacer to ensure content starts below the nav */}
-      <div className="h-[68px]" />
+      <div className={`transition-all duration-300 ${pathname.includes('/materials') ? 'h-[118px]' : 'h-[68px]'}`} />
 
       <CartSidebar />
     </>

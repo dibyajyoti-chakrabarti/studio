@@ -83,62 +83,60 @@ function ConsultationPageContent() {
     return (
         <div className="pt-32 pb-20 px-4 container mx-auto">
             <div className="max-w-xl mx-auto">
-                <h1 className="text-3xl  font-bold text-white mb-2 tracking-wide uppercase">Talk to a Manufacturing Expert</h1>
-                <p className="text-cyan-100/60 mb-8 text-sm">
+                <h1 className="text-3xl font-bold text-[#1E3A66] mb-2 tracking-tight">Talk to a Manufacturing Expert</h1>
+                <p className="text-[#64748B] mb-8 text-base font-medium">
                     Get your design reviewed, value-engineered, or fully optimised by our in-house manufacturing experts.
                 </p>
 
                 {isSubmitted ? (
-                    <div className="py-16 flex flex-col items-center justify-center text-center bg-zinc-900/50 rounded-2xl border border-white/10">
-                        <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-                            <Check className="w-7 h-7 text-green-400" />
+                    <div className="py-16 flex flex-col items-center justify-center text-center bg-white rounded-2xl border border-slate-100 shadow-xl">
+                        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
+                            <Check className="w-7 h-7 text-emerald-500" />
                         </div>
-                        <p className="text-zinc-500 text-sm max-w-sm">One of our engineers will reach out to you within the next 24 hours to discuss your project.</p>
+                        <p className="text-[#1E3A66] font-bold text-lg mb-2">Request Received!</p>
+                        <p className="text-[#64748B] text-sm max-w-sm font-medium px-8">One of our engineers will reach out to you within the next 24 hours to discuss your project.</p>
                     </div>
                 ) : (isUserLoading || !user) ? (
                     <div className="py-24 flex flex-col items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin mb-4" />
-                        <p className="text-zinc-500 text-sm">Verifying Session...</p>
+                        <Loader2 className="w-8 h-8 text-[#2F5FA7] animate-spin mb-4" />
+                        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest">Verifying Session...</p>
                     </div>
                 ) : (
-                    <div className="bg-[#040f25]/40 border border-white/10 p-6 sm:p-8 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md relative overflow-hidden">
-                        {/* Glow effect */}
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 opacity-50"></div>
-
-                        <form onSubmit={handleConsultationSubmit} className="space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label htmlFor="name" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Name</label>
-                                    <Input id="name" name="name" defaultValue={user?.displayName || ''} required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
+                    <div className="bg-white border border-slate-100 p-6 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(47,95,167,0.1)] relative overflow-hidden">
+                        <form onSubmit={handleConsultationSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label htmlFor="name" className="text-[11px] font-bold text-[#2F5FA7] uppercase tracking-widest ml-1">Name</label>
+                                    <Input id="name" name="name" defaultValue={user?.displayName || ''} required className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium" />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label htmlFor="phone" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Phone</label>
-                                    <Input id="phone" name="phone" required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
+                                <div className="space-y-2">
+                                    <label htmlFor="phone" className="text-[11px] font-bold text-[#2F5FA7] uppercase tracking-widest ml-1">Phone</label>
+                                    <Input id="phone" name="phone" required className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium" />
                                 </div>
                             </div>
-                            <div className="space-y-1.5">
-                                <label htmlFor="email" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Email</label>
-                                <Input id="email" name="email" type="email" defaultValue={user?.email || ''} required className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 h-12 text-sm rounded-xl transition-all" />
+                            <div className="space-y-2">
+                                <label htmlFor="email" className="text-[11px] font-bold text-[#2F5FA7] uppercase tracking-widest ml-1">Work Email</label>
+                                <Input id="email" name="email" type="email" defaultValue={user?.email || ''} required className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium" />
                             </div>
 
                             {prefilledRef && (
-                                <div className="p-4 bg-cyan-950/30 border border-cyan-500/20 rounded-xl flex items-start gap-3 mt-4 mb-4 shadow-inner">
-                                    <FileText className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                                <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl flex items-start gap-3 shadow-inner">
+                                    <FileText className="w-5 h-5 text-[#2F5FA7] shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm font-bold text-cyan-50 mb-1 font-consolas">Quote {prefilledRef} Attached</p>
-                                        <p className="text-xs text-cyan-200/70">Our engineers will have access to your estimated pricing, material choices, and quantities for faster context.</p>
+                                        <p className="text-sm font-bold text-[#1E3A66] mb-1">Quote {prefilledRef} Attached</p>
+                                        <p className="text-xs text-[#64748B] font-medium leading-relaxed">Our engineers will have access to your estimated pricing, material choices, and quantities for faster context.</p>
                                     </div>
                                 </div>
                             )}
 
-                            <div className="space-y-1.5 pt-2">
-                                <label htmlFor="message" className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Project Brief & Questions</label>
-                                <Textarea id="message" name="message" defaultValue={defaultMessage} required placeholder="Describe your design, material, quantity, and any DFM questions..." className="bg-[#020617] border-white/10 text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 min-h-[120px] text-sm rounded-xl resize-none transition-all" />
+                            <div className="space-y-2">
+                                <label htmlFor="message" className="text-[11px] font-bold text-[#2F5FA7] uppercase tracking-widest ml-1">Project Brief & DFM Questions</label>
+                                <Textarea id="message" name="message" defaultValue={defaultMessage} required placeholder="Describe your design, material, quantity, and any technical questions..." className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 min-h-[140px] text-sm rounded-xl resize-none transition-all font-medium" />
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full h-14 font-bold text-base bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl mt-4 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all"
+                                className="w-full h-14 font-bold text-base bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl mt-4 shadow-lg shadow-blue-900/10 transition-all active:scale-[0.98]"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Expert Consultation'}
@@ -153,19 +151,19 @@ function ConsultationPageContent() {
 
 export default function ConsultationPage() {
     return (
-        <div className="min-h-screen bg-[#020617] font-sans selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-hidden">
+        <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-[#2F5FA7]/30 relative overflow-hidden">
             {/* Background Grid & Glows */}
-            <div className="absolute inset-0 bg-[#020617]" style={{
-                backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)',
+            <div className="absolute inset-0 bg-[#F8FAFC]" style={{
+                backgroundImage: 'linear-gradient(rgba(47, 95, 167, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(47, 95, 167, 0.05) 1px, transparent 1px)',
                 backgroundSize: '30px 30px'
             }} />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-900/20 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2F5FA7]/5 blur-[100px] rounded-full pointer-events-none" />
 
             <div className="relative z-10">
                 <LandingNav />
                 
                 <div className="container mx-auto px-4 pt-24 pb-0">
-                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
+                    <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-[#2F5FA7] transition-colors group">
                         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Back to Home
                     </Link>
@@ -173,7 +171,7 @@ export default function ConsultationPage() {
 
                 <Suspense fallback={
                     <div className="min-h-screen flex items-center justify-center pt-24">
-                        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-[#2F5FA7] animate-spin" />
                     </div>
                 }>
                     <ConsultationPageContent />
