@@ -71,7 +71,7 @@ export function CartSidebar() {
                             <p className="text-sm text-[#64748B] max-w-[240px] leading-relaxed font-medium">Your procurement list is currently empty. Browse our catalogue to get started.</p>
                             <Button
                                 className="mt-8 bg-[#2F5FA7] hover:bg-[#1E3A66] h-12 px-10 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/10"
-                                onClick={() => setIsCartOpen(false)}
+                                onClick={() => router.push('/shop')}
                             >
                                 Browse Catalogue
                             </Button>

@@ -1,29 +1,36 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-let region = process.env.AWS_REGION || "ap-south-1";
+// ═══════════════════════════════════════════════════
+// AWS S3 Client — Singleton for use in API routes
+// ═══════════════════════════════════════════════════
 
-// Handle formats like "Stockholm-eu-north-1" or "Stockholm (eu-north-1)"
-if (region.includes("-") && !/^(us|eu|ap|sa|ca|me|af)-/.test(region)) {
-    const match = region.match(/(us|eu|ap|sa|ca|me|af)-[a-z]+-\d+/);
-    if (match) {
-        region = match[0];
-    }
-}
-
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.replace(/\s/g, ''); // Clean any accidental spaces
-
-if (!region || !accessKeyId || !secretAccessKey) {
-    console.warn("AWS S3 configuration missing in environment variables");
-}
+export const S3_REGION = process.env.AWS_REGION || 'eu-north-1';
+export const S3_BUCKET = process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
 
 export const s3Client = new S3Client({
-    region: region || "ap-south-1",
-    credentials: {
-        accessKeyId: accessKeyId || "",
-        secretAccessKey: secretAccessKey || "",
-    },
+  region: S3_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  },
 });
 
-export const S3_BUCKET = process.env.AWS_S3_BUCKET || "";
-export const S3_REGION = region || "ap-south-1";
+/**
+ * Generates a presigned URL for downloading a file from S3.
+ * @param key The S3 object key
+ * @param bucket Optional bucket name (defaults to S3_BUCKET)
+ * @param expiresIn Time in seconds until the URL expires (default: 3600 / 1 hour)
+ */
+export async function getPresignedDownloadUrl(
+  key: string, 
+  bucket: string = S3_BUCKET, 
+  expiresIn: number = 3600
+): Promise<string> {
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  });
+
+  return getSignedUrl(s3Client, command, { expiresIn });
+}

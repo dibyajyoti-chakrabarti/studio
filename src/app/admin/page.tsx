@@ -152,10 +152,10 @@ export default function AdminPanel() {
 
     if (emailIsAdmin) {
       setIsAdminConfirmed(true);
-      
+
       // Auto-correct role in Firestore if it's missing or wrong
       if (profile && profile.role !== 'admin') {
-        updateDocumentNonBlocking(doc(db, 'users', user.uid), { 
+        updateDocumentNonBlocking(doc(db, 'users', user.uid), {
           role: 'admin',
           updatedAt: new Date().toISOString()
         });
@@ -197,6 +197,67 @@ export default function AdminPanel() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
+  };
+
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) {
+        toast({ title: "Authentication required", variant: "destructive" });
+        return;
+      }
+
+      // If it's a data URL, handle it directly
+      if (fileUrl.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      // Extract fileKey from S3 URL
+      let fileKey = "";
+      try {
+        const url = new URL(fileUrl);
+        fileKey = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+      } catch (e) {
+        // Fallback for relative or invalid URLs
+        fileKey = fileUrl;
+      }
+
+      const response = await fetch(`/api/v1/files/download?fileKey=${encodeURIComponent(fileKey)}`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Download failed');
+      }
+
+      const { downloadUrl } = await response.json();
+
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({ title: "Download started", description: fileName });
+    } catch (error: any) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -378,7 +439,7 @@ export default function AdminPanel() {
     if (!files || files.length === 0 || !selectedProduct) return;
 
     const fileArray = Array.from(files);
-    
+
     // Validate sizes
     for (const file of fileArray) {
       if (file.size > 5 * 1024 * 1024) {
@@ -392,7 +453,7 @@ export default function AdminPanel() {
 
     try {
       const idToken = await auth.currentUser?.getIdToken();
-      
+
       for (let i = 0; i < fileArray.length; i++) {
         const file = fileArray[i];
         const formData = new FormData();
@@ -419,7 +480,7 @@ export default function AdminPanel() {
         }
 
         const result = await response.json();
-        
+
         // Update local state for immediate UI feedback (must use functional update for concurrency)
         setSelectedProduct((prev: any) => {
           if (!prev) return null;
@@ -490,7 +551,7 @@ export default function AdminPanel() {
 
   const handleDeleteProduct = async (productId: string) => {
     if (!confirm("Permanently archive this product from the marketplace? This will also purge all cloud assets.")) return;
-    
+
     setIsDeletingProduct(productId);
     try {
       const idToken = await auth.currentUser?.getIdToken();
@@ -511,10 +572,10 @@ export default function AdminPanel() {
       toast({ title: "Product & Assets Purged", description: "Catalog synchronized and storage reclaimed." });
     } catch (err: any) {
       console.error(err);
-      toast({ 
-        title: "Purge Failed", 
-        description: err.message || "Manual cleanup may be required in Firestore/S3.", 
-        variant: "destructive" 
+      toast({
+        title: "Purge Failed",
+        description: err.message || "Manual cleanup may be required in Firestore/S3.",
+        variant: "destructive"
       });
     } finally {
       setIsDeletingProduct(null);
@@ -792,10 +853,10 @@ export default function AdminPanel() {
                               <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-primary transition-colors" onClick={() => { setSelectedProduct(prod); setShowProductModal(true); }}>
                                 <Edit3 className="w-3.5 h-3.5" />
                               </Button>
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                className="w-8 h-8 hover:text-destructive transition-colors" 
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="w-8 h-8 hover:text-destructive transition-colors"
                                 onClick={() => handleDeleteProduct(prod.id)}
                                 disabled={!!isDeletingProduct}
                               >
@@ -914,20 +975,25 @@ export default function AdminPanel() {
                           <div className="text-[9px] text-zinc-600 mt-1 uppercase font-bold">{new Date(order.createdAt).toLocaleDateString()}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-bold text-zinc-200 text-sm italic underline decoration-cyan-500/30 underline-offset-4">{order.shippingAddress?.fullName}</div>
-                          <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter truncate max-w-[150px]">{order.shippingAddress?.city}, {order.shippingAddress?.state}</div>
+                          <div className="font-bold text-zinc-200 text-sm italic underline decoration-cyan-500/30 underline-offset-4">{order.shippingAddress?.fullName || 'N/A'}</div>
+                          <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter truncate max-w-[150px]">{order.shippingAddress?.city || 'Unknown'}, {order.shippingAddress?.state || 'N/A'}</div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            {order.items.map((item: any, idx: number) => (
-                              <div key={idx} className="text-[10px] text-zinc-300 font-medium flex items-center gap-2">
-                                <span className="text-cyan-500/70">[{item.quantity}x]</span> {item.name}
+                            {(order.items || []).map((item: any, idx: number) => (
+                              <div key={`quote-${idx}`} className="text-[10px] text-zinc-300 font-medium flex items-center gap-2">
+                                <span className="text-cyan-500/70">[{item.quantity}x]</span> {item.name} <span className="text-[8px] text-zinc-500 italic">(Quote)</span>
+                              </div>
+                            ))}
+                            {(order.shopItems || []).map((item: any, idx: number) => (
+                              <div key={`shop-${idx}`} className="text-[10px] text-zinc-300 font-medium flex items-center gap-2">
+                                <span className="text-cyan-500/70">[{item.quantity}x]</span> {item.name} <span className="text-[8px] text-zinc-500 italic">(Product)</span>
                               </div>
                             ))}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="text-sm font-bold font-mono text-zinc-200">₹{order.pricing.total.toLocaleString()}</div>
+                          <div className="text-sm font-bold font-mono text-zinc-200">₹{(order.pricing?.total || 0).toLocaleString()}</div>
                           <Badge variant="outline" className="text-[8px] border-emerald-500/20 text-emerald-500 uppercase py-0 leading-tight">GST PAID</Badge>
                         </TableCell>
                         <TableCell>
@@ -1067,11 +1133,7 @@ export default function AdminPanel() {
                               {f.size && <p className="text-[10px] text-muted-foreground">{(f.size / 1024 / 1024).toFixed(2)} MB</p>}
                             </div>
                             <Button size="sm" variant="ghost" className="gap-1 text-xs text-primary hover:text-primary/80 opacity-50 group-hover:opacity-100 transition-opacity"
-                              onClick={() => {
-                                const url = f.dataUrl;
-                                if (url.startsWith('data:')) { const a = document.createElement('a'); a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
-                                else { window.open(url, '_blank', 'noopener,noreferrer'); }
-                              }}>
+                              onClick={() => handleDownload(f.dataUrl || f.fileUrl, f.name)}>
                               <Download className="w-3.5 h-3.5" /> Save
                             </Button>
                           </div>
@@ -1436,10 +1498,9 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
-                    <div 
-                      className={`grid grid-cols-4 gap-3 p-4 rounded-xl border-2 border-dashed transition-all ${
-                        isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-white/5 bg-white/[0.02]'
-                      }`}
+                    <div
+                      className={`grid grid-cols-4 gap-3 p-4 rounded-xl border-2 border-dashed transition-all ${isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-white/5 bg-white/[0.02]'
+                        }`}
                       onDragOver={onDragOver}
                       onDragLeave={onDragLeave}
                       onDrop={onDrop}

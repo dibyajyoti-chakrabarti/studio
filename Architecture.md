@@ -927,7 +927,7 @@ export async function POST(req) {
 
 function handlePayment(razorpayOrderId, amount) {
   const options = {
-    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    key: process.env.RAZORPAY_KEY_ID,
     amount,
     currency: 'INR',
     order_id: razorpayOrderId,

@@ -3,12 +3,6 @@ import { withContentlayer } from 'next-contentlayer2';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -41,13 +35,8 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-
     ],
-    domains: [
-      "mechhub-product-images.s3.eu-north-1.amazonaws.com"
-    ]
   },
-
 };
 
 export default withContentlayer(nextConfig);

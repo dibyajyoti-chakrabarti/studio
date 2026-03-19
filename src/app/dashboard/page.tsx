@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,6 +21,8 @@ import {
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
+import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService } from '@/types/project';
+
 import {
   FileText,
   Clock,
@@ -47,25 +49,36 @@ import {
   MapPin,
   Layers,
   Hash,
+  Box,
+  RotateCcw,
   ShieldAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { isAdmin } from '@/lib/auth-utils';
+import { CreateProjectModal } from '@/components/CreateProjectModal';
 
 
-const STATUS_MAP: Record<string, { label: string, color: string, icon: any }> = {
-  submitted: { label: 'MATCHING IN PROGRESS', color: 'bg-blue-50 text-blue-700 border-blue-100', icon: Package },
-  quotation_sent: { label: 'QUOTATION RECEIVED', color: 'bg-cyan-50 text-cyan-700 border-cyan-100', icon: FileText },
-  quotations_received: { label: 'BIDS READY', color: 'bg-indigo-50 text-indigo-700 border-indigo-100', icon: FileText },
-  under_negotiation: { label: 'NEGOTIATING', color: 'bg-amber-50 text-amber-700 border-amber-100', icon: MessageSquare },
-  accepted: { label: 'ADVANCE PAYMENT DUE', color: 'bg-orange-50 text-orange-700 border-orange-100', icon: CreditCard },
-  assigned: { label: 'ASSIGNED', color: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: Check },
-  in_progress: { label: 'IN PRODUCTION', color: 'bg-blue-600 text-white border-blue-600', icon: Hammer },
-  shipped: { label: 'SHIPPED', color: 'bg-slate-50 text-slate-700 border-slate-200', icon: Truck },
-  delivered: { label: 'DELIVERED (PAYMENT DUE)', color: 'bg-indigo-600 text-white border-indigo-600', icon: Package },
+const STATUS_MAP: Record<ProjectRFQStatus, { label: string, color: string, icon: any }> = {
+  draft: { label: 'DRAFT', color: 'bg-slate-100 text-slate-600 border-slate-200', icon: FileText },
+  quote_requested: { label: 'QUOTE REQUESTED', color: 'bg-blue-50 text-blue-700 border-blue-100', icon: Clock },
+  under_review: { label: 'UNDER REVIEW', color: 'bg-amber-50 text-amber-700 border-amber-100', icon: Loader2 },
+  quotation_received: { label: 'QUOTATION RECEIVED', color: 'bg-emerald-600 text-white border-emerald-700', icon: FileText },
+  negotiation: { label: 'NEGOTIATION', color: 'bg-orange-500 text-white border-orange-600', icon: MessageSquare },
+  deposit_pending: { label: 'DEPOSIT PENDING', color: 'bg-blue-600 text-white border-blue-700', icon: CreditCard },
+  accepted: { label: 'ACCEPTED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: Check },
+  in_production: { label: 'IN PRODUCTION', color: 'bg-blue-600 text-white border-blue-600', icon: Hammer },
   completed: { label: 'COMPLETED', color: 'bg-green-600 text-white border-green-600', icon: CheckCircle2 },
-  rejected: { label: 'REJECTED', color: 'bg-red-50 text-red-700 border-red-100', icon: AlertCircle },
-  cancelled: { label: 'CANCELLED', color: 'bg-slate-100 text-slate-500 border-slate-200', icon: AlertCircle }
+  shipped: { label: 'SHIPPED', color: 'bg-indigo-600 text-white border-indigo-600', icon: Truck },
+  delivered: { label: 'DELIVERED', color: 'bg-emerald-600 text-white border-emerald-600', icon: ShieldCheck },
+  shipping: { label: 'SHIPPING', color: 'bg-indigo-500 text-white border-indigo-500', icon: Truck },
+};
+
+const SERVICE_ICONS: Record<ManufacturingService, any> = {
+  'cnc_machining': Layers,
+  'sheet_metal_cutting': Zap,
+  '3d_printing': Box,
+  'wire_edm': Zap,
+  'cnc_turning': RotateCcw,
 };
 
 export default function UserDashboard() {
@@ -82,6 +95,7 @@ export default function UserDashboard() {
   const [isPayingCompletion, setIsPayingCompletion] = useState(false);
 
   const [isNegotiating, setIsNegotiating] = useState(false);
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [negotiatingQuote, setNegotiatingQuote] = useState<any>(null);
   const [negPrice, setNegPrice] = useState('');
   const [negLeadTime, setNegLeadTime] = useState('');
@@ -92,10 +106,19 @@ export default function UserDashboard() {
 
   const rfqsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return query(collection(db, 'rfqs'), where('userId', '==', user.uid));
+    return query(collection(db, 'projectRFQs'), where('userId', '==', user.uid));
   }, [db, user?.uid]);
 
-  const { data: rfqs, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
+  const { data: rfqsData, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
+  const rfqs = rfqsData as ProjectRFQ[] | null;
+
+  const partsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return query(collection(db, 'projectParts'), where('userId', '==', user.uid));
+  }, [db, user?.uid]);
+
+  const { data: allPartsData, isLoading: isPartsLoading } = useCollection(partsQuery);
+  const allParts = allPartsData as MechanicalPart[] | null;
 
   const shopOrdersQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -120,7 +143,7 @@ export default function UserDashboard() {
           rfqData.userEmail = user.email || '';
           rfqData.userPhone = profile?.phone || '';
 
-          addDocumentNonBlocking(collection(db, 'rfqs'), rfqData);
+          addDocumentNonBlocking(collection(db, 'projectRFQs'), rfqData);
           localStorage.removeItem('pendingRfqToSubmit');
           toast({ title: "Order Confirmed!", description: "Your pending order has been successfully saved to your dashboard." });
         } catch (e) {
@@ -144,6 +167,7 @@ export default function UserDashboard() {
   }, [isProfileLoading, profile, user]);
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
+  const selectedOrderParts = allParts?.filter(p => p.projectId === selectedOrderId) || [];
 
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !user || !selectedOrder) return null;
@@ -181,7 +205,7 @@ export default function UserDashboard() {
     if (!db || !selectedOrder) return;
     setIsConfirming(true);
 
-    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), {
+    updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder.id), {
       status: 'accepted',
       assignedVendorId: quotation.vendorId,
       acceptedQuotationId: quotation.id,
@@ -289,7 +313,7 @@ export default function UserDashboard() {
       updatedAt: new Date().toISOString()
     });
 
-    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder.id), {
+    updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder.id), {
       status: 'rejected',
       updatedAt: new Date().toISOString()
     });
@@ -316,7 +340,7 @@ export default function UserDashboard() {
       updatedAt: new Date().toISOString()
     });
 
-    updateDocumentNonBlocking(doc(db, 'rfqs', selectedOrder!.id), {
+    updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder!.id), {
       status: 'under_negotiation',
       updatedAt: new Date().toISOString()
     });
@@ -346,7 +370,7 @@ export default function UserDashboard() {
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">You are currently in the customer view.</p>
               </div>
             </div>
-            <Button 
+            <Button
               onClick={() => router.push('/admin')}
               className="bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl px-6 h-10 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg"
             >
@@ -374,7 +398,7 @@ export default function UserDashboard() {
             </Button>
             <Button
               className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
-              onClick={() => router.push('/upload')}
+              onClick={() => setIsCreateProjectOpen(true)}
             >
               <Plus className="w-4 h-4 mr-2" /> Start New Design
             </Button>
@@ -386,21 +410,38 @@ export default function UserDashboard() {
             <Tabs defaultValue="projects" className="space-y-6">
               <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full sm:w-auto flex">
                 <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Project RFQs</TabsTrigger>
+                <TabsTrigger value="designs" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Designs</TabsTrigger>
                 <TabsTrigger value="shop_orders" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Shop Orders</TabsTrigger>
                 <TabsTrigger value="profile" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="projects" className="space-y-4">
-                {isRfqsLoading ? (
-                  <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-                ) : rfqs?.length ? rfqs.map((order) => {
-                  const statusInfo = STATUS_MAP[order.status] || { label: 'Processing', color: 'bg-muted', icon: History };
+                {isRfqsLoading && (!rfqs || rfqs.length === 0) && (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#2F5FA7]" />
+                  </div>
+                )}
+
+                {!isRfqsLoading && (!rfqs || rfqs.length === 0) && (
+                  <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-4">
+                    <History className="w-12 h-12 mx-auto text-slate-300 opacity-20" />
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">You haven't started any projects yet.</p>
+                    <Button variant="outline" onClick={() => setIsCreateProjectOpen(true)} className="uppercase tracking-widest text-[10px] font-bold border-slate-200">Start Your First Design</Button>
+                  </div>
+                )}
+
+                {!isRfqsLoading && rfqs && rfqs.length > 0 && rfqs.map((order) => {
+                  const projectParts = allParts?.filter(p => p.projectId === order.id) || [];
+                  const mainMaterial = projectParts.length > 0 ? projectParts[0].material.name : 'No Parts';
+                  const totalQty = projectParts.reduce((sum, p) => sum + (p.quantity || 0), 0);
+
+                  const statusInfo = STATUS_MAP[order.status as ProjectRFQStatus] || STATUS_MAP.draft;
                   const StatusIcon = statusInfo.icon;
                   return (
                     <Card
                       key={order.id}
                       className={`cursor-pointer transition-all duration-300 ${selectedOrderId === order.id ? 'bg-white border-[#2F5FA7] shadow-[0_10px_30px_rgba(47,95,167,0.15)] ring-1 ring-[#2F5FA7]/20 scale-[1.02] -translate-y-1' : 'bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50'} overflow-hidden relative group`}
-                      onClick={() => setSelectedOrderId(order.id)}
+                      onClick={() => router.push(`/projects/${order.id}`)}
                     >
                       <CardContent className="p-5 flex items-center justify-between">
                         <div className="flex items-center gap-5">
@@ -413,23 +454,114 @@ export default function UserDashboard() {
                             </div>
                           </div>
                         </div>
+                        <div className="text-right hidden sm:block">
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Status Summary</p>
+                          <p className="text-[10px] font-bold text-slate-700 uppercase">{mainMaterial} • {totalQty} PCS</p>
+                        </div>
                         <ChevronRight className={`w-5 h-5 transition-transform duration-300 ${selectedOrderId === order.id ? 'text-[#2F5FA7] translate-x-1' : 'text-slate-300 group-hover:text-[#2F5FA7]/50'}`} />
                       </CardContent>
                     </Card>
                   );
-                }) : (
-                  <div className="text-center py-20 bg-card/50 rounded-2xl border border-dashed border-white/10 space-y-4">
-                    <History className="w-12 h-12 mx-auto text-muted-foreground opacity-20" />
-                    <p className="text-muted-foreground">You haven't submitted any designs yet.</p>
-                    <Button variant="outline" onClick={() => router.push('/upload')}>Submit Your First Design</Button>
+                })}
+              </TabsContent>
+
+              <TabsContent value="designs" className="space-y-4">
+                {isPartsLoading && (!allParts || allParts.length === 0) && (
+                  <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-[#2F5FA7]" /></div>
+                )}
+
+                {!isPartsLoading && (!allParts || allParts.length === 0) && (
+                  <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-4">
+                    <Layers className="w-12 h-12 mx-auto text-slate-200 opacity-20" />
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No design files added to any projects.</p>
+                    <Button variant="outline" onClick={() => setIsCreateProjectOpen(true)} className="uppercase tracking-widest text-[10px] font-bold border-slate-200">Upload Your First STEP File</Button>
+                  </div>
+                )}
+
+                {allParts && allParts.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {allParts.map((part: MechanicalPart) => {
+                      const Icon = SERVICE_ICONS[part.service] || Package;
+                      return (
+                        <Card
+                          key={part.id}
+                          className="bg-white border-slate-200 hover:border-[#2F5FA7] hover:shadow-xl transition-all cursor-pointer group"
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 group-hover:bg-white transition-colors">
+                                <Icon className="w-5 h-5 text-[#2F5FA7]" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-bold text-slate-900 uppercase tracking-wide text-[11px] truncate">{part.partName || 'Untitled Part'}</p>
+                                  <span className="text-[8px] text-slate-400 font-mono italic">
+                                    {part.cadFile?.fileName.slice(-12)}
+                                  </span>
+                                </div>
+                                <p className="text-[9px] font-bold text-[#2F5FA7] uppercase tracking-widest mt-0.5">{part.service.replace(/_/g, ' ')}</p>
+                                <div className="space-y-2 mt-2">
+                                  <div className="flex items-center gap-3 text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                                    <span className="flex items-center gap-1 text-[#2F5FA7]">
+                                      <Layers className="w-3 h-3" />
+                                      {part.material.name} {part.material.grade && <span className="text-slate-400">({part.material.grade})</span>}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <Hash className="w-3 h-3" />
+                                      {part.quantity} PCS
+                                    </span>
+                                    <span className="flex items-center gap-1 ml-auto opacity-60">
+                                      <Clock className="w-2.5 h-2.5" />
+                                      {new Date(part.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+
+                                  {part.secondaryProcesses && part.secondaryProcesses.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 pt-1">
+                                      {part.secondaryProcesses.map((proc) => (
+                                        <Badge
+                                          key={proc}
+                                          variant="outline"
+                                          className="text-[7px] px-1.5 py-0 h-4 border-slate-100 bg-slate-50 text-slate-500 font-bold uppercase tracking-tight"
+                                        >
+                                          {proc.replace(/_/g, ' ')}
+                                        </Badge>
+                                      ))}
+                                      {part.coatingColor && (
+                                        <div className="flex items-center gap-1 ml-1">
+                                          <div
+                                            className="w-2 h-2 rounded-full border border-slate-200"
+                                            style={{ backgroundColor: part.coatingColor === 'custom' ? '#ccc' : part.coatingColor }}
+                                          />
+                                          <span className="text-[7px] font-bold text-slate-400 uppercase">{part.coatingColor}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="shop_orders" className="space-y-4">
-                {isShopOrdersLoading ? (
+                {isShopOrdersLoading && (!shopOrders || shopOrders.length === 0) && (
                   <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-                ) : shopOrders?.length ? shopOrders.map((order: any) => (
+                )}
+
+                {!isShopOrdersLoading && (!shopOrders || shopOrders.length === 0) && (
+                  <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-4">
+                    <History className="w-12 h-12 mx-auto text-slate-300 opacity-20" />
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No shop orders yet.</p>
+                  </div>
+                )}
+
+                {shopOrders && shopOrders.length > 0 && (shopOrders as any[]).map((order: any) => (
                   <Card
                     key={order.id}
                     className="bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50 transition-all overflow-hidden relative group cursor-pointer shadow-sm"
@@ -442,48 +574,42 @@ export default function UserDashboard() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 uppercase tracking-wide text-sm truncate max-w-[200px]">
-                            {order.items.length} {order.items.length === 1 ? 'Component' : 'Components'} Procured
+                            {(order.items?.length || 0) + (order.shopItems?.length || 0)} {((order.items?.length || 0) + (order.shopItems?.length || 0)) === 1 ? 'Component' : 'Components'} Procured
                           </p>
                           <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-3 mt-1.5 border-t border-slate-50 pt-1.5">
-                            <span className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-[#2F5FA7]/70" /> <span className="font-consolas">{new Date(order.createdAt).toLocaleDateString()}</span></span>
+                            <span className="flex items-center gap-1.5"><Clock className="w-3 h-3 text-[#2F5FA7]/70" /> <span className="font-consolas">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'UNKNOWN DATE'}</span></span>
                             <Badge variant="outline" className={`border-none ${order.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'} font-bold text-[8px] uppercase tracking-widest px-2 py-0 h-5 shadow-sm`}>
-                              {order.status === 'paid' ? 'TXN SECURED' : order.status.toUpperCase()}
+                              {order.status === 'paid' ? 'TXN SECURED' : (order.status?.toUpperCase() || 'UNKNOWN')}
                             </Badge>
                           </div>
                         </div>
                       </div>
                       <div className="text-right flex items-center gap-4">
                         <div className="hidden sm:block">
-                          <p className="text-xs font-bold text-slate-900 font-mono italic">₹{order.pricing.total.toLocaleString()}</p>
+                          <p className="text-xs font-bold text-slate-900 font-mono italic">₹{(order.pricing?.total || 0).toLocaleString()}</p>
                         </div>
                         <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-[#2F5FA7]/50 transition-transform group-hover:translate-x-1" />
                       </div>
                     </CardContent>
                   </Card>
-                )) : (
-                  <div className="text-center py-20 bg-card/50 rounded-2xl border border-dashed border-white/10 space-y-4">
-                    <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20" />
-                    <p className="text-muted-foreground">No shop orders found.</p>
-                    <Button variant="outline" onClick={() => router.push('/shop')}>Visit Catalogue</Button>
-                  </div>
-                )}
+                ))}
               </TabsContent>
 
               <TabsContent value="profile" className="space-y-6">
-                  <Card className="bg-white border-slate-200 shadow-xl overflow-hidden">
-                    <CardHeader className="border-b border-slate-50 pb-5">
-                      <CardTitle className="text-xl uppercase tracking-wide text-slate-900">Profile Details</CardTitle>
-                      <CardDescription className="text-xs uppercase tracking-widest font-bold text-slate-500 mt-1">Information used for your RFQ submissions</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6 pt-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Full Name</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">{profile?.fullName}</p></div>
-                        <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Email Address</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">{profile?.email || user.email}</p></div>
-                        <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Phone Number</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">{profile?.phone}</p></div>
-                        <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Organization</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">{profile?.teamName}</p></div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <Card className="bg-white border-slate-200 shadow-xl overflow-hidden">
+                  <CardHeader className="border-b border-slate-50 pb-5">
+                    <CardTitle className="text-xl uppercase tracking-wide text-slate-900">Profile Details</CardTitle>
+                    <CardDescription className="text-xs uppercase tracking-widest font-bold text-slate-500 mt-1">Information used for your RFQ submissions</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Full Name</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">{profile?.fullName}</p></div>
+                      <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Email Address</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">{profile?.email || user.email}</p></div>
+                      <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Phone Number</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">{profile?.phone}</p></div>
+                      <div className="space-y-2"><Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">Organization</Label><p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">{profile?.teamName}</p></div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -494,8 +620,8 @@ export default function UserDashboard() {
                 <Card className="bg-white border-slate-200 shadow-2xl overflow-hidden">
                   <CardHeader className="border-b border-slate-50 pb-5">
                     <div className="flex justify-between items-start mb-3">
-                      <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">{selectedOrder.manufacturingProcess}</Badge>
-                      <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200">{STATUS_MAP[selectedOrder.status]?.label}</Badge>
+                      <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">{selectedOrderParts[0]?.service.replace(/_/g, ' ') || 'PROJECT'}</Badge>
+                      <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200">{STATUS_MAP[selectedOrder.status as ProjectRFQStatus]?.label}</Badge>
                     </div>
                     <CardTitle className="text-xl text-slate-900 tracking-tight uppercase">{selectedOrder.projectName}</CardTitle>
                     <CardDescription className="text-xs uppercase tracking-widest text-slate-500 font-bold mt-2 max-w-[80%] leading-relaxed border-l-2 border-[#2F5FA7]/30 pl-3">
@@ -507,15 +633,19 @@ export default function UserDashboard() {
                     <div className="grid grid-cols-2 gap-4 text-xs mb-8">
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Layers className="w-3 h-3 text-[#2F5FA7]/70" /> Material</p>
-                        <p className="font-bold text-slate-900 uppercase text-xs font-consolas">{selectedOrder.material}</p>
+                        <p className="font-bold text-slate-900 uppercase text-xs font-consolas">
+                          {selectedOrderParts.length > 0 ? selectedOrderParts[0].material.name : 'No Parts'}
+                        </p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><Hash className="w-3 h-3 text-[#2F5FA7]/70" /> Quantity</p>
-                        <p className="font-bold text-slate-900 text-xs font-consolas">{selectedOrder.quantity} PCS</p>
+                        <p className="font-bold text-slate-900 text-xs font-consolas">
+                          {selectedOrderParts.reduce((sum, p) => sum + (p.quantity || 0), 0)} PCS
+                        </p>
                       </div>
                     </div>
 
-                    {(selectedOrder.status === 'submitted' || selectedOrder.status === 'quotation_sent' || selectedOrder.status === 'quotations_received' || selectedOrder.status === 'under_negotiation') && (
+                    {(selectedOrder.status === 'quote_requested' || selectedOrder.status === 'under_review' || selectedOrder.status === 'quotation_received' || selectedOrder.status === 'negotiation') && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
@@ -616,7 +746,7 @@ export default function UserDashboard() {
                       </div>
                     )}
 
-                     {/* ── ADVANCE PAYMENT (status = accepted, advance not yet paid) ── */}
+                    {/* ── ADVANCE PAYMENT (status = accepted, advance not yet paid) ── */}
                     {selectedOrder.status === 'accepted' && !selectedOrder.paymentStatus?.advance?.paid && (
                       <div className="rounded-2xl border border-orange-200 bg-white shadow-xl overflow-hidden">
                         <div className="p-5 border-b border-orange-50 bg-orange-50/50">
@@ -656,7 +786,7 @@ export default function UserDashboard() {
                     )}
 
                     {/* ── IN PRODUCTION (advance paid) ── */}
-                    {selectedOrder.status === 'in_progress' && (
+                    {selectedOrder.status === 'in_production' && (
                       <div className="rounded-2xl border border-blue-200 bg-white shadow-xl p-6 space-y-5">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm">
@@ -680,8 +810,8 @@ export default function UserDashboard() {
                           </div>
                         )}
                         <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-wide text-slate-500 shadow-sm">
-                           <Clock className="w-4 h-4 shrink-0 text-[#2F5FA7] animate-pulse" />
-                           <span className="leading-relaxed">Remaining <strong className="text-[#2F5FA7] font-consolas text-xs">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</strong> will be due upon delivery.</span>
+                          <Clock className="w-4 h-4 shrink-0 text-[#2F5FA7] animate-pulse" />
+                          <span className="leading-relaxed">Remaining <strong className="text-[#2F5FA7] font-consolas text-xs">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</strong> will be due upon delivery.</span>
                         </div>
                       </div>
                     )}
@@ -921,6 +1051,11 @@ export default function UserDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <CreateProjectModal
+        isOpen={isCreateProjectOpen}
+        onClose={() => setIsCreateProjectOpen(false)}
+      />
+
     </div>
   );
 }

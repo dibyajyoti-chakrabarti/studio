@@ -129,6 +129,67 @@ export default function VendorPortal() {
     router.push('/login');
   };
 
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) {
+        toast({ title: "Authentication required", variant: "destructive" });
+        return;
+      }
+
+      // If it's a data URL, handle it directly
+      if (fileUrl.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      // Extract fileKey from S3 URL
+      let fileKey = "";
+      try {
+        const url = new URL(fileUrl);
+        fileKey = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+      } catch (e) {
+        // Fallback for relative or invalid URLs
+        fileKey = fileUrl;
+      }
+
+      const response = await fetch(`/api/v1/files/download?fileKey=${encodeURIComponent(fileKey)}`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Download failed');
+      }
+
+      const { downloadUrl } = await response.json();
+      
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({ title: "Download started", description: fileName });
+    } catch (error: any) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSubmitQuote = async () => {
     if (!db || !user || !selectedRfq) return;
 
@@ -347,7 +408,7 @@ export default function VendorPortal() {
                 <div className="flex justify-between border-b border-white/5 pb-2"><span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Qty:</span><span className="text-white font-consolas">{selectedRfq?.quantity}</span></div>
               </div>
               {selectedRfq?.designFileUrl && (
-                <Button variant="outline" className="w-full gap-2 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all  tracking-widest uppercase text-[10px] h-11 font-bold" onClick={() => window.open(selectedRfq.designFileUrl)}>
+                <Button variant="outline" className="w-full gap-2 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950/30 hover:text-cyan-300 transition-all  tracking-widest uppercase text-[10px] h-11 font-bold" onClick={() => handleDownload(selectedRfq.designFileUrl, selectedRfq.designFileName || 'design_file')}>
                   <Download className="w-4 h-4" /> Download Design Data
                 </Button>
               )}

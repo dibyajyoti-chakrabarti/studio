@@ -6,10 +6,14 @@ import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Construction } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
+
+
 
 export function Footer() {
     const [currentYear, setCurrentYear] = useState<number | null>(null);
     const { toast } = useToast();
+    const user = useUser();
 
     useEffect(() => {
         setCurrentYear(new Date().getFullYear());
@@ -37,7 +41,7 @@ export function Footer() {
                             <p className="text-blue-100/60 text-sm font-medium">Upload your design and get matched with a verified MechMaster in minutes.</p>
                         </div>
                         <div className="flex gap-3 shrink-0">
-                            <Link href="/upload">
+                            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
                                 <Button
                                     className="h-10 px-7 text-sm font-bold bg-white text-[#1E3A66] hover:bg-blue-50 rounded-full shadow-lg transition-all"
                                     suppressHydrationWarning

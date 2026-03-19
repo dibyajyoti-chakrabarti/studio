@@ -46,7 +46,8 @@ export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
           operation: 'create',
           requestResourceData: data,
         })
-      )
+      );
+      throw error;
     });
   return promise;
 }

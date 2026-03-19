@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
@@ -152,7 +152,7 @@ export default function Home() {
 
               {/* Advanced CTAs */}
               <div className="flex flex-col sm:flex-row items-center gap-5 mb-16 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                <Link href="/upload" className="w-full sm:w-auto">
+                <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     className="w-full sm:w-auto h-16 px-12 text-base font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
@@ -371,7 +371,7 @@ export default function Home() {
               <p className="text-[#1E3A66] font-bold text-lg mb-1">Ready to get your parts made?</p>
               <p className="text-[#64748B] text-sm font-medium">Upload your design and get a quote in minutes.</p>
             </div>
-            <Link href="/upload" className="shrink-0 w-full sm:w-auto">
+            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="shrink-0 w-full sm:w-auto">
               <Button
                 className="w-full sm:w-auto h-12 px-8 text-sm font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-lg transition-all"
               >
@@ -522,7 +522,7 @@ export default function Home() {
                 {/* CTA */}
                 <div className="mt-2">
                   <TabsContent value="innovators" className="mt-0">
-                    <Link href="/upload">
+                    <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
                       <Button className="w-full h-14 text-sm font-bold bg-white text-[#1E3A66] hover:bg-blue-50 rounded-full shadow-2xl transition-all">
                         Upload Your Design <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>

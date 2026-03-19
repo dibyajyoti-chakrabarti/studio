@@ -83,6 +83,41 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────
+    // projectRFQs/{projectId}
+    // ─────────────────────────────────────────
+    match /projectRFQs/{projectId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────
+    // projectParts/{partId}
+    // ─────────────────────────────────────────
+    match /projectParts/{partId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ─────────────────────────────────────────
     // quotations/{quotationId}
     // ─────────────────────────────────────────
     match /quotations/{quotationId} {
@@ -237,6 +272,31 @@ service cloud.firestore {
 
       // Comments are currently immutable (cannot be updated)
       allow update: if false;
+    }
+
+    // ─────────────────────────────────────────
+    // products/{productId}
+    // ─────────────────────────────────────────
+    match /products/{productId} {
+      // Public: anyone can view products in the shop
+      allow read: if true;
+
+      // Only admin can manage the catalogue
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────
+    // orders/{orderId}
+    // ─────────────────────────────────────────
+    match /orders/{orderId} {
+      // Users can read their own orders; admin reads all
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Any authenticated user can place an order
+      allow create: if isAuthenticated();
+
+      // Only admin can update order status or delete
+      allow update, delete: if isAdmin();
     }
 
   }

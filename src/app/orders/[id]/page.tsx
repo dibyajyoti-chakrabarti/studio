@@ -81,7 +81,7 @@ export default function OrderConfirmationPage() {
                             </h1>
                         </div>
                         <p className="text-zinc-500 text-sm pl-1">
-                            Ref ID: <span className="font-mono text-zinc-300">#{order.id.slice(-8).toUpperCase()}</span>
+                            Ref ID: <span className="font-mono text-zinc-300">#{order.id?.slice(-8).toUpperCase() || 'UNKNOWN'}</span>
                         </p>
                     </div>
 
@@ -112,7 +112,7 @@ export default function OrderConfirmationPage() {
                             </CardHeader>
                             <CardContent className="p-8 pt-4 space-y-6">
                                 <div className="divide-y divide-white/5">
-                                    {order.items.map((item: any) => (
+                                    {(order.items || []).map((item: any) => (
                                         <div key={item.id} className="py-6 flex justify-between items-start gap-6 group">
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-base font-bold text-zinc-100 group-hover:text-cyan-400 transition-colors leading-tight italic">{item.name}</p>
@@ -123,7 +123,23 @@ export default function OrderConfirmationPage() {
                                             </div>
                                             <div className="text-right shrink-0">
                                                 <p className="text-sm font-bold font-mono text-zinc-200">₹{(item.quantity * item.price).toLocaleString()}</p>
-                                                <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter">₹{item.price.toLocaleString()} unit</p>
+                                                <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter">₹{item.price?.toLocaleString() || '0'} unit</p>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {(order.shopItems || []).map((item: any) => (
+                                        <div key={item.id} className="py-6 flex justify-between items-start gap-6 group">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-base font-bold text-zinc-100 group-hover:text-cyan-400 transition-colors leading-tight italic">{item.name}</p>
+                                                <div className="flex items-center gap-3 mt-2">
+                                                    <Badge variant="outline" className="text-[10px] border-white/10 text-zinc-500 font-mono py-0">SKU: {item.sku}</Badge>
+                                                    <span className="text-xs text-zinc-500">Qty: <span className="text-zinc-300 font-bold">{item.quantity}</span></span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <p className="text-sm font-bold font-mono text-zinc-200">₹{(item.quantity * item.salePrice).toLocaleString()}</p>
+                                                <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter">₹{item.salePrice?.toLocaleString() || '0'} unit</p>
                                             </div>
                                         </div>
                                     ))}
@@ -140,11 +156,11 @@ export default function OrderConfirmationPage() {
                                 </CardHeader>
                                 <CardContent className="p-6 pt-2">
                                     <div className="space-y-1">
-                                        <p className="text-sm font-bold text-zinc-100 italic">{order.shippingAddress.fullName}</p>
+                                        <p className="text-sm font-bold text-zinc-100 italic">{order.shippingAddress?.fullName || 'N/A'}</p>
                                         <p className="text-xs text-zinc-500 font-medium leading-relaxed">
-                                            {order.shippingAddress.street}, {order.shippingAddress.city}<br />
-                                            {order.shippingAddress.state} - {order.shippingAddress.pincode}<br />
-                                            Contact: {order.shippingAddress.phone}
+                                            {order.shippingAddress?.street}, {order.shippingAddress?.city}<br />
+                                            {order.shippingAddress?.state} - {order.shippingAddress?.pincode}<br />
+                                            Contact: {order.shippingAddress?.phone}
                                         </p>
                                     </div>
                                 </CardContent>
@@ -184,15 +200,15 @@ export default function OrderConfirmationPage() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-zinc-500 font-medium tracking-wide">Logistics Subtotal</span>
-                                        <span className="font-mono font-bold text-zinc-300">₹{order.pricing.subtotal.toLocaleString()}</span>
+                                        <span className="font-mono font-bold text-zinc-300">₹{(order.pricing?.subtotal || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-zinc-500 font-medium tracking-wide italic">GST (IGST 18%)</span>
-                                        <span className="font-mono font-bold text-zinc-300">₹{order.pricing.gst.toLocaleString()}</span>
+                                        <span className="font-mono font-bold text-zinc-300">₹{(order.pricing?.gst || 0).toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-zinc-500 font-medium tracking-wide">Procure Shipping</span>
-                                        <span className="font-mono font-bold text-zinc-300">{order.pricing.shipping === 0 ? 'FREE' : `₹${order.pricing.shipping.toLocaleString()}`}</span>
+                                        <span className="font-mono font-bold text-zinc-300">{order.pricing?.shipping === 0 ? 'FREE' : `₹${(order.pricing?.shipping || 0).toLocaleString()}`}</span>
                                     </div>
                                 </div>
 
@@ -201,7 +217,7 @@ export default function OrderConfirmationPage() {
                                 <div className="space-y-1">
                                     <div className="flex justify-between items-center py-2">
                                         <span className="text-zinc-400 font-headline font-bold uppercase text-[11px] tracking-widest">Gross Total</span>
-                                        <span className="text-3xl font-bold text-cyan-400 font-mono tracking-tighter">₹{order.pricing.total.toLocaleString()}</span>
+                                        <span className="text-3xl font-bold text-cyan-400 font-mono tracking-tighter">₹{(order.pricing?.total || 0).toLocaleString()}</span>
                                     </div>
                                     <Badge className={`${isPaid ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-orange-500/10 text-orange-500 border-orange-500/20'} w-full flex justify-center py-2 rounded-xl text-[10px] uppercase font-bold tracking-widest`}>
                                         {isPaid ? 'TXN SECURED & SETTLED' : 'SETTLEMENT PENDING'}
