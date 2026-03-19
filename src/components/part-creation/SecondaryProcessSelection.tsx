@@ -34,14 +34,14 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
     description: 'Durable, eco-friendly coating in various colors',
     icon: <Paintbrush className="w-5 h-5" />,
     requiresColor: true,
-    applicableServices: ['cnc_machining', 'laser_cutting', 'sheet_metal_fabrication', 'cnc_turning'],
+    applicableServices: ['cnc_machining', 'sheet_metal_cutting', 'cnc_turning'],
   },
   {
     id: 'bending',
     name: 'Bending',
     description: 'Sheet metal forming and folding',
     icon: <CornerUpRight className="w-5 h-5" />,
-    applicableServices: ['sheet_metal_fabrication', 'laser_cutting'],
+    applicableServices: ['sheet_metal_cutting'],
   },
   {
     id: 'anodizing',
@@ -49,14 +49,14 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
     description: 'Electrochemical process for aluminum',
     icon: <Sparkles className="w-5 h-5" />,
     requiresColor: true,
-    applicableServices: ['cnc_machining', 'cnc_turning', 'sheet_metal_fabrication'],
+    applicableServices: ['cnc_machining', 'cnc_turning', 'sheet_metal_cutting'],
   },
   {
     id: 'zinc_plating',
     name: 'Zinc Plating',
     description: 'Corrosion-resistant zinc coating',
     icon: <Shield className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning', 'laser_cutting', 'sheet_metal_fabrication'],
+    applicableServices: ['cnc_machining', 'cnc_turning', 'sheet_metal_cutting'],
   },
   {
     id: 'chrome_plating',

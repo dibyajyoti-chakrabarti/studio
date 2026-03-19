@@ -25,19 +25,7 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
       },
     ],
   },
-  'laser_cutting': {
-    categories: [
-      {
-        name: 'Metals',
-        materials: [
-          { id: 'lc-ms', name: 'Mild Steel (MS)', grade: 'Generic', category: 'Metals' },
-          { id: 'lc-ss', name: 'Stainless Steel (SS)', grade: '304/316', category: 'Metals' },
-          { id: 'lc-al', name: 'Aluminum', grade: 'Generic', category: 'Metals' },
-        ],
-      },
-    ],
-  },
-  'sheet_metal_fabrication': {
+  'sheet_metal_cutting': {
     categories: [
       {
         name: 'Metals',
