@@ -55,10 +55,10 @@ export function NewsletterSignup() {
 
     if (status === 'success') {
         return (
-            <div className="p-6 rounded-2xl border border-green-500/20 bg-green-500/5 space-y-3 text-center">
-                <CheckCircle2 className="w-8 h-8 text-green-400 mx-auto" />
-                <h4 className="text-sm font-bold text-white">You&apos;re in!</h4>
-                <p className="text-xs text-zinc-400 leading-relaxed">
+        <div className="p-6 rounded-2xl border border-green-500/20 bg-green-50 space-y-3 text-center">
+                <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto" />
+                <h4 className="text-sm font-bold text-green-700">You&apos;re in!</h4>
+                <p className="text-xs text-green-600 leading-relaxed">
                     Manufacturing insights are heading your way.
                 </p>
             </div>
@@ -66,20 +66,20 @@ export function NewsletterSignup() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="p-6 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-4 border-t-2 border-t-blue-500">
-            <h4 className="text-sm font-bold text-white">MechHub Precision</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">
+        <form onSubmit={handleSubmit} className="p-6 rounded-2xl border border-slate-200 bg-white space-y-4 border-t-2 border-t-[#2F5FA7] shadow-sm">
+            <h4 className="text-sm font-bold text-[#1E3A66]">MechHub Precision</h4>
+            <p className="text-xs text-slate-500 leading-relaxed">
                 Join 500+ professionals receiving manufacturing insights.
             </p>
             <Input
                 type="email"
-                className="h-9 text-xs bg-zinc-950 border-white/10 text-white placeholder:text-zinc-600"
+                className="h-9 text-xs bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400"
                 placeholder="you@company.com"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); if (status === 'error') { setStatus('idle'); setErrorMsg(''); } }}
             />
             {status === 'error' && errorMsg && (
-                <p className="flex items-center gap-1.5 text-[11px] text-red-400">
+                <p className="flex items-center gap-1.5 text-[11px] text-red-500">
                     <AlertCircle className="w-3 h-3 shrink-0" /> {errorMsg}
                 </p>
             )}
@@ -87,7 +87,7 @@ export function NewsletterSignup() {
                 type="submit"
                 size="sm"
                 disabled={status === 'loading'}
-                className="w-full h-9 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider disabled:opacity-50"
+                className="w-full h-9 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold text-[10px] uppercase tracking-wider disabled:opacity-50"
             >
                 {status === 'loading' ? (
                     <><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Joining...</>

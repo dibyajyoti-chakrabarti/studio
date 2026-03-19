@@ -57,7 +57,7 @@ export default function BlogPage() {
                     <Badge className="bg-[#E8F1FF] text-[#2F5FA7] border-[#2F5FA7]/20 px-3 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">
                         Manufacturing Insights
                     </Badge>
-                    <h1 className="text-center font-bold tracking-tight text-balance leading-[1.1] text-3xl md:text-4xl lg:text-[56px] text-[#1E3A66] mb-8">
+                    <h1 className="text-center font-bold tracking-normal text-balance leading-snug text-3xl md:text-4xl lg:text-[56px] text-[#1E3A66] mb-8">
                         MechHub <span className="text-[#2F5FA7]">Chronicles</span>
                     </h1>
                     <p className="text-[#64748B] text-lg leading-relaxed font-medium">

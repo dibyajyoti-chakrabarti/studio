@@ -115,22 +115,22 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
     if (isLoading) {
         return (
             <div className="flex items-center gap-2 animate-pulse">
-                <div className="w-10 h-10 rounded-full bg-white/5" />
-                <div className="w-16 h-4 bg-white/5 rounded" />
+                <div className="w-10 h-10 rounded-full bg-slate-100" />
+                <div className="w-16 h-4 bg-slate-100 rounded" />
             </div>
         );
     }
 
     return (
-        <div className="flex items-center gap-4 py-6 border-t border-white/10 mt-12">
+        <div className="flex items-center gap-4 py-6 border-t border-slate-200 mt-12">
             <button
                 onClick={handleLike}
                 disabled={isSubmitting}
                 className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 group focus:outline-none focus:ring-2 disabled:opacity-50",
                     isLiked
-                        ? "bg-red-500/10 border-red-500/30 text-red-500 focus:ring-red-500/50"
-                        : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10 hover:text-white focus:ring-blue-500/50"
+                        ? "bg-red-50 border-red-200 text-red-500 focus:ring-red-500/50"
+                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-[#1E3A66] focus:ring-[#2F5FA7]/50"
                 )}
             >
                 <Heart
@@ -139,11 +139,11 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
                         isLiked ? "fill-current scale-110" : "group-hover:scale-110"
                     )}
                 />
-                <span className="font-semibold text-sm">
+                <span className="font-semibold text-sm text-[#1E3A66]">
                     {likes} {likes === 1 ? 'Like' : 'Likes'}
                 </span>
             </button>
-            <p className="text-sm text-zinc-500 font-medium hidden sm:block">
+            <p className="text-sm text-slate-500 font-medium hidden sm:block">
                 Did you find this article helpful?
             </p>
         </div>

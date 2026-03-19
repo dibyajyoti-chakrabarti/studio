@@ -84,7 +84,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 {/* Navigation */}
                 <Link
                     href="/blog"
-                    className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white mb-12 transition-colors group"
+                    className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-[#2F5FA7] mb-12 transition-colors group"
                 >
                     <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     Back to Blog
@@ -98,18 +98,18 @@ export default async function PostPage({ params }: PostPageProps) {
                                 <Badge
                                     key={tag}
                                     variant="outline"
-                                    className="bg-blue-500/5 border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider"
+                                    className="bg-[#2F5FA7]/10 border-[#2F5FA7]/20 text-[#2F5FA7] text-[10px] font-bold uppercase tracking-wider"
                                 >
                                     {tag}
                                 </Badge>
                             ))}
                         </div>
 
-                        <h1 className="text-left font-libre font-bold tracking-tight text-balance text-2xl md:text-3xl lg:text-3xl text-white mb-8">
+                        <h1 className="text-left font-libre font-bold tracking-normal text-balance leading-snug text-2xl md:text-3xl lg:text-3xl text-[#1E3A66] mb-8">
                             {post.title}
                         </h1>
 
-                        <p className="text-xl text-zinc-400 leading-relaxed font-medium">
+                        <p className="text-xl text-slate-600 leading-loose font-medium">
                             {post.summary}
                         </p>
 
@@ -119,23 +119,23 @@ export default async function PostPage({ params }: PostPageProps) {
                                     {post.author.charAt(0)}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-white">{post.author}</p>
-                                    <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">Author</p>
+                                    <p className="text-sm font-bold text-[#1E3A66]">{post.author}</p>
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Author</p>
                                 </div>
                             </div>
 
-                            <Separator orientation="vertical" className="h-8 bg-white/10 hidden md:block" />
+                            <Separator orientation="vertical" className="h-8 bg-slate-200 hidden md:block" />
 
                             <div className="flex items-center gap-6">
                                 <div className="space-y-0.5">
-                                    <p className="text-xs font-bold text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider">
-                                        <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                                    <p className="text-xs font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-wider">
+                                        <Calendar className="w-3.5 h-3.5 text-[#2F5FA7]" />
                                         {format(parseISO(post.date), 'MMMM d, yyyy')}
                                     </p>
                                 </div>
                                 <div className="space-y-0.5">
-                                    <p className="text-xs font-bold text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider">
-                                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                                    <p className="text-xs font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-wider">
+                                        <Clock className="w-3.5 h-3.5 text-[#2F5FA7]" />
                                         {post.readingTime.text}
                                     </p>
                                 </div>
@@ -143,7 +143,7 @@ export default async function PostPage({ params }: PostPageProps) {
                         </div>
                     </div>
 
-                    <div className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
                         <Image
                             src={post.image}
                             alt={post.title}
@@ -151,7 +151,7 @@ export default async function PostPage({ params }: PostPageProps) {
                             className="object-cover"
                             priority
                         />
-                        <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl" />
+                        <div className="absolute inset-0 ring-1 ring-inset ring-slate-200 rounded-3xl" />
                     </div>
                 </div>
 
@@ -181,14 +181,14 @@ export default async function PostPage({ params }: PostPageProps) {
 
                 {/* Related Posts */}
                 {relatedPosts.length > 0 && (
-                    <div className="mt-32 pt-16 border-t border-white/5 space-y-10">
+                    <div className="mt-32 pt-16 border-t border-slate-200 space-y-10">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h2 className="text-2xl font-bold font-heading text-white">Keep Reading</h2>
-                                <p className="text-zinc-500 text-sm">More technical insights from our MechMasters.</p>
+                                <h2 className="text-2xl font-bold font-heading text-[#1E3A66]">Keep Reading</h2>
+                                <p className="text-slate-500 text-sm">More technical insights from our MechMasters.</p>
                             </div>
                             <Link href="/blog">
-                                <Button variant="ghost" className="text-blue-400 hover:text-blue-300 font-bold uppercase tracking-wider text-xs gap-2">
+                                <Button variant="ghost" className="text-[#2F5FA7] hover:text-[#1E3A66] font-bold uppercase tracking-wider text-xs gap-2">
                                     View All Posts <ArrowRight className="w-3.5 h-3.5" />
                                 </Button>
                             </Link>
@@ -197,10 +197,10 @@ export default async function PostPage({ params }: PostPageProps) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {relatedPosts.map((p) => (
                                 <Link key={p.slug} href={`/blog/${p.slug}`} className="group space-y-4">
-                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
+                                    <div className="relative aspect-video rounded-xl overflow-hidden border border-slate-200">
                                         <Image src={p.image} alt={p.title} fill className="object-cover transition-transform group-hover:scale-105" />
                                     </div>
-                                    <h4 className="font-bold text-zinc-100 group-hover:text-blue-400 transition-colors line-clamp-2">
+                                    <h4 className="font-bold text-[#1E3A66] group-hover:text-[#2F5FA7] transition-colors line-clamp-2">
                                         {p.title}
                                     </h4>
                                 </Link>

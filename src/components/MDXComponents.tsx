@@ -8,7 +8,7 @@ const components = {
     h1: ({ className, ...props }: any) => (
         <h1
             className={cn(
-                'text-left font-libre tracking-tight text-balance leading-[1.1] text-2xl md:text-3xl lg:text-4xl text-white mb-8',
+                'mt-12 text-left font-libre tracking-wide text-balance leading-tight text-3xl md:text-4xl lg:text-5xl text-[#1E3A66] mb-8',
                 className
             )}
             {...props}
@@ -17,7 +17,7 @@ const components = {
     h2: ({ className, ...props }: any) => (
         <h2
             className={cn(
-                'text-left font-libre font-bold tracking-tight text-balance leading-[1.1] text-2xl md:text-3xl lg:text-4xl text-white mb-8',
+                'mt-12 text-left font-libre font-bold tracking-wide text-balance leading-tight text-2xl md:text-3xl text-[#1E3A66] mb-6',
                 className
             )}
             {...props}
@@ -26,7 +26,7 @@ const components = {
     h3: ({ className, ...props }: any) => (
         <h3
             className={cn(
-                'mt-8 scroll-m-20 font-heading text-2xl font-semibold tracking-tight text-zinc-100',
+                'mt-10 scroll-m-20 font-libre text-xl md:text-2xl font-semibold tracking-normal leading-snug text-[#1E3A66] mb-4',
                 className
             )}
             {...props}
@@ -35,7 +35,7 @@ const components = {
     h4: ({ className, ...props }: any) => (
         <h4
             className={cn(
-                'mt-8 scroll-m-20 font-heading text-xl font-semibold tracking-tight text-zinc-200',
+                'mt-8 scroll-m-20 font-libre text-lg md:text-xl font-semibold tracking-normal leading-snug text-[#1E3A66] mb-4',
                 className
             )}
             {...props}
@@ -43,23 +43,23 @@ const components = {
     ),
     p: ({ className, ...props }: any) => (
         <p
-            className={cn('leading-7 [&:not(:first-child)]:mt-6 text-zinc-400', className)}
+            className={cn('leading-loose [&:not(:first-child)]:mt-8 text-slate-600', className)}
             {...props}
         />
     ),
     ul: ({ className, ...props }: any) => (
-        <ul className={cn('my-6 ml-6 list-disc [&>li]:mt-2 text-zinc-400', className)} {...props} />
+        <ul className={cn('my-8 ml-6 list-disc space-y-3 text-slate-600 leading-relaxed', className)} {...props} />
     ),
     ol: ({ className, ...props }: any) => (
-        <ol className={cn('my-6 ml-6 list-decimal [&>li]:mt-2 text-zinc-400', className)} {...props} />
+        <ol className={cn('my-8 ml-6 list-decimal space-y-3 text-slate-600 leading-relaxed', className)} {...props} />
     ),
     li: ({ className, ...props }: any) => (
-        <li className={cn('mt-2', className)} {...props} />
+        <li className={cn('mt-2 text-slate-600', className)} {...props} />
     ),
     blockquote: ({ className, ...props }: any) => (
         <blockquote
             className={cn(
-                'mt-6 border-l-2 border-blue-500 pl-6 italic text-zinc-300 font-medium bg-blue-500/5 py-4 pr-4 rounded-r-lg',
+                'mt-6 border-l-2 border-[#2F5FA7] pl-6 italic text-slate-600 font-medium bg-[#2F5FA7]/5 py-4 pr-4 rounded-r-lg',
                 className
             )}
             {...props}
@@ -71,13 +71,13 @@ const components = {
         ...props
     }: React.ImgHTMLAttributes<HTMLImageElement>) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className={cn('rounded-xl border border-white/10 my-8', className)} alt={alt} {...props} />
+        <img className={cn('rounded-xl border border-slate-200 my-8', className)} alt={alt} {...props} />
     ),
-    hr: ({ ...props }) => <hr className="my-10 border-white/10" {...props} />,
+    hr: ({ ...props }) => <hr className="my-10 border-slate-200" {...props} />,
     pre: ({ className, ...props }: any) => (
         <pre
             className={cn(
-                'mb-4 mt-8 overflow-x-auto rounded-xl border border-white/10 bg-zinc-900/50 py-6 px-4 backdrop-blur-sm',
+                'mb-4 mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 py-6 px-4 backdrop-blur-sm',
                 className
             )}
             {...props}
@@ -86,7 +86,7 @@ const components = {
     code: ({ className, ...props }: any) => (
         <code
             className={cn(
-                'relative rounded bg-zinc-800/80 px-[0.3rem] py-[0.1rem] font-mono text-sm text-zinc-200',
+                'relative rounded bg-[#2F5FA7]/10 px-[0.3rem] py-[0.1rem] font-mono text-sm text-[#2F5FA7]',
                 className
             )}
             {...props}
@@ -102,7 +102,7 @@ export function Mdx({ code }: MdxProps) {
     const Component = useMDXComponent(code);
 
     return (
-        <div className="mdx prose prose-invert max-w-none">
+        <div className="mdx prose max-w-none text-slate-600">
             <Component components={components} />
         </div>
     );

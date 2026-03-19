@@ -63,8 +63,8 @@ export function TableOfContents() {
     if (headings.length === 0) return null;
 
     return (
-        <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.02]">
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 mb-4">
+        <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2F5FA7] mb-4">
                 On this page
             </h4>
             <nav
@@ -85,8 +85,8 @@ export function TableOfContents() {
                                         block w-full text-left py-1.5 text-[13px] leading-snug transition-all duration-200 border-l-2
                                         ${indent}
                                         ${isActive
-                                            ? 'text-white font-semibold border-cyan-400 pl-3 bg-white/[0.03] rounded-r-lg'
-                                            : 'text-zinc-500 hover:text-zinc-300 border-transparent hover:border-zinc-700 pl-3'
+                                            ? 'text-[#1E3A66] font-semibold border-[#2F5FA7] pl-3 bg-slate-50 rounded-r-lg'
+                                            : 'text-slate-500 hover:text-[#1E3A66] border-transparent hover:border-slate-300 pl-3'
                                         }
                                     `}
                                 >
