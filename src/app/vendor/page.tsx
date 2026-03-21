@@ -96,17 +96,17 @@ export default function VendorPortal() {
   const marketplaceQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
-      collection(db, 'rfqs'),
+      collection(db, 'projectRFQs'),
       where('shortlistedVendorIds', 'array-contains', user.uid),
       where('status', 'in', ['submitted', 'quotation_sent', 'quotations_received', 'under_negotiation']),
-      orderBy('createdAt', 'desc')
+      orderBy('updatedAt', 'desc')
     );
   }, [db, user, isVendorConfirmed]);
 
   const myProjectsQuery = useMemoFirebase(() => {
     if (!db || !user || !isVendorConfirmed) return null;
     return query(
-      collection(db, 'rfqs'),
+      collection(db, 'projectRFQs'),
       where('assignedVendorId', '==', user.uid),
       orderBy('updatedAt', 'desc')
     );
@@ -208,7 +208,7 @@ export default function VendorPortal() {
     };
 
     addDocumentNonBlocking(collection(db, 'quotations'), quotationData);
-    updateDocumentNonBlocking(doc(db, 'rfqs', selectedRfq.id), {
+    updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedRfq.id), {
       status: 'quotations_received',
       updatedAt: new Date().toISOString()
     });
@@ -249,7 +249,7 @@ export default function VendorPortal() {
 
   const handleUpdateStatus = (rfqId: string, newStatus: string) => {
     if (!db) return;
-    updateDocumentNonBlocking(doc(db, 'rfqs', rfqId), {
+    updateDocumentNonBlocking(doc(db, 'projectRFQs', rfqId), {
       status: newStatus,
       updatedAt: new Date().toISOString(),
     });

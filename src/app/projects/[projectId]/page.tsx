@@ -35,7 +35,13 @@ import {
   Check,
   Download,
   MapPin,
-  ExternalLink
+  ExternalLink,
+  Factory,
+  Truck,
+  CheckCircle2,
+  Hammer,
+  TrendingUp,
+  Gavel
 } from 'lucide-react';
 
 function formatFileSize(bytes: number): string {
@@ -54,7 +60,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { calculateProjectFinances } from '@/lib/utils/finance';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 interface ProjectDetailPageProps {
@@ -77,7 +85,7 @@ const STATUS_MAP: Record<ProjectRFQStatus, { label: string; color: string; descr
     color: 'bg-amber-50 text-amber-700 border-amber-100',
     description: 'Analyzing your requirements'
   },
-  quotation_received: {
+  quotation_sent: {
     label: 'QUOTATION RECEIVED',
     color: 'bg-emerald-600 text-white border-emerald-700',
     description: 'Admin has provided a quote. Review and accept or negotiate.'
@@ -91,6 +99,11 @@ const STATUS_MAP: Record<ProjectRFQStatus, { label: string; color: string; descr
     label: 'DEPOSIT PENDING',
     color: 'bg-blue-600 text-white border-blue-700',
     description: 'Please pay the 50% advance to start production.'
+  },
+  assigned: {
+    label: 'ASSIGNED',
+    color: 'bg-indigo-600 text-white border-indigo-700',
+    description: 'Order confirmed and assigned to workshop. Production starting soon.'
   },
   accepted: {
     label: 'ACCEPTED',
@@ -176,6 +189,157 @@ function NegotiationDialog({ onSend, currentPrice }: { onSend: (msg: string, pri
   );
 }
 
+function AddressDialog({ onConfirm, isLoading, initialAddress }: { onConfirm: (address: any) => void, isLoading: boolean, initialAddress?: any }) {
+  const [address, setAddress] = useState({
+    fullName: initialAddress?.fullName || '',
+    phone: initialAddress?.phone || '',
+    addressLine1: initialAddress?.addressLine1 || '',
+    city: initialAddress?.city || '',
+    state: initialAddress?.state || '',
+    pincode: initialAddress?.pincode || '',
+    isGstInvoicing: initialAddress?.isGstInvoicing || false,
+    gstNumber: initialAddress?.gstNumber || '',
+    companyName: initialAddress?.companyName || ''
+  });
+
+  // Sync with initialAddress when it changes (e.g. after profile loads)
+  useEffect(() => {
+    if (initialAddress) {
+      setAddress({
+        fullName: address.fullName || initialAddress.fullName || '',
+        phone: address.phone || initialAddress.phone || '',
+        addressLine1: address.addressLine1 || initialAddress.addressLine1 || '',
+        city: address.city || initialAddress.city || '',
+        state: address.state || initialAddress.state || '',
+        pincode: address.pincode || initialAddress.pincode || '',
+        isGstInvoicing: initialAddress.isGstInvoicing || false,
+        gstNumber: initialAddress.gstNumber || '',
+        companyName: initialAddress.companyName || ''
+      });
+    }
+  }, [initialAddress]);
+
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const validate = () => {
+    if (!address.fullName || address.fullName.length < 2) return "Full Name is too short";
+    if (!address.phone || !/^[6-9]\d{9}$/.test(address.phone)) return "Invalid Indian Phone Number (10 digits)";
+    if (!address.addressLine1 || address.addressLine1.length < 5) return "Address Line 1 is too short";
+    if (!address.city || address.city.length < 2) return "City is required";
+    if (!address.state || address.state.length < 2) return "State is required";
+    if (!address.pincode || !/^[1-9][0-9]{5}$/.test(address.pincode)) return "Invalid Pincode (6 digits)";
+
+    if (address.isGstInvoicing) {
+      if (!address.gstNumber || !/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/.test(address.gstNumber)) {
+        return "Invalid GST Number format";
+      }
+      if (!address.companyName || address.companyName.length < 2) {
+        return "Company Name is required for Business Invoicing";
+      }
+    }
+    return null;
+  };
+
+  const handleConfirm = () => {
+    const error = validate();
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+    setValidationError(null);
+    onConfirm(address);
+  };
+
+  return (
+    <DialogContent className="sm:max-w-lg bg-white">
+      <DialogHeader>
+        <DialogTitle className="uppercase tracking-widest text-xs font-bold text-slate-900">Delivery Address</DialogTitle>
+        <DialogDescription className="text-[10px] uppercase tracking-widest font-bold">
+          Provide shipping details for your project
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">Full Name</Label>
+          <Input value={address.fullName} onChange={e => setAddress({ ...address, fullName: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">Phone</Label>
+          <Input value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+        <div className="md:col-span-2 space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">Address Line 1</Label>
+          <Input value={address.addressLine1} onChange={e => setAddress({ ...address, addressLine1: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">City</Label>
+          <Input value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">State</Label>
+          <Input value={address.state} onChange={e => setAddress({ ...address, state: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase font-bold tracking-widest">Pincode</Label>
+          <Input value={address.pincode} onChange={e => setAddress({ ...address, pincode: e.target.value })} className="h-10 border-slate-200" />
+        </div>
+
+        <div className="md:col-span-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="gst"
+              checked={address.isGstInvoicing}
+              onCheckedChange={(checked) => setAddress({ ...address, isGstInvoicing: !!checked })}
+            />
+            <Label htmlFor="gst" className="text-[10px] uppercase font-bold tracking-widest cursor-pointer">
+              I require GST Invoicing (Business)
+            </Label>
+          </div>
+        </div>
+
+        {address.isGstInvoicing && (
+          <>
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-bold tracking-widest">Company Name</Label>
+              <Input
+                value={address.companyName}
+                onChange={e => setAddress({ ...address, companyName: e.target.value })}
+                placeholder="Business Name"
+                className="h-10 border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-bold tracking-widest">GST Number</Label>
+              <Input
+                value={address.gstNumber}
+                onChange={e => setAddress({ ...address, gstNumber: e.target.value })}
+                placeholder="22AAAAA0000A1Z5"
+                className="h-10 border-slate-200"
+              />
+            </div>
+          </>
+        )}
+      </div>
+
+      {validationError && (
+        <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider text-center px-4">
+          {validationError}
+        </p>
+      )}
+
+      <DialogFooter>
+        <Button
+          disabled={isLoading || !address.addressLine1 || !address.fullName}
+          onClick={handleConfirm}
+          className="bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold uppercase tracking-widest text-[10px] h-11 px-8"
+        >
+          {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : 'Confirm & Proceed to Pay'}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
 const SECONDARY_PROCESS_ICONS: Record<string, React.ReactNode> = {
   powder_coating: <Palette className="w-3 h-3" />,
   bending: <CornerUpRight className="w-3 h-3" />,
@@ -190,14 +354,23 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [isRequestingQuote, setIsRequestingQuote] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
   const [optimisticParts, setOptimisticParts] = useState<MechanicalPart[]>([]);
 
-  // Read highlight param from URL on mount (avoids useSearchParams Suspense issue)
+  // Read highlight param from URL on mount and load Razorpay
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       const h = url.searchParams.get('highlight');
       if (h) setHighlightId(h);
+
+      // Load Razorpay
+      if (!(window as any).Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+      }
     }
   }, []);
 
@@ -208,6 +381,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   }, [db, projectId]);
 
   const { data: projectDoc, isLoading: isProjectLoading } = useDoc(projectRef);
+  const { data: userProfile } = useDoc(useMemoFirebase(() => (db && user) ? doc(db, 'users', user.uid) : null, [db, user?.uid]));
 
   // Fetch project parts
   const partsQuery = useMemoFirebase(() => {
@@ -294,6 +468,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         doc(db, 'projectRFQs', projectId),
         {
           status: 'quote_requested',
+          userPhone: userProfile?.phone || '',
           quoteRequestedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
@@ -346,28 +521,96 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const handleAcceptQuote = async () => {
     if (!db || !project) return;
     try {
-      await updateDocumentNonBlocking(
-        doc(db, 'projectRFQs', projectId),
-        {
-          status: 'deposit_pending',
-          updatedAt: new Date().toISOString(),
-        }
-      );
+      await updateDocumentNonBlocking(doc(db, 'projectRFQs', project.id), {
+        status: 'accepted',
+        updatedAt: new Date().toISOString()
+      });
       toast({
         title: 'Quote Accepted',
-        description: 'Please proceed with the 50% advance payment.',
+        description: 'Please provide delivery details and pay the advance to start production.',
       });
-    } catch (error) {
-      console.error('Error accepting quote:', error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handlePayDeposit = async () => {
-    // Placeholder for payment gateway integration
-    toast({
-      title: 'Redirecting to Payment',
-      description: 'Opening payment gateway for 50% advance...',
-    });
+  const handlePayDeposit = async (shippingAddress: any, isAdvance: boolean = true) => {
+    if (!db || !project || !user) return;
+    setIsPaying(true);
+    try {
+      // 0. Update User Profile with the confirmed address for future use
+      await updateDocumentNonBlocking(doc(db, 'users', user.uid), {
+        savedAddress: shippingAddress,
+        updatedAt: new Date().toISOString()
+      });
+
+      // 1. Create Order via API
+      const orderRes = await fetch('/api/v1/order/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: project.id,
+          advancePercentage: 0.5,
+          isAdvance,
+          isBalance: !isAdvance,
+          userId: user.uid,
+          shippingAddress,
+          shippingOptionId: 'std_ground',
+          items: projectParts.map(p => ({
+            id: p.id,
+            fileName: p.cadFile.fileName,
+            quote: { totalPrice: (project.quotedPrice || 1000) / projectParts.length } // simplified spread
+          }))
+        })
+      });
+
+      const { data: order, success, error } = await orderRes.json();
+      if (!success) {
+        throw new Error(error?.message || 'Failed to create order');
+      }
+
+      // 2. Open Razorpay
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_5W444444444444',
+        amount: order.total * 100,
+        currency: 'INR',
+        name: 'MechHub',
+        description: isAdvance ? `50% Advance for Project: ${project.projectName}` : `50% Balance for Project: ${project.projectName}`,
+        order_id: order.razorpayOrderId,
+        handler: async function (response: any) {
+          // Verify & Sync
+          const verifyRes = await fetch('/api/v1/order/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...response,
+              orderId: order.id,
+              userId: user.uid
+            })
+          });
+          const verifyResult = await verifyRes.json();
+          if (verifyResult.success) {
+            toast({
+              title: 'Payment Successful',
+              description: isAdvance ? '50% Advance paid. Moving to Production.' : 'Balance paid. Parts will be delivered soon.'
+            });
+            router.refresh();
+          } else {
+            toast({ title: 'Verification Failed', description: verifyResult.error?.message, variant: 'destructive' });
+          }
+        },
+        theme: { color: '#2F5FA7' }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({ title: 'Payment Initiation Failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsPaying(false);
+    }
   };
 
   const handleDownload = async (fileKey: string, fileName: string) => {
@@ -520,6 +763,12 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   <FileText className="w-4 h-4 mr-2" />
                   Details
                 </TabsTrigger>
+                {(project.status === 'quotation_sent' || project.status === 'negotiation' || (project.negotiationHistory && project.negotiationHistory.length > 0)) && (
+                  <TabsTrigger value="negotiation" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Negotiation
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               <TabsContent value="parts" className="space-y-4">
@@ -765,6 +1014,67 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   </Card>
                 )}
               </TabsContent>
+
+              <TabsContent value="negotiation" className="space-y-4">
+                <Card className="bg-white border-slate-200 overflow-hidden shadow-sm">
+                  <CardHeader className="border-b border-slate-50">
+                    <CardTitle className="text-sm font-bold uppercase tracking-wide text-slate-900 flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-[#2F5FA7]" />
+                      Negotiation History
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="max-h-[400px] overflow-y-auto p-6 space-y-4 bg-slate-50/30">
+                      {project.negotiationHistory && project.negotiationHistory.length > 0 ? (
+                        project.negotiationHistory.map((msg: any, idx: number) => (
+                          <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                            <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm ${msg.role === 'user' ? 'bg-[#2F5FA7] text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                              <p className="leading-relaxed">{msg.message}</p>
+                              {msg.proposedPrice && (
+                                <div className={`mt-2 pt-2 border-t text-[10px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'border-white/10 text-blue-100' : 'border-slate-100 text-[#2F5FA7]'}`}>
+                                  {msg.role === 'user' ? 'Your Counter-Offer:' : 'Admin Proposed:'} INR {msg.proposedPrice.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 px-1">
+                              {msg.role === 'user' ? 'You' : 'MechHub Admin'} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-20 text-center text-slate-400">
+                          <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                          <p className="text-[10px] uppercase font-bold tracking-widest">No conversation history yet</p>
+                          <p className="text-[9px] lowercase mt-1">Once you receive a quote, you can start negotiating here.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Direct Reply Action in Tab */}
+                    {project.status === 'quotation_sent' && (
+                      <div className="p-6 bg-white border-t border-slate-100 flex flex-col items-center gap-4">
+                        <div className="text-center space-y-1">
+                          <p className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">
+                            Ready to continue the conversation?
+                          </p>
+                          <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">
+                            You can send another counter-offer or a message to the Admin
+                          </p>
+                        </div>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button className="bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold uppercase tracking-widest text-[10px] h-11 px-8 shadow-md">
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Reply with Counter-Offer
+                            </Button>
+                          </DialogTrigger>
+                          <NegotiationDialog onSend={handleNegotiate} currentPrice={project.quotedPrice || 1000} />
+                        </Dialog>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </div>
 
@@ -837,7 +1147,63 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               </Card>
             )}
 
-            {project.status === 'quotation_received' && (
+            {/* Manufacturing Price Breakdown (Worksheet) */}
+            {project.quotedPrice && projectParts.length > 0 && (
+              <Card className="bg-white border-slate-200 shadow-sm overflow-hidden mb-6">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#1E3A66]">
+                    <TrendingUp className="w-3.5 h-3.5" /> Manufacturing Price Breakdown
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-[11px] border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/50 border-b border-slate-100">
+                        <th className="px-4 py-2 font-bold text-slate-500 uppercase tracking-wider">Part</th>
+                        <th className="px-4 py-2 font-bold text-slate-500 uppercase tracking-wider text-center">Qty</th>
+                        <th className="px-4 py-2 font-bold text-slate-500 uppercase tracking-wider text-right">Unit (₹)</th>
+                        <th className="px-4 py-2 font-bold text-slate-500 uppercase tracking-wider text-right">Total (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {projectParts.map((part) => {
+                        const unitCost = part.unitCost || 0;
+                        const total = unitCost * (part.quantity || 0);
+                        return (
+                          <tr key={part.id} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="px-4 py-3">
+                              <p className="font-bold text-slate-900 leading-tight truncate max-w-[120px]">{part.partName}</p>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{part.material?.name || 'Custom'}</p>
+                            </td>
+                            <td className="px-4 py-3 text-center font-mono font-bold text-slate-600">
+                              {part.quantity}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-500">
+                              {unitCost.toLocaleString('en-IN')}
+                            </td>
+                            <td className="px-4 py-3 text-right font-mono font-bold text-slate-900">
+                              {total.toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot className="bg-slate-50/50 border-t border-slate-100">
+                      <tr>
+                        <td colSpan={3} className="px-4 py-2.5 text-right text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                          Parts Subtotal
+                        </td>
+                        <td className="px-4 py-2.5 text-right text-xs font-bold text-[#1E3A66] font-mono">
+                          ₹{projectParts.reduce((sum, p) => sum + ((p.unitCost || 0) * (p.quantity || 0)), 0).toLocaleString('en-IN')}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </Card>
+            )}
+
+            {project.status === 'quotation_sent' && (
               <Card className="bg-emerald-50 border-emerald-200 shadow-xl overflow-hidden">
                 <CardHeader className="bg-emerald-600 text-white p-5 border-none">
                   <div className="flex items-center gap-3">
@@ -869,10 +1235,11 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   <div className="pt-2 flex flex-col gap-2">
                     <Button
                       onClick={handleAcceptQuote}
-                      className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-widest text-[10px] border-none"
+                      className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-widest text-xs border-none"
                     >
-                      Accept Quote
+                      Accept Quotation
                     </Button>
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" className="w-full h-11 border-slate-200 text-slate-600 font-bold uppercase tracking-widest text-[10px]">
@@ -886,65 +1253,217 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               </Card>
             )}
 
-            {project.status === 'negotiation' && (
-              <Card className="bg-orange-50 border-orange-200">
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
-                      <MessageSquare className="w-5 h-5 text-orange-600" />
+            {project.status === 'accepted' && (
+              <Card className="bg-[#1E3A66] border-[#1E3A66] shadow-xl overflow-hidden text-white">
+                <CardHeader className="p-5 border-b border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-1">
-                        In Negotiation
+                      <p className="font-bold uppercase tracking-wide text-sm">
+                        Order Accepted
                       </p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold leading-relaxed">
-                        Your counter-offer is being reviewed by the Admin.
+                      <p className="text-[10px] text-blue-200 uppercase tracking-wider font-bold">
+                        Awaiting 50% Advance Payment
                       </p>
                     </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3">
+                    {(() => {
+                      const finances = calculateProjectFinances(project.quotedPrice || 0);
+
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[10px] text-blue-200 uppercase font-bold tracking-widest leading-none">
+                            <span>Quotation Subtotal</span>
+                            <span className="text-white">INR {finances.subtotal.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] text-blue-200 uppercase font-bold tracking-widest leading-none">
+                            <span>GST (18%)</span>
+                            <span className="text-white">INR {finances.gst.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] text-blue-200 uppercase font-bold tracking-widest leading-none">
+                            <span>Shipping (Ground)</span>
+                            <span className="text-white">INR {finances.shipping.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="pt-2 mt-1 border-t border-white/10 flex justify-between items-center">
+                            <span className="text-[10px] text-blue-200 uppercase font-bold tracking-widest">Total Order Value</span>
+                            <span className="text-white font-mono text-sm font-bold">INR {finances.total.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="p-3 bg-white/10 rounded-lg border border-white/10 flex justify-between items-center mt-2">
+                            <span className="text-[10px] text-white uppercase font-bold tracking-widest">Advance Payable (50%)</span>
+                            <span className="text-white font-mono text-base font-bold underline decoration-blue-500 underline-offset-4">INR {finances.advance.toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    <p className="text-[9px] text-blue-100 uppercase font-bold leading-relaxed pt-2 opacity-70 italic">
+                      Note: Production will commence immediately after the advance payment is verified.
+                    </p>
+                  </div>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        disabled={isPaying}
+                        className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-white hover:bg-blue-50 text-[#1E3A66] rounded-xl shadow-lg transition-all border-none"
+                      >
+                        {isPaying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                        Pay 50% Advance
+                      </Button>
+                    </DialogTrigger>
+                    <AddressDialog
+                      onConfirm={(addr) => handlePayDeposit(addr, true)}
+                      isLoading={isPaying}
+                      initialAddress={userProfile?.savedAddress}
+                    />
+                  </Dialog>
+                </CardContent>
+              </Card>
+            )}
+
+            {project.status === 'in_production' && (
+              <Card className="bg-orange-50 border-orange-200 shadow-lg">
+                <CardContent className="p-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
+                      <Factory className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-orange-900 uppercase tracking-wide">
+                        In Production
+                      </p>
+                      <p className="text-[9px] text-orange-700 uppercase tracking-wider font-bold">
+                        Manufacturing Active
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white/50 rounded-lg border border-orange-100 italic text-[10px] text-orange-800 font-bold uppercase tracking-wider">
+                    "Advance payment received. Your parts have been queued for fabrication."
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {project.status === 'deposit_pending' && (
+            {project.status === 'shipped' && (
               <Card className="bg-blue-50 border-blue-200 shadow-xl overflow-hidden">
-                <CardHeader className="bg-[#2F5FA7] text-white p-5 border-none">
+                <CardHeader className="bg-blue-600 text-white p-5 border-none">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-white" />
+                      <Truck className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-widest font-bold text-blue-100">
-                        Advance Payment (50%)
+                        Manufacturing Complete
                       </p>
                       <p className="font-bold uppercase tracking-wide text-lg">
-                        ₹{project.paymentStatus?.advance?.amount?.toLocaleString() || ((project.quotedPrice || 0) * 0.5).toLocaleString()}
+                        Parts Shipped
                       </p>
                     </div>
                   </div>
                 </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="p-4 bg-white/70 rounded-lg border border-blue-100 space-y-3">
+                    {(() => {
+                      const finances = calculateProjectFinances(project.quotedPrice || 0);
+
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-[10px] text-blue-800 uppercase font-bold tracking-widest leading-none">
+                            <span>Quotation Subtotal</span>
+                            <span>INR {finances.subtotal.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] text-blue-800 uppercase font-bold tracking-widest leading-none">
+                            <span>GST (18%)</span>
+                            <span>INR {finances.gst.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between text-[10px] text-blue-800 uppercase font-bold tracking-widest leading-none">
+                            <span>Shipping (Ground)</span>
+                            <span>INR {finances.shipping.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="pt-2 mt-1 border-t border-blue-200 flex justify-between items-center">
+                            <span className="text-[10px] text-blue-800 uppercase font-bold tracking-widest">Total Order Value</span>
+                            <span className="font-mono text-sm font-bold text-[#1E3A66]">INR {finances.total.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="p-3 bg-white/50 rounded-lg border border-blue-200 flex justify-between items-center mt-2">
+                            <span className="text-[10px] text-[#1E3A66] uppercase font-bold tracking-widest">Final Balance (50%)</span>
+                            <span className="text-[#1E3A66] font-mono text-base font-bold underline decoration-blue-500 underline-offset-4">INR {finances.balance.toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        disabled={isPaying}
+                        className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-all border-none"
+                      >
+                        {isPaying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                        Pay Remaining 50%
+                      </Button>
+                    </DialogTrigger>
+                    <AddressDialog
+                      onConfirm={(addr) => handlePayDeposit(addr, false)}
+                      isLoading={isPaying}
+                      initialAddress={userProfile?.savedAddress}
+                    />
+                  </Dialog>
+                </CardContent>
+              </Card>
+            )}
+
+            {project.status === 'delivered' && (
+              <Card className="bg-emerald-600 border-emerald-600 shadow-xl text-white">
+                <CardContent className="p-6 text-center space-y-4">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle2 className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold uppercase tracking-wider">Project Delivered</h3>
+                    <p className="text-[10px] text-emerald-100 uppercase tracking-[0.2em] font-bold">Manufacturing & Logistics Complete</p>
+                  </div>
+                  <div className="pt-4 border-t border-white/10 mt-2">
+                    <p className="text-[10px] text-emerald-50 font-bold uppercase italic">Fully Paid & Verified</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {project.status === 'negotiation' && (
+              <Card className="bg-orange-50 border-orange-200 shadow-lg">
                 <CardContent className="p-5">
-                  <Button
-                    onClick={handlePayDeposit}
-                    className="w-full h-12 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold uppercase tracking-widest text-xs shadow-lg transition-all border-none"
-                  >
-                    Pay Advance & Start Production
-                  </Button>
-                  <p className="mt-3 text-[9px] text-slate-400 uppercase tracking-widest font-bold text-center">
-                    Secure payment via Razorpay • 50% Balance on completion
-                  </p>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-bold text-slate-900 uppercase tracking-wide text-sm">
+                          Negotiation In Progress
+                        </p>
+                      </div>
+                      <p className="text-[10px] text-slate-600 uppercase tracking-wider font-bold leading-relaxed">
+                        Your counter-offer is currently under review by our manufacturing team. We will get back to you shortly.
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {project.status === 'quote_requested' && (
-              <Card className="bg-blue-50 border-blue-200">
+              <Card className="bg-blue-50 border-blue-200 shadow-lg">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Clock className="w-5 h-5 text-[#2F5FA7] animate-pulse" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold text-slate-900 uppercase tracking-wide text-sm mb-1">
                         Quote Requested
                       </p>

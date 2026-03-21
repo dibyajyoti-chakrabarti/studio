@@ -52,6 +52,10 @@ export interface QuoteOrder {
   readonly paymentStatus: PaymentStatus;
   readonly razorpayOrderId?: string;
   readonly razorpayPaymentId?: string;
+  readonly projectId?: string;
+  readonly isAdvance?: boolean;
+  readonly isBalance?: boolean;
+  readonly advancePercentage?: number;
   readonly createdAt: string;
   readonly paidAt?: string;
   readonly shippedAt?: string;

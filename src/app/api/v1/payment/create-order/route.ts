@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { calculateProjectFinances } from '@/lib/utils/finance';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
 // Firebase Admin is handled by getFirebaseAdmin() central logic
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
         // ── Fetch & validate the RFQ ─────────────────────────────────────────────
         const { adminFirestore: db } = getFirebaseAdmin();
         if (!db) throw new Error('Firebase Admin not initialized');
-        const rfqSnap = await db.collection('rfqs').doc(rfqId).get();
+        const rfqSnap = await db.collection('projectRFQs').doc(rfqId).get();
 
         if (!rfqSnap.exists) {
             return NextResponse.json({ error: 'RFQ not found' }, { status: 404 });
@@ -61,8 +62,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid order amount' }, { status: 400 });
         }
 
-        // 50% in paise (Razorpay requires smallest currency unit)
-        const amountPaise = Math.round(finalPrice * 0.5 * 100);
+        const finances = calculateProjectFinances(finalPrice);
+        const amount = paymentType === 'advance' ? finances.advance : finances.balance;
+        
+        // Final amount in paise (Razorpay requires smallest currency unit)
+        const amountPaise = Math.round(amount * 100);
 
         // ── Create Razorpay order ─────────────────────────────────────────────────
         const order = await razorpay.orders.create({
@@ -78,7 +82,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Store the pending Razorpay order ID in Firestore for later verification
-        await db.collection('rfqs').doc(rfqId).update({
+        await db.collection('projectRFQs').doc(rfqId).update({
             [`paymentStatus.${paymentType}.razorpayOrderId`]: order.id,
             [`paymentStatus.${paymentType}.paid`]: false,
             updatedAt: new Date().toISOString(),

@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         // ── Validate RFQ ownership ────────────────────────────────────────────────
         const { adminFirestore: db } = getFirebaseAdmin();
         if (!db) throw new Error('Firebase Admin not initialized');
-        const rfqSnap = await db.collection('rfqs').doc(rfqId).get();
+        const rfqSnap = await db.collection('projectRFQs').doc(rfqId).get();
 
         if (!rfqSnap.exists) {
             return NextResponse.json({ error: 'RFQ not found' }, { status: 404 });
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
             updates.status = 'completed';
         }
 
-        await db.collection('rfqs').doc(rfqId).update(updates);
+        await db.collection('projectRFQs').doc(rfqId).update(updates);
 
         // Record payment in a separate payments collection for audit trail
         await db.collection('payments').add({

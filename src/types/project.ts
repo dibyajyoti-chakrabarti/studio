@@ -45,9 +45,10 @@ export type ProjectRFQStatus =
   | 'draft'
   | 'quote_requested'
   | 'under_review'
-  | 'quotation_received'
+  | 'quotation_sent'
   | 'negotiation'
   | 'deposit_pending'
+  | 'assigned'
   | 'accepted'
   | 'in_production'
   | 'completed'
@@ -77,6 +78,7 @@ export interface MechanicalPart {
   readonly secondaryProcesses: SecondaryProcess[];
   readonly coatingColor?: ColorOption;
   readonly quantity: number;
+  readonly unitCost?: number;
   readonly discountTier?: string;
   readonly status: PartStatus;
   readonly createdAt: string;

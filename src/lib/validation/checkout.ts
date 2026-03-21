@@ -48,6 +48,10 @@ export const checkoutSchema = z.object({
   shippingAddress: shippingAddressSchema,
   shippingOptionId: z.string().min(1),
   userId: z.string().min(1),
+  projectId: z.string().optional(),
+  isAdvance: z.boolean().optional(),
+  isBalance: z.boolean().optional(),
+  advancePercentage: z.number().min(0.01).max(1).optional(),
 }).refine(data => data.items.length > 0 || data.shopItems.length > 0, {
   message: "At least one item (quote or product) is required",
   path: ["items"]

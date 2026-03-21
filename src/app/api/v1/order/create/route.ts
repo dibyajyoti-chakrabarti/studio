@@ -30,12 +30,13 @@ export async function POST(req: NextRequest) {
         requestId, 
         errors: validation.error.flatten() 
       });
+      const firstError = validation.error.errors[0]?.message || 'Invalid order data';
       return NextResponse.json(
         { 
           success: false, 
           error: { 
             code: ErrorCode.VALIDATION_FAILED, 
-            message: 'Invalid order data', 
+            message: firstError, 
             details: validation.error.flatten() 
           } 
         },
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { items, shopItems, shippingAddress, shippingOptionId, userId } = validation.data;
+    const { items, shopItems, shippingAddress, shippingOptionId, userId, projectId, isAdvance, isBalance, advancePercentage } = validation.data;
 
     // 2. Resolve shipping option
     const shippingOption = SHIPPING_OPTIONS.find(o => o.id === shippingOptionId);
@@ -63,7 +64,13 @@ export async function POST(req: NextRequest) {
     const subtotal = quoteSubtotal + shopSubtotal;
     
     const gst = Math.round(subtotal * 0.18);
-    const finalTotal = subtotal + gst + shippingOption.price;
+    let finalTotal = subtotal + gst + shippingOption.price;
+    
+    // Apply advance percentage if provided
+    if (projectId && advancePercentage) {
+      finalTotal = Math.round(finalTotal * advancePercentage);
+    }
+
     const amountPaise = Math.round(finalTotal * 100);
 
     const razorpayOrder = await razorpay.orders.create({
@@ -72,7 +79,8 @@ export async function POST(req: NextRequest) {
       receipt: `quote_${Date.now()}`,
       notes: {
         userId,
-        type: 'quote_order'
+        type: isBalance ? 'project_balance' : (projectId ? 'project_advance' : 'quote_order'),
+        projectId: projectId || ''
       }
     });
 
@@ -83,7 +91,10 @@ export async function POST(req: NextRequest) {
       shopItems as any,
       shippingAddress as any,
       shippingOption,
-      razorpayOrder.id
+      razorpayOrder.id,
+      projectId,
+      advancePercentage,
+      isBalance
     );
 
     if (!result.success) {

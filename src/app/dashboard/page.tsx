@@ -62,9 +62,10 @@ const STATUS_MAP: Record<ProjectRFQStatus, { label: string, color: string, icon:
   draft: { label: 'DRAFT', color: 'bg-slate-100 text-slate-600 border-slate-200', icon: FileText },
   quote_requested: { label: 'QUOTE REQUESTED', color: 'bg-blue-50 text-blue-700 border-blue-100', icon: Clock },
   under_review: { label: 'UNDER REVIEW', color: 'bg-amber-50 text-amber-700 border-amber-100', icon: Loader2 },
-  quotation_received: { label: 'QUOTATION RECEIVED', color: 'bg-emerald-600 text-white border-emerald-700', icon: FileText },
+  quotation_sent: { label: 'QUOTATION RECEIVED', color: 'bg-emerald-600 text-white border-emerald-700', icon: FileText },
   negotiation: { label: 'NEGOTIATION', color: 'bg-orange-500 text-white border-orange-600', icon: MessageSquare },
   deposit_pending: { label: 'DEPOSIT PENDING', color: 'bg-blue-600 text-white border-blue-700', icon: CreditCard },
+  assigned: { label: 'ASSIGNED', color: 'bg-indigo-600 text-white border-indigo-700', icon: Package },
   accepted: { label: 'ACCEPTED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: Check },
   in_production: { label: 'IN PRODUCTION', color: 'bg-blue-600 text-white border-blue-600', icon: Hammer },
   completed: { label: 'COMPLETED', color: 'bg-green-600 text-white border-green-600', icon: CheckCircle2 },
@@ -126,6 +127,11 @@ export default function UserDashboard() {
   }, [db, user?.uid]);
 
   const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
+  
+  const completedShopOrders = React.useMemo(() => {
+    if (!shopOrders) return [];
+    return (shopOrders as any[]).filter(order => order.status === 'delivered');
+  }, [shopOrders]);
 
   useEffect(() => {
     if (!isUserLoading && !user) router.push('/login');
@@ -550,18 +556,21 @@ export default function UserDashboard() {
               </TabsContent>
 
               <TabsContent value="shop_orders" className="space-y-4">
-                {isShopOrdersLoading && (!shopOrders || shopOrders.length === 0) && (
+                {isShopOrdersLoading && (!completedShopOrders || completedShopOrders.length === 0) && (
                   <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
                 )}
 
-                {!isShopOrdersLoading && (!shopOrders || shopOrders.length === 0) && (
+                {!isShopOrdersLoading && (!completedShopOrders || completedShopOrders.length === 0) && (
                   <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-4">
                     <History className="w-12 h-12 mx-auto text-slate-300 opacity-20" />
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No shop orders yet.</p>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No completed orders yet.</p>
+                    <p className="text-[10px] text-slate-400 max-w-[240px] mx-auto uppercase tracking-wider font-bold italic leading-relaxed">
+                      Only orders that have been successfully delivered are shown in this history.
+                    </p>
                   </div>
                 )}
 
-                {shopOrders && shopOrders.length > 0 && (shopOrders as any[]).map((order: any) => (
+                {completedShopOrders && completedShopOrders.length > 0 && (completedShopOrders as any[]).map((order: any) => (
                   <Card
                     key={order.id}
                     className="bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50 transition-all overflow-hidden relative group cursor-pointer shadow-sm"
@@ -645,7 +654,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
 
-                    {(selectedOrder.status === 'quote_requested' || selectedOrder.status === 'under_review' || selectedOrder.status === 'quotation_received' || selectedOrder.status === 'negotiation') && (
+                    {(selectedOrder.status === 'quote_requested' || selectedOrder.status === 'under_review' || selectedOrder.status === 'quotation_sent' || selectedOrder.status === 'negotiation') && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">

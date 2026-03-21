@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -25,6 +27,13 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   
   const [projectName, setProjectName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const profileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile } = useDoc(profileRef);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +55,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         userId: user.uid,
         userName: user.displayName || 'Guest User',
         userEmail: user.email || '',
+        userPhone: profile?.phone || '',
         projectName: projectName.trim(),
         status: 'draft',
         createdAt: new Date().toISOString(),

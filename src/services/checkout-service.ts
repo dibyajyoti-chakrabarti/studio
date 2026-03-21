@@ -12,6 +12,7 @@ import { OrdersRepository } from '@/lib/firebase/repositories/orders';
 import { QuotingService } from '@/services/quoting-service';
 import { logger } from '@/lib/logger';
 import { nanoid } from 'nanoid';
+import { calculateProjectFinances } from '@/lib/utils/finance';
 
 // ═══════════════════════════════════════════════════
 // CheckoutService — Orchestrates the checkout process
@@ -27,7 +28,10 @@ export const CheckoutService = {
     shopItems: any[],
     shippingAddress: ShippingAddress,
     shippingOption: ShippingOption,
-    razorpayOrderId?: string
+    razorpayOrderId?: string,
+    projectId?: string,
+    advancePercentage?: number,
+    isBalance?: boolean
   ): Promise<Result<QuoteOrder, AppError>> {
     logger.info({ event: 'Creating multi-part order', userId, quoteCount: cartItems.length, shopCount: shopItems.length });
 
@@ -42,14 +46,27 @@ export const CheckoutService = {
         // For MVP, we trust the client-provided cart for now, but QuotingService.getQuote could be called.
       }
 
-      // 2. Calculate final totals (GST is 18% in India)
+      // 2. Calculate final totals
       const quoteSubtotal = cartItems.reduce((sum, item) => sum + item.quote.totalPrice, 0);
       const shopSubtotal = shopItems.reduce((sum, item) => sum + (item.salePrice * item.quantity), 0);
       const subtotal = quoteSubtotal + shopSubtotal;
       
-      const gst = Math.round(subtotal * 0.18);
-      const shippingCost = shippingOption.price;
-      const total = subtotal + gst + shippingCost;
+      const isAdvance = !!(projectId && advancePercentage && !isBalance);
+      
+      // Use unified finance logic for project-based orders
+      const finances = calculateProjectFinances(subtotal);
+      
+      const gst = finances.gst;
+      const shippingCost = finances.shipping;
+      let finalTotal = finances.total;
+      
+      if (isAdvance) {
+        // Amount for advance payment
+        finalTotal = finances.advance;
+      } else if (isBalance) {
+        // Amount for final balance payment
+        finalTotal = finances.balance;
+      }
 
       const orderId = `order_${nanoid(12)}`;
       const orderNumber = `MH-${new Date().getFullYear()}-${nanoid(6).toUpperCase()}`;
@@ -65,10 +82,14 @@ export const CheckoutService = {
         subtotal,
         gst,
         shippingCost,
-        total,
+        total: finalTotal, // This is the amount to be paid via Razorpay
         status: 'quoted',
         paymentStatus: 'pending',
         razorpayOrderId,
+        projectId,
+        isAdvance,
+        isBalance,
+        advancePercentage,
         createdAt: new Date().toISOString(),
       };
 
@@ -106,6 +127,39 @@ export const CheckoutService = {
 
       await OrdersRepository.saveOrder(updatedOrder);
       logger.info({ event: 'Order marked as paid', orderId, razorpayPaymentId });
+
+      // If this is a project payment, update the project status
+      if (order.projectId) {
+        const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
+        const { adminFirestore } = getFirebaseAdmin();
+        if (adminFirestore) {
+          const updateData: any = {
+            updatedAt: new Date().toISOString()
+          };
+
+          if (order.isAdvance) {
+            updateData.status = 'in_production';
+            updateData['paymentStatus.advance'] = {
+              paid: true,
+              paidAt: new Date().toISOString(),
+              razorpayPaymentId,
+              amount: order.total
+            };
+            logger.info({ event: 'Project status synced to in_production', projectId: order.projectId, orderId });
+          } else if (order.isBalance) {
+            updateData.status = 'delivered';
+            updateData['paymentStatus.completion'] = {
+              paid: true,
+              paidAt: new Date().toISOString(),
+              razorpayPaymentId,
+              amount: order.total
+            };
+            logger.info({ event: 'Project status synced to delivered', projectId: order.projectId, orderId });
+          }
+
+          await adminFirestore.collection('projectRFQs').doc(order.projectId).update(updateData);
+        }
+      }
       
       return ok(undefined);
     } catch (e) {

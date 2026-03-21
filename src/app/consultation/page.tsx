@@ -7,7 +7,7 @@ import { LandingNav } from '@/components/LandingNav';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useFirestore, setDocumentNonBlocking, useUser } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Check, Loader2, FileText, ArrowRight, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,13 @@ function ConsultationPageContent() {
     const db = useFirestore();
     const { user, isUserLoading } = useUser();
     const router = useRouter();
+
+    const profileRef = useMemoFirebase(() => {
+        if (!db || !user) return null;
+        return doc(db, 'users', user.uid);
+    }, [db, user?.uid]);
+
+    const { data: profile } = useDoc(profileRef);
 
     useEffect(() => {
         if (!isUserLoading && !user) {
@@ -111,7 +118,7 @@ function ConsultationPageContent() {
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="phone" className="text-[11px] font-bold text-[#2F5FA7] uppercase tracking-widest ml-1">Phone</label>
-                                    <Input id="phone" name="phone" required className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium" />
+                                    <Input id="phone" name="phone" defaultValue={profile?.phone || ''} required className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium" />
                                 </div>
                             </div>
                             <div className="space-y-2">

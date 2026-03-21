@@ -66,7 +66,7 @@ export async function POST(request: Request) {
             throw new Error("Database connection failed");
         }
 
-        const rfqRef = adminFirestore.collection('rfqs').doc();
+        const rfqRef = adminFirestore.collection('projectRFQs').doc();
         const rfqData = {
             ...data,
             id: rfqRef.id,

@@ -14,7 +14,6 @@ import { MaterialSelection } from '@/components/part-creation/MaterialSelection'
 import { SecondaryProcessSelection, SECONDARY_PROCESSES } from '@/components/part-creation/SecondaryProcessSelection';
 import { QuantityStep } from '@/components/part-creation/QuantityStep';
 import { WizardSidebar } from '@/components/part-creation/WizardSidebar';
-import { WizardFooter } from '@/components/part-creation/WizardFooter';
 import { InsightsPanel } from '@/components/part-creation/InsightsPanel';
 import { MATERIAL_CATALOG } from '@/lib/data/material-data';
 import {
@@ -23,6 +22,7 @@ import {
   Palette,
   Hash,
   X,
+  Loader2,
   ChevronLeft,
   Save,
   CheckCircle2,
@@ -178,29 +178,80 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   };
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 'service':
-        return <ServiceSelection partName={partName} onPartNameChange={setPartName} selectedService={selectedService} onSelect={setSelectedService} />;
-      case 'file':
-        return <FileUploadStep
-          partName={partName}
-          onPartNameChange={setPartName}
-          uploadedFile={uploadedFile}
-          onFileUpload={setUploadedFile}
-          onClearFile={() => {
-            setUploadedFile(null);
-          }}
-          selectedService={selectedService}
-        />;
-      case 'material':
-        return selectedService ? <MaterialSelection selectedService={selectedService} selectedMaterial={selectedMaterial} onSelect={setSelectedMaterial} /> : null;
-      case 'secondary':
-        return selectedService ? <SecondaryProcessSelection selectedService={selectedService} selectedProcesses={secondaryProcesses} coatingColor={coatingColor} onProcessToggle={handleSecondaryProcessToggle} onColorSelect={setCoatingColor} /> : null;
-      case 'quantity':
-        return <QuantityStep quantity={quantity} onQuantityChange={setQuantity} onDiscountTierChange={setDiscountTier} />;
-      default:
-        return null;
-    }
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-1">
+          {(() => {
+            switch (currentStep) {
+              case 'service':
+                return <ServiceSelection partName={partName} onPartNameChange={setPartName} selectedService={selectedService} onSelect={setSelectedService} />;
+              case 'file':
+                return <FileUploadStep
+                  partName={partName}
+                  onPartNameChange={setPartName}
+                  uploadedFile={uploadedFile}
+                  onFileUpload={setUploadedFile}
+                  onClearFile={() => {
+                    setUploadedFile(null);
+                  }}
+                  selectedService={selectedService}
+                />;
+              case 'material':
+                return selectedService ? <MaterialSelection selectedService={selectedService} selectedMaterial={selectedMaterial} onSelect={setSelectedMaterial} /> : null;
+              case 'secondary':
+                return selectedService ? <SecondaryProcessSelection selectedService={selectedService} selectedProcesses={secondaryProcesses} coatingColor={coatingColor} onProcessToggle={handleSecondaryProcessToggle} onColorSelect={setCoatingColor} /> : null;
+              case 'quantity':
+                return <QuantityStep quantity={quantity} onQuantityChange={setQuantity} onDiscountTierChange={setDiscountTier} />;
+              default:
+                return null;
+            }
+          })()}
+        </div>
+
+        {/* Integrated Navigation for all steps */}
+        <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black border-slate-200 text-slate-600 hover:bg-slate-50 transition-all rounded-xl"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+
+            <div className="flex items-center gap-4">
+
+              {currentStepIndex === STEPS.length - 1 ? (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canProceed() || isSubmitting}
+                  className="h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Finalize & Add Part
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  disabled={!canProceed() || isSubmitting}
+                  className="h-12 px-10 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl group"
+                >
+                  Next Step
+                </Button>
+              )}
+            </div>
+          </div>
+      </div>
+    );
   };
 
   return (
@@ -291,16 +342,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
           </div>
         </main>
 
-        {/* ── SIMPLIFIED FOOTER NAVIGATION ── */}
-        <WizardFooter
-          onBack={handleBack}
-          onNext={handleNext}
-          onSubmit={handleSubmit}
-          isFirstStep={currentStepIndex === 0}
-          isLastStep={currentStepIndex === STEPS.length - 1}
-          canProceed={canProceed()}
-          isSubmitting={isSubmitting}
-        />
+        {/* Footer is now integrated into the card above */}
       </div>
     </div>
   );
