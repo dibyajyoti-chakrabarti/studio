@@ -104,67 +104,67 @@ export default function ShopPage() {
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-500/30">
             <LandingNav />
 
-            {/* 1. Hero Section (Engineering-First Redesign) */}
-            <div className="relative pt-32 pb-24 overflow-hidden bg-[#F8FAFC]">
+            {/* 1. Hero Section (Industrial-Grade Redesign) */}
+            <div className="relative pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden bg-[#F8FAFC]">
                 {/* Visual Elements: Blueprint Grid & Background Glow */}
                 <div className="blueprint-grid opacity-[0.03] pointer-events-none" />
-                <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-500/5 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/5 blur-[120px] rounded-full" />
-                
+                <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-500/5 via-transparent to-transparent pointer-events-none" />
+
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="mb-8">
-                        <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors group">
-                            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            Back to Home
-                        </Link>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                    <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group">
+                        <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                        Back to Home
+                    </Link>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                         {/* LEFT: Messaging & Industrial Search */}
-                        <div className="lg:col-span-6 max-w-2xl">
-                            <Badge variant="outline" className="mb-6 border-blue-200 text-[#2F5FA7] font-mono tracking-widest px-4 py-1.5 bg-blue-50/50 backdrop-blur-sm animate-in fade-in slide-in-from-left-4 duration-500">
-                                <Settings className="w-3.5 h-3.5 mr-2 animate-spin-slow" /> INDUSTRIAL GRADE COMPONENTS
-                            </Badge>
-                            
-                            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 tracking-tight leading-[1.1] md:leading-[1.05] text-slate-900 animate-in fade-in slide-in-from-left-6 duration-700">
-                                Reliable <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2F5FA7] to-[#1E3A66]">Mechanical</span> Parts Registry.
+                        <div className="lg:col-span-7 max-w-2xl">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-100 mb-8 animate-in fade-in slide-in-from-left-4 duration-500">
+                                <Settings className="w-3 h-3 text-[#2F5FA7]" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#2F5FA7]">Industrial Grade Components</span>
+                            </div>
+
+                            <h1 className="text-4xl md:text-6xl lg:text-[80px] font-bold mb-8 tracking-tighter leading-[1] text-slate-900 animate-in fade-in slide-in-from-left-6 duration-700">
+                                Reliable <span className="text-[#2F5FA7]">Mechanical</span> <br />
+                                Parts Registry.
                             </h1>
-                            
-                            <p className="text-slate-500 text-base md:text-lg font-light mb-8 md:mb-10 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
+
+                            <p className="text-slate-500 text-base md:text-xl font-medium mb-10 md:mb-12 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
                                 Precision hardware for engineering scale. Verified tolerances, transparent bulk pricing, and rapid global procurement.
                             </p>
 
-                            {/* Integrated Industrial Search */}
-                            <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-full blur opacity-25 group-focus-within:opacity-50 transition-opacity" />
-                                <div className="relative bg-white/80 backdrop-blur-2xl border border-blue-100 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1 px-1 md:px-2 shadow-xl gap-1">
+                            {/* Integrated Industrial Search - Premium Pill */}
+                            <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000 mb-10">
+                                <div className="absolute -inset-2 bg-blue-500/5 rounded-[32px] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                                <div className="relative bg-white border border-slate-200 rounded-[28px] md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1.5 shadow-[0_15px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all">
                                     <div className="flex items-center flex-1">
-                                        <div className="pl-4 md:pl-5 pr-2 md:pr-3">
-                                            <Search className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                        <div className="pl-5 pr-3">
+                                            <Search className="w-5 h-5 text-slate-300 group-focus-within:text-[#2F5FA7] transition-colors" />
                                         </div>
                                         <Input
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             placeholder="Search parts (SKU, Name)..."
-                                            className="bg-transparent border-none h-12 md:h-14 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1"
+                                            className="bg-transparent border-none h-14 md:h-16 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1 font-medium"
                                         />
                                     </div>
-                                    <Button className="rounded-xl md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-blue-900/10 text-xs md:text-base w-full md:w-auto">
+                                    <Button className="rounded-[22px] md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-black uppercase tracking-widest h-12 md:h-14 px-8 shadow-lg shadow-blue-500/20 text-xs md:text-sm w-full md:w-auto transition-all active:scale-95">
                                         Find Parts
                                     </Button>
                                 </div>
                             </div>
 
                             {/* Category Quick-Filters */}
-                             <div className="flex items-center gap-2 mt-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 overflow-hidden">
-                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mr-2 shrink-0 hidden sm:block">Top Groups:</span>
-                                <div className="flex items-center gap-2 overflow-x-auto pb-4 -mb-4 scrollbar-none snap-x">
+                            <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0 hidden sm:block">Top Groups:</span>
+                                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2">
                                     {CATEGORIES.slice(1, 6).map(cat => (
                                         <button
                                             key={cat.id}
                                             onClick={() => setSelectedCategory(cat.id)}
-                                            className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border shrink-0 snap-start ${selectedCategory === cat.id
-                                                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.1)]'
-                                                : 'bg-white/5 border-white/5 text-zinc-500 hover:text-white hover:border-white/10 hover:bg-white/[0.08]'
+                                            className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border shrink-0 ${selectedCategory === cat.id
+                                                ? 'bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-lg shadow-blue-500/20'
+                                                : 'bg-white border-slate-200 text-slate-500 hover:border-[#2F5FA7] hover:text-[#2F5FA7]'
                                                 }`}
                                         >
                                             {cat.label}
@@ -174,71 +174,68 @@ export default function ShopPage() {
                             </div>
                         </div>
 
-                        {/* RIGHT: 3D Visualization & Blueprint Overlay (Hidden on Mobile) */}
-                        <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center lg:justify-end animate-in fade-in zoom-in duration-1000">
-                            <div className="relative w-full aspect-square max-w-[500px]">
-                                {/* Blueprint technical lines overlay (CSS generated) */}
-                                <div className="absolute inset-x-0 top-1/2 h-px bg-cyan-500/20 border-dashed border-b border-cyan-500/10 flex justify-between items-center px-4">
-                                    <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                                    <span className="text-[8px] font-mono text-cyan-500/50 bg-[#020617] px-2">X-AXIS TOLERANCE: ±0.01MM</span>
-                                    <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                                </div>
-                                <div className="absolute inset-y-0 left-1/2 w-px bg-cyan-500/20 border-dashed border-r border-cyan-500/10 flex flex-col justify-between items-center py-4">
-                                    <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                                    <span className="text-[8px] font-mono text-cyan-500/50 bg-[#020617] px-2 [writing-mode:vertical-lr] rotate-180">ALIGNMENT DATUM</span>
-                                    <div className="w-2 h-2 rounded-full bg-cyan-500/40 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                                </div>
+                        {/* RIGHT: Circular Visualization & Stats overlay */}
+                        <div className="hidden lg:flex lg:col-span-5 relative items-center justify-center animate-in fade-in zoom-in duration-1000">
+                            <div className="relative w-full aspect-square max-w-[480px]">
+                                {/* The Technical Circle */}
+                                <div className="absolute inset-0 rounded-full border border-blue-500/10 flex items-center justify-center">
+                                    <div className="absolute inset-0 rounded-full border-[0.5px] border-dashed border-blue-500/20 scale-90" />
+                                    <div className="absolute inset-x-0 h-px bg-blue-500/10 top-1/2 -translate-y-1/2" />
+                                    <div className="absolute inset-y-0 w-px bg-blue-500/10 left-1/2 -translate-x-1/2" />
 
-                                {/* Floating 3D Render Image */}
-                                <div className="relative z-10 w-full h-full p-12 animate-float">
-                                    <div className="relative w-full h-full rounded-full bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 backdrop-blur-3xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(6,182,212,0.15)] flex items-center justify-center">
-                                         <img 
+                                    {/* Crosshair Dots */}
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+                                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+                                    <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+
+                                    {/* 3D Illustration Container */}
+                                    <div className="relative w-[340px] h-[340px] rounded-full bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden border border-slate-100 p-4">
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent" />
+                                        <img
                                             src="/hero-industrial.png"
-                                            alt="Mechanical Components Cluster"
-                                            className="w-full h-full object-cover scale-110 opacity-70 mix-blend-lighten grayscale hover:grayscale-0 transition-all duration-700"
+                                            alt="Mechanical Components"
+                                            className="w-full h-full object-contain scale-125 opacity-90 drop-shadow-2xl hover:scale-150 transition-transform duration-1000 ease-out"
                                         />
-                                        {/* HUD Elements */}
-                                        <div className="absolute top-12 left-12 w-16 h-16 border-t-2 border-l-2 border-cyan-500/40" />
-                                        <div className="absolute bottom-12 right-12 w-16 h-16 border-b-2 border-r-2 border-cyan-500/40" />
                                     </div>
                                 </div>
 
-                                {/* Live Stats Card - Overlapping bottom right */}
-                                <div className="absolute -bottom-6 -right-6 lg:right-6 bg-white/90 backdrop-blur-xl border border-blue-100 p-5 rounded-3xl shadow-2xl z-20 max-w-[240px] animate-in slide-in-from-bottom-8 duration-700">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
+                                {/* Stats Card Overlay */}
+                                <div className="absolute bottom-0 right-0 bg-white border border-slate-100 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-20 min-w-[260px] animate-in slide-in-from-bottom-8 duration-700">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
                                                 <Boxes className="w-5 h-5 text-[#2F5FA7]" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Parts</p>
-                                                <p className="text-sm font-bold text-slate-800">15,000+ SKUs</p>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Available Parts</p>
+                                                <p className="text-sm font-bold text-slate-900 tracking-tight">15,000+ SKUs</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
                                                 <Truck className="w-5 h-5 text-emerald-600" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Dispatch</p>
-                                                <p className="text-sm font-bold text-slate-800">24-48 Hours</p>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Global Dispatch</p>
+                                                <p className="text-sm font-bold text-slate-900 tracking-tight">24-48 Hours</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                                                <Store className="w-5 h-5 text-[#2F5FA7]" />
+                                                <Settings className="w-5 h-5 text-[#2F5FA7]" />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trusted By</p>
-                                                <p className="text-sm font-bold text-slate-800">120+ Eng. Teams</p>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Trusted By</p>
+                                                <p className="text-sm font-bold text-slate-900 tracking-tight">120+ Eng. Teams</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                                        <span className="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1.5">
+                                    <div className="mt-6 pt-5 border-t border-slate-50 flex items-center justify-between">
+                                        <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2">
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Status
                                         </span>
-                                        <span className="text-[9px] font-mono text-slate-400">ID: 9002-SRV</span>
+                                        <span className="text-[9px] font-mono text-slate-300 font-bold">ID: 9002-SRV</span>
                                     </div>
                                 </div>
                             </div>
@@ -259,7 +256,7 @@ export default function ShopPage() {
                     ) : filteredProducts.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-[28px]">
                             {filteredProducts.map(product => (
-                                <ProductCard 
+                                <ProductCard
                                     key={product.id}
                                     product={product}
                                     isComparing={!!compareList.find(p => p.id === product.id)}
@@ -342,7 +339,7 @@ export default function ShopPage() {
                                         <div key={p.id} className="text-center group">
                                             <div className="w-20 h-20 mx-auto rounded-2xl bg-white mb-5 flex items-center justify-center text-[#0B1120] shadow-xl group-hover:scale-110 transition-transform relative overflow-hidden p-2">
                                                 <Image
-                                                    src={p.images?.length > 0 
+                                                    src={p.images?.length > 0
                                                         ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].urls.thumb)
                                                         : "/images/placeholder-part.svg"
                                                     }

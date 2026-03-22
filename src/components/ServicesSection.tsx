@@ -118,20 +118,6 @@ export function ServicesSection() {
                         </div>
                     ))}
                 </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-12 md:mt-16 px-4">
-                    <Button
-                        variant="outline"
-                        className="w-full sm:w-auto h-12 md:h-14 px-10 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-xs md:text-base font-bold uppercase tracking-wide"
-                    >
-                        View All Services
-                    </Button>
-                    <Button
-                        className="w-full sm:w-auto h-12 md:h-14 px-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-base font-bold uppercase tracking-wide shadow-lg shadow-blue-200"
-                    >
-                        Get Started
-                    </Button>
-                </div>
             </div>
         </section>
     );

@@ -2,75 +2,104 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, ArrowRight, ChevronRight, Info } from 'lucide-react';
+import { Search, X, ArrowRight, ChevronRight, Info, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 // --- DATA ---
-const CATEGORIES = ["STEEL", "ALUMINUM", "STAINLESS", "TITANIUM",
-  "COMPOSITES", "PLASTICS", "3D PRINTING", "NON-FERROUS", "WOODS", "RUBBER"
-];
+const CATEGORIES = ["ALL", "ALUMINUM", "STEEL", "STAINLESS", "COMPOSITES", "PLASTICS", "WOODS", "3D PRINTING"];
 
 const MATERIALS = [
-  // STEEL
-  { name: "Mild Steel", category: "steel", processes: ["Sheet Cutting", "Bending"], thicknesses: "0.5 – 12 mm", thumb: "/mild_steel_swatch.png", color: "bg-slate-400" },
-  { name: "AR400 Wear Plate", category: "steel", processes: ["Sheet Cutting"], thicknesses: "6.35 mm", thumb: "/ar400_sheet.png", color: "bg-slate-500", slug: "/materials/ar400" },
-  { name: "AR500 Wear Plate", category: "steel", processes: ["Sheet Cutting"], thicknesses: "3.02 – 12.7 mm", thumb: "/ar500_sheet.png", color: "bg-slate-600", slug: "/materials/ar500" },
-  { name: "G90 Galvanized Steel", category: "steel", processes: ["Sheet Cutting", "Bending"], thicknesses: "0.5 – 3 mm", thumb: "", color: "bg-slate-300" },
-  { name: "1075 High Carbon Steel", category: "steel", processes: ["Sheet Cutting"], thicknesses: "0.5 – 4 mm", thumb: "", color: "bg-blue-900" },
-  { name: "4130 Chromoly", category: "steel", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.8 – 6 mm", thumb: "", color: "bg-slate-700" },
-
   // ALUMINUM
-  { name: "2024 T3 Aluminum", category: "aluminum", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 12 mm", thumb: "", color: "bg-zinc-300" },
-  { name: "5052-H32 Aluminum", category: "aluminum", processes: ["Sheet Cutting", "Bending"], thicknesses: "1 – 12 mm", thumb: "", color: "bg-zinc-400" },
-  { name: "6061 T6 Aluminum", category: "aluminum", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "1 – 20 mm", thumb: "", color: "bg-zinc-500" },
-  { name: "6061 T6 Billet", category: "aluminum", processes: ["CNC Machining"], thicknesses: "6 – 50 mm", thumb: "", color: "bg-zinc-600" },
-  { name: "7075 T6 Aluminum", category: "aluminum", processes: ["CNC Machining", "Sheet Cutting"], thicknesses: "1 – 20 mm", thumb: "", color: "bg-zinc-400" },
-  { name: "MIC-6 Cast Aluminum", category: "aluminum", processes: ["CNC Machining"], thicknesses: "6 – 30 mm", thumb: "", color: "bg-zinc-300" },
+  { 
+    name: "Aluminium 5052", 
+    category: "aluminum", 
+    processes: ["Sheet Cutting", "Bending"], 
+    thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm", 
+    notes: ">5mm not for bending, powder coating available",
+    thumb: "", color: "bg-zinc-400" 
+  },
+  { 
+    name: "Aluminium 6061", 
+    category: "aluminum", 
+    processes: ["Sheet Cutting", "CNC Machining"], 
+    thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm", 
+    notes: "not for bending, powder coating available",
+    thumb: "", color: "bg-zinc-500" 
+  },
+
+  // STEEL
+  { 
+    name: "CRCA Mild Steel", 
+    category: "steel", 
+    processes: ["Sheet Cutting", "Bending"], 
+    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm", 
+    notes: ">5mm not for bending, powder coating available",
+    thumb: "/mild_steel_swatch.png", color: "bg-slate-400" 
+  },
 
   // STAINLESS STEEL
-  { name: "304 Stainless Steel", category: "stainless", processes: ["Sheet Cutting", "Bending"], thicknesses: "0.5 – 12 mm", thumb: "", color: "bg-stone-300" },
-  { name: "316 Stainless Steel", category: "stainless", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 10 mm", thumb: "", color: "bg-stone-400" },
-  { name: "17-4 PH Stainless", category: "stainless", processes: ["CNC Machining"], thicknesses: "3 – 25 mm", thumb: "", color: "bg-stone-500" },
-
-  // TITANIUM
-  { name: "Grade 2 Titanium", category: "titanium", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-sky-200" },
-  { name: "Grade 5 Titanium", category: "titanium", processes: ["CNC Machining"], thicknesses: "1 – 20 mm", thumb: "", color: "bg-sky-300" },
-
-  // PLASTICS
-  { name: "Acrylic (10 colours)", category: "plastics", processes: ["Sheet Cutting", "Laser Cut"], thicknesses: "1 – 12 mm", thumb: "", color: "bg-purple-200" },
-  { name: "Polycarbonate", category: "plastics", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "1 – 10 mm", thumb: "", color: "bg-purple-300" },
-  { name: "Delrin (POM)", category: "plastics", processes: ["CNC Machining"], thicknesses: "3 – 50 mm", thumb: "", color: "bg-purple-400" },
-  { name: "HDPE", category: "plastics", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "3 – 20 mm", thumb: "", color: "bg-green-200" },
-  { name: "UHMW", category: "plastics", processes: ["CNC Machining"], thicknesses: "6 – 50 mm", thumb: "", color: "bg-green-300" },
-  { name: "G10/FR4", category: "plastics", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-yellow-100" },
-  { name: "Polypropylene Clear", category: "plastics", processes: ["Sheet Cutting"], thicknesses: "0.5 – 4 mm", thumb: "", color: "bg-purple-100" },
+  { 
+    name: "Stainless Steel 304", 
+    category: "stainless", 
+    processes: ["Sheet Cutting", "Bending"], 
+    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm", 
+    notes: ">5mm not for bending, powder coating available",
+    thumb: "", color: "bg-stone-300" 
+  },
 
   // COMPOSITES
-  { name: "Carbon Fiber Sheet", category: "composites", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 5 mm", thumb: "", color: "bg-neutral-800" },
-  { name: "G10 Fiberglass", category: "composites", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-neutral-700" },
+  { 
+    name: "Carbon Fiber Plate", 
+    category: "composites", 
+    processes: ["Sheet Cutting"], 
+    thicknesses: "1, 1.6, 2, 3, 4, 5 mm", 
+    notes: "not for bending, not for powder coating",
+    thumb: "", color: "bg-neutral-800" 
+  },
+
+  // PLASTICS
+  { 
+    name: "Acrylic", 
+    category: "plastics", 
+    processes: ["Laser Cut", "Sheet Cutting"], 
+    thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm", 
+    notes: "not for bending, not for powder coating",
+    thumb: "", color: "bg-purple-200" 
+  },
+
+  // WOODS
+  { 
+    name: "MDF", 
+    category: "woods", 
+    processes: ["Laser Cut", "CNC Machining"], 
+    thicknesses: "3.2, 6.3, 9.5, 12.7 mm", 
+    notes: "not for bending, not for powder coating",
+    thumb: "", color: "bg-orange-100" 
+  },
+  { 
+    name: "Plywood", 
+    category: "woods", 
+    processes: ["Laser Cut", "Sheet Cutting"], 
+    thicknesses: "3.2, 6.3, 9, 12 mm", 
+    notes: "not for bending, not for powder coating",
+    thumb: "", color: "bg-amber-100" 
+  },
+  { 
+    name: "Balsa Wood", 
+    category: "woods", 
+    processes: ["Laser Cut"], 
+    thicknesses: "1, 3, 5 mm", 
+    notes: "not for bending, not for powder coating",
+    thumb: "", color: "bg-stone-200" 
+  },
 
   // 3D PRINTING
   { name: "PLA", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-yellow-200" },
+  { name: "TPU", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-blue-400" },
   { name: "ABS", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "/abs_swatch.png", color: "bg-red-400" },
   { name: "PETG", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-green-400" },
-  { name: "TPU Flexible", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-blue-400" },
-  { name: "Resin (SLA)", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-neutral-100" },
-  { name: "PA12 Nylon (SLS)", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-neutral-900" },
-
-  // NON-FERROUS
-  { name: "Brass", category: "non-ferrous", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-amber-300" },
-  { name: "Copper", category: "non-ferrous", processes: ["Sheet Cutting", "CNC Machining"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-orange-400" },
-
-  // RUBBER
-  { name: "Neoprene", category: "rubber", processes: ["Sheet Cutting"], thicknesses: "0.5 – 6 mm", thumb: "", color: "bg-slate-900" },
-  { name: "Nitrile Buna-N", category: "rubber", processes: ["Sheet Cutting"], thicknesses: "0.5 – 3 mm", thumb: "", color: "bg-neutral-900" },
-  { name: "Viton FKM", category: "rubber", processes: ["Sheet Cutting"], thicknesses: "0.5 – 3 mm", thumb: "", color: "bg-zinc-900" },
-
-  // WOODS
-  { name: "Baltic Birch Plywood", category: "woods", processes: ["Laser Cut", "Sheet Cutting"], thicknesses: "3 – 18 mm", thumb: "", color: "bg-amber-100" },
-  { name: "MDF", category: "woods", processes: ["Laser Cut", "CNC Machining"], thicknesses: "3 – 18 mm", thumb: "", color: "bg-orange-100" },
-  { name: "Hardboard", category: "woods", processes: ["Laser Cut"], thicknesses: "3 – 6 mm", thumb: "", color: "bg-stone-200" },
+  { name: "ASA", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-orange-400" },
 ];
 
 function MaterialSwatch({ mat }: { mat: any }) {
@@ -98,7 +127,7 @@ function MaterialSwatch({ mat }: { mat: any }) {
 
 export function MaterialsSection() {
   const router = useRouter();
-  const [activeFilter, setActiveFilter] = useState('STEEL');
+  const [activeFilter, setActiveFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
 
@@ -147,36 +176,44 @@ export function MaterialsSection() {
           </div>
         </div>
 
-        <div className="flex overflow-x-auto pb-4 md:pb-8 mb-4 md:mb-8 no-scrollbar gap-2 max-w-7xl mx-auto px-2">
-          {CATEGORIES.map(cat => {
-            const count = cat === 'ALL'
-              ? MATERIALS.length
-              : MATERIALS.filter(m => m.category.toUpperCase() === cat.replace(' ', '_').toUpperCase()).length;
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`
-                  flex-shrink-0 px-5 md:px-6 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold tracking-wider uppercase transition-all duration-300 border
-                  ${activeFilter === cat
-                    ? 'bg-[#1e40af] text-white shadow-xl shadow-blue-200 border-[#1e40af]'
-                    : 'bg-white text-[#475569] border-slate-200 hover:border-blue-300 hover:text-[#1e40af] hover:shadow-md'}
-                `}
-              >
-                {cat} {count > 0 && <span className="ml-1 opacity-60">· {count}</span>}
-              </button>
-            );
-          })}
+        <div className="relative max-w-7xl mx-auto px-2 mb-4 md:mb-8">
+          {/* Subtle Masking gradients for overflow indication */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none md:hidden" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
+          
+          <div className="flex overflow-x-auto pb-4 md:pb-6 gap-2 no-scrollbar-on-mobile custom-scrollbar-on-desktop">
+            {CATEGORIES.map(cat => {
+              const count = cat === 'ALL'
+                ? MATERIALS.length
+                : MATERIALS.filter(m => m.category.toUpperCase() === cat.replace(' ', '_').toUpperCase()).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
+                  className={`
+                    flex-shrink-0 px-5 md:px-6 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold tracking-wider uppercase transition-all duration-300 border
+                    ${activeFilter === cat
+                      ? 'bg-[#1e40af] text-white shadow-xl shadow-blue-200 border-[#1e40af]'
+                      : 'bg-white text-[#475569] border-slate-200 hover:border-blue-300 hover:text-[#1e40af] hover:shadow-md'}
+                  `}
+                >
+                  {cat} {count > 0 && <span className="ml-1 opacity-60">· {count}</span>}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Layer 3: Highlight Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto">
-          {filteredMaterials.map((mat, idx) => (
+            {filteredMaterials.map((mat, idx) => (
             <div
               key={mat.name}
               onClick={() => {
-                if (mat.slug) {
-                  router.push(mat.slug);
+                // Check if 'slug' exists on the material object (casting to any for safety with dynamic materials)
+                const material = mat as any;
+                if (material.slug) {
+                  router.push(material.slug);
                 } else {
                   setSelectedMaterial(mat);
                 }
@@ -228,6 +265,16 @@ export function MaterialsSection() {
               </div>
 
               <div className="space-y-8">
+                {selectedMaterial.notes && (
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+                    <h4 className="text-[10px] font-black text-[#2F5FA7] uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                       <ShieldCheck className="w-3 h-3" /> MANUFACTURING NOTES
+                    </h4>
+                    <p className="text-xs font-bold text-[#1E3A66] leading-relaxed">
+                      {selectedMaterial.notes}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">PROPERTIES</h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -261,8 +308,35 @@ export function MaterialsSection() {
       )}
 
       <style jsx>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar-on-mobile::-webkit-scrollbar { 
+          display: none; 
+        }
+        @media (min-width: 768px) {
+          .custom-scrollbar-on-desktop::-webkit-scrollbar {
+            height: 4px;
+          }
+          .custom-scrollbar-on-desktop::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+          }
+          .custom-scrollbar-on-desktop::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+          }
+          .custom-scrollbar-on-desktop::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+          }
+        }
+        .no-scrollbar-on-mobile { 
+          -ms-overflow-style: none; 
+          scrollbar-width: none; 
+        }
+        @media (min-width: 768px) {
+          .custom-scrollbar-on-desktop {
+            -ms-overflow-style: auto;
+            scrollbar-width: thin;
+          }
+        }
       `}</style>
     </section>
   );

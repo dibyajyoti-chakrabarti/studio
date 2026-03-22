@@ -24,8 +24,8 @@ import { Input } from '@/components/ui/input';
 
 const NAV_LINKS = [
   { href: '/#services', label: 'Services' },
+  { href: '/#materials', label: 'Materials' },
   { href: '/shop', label: 'Shop' },
-  { href: '/#vendors', label: 'MechMasters' },
   { href: '/blog', label: 'Blog' },
 ];
 
@@ -139,30 +139,6 @@ export function LandingNav() {
               MechHub
             </span>
           </Link>
-
-          {/* Search Bar - Center (Hidden on small mobile, visible on tablet+) */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (searchQuery.trim()) {
-                router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
-              } else {
-                router.push('/shop');
-              }
-            }}
-            className="hidden sm:flex flex-1 max-w-md mx-4 lg:mx-8 relative group"
-          >
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-slate-400 group-focus-within:text-[#2F5FA7] transition-colors" />
-            </div>
-            <Input
-              type="text"
-              placeholder="Search parts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-full text-xs md:text-sm focus:ring-[#2F5FA7]/20 focus:border-[#2F5FA7]/50 transition-all placeholder:text-slate-400 focus:placeholder:text-slate-500 text-slate-900"
-            />
-          </form>
 
           {/* Nav Links + Categories - Right Side (shifted) */}
           <div
