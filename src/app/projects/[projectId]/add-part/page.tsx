@@ -208,24 +208,24 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
           })()}
         </div>
 
-        {/* Integrated Navigation for all steps */}
-        <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
+        {/* Integrated Navigation for all steps - Fixed Mobile Layout */}
+        <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <Button
               variant="outline"
               onClick={handleBack}
-              className="h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black border-slate-200 text-slate-600 hover:bg-slate-50 transition-all rounded-xl"
+              className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black border-slate-200 text-slate-600 hover:bg-slate-50 transition-all rounded-xl"
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
 
               {currentStepIndex === STEPS.length - 1 ? (
                 <Button
                   onClick={handleSubmit}
                   disabled={!canProceed() || isSubmitting}
-                  className="h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl"
+                  className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl"
                 >
                   {isSubmitting ? (
                     <>
@@ -243,7 +243,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed() || isSubmitting}
-                  className="h-12 px-10 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl group"
+                  className="w-full sm:w-auto h-12 px-10 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl group"
                 >
                   Next Step
                 </Button>
@@ -257,51 +257,60 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans selection:bg-blue-500/30 overflow-hidden">
       {/* ── STREAMLINED TOP HUD ── */}
-      <header className="h-20 border-b border-slate-200 bg-white flex items-center justify-between px-10 shrink-0 z-40 shadow-sm">
-        <div className="flex items-center gap-8 flex-1">
-          <Link href={`/projects/${projectId}`} className="p-2.5 rounded-xl hover:bg-slate-100 transition-all group border border-transparent hover:border-slate-200">
-            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-[#2F5FA7] transition-colors" />
+      <header className="h-16 md:h-20 border-b border-slate-200 bg-white flex items-center justify-between px-4 md:px-10 shrink-0 z-40 shadow-sm">
+        <div className="flex items-center gap-4 md:gap-8 flex-1">
+          <Link href={`/projects/${projectId}`} className="p-2 md:p-2.5 rounded-xl hover:bg-slate-100 transition-all group border border-transparent hover:border-slate-200">
+            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-[#2F5FA7] transition-colors" />
           </Link>
 
-          <div className="h-10 w-px bg-slate-100" />
+          <div className="hidden sm:block h-8 md:h-10 w-px bg-slate-100" />
 
-          {/* Horizontal Progress Tracker */}
-          <div className="flex items-center gap-6">
+          {/* Horizontal Progress Tracker - Responsive */}
+          <div className="flex items-center gap-3 md:gap-6 overflow-x-auto no-scrollbar py-2">
             {STEPS.map((step, idx) => (
-              <div key={step.id} className="flex items-center gap-3 group">
+              <div key={step.id} className={cn(
+                "flex items-center gap-2 md:gap-3 group shrink-0",
+                idx !== currentStepIndex && "hidden lg:flex"
+              )}>
                 <div className={cn(
-                  "w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black transition-all border",
+                  "w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center text-[9px] md:text-[10px] font-black transition-all border",
                   idx <= currentStepIndex
                     ? "bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-lg shadow-blue-500/20"
                     : "bg-white text-slate-300 border-slate-200"
                 )}>
-                  {idx < currentStepIndex ? <CheckCircle2 className="w-3.5 h-3.5" /> : `0${idx + 1}`}
+                  {idx < currentStepIndex ? <CheckCircle2 className="w-3 md:w-3.5 h-3 md:h-3.5" /> : `0${idx + 1}`}
                 </div>
                 <span className={cn(
-                  "text-[9px] font-black uppercase tracking-widest transition-colors",
+                  "text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-colors",
                   idx === currentStepIndex ? "text-slate-900" : "text-slate-400"
                 )}>
                   {step.label}
                 </span>
                 {idx < STEPS.length - 1 && (
-                  <div className="w-8 h-px bg-slate-100 ml-2" />
+                  <div className="hidden lg:block w-8 h-px bg-slate-100 ml-2" />
                 )}
               </div>
             ))}
+            {/* Simple step indicator for small mobile */}
+            <div className="lg:hidden flex items-center gap-2">
+               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                Step {currentStepIndex + 1} of {STEPS.length}
+               </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <Button
             variant="ghost"
             onClick={() => router.push(`/projects/${projectId}`)}
-            className="h-11 px-5 tracking-[0.2em] uppercase text-[9px] font-black text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all rounded-xl"
+            className="hidden sm:flex h-10 md:h-11 px-3 md:px-5 tracking-[0.2em] uppercase text-[8px] md:text-[9px] font-black text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all rounded-xl"
           >
             <X className="w-4 h-4 mr-2" /> Exit
           </Button>
 
           <Button
-            className="h-11 px-6 tracking-[0.2em] uppercase text-[9px] font-black bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 shadow-sm transition-all rounded-xl"
+            className="h-10 md:h-11 px-4 md:px-6 tracking-[0.2em] uppercase text-[8px] md:text-[9px] font-black bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 shadow-sm transition-all rounded-xl"
           >
             <Save className="w-4 h-4 mr-2" /> Save Draft
           </Button>
@@ -310,24 +319,24 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
 
       {/* ── CENTERED CORE WORKSPACE ── */}
       <div className="flex-1 flex flex-col relative overflow-hidden bg-slate-50/50">
-        <main className="flex-1 overflow-y-auto pb-40 pt-16">
-          <div className="max-w-4xl mx-auto px-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <main className="flex-1 overflow-y-auto pb-40 pt-8 md:pt-16">
+          <div className="max-w-4xl mx-auto px-4 md:px-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             {/* Step Header Context */}
-            <div className="mb-12 text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-6">
+            <div className="mb-8 md:mb-12 text-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-4 md:mb-6">
                 <Zap className="w-3 h-3 text-[#2F5FA7]" />
-                <span className="text-[9px] font-black text-[#2F5FA7] uppercase tracking-[0.2em]">Focused Configuration Mode</span>
+                <span className="text-[8px] md:text-[9px] font-black text-[#2F5FA7] uppercase tracking-[0.2em]">Focused Configuration Mode</span>
               </div>
-              <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">
                 {STEPS[currentStepIndex].label}
               </h2>
-              <p className="text-sm font-medium text-slate-500 max-w-lg mx-auto leading-relaxed lowercase first-letter:uppercase">
+              <p className="text-xs md:text-sm font-medium text-slate-500 max-w-lg mx-auto leading-relaxed lowercase first-letter:uppercase px-4">
                 Technical parameters for your mechanical design. All inputs are validated in real-time for production readiness.
               </p>
             </div>
 
             {/* Main Interaction Canvas */}
-            <div className="bg-white rounded-[3rem] border border-slate-200 p-16 shadow-2xl shadow-blue-900/5 min-h-[600px] relative overflow-hidden group">
+            <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-200 p-6 md:p-16 shadow-2xl shadow-blue-900/5 min-h-0 md:min-h-[600px] relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/0 via-[#2F5FA7]/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
               {renderStepContent()}
 

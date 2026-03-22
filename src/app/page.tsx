@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
@@ -116,8 +116,8 @@ export default function Home() {
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-300/10 blur-[150px] pointer-events-none" aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1E3A66] to-transparent pointer-events-none z-10" />
 
-        <div className="container mx-auto px-4 relative z-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
             {/* LEFT: Messaging & Strategy */}
             <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
@@ -134,11 +134,11 @@ export default function Home() {
               {/* Main headline - Precision Terminal Aesthetic */}
               <div className="relative mb-8 min-h-[140px] md:min-h-[180px] lg:min-h-[140px] w-full transition-opacity duration-700 ease-in-out" style={{ opacity: fade ? 1 : 0 }}>
                 <h1 className="font-poppins tracking-tight uppercase text-balance leading-[1.05] drop-shadow-md">
-                  <div className="text-3xl md:text-5xl lg:text-[60px] text-white font-semibold  mb-6">
+                  <div className="text-2xl md:text-5xl lg:text-[60px] text-white font-semibold mb-4 md:mb-6">
                     {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[0]}
                   </div>
                   {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1] && (
-                    <div className="text-md md:text-xl lg:text-2xl text-cyan-200 tracking-tight mt-2 opacity-90">
+                    <div className="text-sm md:text-xl lg:text-2xl text-cyan-200 tracking-tight mt-2 opacity-90">
                       {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1]}
                     </div>
                   )}
@@ -146,19 +146,18 @@ export default function Home() {
               </div>
 
               {/* Sub-headline */}
-              <p className="text-lg md:text-xl text-white/80 max-w-xl leading-relaxed mb-12 font-medium animate-in fade-in slide-in-from-left-8 duration-1000">
+              <p className="text-base md:text-xl text-white/80 max-w-xl leading-relaxed mb-10 md:mb-12 font-medium animate-in fade-in slide-in-from-left-8 duration-1000">
                 MechHub connects innovators with verified Indian manufacturers. <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency.
               </p>
 
-              {/* Advanced CTAs */}
-              <div className="flex flex-col sm:flex-row items-center gap-5 mb-16 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full sm:w-auto">
+              {/* Advanced CTAs *               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-5 mb-16 w-full md:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto h-16 px-12 text-base font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
+                    className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-sm md:text-base font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
                     suppressHydrationWarning
                   >
-                    <span className="relative z-10 flex items-center">
+                    <span className="relative z-10 flex items-center justify-center">
                       Upload Your Design
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
                     </span>
@@ -169,7 +168,7 @@ export default function Home() {
                   size="lg"
                   variant="outline"
                   onClick={(e) => handleWIPClick(e, "MechMaster Portal")}
-                  className="w-full sm:w-auto h-16 px-12 text-base font-semibold border-2 border-white/20 bg-transparent hover:bg-white/10 rounded-full text-white transition-all duration-300"
+                  className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-sm md:text-base font-semibold border-2 border-white/20 bg-transparent hover:bg-white/10 rounded-full text-white transition-all duration-300"
                   suppressHydrationWarning
                 >
                   Become a MechMaster
@@ -309,7 +308,7 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-6">
               How It Works
             </h2>
-            <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium">
+            <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium px-4">
               From design file to finished part — a streamlined process built for speed, quality, and full transparency.
             </p>
           </div>
@@ -319,7 +318,7 @@ export default function Home() {
             {/* Desktop Flow Indicators */}
             <div className="hidden lg:block absolute top-12 left-[10%] right-[10%] z-0 h-px bg-slate-100" />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
               {[
                 {
                   num: '01', icon: Upload, title: 'Upload Design',
@@ -365,15 +364,14 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom CTA strip */}
-          <div className="mt-20 flex flex-col sm:flex-row items-center justify-center gap-6 p-8 rounded-3xl border border-blue-50 bg-[#E8F1FF]/50 max-w-3xl mx-auto shadow-sm">
-            <div className="sm:flex-1 text-center sm:text-left">
+          {/* Bottom CTA strip           <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6 p-6 md:p-8 rounded-3xl border border-blue-50 bg-[#E8F1FF]/50 max-w-3xl mx-auto shadow-sm">
+            <div className="flex-1 text-center md:text-left">
               <p className="text-[#1E3A66] font-bold text-lg mb-1">Ready to get your parts made?</p>
               <p className="text-[#64748B] text-sm font-medium">Upload your design and get a quote in minutes.</p>
             </div>
-            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="shrink-0 w-full sm:w-auto">
+            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto shrink-0">
               <Button
-                className="w-full sm:w-auto h-12 px-8 text-sm font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-lg transition-all"
+                className="w-full md:w-auto h-12 px-8 text-sm font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-lg transition-all"
               >
                 Upload Your Design <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -385,13 +383,13 @@ export default function Home() {
       <section id="vendors" className="py-24 relative overflow-hidden bg-[#F8FAFC]">
         <div className="container mx-auto px-4 relative z-10">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-10">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#2F5FA7]">VERIFIED MARKETPLACE</span>
                 <span className="w-12 h-px bg-[#2F5FA7]/20"></span>
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-6">
+              <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F172A] mb-4 md:mb-6">
                 Meet Our MechMasters
               </h2>
               <p className="text-[#64748B] text-sm md:text-base leading-relaxed font-medium">
@@ -400,20 +398,19 @@ export default function Home() {
             </div>
 
             {/* Stat pills */}
-            <div className="flex gap-8 shrink-0 pb-2">
+            <div className="flex flex-wrap gap-6 md:gap-8 shrink-0 pb-2">
               {[
                 { val: '50+', lbl: 'Active Partners' },
                 { val: '99.8%', lbl: 'Quality Pass Rate' },
                 { val: '12', lbl: 'Cities Covered' },
               ].map(s => (
-                <div key={s.lbl} className="text-right">
-                  <div className="text-[#1E3A66] font-bold text-2xl font-mono">{s.val}</div>
-                  <div className="text-[#94A3B8] text-[10px] uppercase font-bold tracking-wider">{s.lbl}</div>
+                <div key={s.lbl} className="text-left md:text-right">
+                  <div className="text-[#1E3A66] font-bold text-xl md:text-2xl font-mono">{s.val}</div>
+                  <div className="text-[#94A3B8] text-[9px] uppercase font-bold tracking-wider">{s.lbl}</div>
                 </div>
               ))}
             </div>
           </div>
-
           {/* Vendor Cards — infinite auto-scroll marquee */}
           {landingVendors?.length ? (() => {
             const repeated = Array.from({ length: 6 }, () => landingVendors).flat();

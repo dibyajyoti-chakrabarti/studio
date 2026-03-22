@@ -286,7 +286,7 @@ export default function ProductDetailPage() {
                             <div className="space-y-6 relative z-10">
                                 <div className="space-y-1">
                                     <div className="flex items-baseline flex-wrap gap-2 sm:gap-4">
-                                        <span className="text-4xl md:text-6xl font-bold text-slate-900 font-mono tracking-tighter">₹{(product.salePrice * quantity).toLocaleString()}</span>
+                                        <span className="text-3xl md:text-6xl font-bold text-slate-900 font-mono tracking-tighter">₹{(product.salePrice * quantity).toLocaleString()}</span>
                                         {product.basePrice > product.salePrice && (
                                             <div className="flex flex-col">
                                                 <span className="text-base md:text-lg text-slate-400 line-through font-mono opacity-50 decoration-1">₹{(product.basePrice * quantity).toLocaleString()}</span>
@@ -366,7 +366,7 @@ export default function ProductDetailPage() {
                         </section>
 
                         {/* Trust Signals Block */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
                             {[
                                 { icon: Truck, title: "Express Logistics", desc: "Dispatch in 24h" },
                                 { icon: ShieldCheck, title: "Auth Guarantee", desc: "100% Genuine" },
@@ -434,9 +434,9 @@ export default function ProductDetailPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-slate-100 rounded-2xl md:rounded-[2rem] overflow-hidden divide-y md:divide-y-0 md:divide-x divide-slate-100 bg-white shadow-sm">
                             <div className="divide-y divide-slate-100">
                                 {Object.entries(product.technicalSpecs || {}).slice(0, Math.ceil(Object.entries(product.technicalSpecs || {}).length / 2)).map(([label, value]) => (
-                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-4">
-                                        <span className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
-                                        <span className="text-xs md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
+                                    <div key={label} className="grid grid-cols-1 sm:grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-1 sm:gap-4">
+                                        <span className="text-[10px] md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
+                                        <span className="text-sm md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
                                     </div>
                                 ))}
                                 {(!product.technicalSpecs) && (
@@ -448,9 +448,9 @@ export default function ProductDetailPage() {
                             </div>
                             <div className="divide-y divide-slate-100">
                                 {Object.entries(product.technicalSpecs || {}).slice(Math.ceil(Object.entries(product.technicalSpecs || {}).length / 2)).map(([label, value]) => (
-                                    <div key={label} className="grid grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-4">
-                                        <span className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
-                                        <span className="text-xs md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
+                                    <div key={label} className="grid grid-cols-1 sm:grid-cols-2 p-4 md:p-6 hover:bg-slate-50 transition-colors gap-1 sm:gap-4">
+                                        <span className="text-[10px] md:text-sm text-slate-400 font-bold uppercase tracking-wider">{label}</span>
+                                        <span className="text-sm md:text-sm text-slate-800 font-bold font-mono break-all sm:break-normal">{value as string}</span>
                                     </div>
                                 ))}
                             </div>
@@ -586,15 +586,15 @@ export default function ProductDetailPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-6 shrink-0">
-                        <div className="hidden md:flex flex-col items-end">
+                    <div className="flex items-center gap-2 sm:gap-6 shrink-0">
+                        <div className="hidden sm:flex flex-col items-end">
                             <span className="text-xl font-bold text-white font-mono">₹{product.salePrice.toLocaleString()}</span>
                             <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-tighter">In Stock: {product.inventory}</span>
                         </div>
                         <div className="flex gap-2">
                             <Button
                                 size="sm"
-                                className="h-11 px-6 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold hidden sm:flex"
+                                className="h-10 sm:h-11 px-4 sm:px-6 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold hidden sm:flex"
                                 onClick={() => addItem({
                                     id: product.id,
                                     name: product.name,
@@ -606,11 +606,11 @@ export default function ProductDetailPage() {
                                     quantity: 1
                                 })}
                             >
-                                <Plus className="w-4 h-4 mr-2" /> Add
+                                <Plus className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden xs:inline">Add</span>
                             </Button>
                             <Button
                                 size="sm"
-                                className="h-11 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-900/40"
+                                className="h-10 sm:h-11 px-6 sm:px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-900/40 text-xs sm:text-sm"
                                 onClick={() => {
                                     addItem({
                                         id: product.id,

@@ -148,7 +148,7 @@ export default function ShopPage() {
                                             className="bg-transparent border-none h-12 md:h-14 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1"
                                         />
                                     </div>
-                                    <Button className="rounded-xl md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-blue-900/10 text-xs md:text-base">
+                                    <Button className="rounded-xl md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-bold h-11 md:h-12 px-6 md:px-8 shadow-lg shadow-blue-900/10 text-xs md:text-base w-full md:w-auto">
                                         Find Parts
                                     </Button>
                                 </div>
@@ -334,9 +334,9 @@ export default function ShopPage() {
                                     <Scale className="w-5 h-5 text-cyan-400" /> Component Comparison
                                 </DialogTitle>
                             </DialogHeader>
-                            <div className="p-8 space-y-0">
+                            <div className="p-0 sm:p-8 space-y-0 overflow-x-auto no-scrollbar">
                                 {/* Header Row */}
-                                <div className="grid grid-cols-4 gap-8 pb-10 border-b border-white/10 items-end">
+                                <div className="grid grid-cols-[120px_repeat(3,240px)] sm:grid-cols-4 gap-4 sm:gap-8 pb-10 border-b border-white/10 items-end min-w-max sm:min-w-0 px-6 sm:px-0 pt-6 sm:pt-0">
                                     <div /> {/* Empty space for labels column */}
                                     {compareList.map(p => (
                                         <div key={p.id} className="text-center group">
@@ -377,8 +377,8 @@ export default function ShopPage() {
                                     { label: 'Category', value: (p: any) => p.categoryId, style: 'text-zinc-500 uppercase tracking-tighter' },
                                     { label: 'Unit Price', value: (p: any) => `₹${p.salePrice.toLocaleString()}`, style: 'text-xl font-bold text-cyan-400 font-mono' }
                                 ].map((row, idx) => (
-                                    <div key={idx} className="grid grid-cols-4 gap-8 py-6 border-b border-white/[0.04] items-center hover:bg-white/[0.01] transition-colors">
-                                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] pl-2">
+                                    <div key={idx} className="grid grid-cols-[120px_repeat(3,240px)] sm:grid-cols-4 gap-4 sm:gap-8 py-6 border-b border-white/[0.04] items-center hover:bg-white/[0.01] transition-colors min-w-max sm:min-w-0 px-6 sm:px-0">
+                                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
                                             {row.label}
                                         </div>
                                         {compareList.map(p => (

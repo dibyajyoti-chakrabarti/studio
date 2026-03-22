@@ -720,21 +720,23 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             Back to Dashboard
           </Button>
 
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold tracking-tight uppercase text-slate-900">
+              <div className="flex flex-wrap items-center gap-3 mb-3 md:mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase text-slate-900 leading-tight">
                   {project.projectName}
                 </h1>
                 <Badge
                   variant="outline"
-                  className={`${statusInfo.color} text-[10px] uppercase tracking-wider font-bold px-2 py-1`}
+                  className={`${statusInfo.color} text-[9px] md:text-[10px] uppercase tracking-wider font-bold px-2 py-1`}
                 >
                   {statusInfo.label}
                 </Badge>
               </div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
-                Project RFQ • Created {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
+              <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                <span className="shrink-0">Project RFQ</span>
+                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                <span>Created {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}</span>
               </p>
             </div>
 
@@ -754,18 +756,18 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           {/* Left Column - Parts List */}
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="parts" className="space-y-6">
-              <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full sm:w-auto flex">
-                <TabsTrigger value="parts" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">
-                  <Layers className="w-4 h-4 mr-2" />
+              <TabsList className="bg-white border border-slate-200 p-1 rounded-xl shadow-sm w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
+                <TabsTrigger value="parts" className="px-4 md:px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[9px] md:text-[10px] min-w-[100px] flex-shrink-0">
+                  <Layers className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2" />
                   Parts ({projectParts.length})
                 </TabsTrigger>
-                <TabsTrigger value="details" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">
-                  <FileText className="w-4 h-4 mr-2" />
+                <TabsTrigger value="details" className="px-4 md:px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[9px] md:text-[10px] min-w-[100px] flex-shrink-0">
+                  <FileText className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2" />
                   Details
                 </TabsTrigger>
                 {(project.status === 'quotation_sent' || project.status === 'negotiation' || (project.negotiationHistory && project.negotiationHistory.length > 0)) && (
-                  <TabsTrigger value="negotiation" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">
-                    <MessageSquare className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="negotiation" className="px-4 md:px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[9px] md:text-[10px] min-w-[120px] flex-shrink-0">
+                    <MessageSquare className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2" />
                     Negotiation
                   </TabsTrigger>
                 )}
@@ -801,21 +803,21 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                                     </Badge>
                                   </div>
 
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-[10px] text-slate-500 uppercase tracking-wider font-bold mt-3 pt-3 border-t border-slate-50">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 pt-3 border-t border-slate-50">
                                     <div className="flex items-center gap-2">
                                       <Layers className="w-3.5 h-3.5 text-[#2F5FA7]/70" />
-                                      <span className="text-slate-900">{part.material.name}</span>
-                                      {part.material.grade && <span className="text-slate-400 font-normal">({part.material.grade})</span>}
+                                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-900">{part.material.name}</span>
+                                      {part.material.grade && <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">({part.material.grade})</span>}
                                     </div>
 
                                     <div className="flex items-center gap-2">
                                       <Hash className="w-3.5 h-3.5 text-[#2F5FA7]/70" />
-                                      <span className="text-slate-400">Qty: <span className="text-slate-900">{part.quantity}</span></span>
+                                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Qty: <span className="text-slate-900">{part.quantity}</span></span>
                                     </div>
                                     {part.material.thickness && (
                                       <div className="flex items-center gap-2">
                                         <Layers className="w-3.5 h-3.5 text-[#2F5FA7]/70" />
-                                        <span className="text-slate-400">Thickness: <span className="text-slate-900">{part.material.thickness} mm</span></span>
+                                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Thickness: <span className="text-slate-900">{part.material.thickness} mm</span></span>
                                       </div>
                                     )}
                                   </div>
@@ -1027,16 +1029,16 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                     <div className="max-h-[400px] overflow-y-auto p-6 space-y-4 bg-slate-50/30">
                       {project.negotiationHistory && project.negotiationHistory.length > 0 ? (
                         project.negotiationHistory.map((msg: any, idx: number) => (
-                          <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm shadow-sm ${msg.role === 'user' ? 'bg-[#2F5FA7] text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
+                          <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} mb-4 last:mb-0`}>
+                            <div className={`max-w-[90%] md:max-w-[85%] rounded-2xl px-4 md:px-5 py-3 text-xs md:text-sm shadow-sm ${msg.role === 'user' ? 'bg-[#2F5FA7] text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'}`}>
                               <p className="leading-relaxed">{msg.message}</p>
                               {msg.proposedPrice && (
                                 <div className={`mt-2 pt-2 border-t text-[10px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'border-white/10 text-blue-100' : 'border-slate-100 text-[#2F5FA7]'}`}>
-                                  {msg.role === 'user' ? 'Your Counter-Offer:' : 'Admin Proposed:'} INR {msg.proposedPrice.toLocaleString()}
+                                  {msg.role === 'user' ? 'Your Counter-Offer:' : 'Admin Proposed:'} ₹{msg.proposedPrice.toLocaleString()}
                                 </div>
                               )}
                             </div>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 px-1">
+                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 px-1">
                               {msg.role === 'user' ? 'You' : 'MechHub Admin'} • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>

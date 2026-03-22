@@ -368,9 +368,9 @@ export default function UserDashboard() {
       <LandingNav />
       <div className="container mx-auto px-4 relative z-10">
         {isAdmin(user?.email) && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-700 gap-4">
             <div className="flex items-center gap-3">
-              <ShieldAlert className="w-5 h-5 text-blue-600" />
+              <ShieldAlert className="w-5 h-5 text-blue-600 shrink-0" />
               <div>
                 <p className="text-sm font-bold text-slate-900 uppercase tracking-wider">Admin Access Detected</p>
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">You are currently in the customer view.</p>
@@ -378,7 +378,7 @@ export default function UserDashboard() {
             </div>
             <Button
               onClick={() => router.push('/admin')}
-              className="bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl px-6 h-10 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg"
+              className="w-full sm:w-auto bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl px-6 h-10 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg"
             >
               Go to Admin Panel
             </Button>
@@ -414,11 +414,11 @@ export default function UserDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: '200ms' }}>
             <Tabs defaultValue="projects" className="space-y-6">
-              <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full sm:w-auto flex">
-                <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Project RFQs</TabsTrigger>
-                <TabsTrigger value="designs" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Designs</TabsTrigger>
-                <TabsTrigger value="shop_orders" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Shop Orders</TabsTrigger>
-                <TabsTrigger value="profile" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] flex-1">Settings</TabsTrigger>
+              <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
+                <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Project RFQs</TabsTrigger>
+                <TabsTrigger value="designs" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Designs</TabsTrigger>
+                <TabsTrigger value="shop_orders" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Shop Orders</TabsTrigger>
+                <TabsTrigger value="profile" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Settings</TabsTrigger>
               </TabsList>
 
               <TabsContent value="projects" className="space-y-4">
@@ -973,7 +973,7 @@ export default function UserDashboard() {
                   <Input name="teamName" required placeholder="Company or College name" className="bg-slate-50 border-slate-200 text-slate-900 focus-visible:ring-blue-500/50 h-12 rounded-xl placeholder:text-slate-300 shadow-sm" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-slate-400 font-bold uppercase tracking-[0.1em] text-[10px] pl-1">Your Role</Label>
                     <Input name="designation" required placeholder="e.g. Founder, HOD" className="bg-slate-50 border-slate-200 text-slate-900 focus-visible:ring-blue-500/50 h-12 rounded-xl placeholder:text-slate-300 shadow-sm" />
@@ -1012,7 +1012,7 @@ export default function UserDashboard() {
             <DialogDescription className="text-slate-500 text-xs uppercase tracking-widest font-bold pt-1">Propose your preferred price and timeline to the MechMaster.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-400 uppercase tracking-widest text-[10px] font-bold pl-1">Target Price (₹)</Label>
                 <Input value={negPrice} onChange={(e) => setNegPrice(e.target.value)} type="number" className="bg-slate-50 border-slate-200 text-slate-900 focus-visible:ring-blue-500/50 h-11 shadow-sm font-consolas" />

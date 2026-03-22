@@ -32,24 +32,23 @@ export function Footer() {
             {/* Subtle bottom glow */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-blue-400/5 blur-[120px] pointer-events-none" />
 
-            {/* Top CTA strip */}
             <div className="border-b border-white/[0.05] py-10 relative z-10">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-2xl font-bold tracking-tight text-white mb-2">Ready to build your next part?</h3>
-                            <p className="text-blue-100/60 text-sm font-medium">Upload your design and get matched with a verified MechMaster in minutes.</p>
+                    <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-8 md:gap-6 text-center lg:text-left">
+                        <div className="space-y-2">
+                            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">Ready to build your next part?</h3>
+                            <p className="text-blue-100/60 text-sm font-medium max-w-lg">Upload your design and get matched with a verified MechMaster in minutes.</p>
                         </div>
-                        <div className="flex gap-3 shrink-0">
-                            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
+                        <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
+                            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full sm:w-auto">
                                 <Button
-                                    className="h-10 px-7 text-sm font-bold bg-white text-[#1E3A66] hover:bg-blue-50 rounded-full shadow-lg transition-all"
+                                    className="w-full h-11 px-7 text-sm font-bold bg-white text-[#1E3A66] hover:bg-blue-50 rounded-full shadow-lg transition-all"
                                     suppressHydrationWarning
                                 >
                                     Upload Your Design <ArrowRight className="ml-1.5 w-3.5 h-3.5 inline" />
                                 </Button>
                             </Link>
-                            <Button variant="ghost" className="h-10 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold" suppressHydrationWarning>
+                            <Button variant="ghost" className="w-full sm:w-auto h-11 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold" suppressHydrationWarning>
                                 View Services
                             </Button>
                         </div>
@@ -58,22 +57,22 @@ export function Footer() {
             </div>
 
             {/* Main link grid */}
-            <div className="container mx-auto px-4 py-10">
-                <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-10 lg:gap-16">
+            <div className="container mx-auto px-4 py-12 md:py-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12 lg:gap-16">
 
                     {/* Brand column */}
-                    <div className="col-span-2 md:col-span-1 relative z-10">
-                        <Link href="/" className="flex items-center gap-2.5 mb-5 group">
-                            <Logo size={32} />
-                            <span className="text-2xl font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">MechHub</span>
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-1 relative z-10 flex flex-col items-center lg:items-start text-center lg:text-left">
+                        <Link href="/" className="flex items-center gap-2.5 mb-6 group">
+                            <Logo size={40} />
+                            <span className="text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">MechHub</span>
                         </Link>
-                        <p className="text-blue-100/70 text-sm leading-relaxed mb-6 max-w-xs font-medium">
+                        <p className="text-blue-100/70 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-medium">
                             India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.
                         </p>
                         {/* Mini trust badges */}
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap justify-center lg:justify-start gap-2.5">
                             {['NDA Signed', 'ISO-Ready', 'QC Inspected', 'On-Time Delivery'].map(b => (
-                                <span key={b} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/10 text-white/50 bg-white/5">
+                                <span key={b} className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/10 text-white/50 bg-white/5">
                                     {b}
                                 </span>
                             ))}

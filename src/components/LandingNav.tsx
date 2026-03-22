@@ -140,7 +140,7 @@ export function LandingNav() {
             </span>
           </Link>
 
-          {/* Search Bar - Center */}
+          {/* Search Bar - Center (Hidden on small mobile, visible on tablet+) */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -150,17 +150,17 @@ export function LandingNav() {
                 router.push('/shop');
               }
             }}
-            className="hidden lg:flex flex-1 max-w-md mx-8 relative group"
+            className="hidden sm:flex flex-1 max-w-md mx-4 lg:mx-8 relative group"
           >
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <Search className="w-4 h-4 text-slate-400 group-focus-within:text-[#2F5FA7] transition-colors" />
             </div>
             <Input
               type="text"
-              placeholder="Search industrial parts (SKU, Name, Category)..."
+              placeholder="Search parts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-full text-sm focus:ring-[#2F5FA7]/20 focus:border-[#2F5FA7]/50 transition-all placeholder:text-slate-400 focus:placeholder:text-slate-500 text-slate-900"
+              className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-full text-xs md:text-sm focus:ring-[#2F5FA7]/20 focus:border-[#2F5FA7]/50 transition-all placeholder:text-slate-400 focus:placeholder:text-slate-500 text-slate-900"
             />
           </form>
 
@@ -232,12 +232,12 @@ export function LandingNav() {
             {/* Cart Toggle */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 rounded-full hover:bg-slate-50 text-[#64748B] hover:text-[#2F5FA7] transition-all group"
+              className="relative p-2.5 sm:p-2 rounded-full hover:bg-slate-50 text-[#64748B] hover:text-[#2F5FA7] transition-all group"
               aria-label="View Cart"
             >
-              <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#2F5FA7] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-in zoom-in duration-300">
+                <span className="absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 w-4 h-4 bg-[#2F5FA7] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white animate-in zoom-in duration-300">
                   {totalItems}
                 </span>
               )}
@@ -306,33 +306,84 @@ export function LandingNav() {
 
             {/* Mobile Hamburger */}
             <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-slate-50 hover:bg-slate-100 transition-colors text-[#64748B] hover:text-[#2F5FA7]"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 transition-colors text-[#64748B] hover:text-[#2F5FA7]"
               onClick={() => setMobileOpen(v => !v)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
-          <div className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-3 flex flex-col gap-1`}>
+          <div className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-4 flex flex-col gap-1`}>
+            {/* Mobile Search - Only for smallest screens */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+                } else {
+                  router.push('/shop');
+                }
+                setMobileOpen(false);
+              }}
+              className="sm:hidden relative mb-3"
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-xl text-sm"
+              />
+            </form>
+
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-1">Navigation</div>
             {NAV_LINKS.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
                 className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors"
+                onClick={() => setMobileOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="border-t border-slate-100 mt-1 pt-1">
-              {!user && (
-                <Link href="/login" className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors">
-                  Sign In
+
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mt-3 mb-1">Categories</div>
+            <div className="grid grid-cols-2 gap-2 px-2">
+              <Link href="/shop?category=bearings" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Bearings
+              </Link>
+              <Link href="/shop?category=linear-motion" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Linear
+              </Link>
+              <Link href="/shop?category=transmission" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Parts
+              </Link>
+              <Link href="/shop?category=raw-materials" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Materials
+              </Link>
+            </div>
+
+            <div className="border-t border-slate-100 mt-4 pt-3 flex flex-col gap-2">
+              {!user ? (
+                <>
+                  <Link href="/login" onClick={() => setMobileOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start font-bold text-[#64748B]">Sign In</Button>
+                  </Link>
+                  <Link href="/login" onClick={() => setMobileOpen(false)}>
+                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold">Get Started</Button>
+                  </Link>
+                </>
+              ) : (
+                <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold">Go to Dashboard</Button>
                 </Link>
               )}
             </div>
