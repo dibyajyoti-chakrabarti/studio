@@ -104,6 +104,7 @@ const COLOR_OPTIONS: { id: ColorOption; name: string; color: string; applicableP
 
 interface SecondaryProcessSelectionProps {
   selectedService: ManufacturingService;
+  selectedMaterial: { id: string; name: string; grade?: string; thickness?: number; canBend?: boolean; canPowderCoat?: boolean; canAnodize?: boolean; maxThicknessForBending?: number } | null;
   selectedProcesses: SecondaryProcess[];
   coatingColor: ColorOption | null;
   onProcessToggle: (process: SecondaryProcess) => void;
@@ -112,14 +113,30 @@ interface SecondaryProcessSelectionProps {
 
 export function SecondaryProcessSelection({
   selectedService,
+  selectedMaterial,
   selectedProcesses,
   coatingColor,
   onProcessToggle,
   onColorSelect,
 }: SecondaryProcessSelectionProps) {
-  const filteredProcesses = SECONDARY_PROCESSES.filter(p => 
-    p.applicableServices.includes(selectedService)
-  );
+  const filteredProcesses = SECONDARY_PROCESSES.filter(p => {
+    // Basic service check
+    if (!p.applicableServices.includes(selectedService)) return false;
+
+    // Capability-based checks
+    if (selectedMaterial) {
+      if (p.id === 'bending') {
+        if (selectedMaterial.canBend === false) return false;
+        if (selectedMaterial.maxThicknessForBending && selectedMaterial.thickness && selectedMaterial.thickness > selectedMaterial.maxThicknessForBending) {
+          return false;
+        }
+      }
+      if (p.id === 'powder_coating' && selectedMaterial.canPowderCoat === false) return false;
+      if (p.id === 'anodizing' && selectedMaterial.canAnodize === false) return false;
+    }
+
+    return true;
+  });
 
   const needsColor = selectedProcesses.some(pid => 
     SECONDARY_PROCESSES.find(p => p.id === pid)?.requiresColor

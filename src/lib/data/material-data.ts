@@ -5,7 +5,11 @@ export interface MaterialOption {
   name: string;
   grade: string;
   category: string;
-  subcategory?: string;
+  thicknesses?: number[];
+  canBend?: boolean;
+  canPowderCoat?: boolean;
+  canAnodize?: boolean;
+  maxThicknessForBending?: number;
 }
 
 export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name: string; materials: MaterialOption[] }[] }> = {
@@ -14,15 +18,19 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
       {
         name: 'Metals',
         materials: [
-          { id: 'al-6061', name: 'Aluminum', grade: '6061', category: 'Metals' },
-          { id: 'al-7075', name: 'Aluminum', grade: '7075', category: 'Metals' },
-          { id: 'ss-304', name: 'Stainless Steel', grade: '304', category: 'Metals' },
-          { id: 'ss-316', name: 'Stainless Steel', grade: '316', category: 'Metals' },
-          { id: 'mild-steel', name: 'Mild Steel', grade: 'Generic', category: 'Metals' },
-          { id: 'brass', name: 'Brass', grade: 'C360', category: 'Metals' },
-          { id: 'copper', name: 'Copper', grade: 'C101', category: 'Metals' },
+          { id: 'al-5052', name: 'Aluminium', grade: '5052', category: 'Metals', thicknesses: [1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
+          { id: 'al-6061', name: 'Aluminium', grade: '6061', category: 'Metals', thicknesses: [1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5], canPowderCoat: true, canAnodize: true, canBend: false },
+          { id: 'ms-crca', name: 'CRCA Mild Steel', grade: 'Standard', category: 'Metals', thicknesses: [0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
+          { id: 'ss-304', name: 'Stainless Steel', grade: '304', category: 'Metals', thicknesses: [0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
         ],
       },
+      {
+        name: 'Plastics & Composites',
+        materials: [
+          { id: 'cf-plate', name: 'Carbon Fiber Plate', grade: '3K Twill', category: 'Composites', thicknesses: [1, 1.6, 2, 3, 4, 5], canBend: false, canPowderCoat: false },
+          { id: 'acrylic', name: 'Acrylic', grade: 'Cast/Extruded', category: 'Plastics', thicknesses: [1.6, 3, 4.5, 5.4, 9.5, 12.7], canBend: false, canPowderCoat: false },
+        ]
+      }
     ],
   },
   'sheet_metal_cutting': {
@@ -30,69 +38,36 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
       {
         name: 'Metals',
         materials: [
-          { id: 'sm-ms', name: 'Mild Steel', grade: 'Generic', category: 'Metals' },
-          { id: 'sm-ss', name: 'Stainless Steel', grade: '304', category: 'Metals' },
-          { id: 'sm-al', name: 'Aluminum', grade: '6061', category: 'Metals' },
-          { id: 'sm-gi', name: 'Galvanized Steel (GI)', grade: 'Generic', category: 'Metals' },
-          { id: 'sm-copper', name: 'Copper', grade: 'Generic', category: 'Metals' },
+          { id: 'al-5052-sm', name: 'Aluminium', grade: '5052', category: 'Metals', thicknesses: [1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
+          { id: 'al-6061-sm', name: 'Aluminium', grade: '6061', category: 'Metals', thicknesses: [1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5], canPowderCoat: true, canAnodize: true, canBend: false },
+          { id: 'ms-crca-sm', name: 'CRCA Mild Steel', grade: 'Standard', category: 'Metals', thicknesses: [0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
+          { id: 'ss-304-sm', name: 'Stainless Steel', grade: '304', category: 'Metals', thicknesses: [0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5], canPowderCoat: true, canBend: true, maxThicknessForBending: 5 },
         ],
       },
+      {
+        name: 'Wood & Others',
+        materials: [
+          { id: 'mdf', name: 'MDF', grade: 'Standard', category: 'Woods', thicknesses: [3.2, 6.3, 9.5, 12.7], canBend: false, canPowderCoat: false },
+          { id: 'plywood', name: 'Plywood', grade: 'Standard', category: 'Woods', thicknesses: [3.2, 6.3, 9, 12], canBend: false, canPowderCoat: false },
+          { id: 'balsa', name: 'Balsa Wood', grade: 'Standard', category: 'Woods', thicknesses: [1, 3, 5], canBend: false, canPowderCoat: false },
+        ]
+      }
     ],
   },
   '3d_printing': {
     categories: [
       {
-        name: 'FDM Materials',
+        name: 'Filaments (FDM)',
         materials: [
           { id: 'fdm-pla', name: 'PLA', grade: 'Standard', category: 'FDM' },
-          { id: 'fdm-abs', name: 'ABS', grade: 'Standard', category: 'FDM' },
+          { id: 'fdm-tpu', name: 'TPU', grade: 'Flexible', category: 'FDM' },
+          { id: 'fdm-abs', name: 'ABS', grade: 'Engineering', category: 'FDM' },
           { id: 'fdm-petg', name: 'PETG', grade: 'Standard', category: 'FDM' },
-          { id: 'fdm-tpu', name: 'TPU (Flexible)', grade: 'Standard', category: 'FDM' },
-          { id: 'fdm-nylon', name: 'Nylon', grade: 'Standard', category: 'FDM' },
-        ],
-      },
-      {
-        name: 'SLA Materials',
-        materials: [
-          { id: 'sla-standard', name: 'Standard Resin', grade: 'Clear/Grey/White', category: 'SLA' },
-          { id: 'sla-tough', name: 'Tough Resin', grade: 'Engineering', category: 'SLA' },
-          { id: 'sla-flex', name: 'Flexible Resin', grade: 'Elastomeric', category: 'SLA' },
-        ],
-      },
-      {
-        name: 'SLS Materials',
-        materials: [
-          { id: 'sls-pa12', name: 'Nylon (PA12)', grade: 'Standard', category: 'SLS' },
-          { id: 'sls-gfpa12', name: 'Glass-filled Nylon', grade: 'Reinforced', category: 'SLS' },
+          { id: 'fdm-asa', name: 'ASA', grade: 'Weather Resistant', category: 'FDM' },
         ],
       },
     ],
   },
-  'cnc_turning': {
-    categories: [
-      {
-        name: 'Metals',
-        materials: [
-          { id: 'ct-al', name: 'Aluminum', grade: '6061', category: 'Metals' },
-          { id: 'ct-ss', name: 'Stainless Steel', grade: '304', category: 'Metals' },
-          { id: 'ct-ms', name: 'Mild Steel', grade: 'Generic', category: 'Metals' },
-          { id: 'ct-brass', name: 'Brass', grade: 'Generic', category: 'Metals' },
-          { id: 'ct-copper', name: 'Copper', grade: 'Generic', category: 'Metals' },
-        ],
-      },
-    ],
-  },
-  'wire_edm': {
-    categories: [
-      {
-        name: 'Metals ONLY (conductive)',
-        materials: [
-          { id: 'we-tool-steel', name: 'Tool Steel', grade: 'D2/O1', category: 'Metals' },
-          { id: 'we-hardened-steel', name: 'Hardened Steel', grade: 'Generic', category: 'Metals' },
-          { id: 'we-ss', name: 'Stainless Steel', grade: '304/316', category: 'Metals' },
-          { id: 'we-al', name: 'Aluminum (limited use)', grade: 'Generic', category: 'Metals' },
-        ],
-      },
-    ],
-  },
+  'cnc_turning': { categories: [] },
+  'wire_edm': { categories: [] },
 };

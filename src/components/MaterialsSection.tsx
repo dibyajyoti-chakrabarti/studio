@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Search, X, ArrowRight, ChevronRight, Info, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/firebase/provider';
 
 // --- DATA ---
 const CATEGORIES = ["ALL", "ALUMINUM", "STEEL", "STAINLESS", "COMPOSITES", "PLASTICS", "WOODS", "3D PRINTING"];
@@ -127,9 +128,18 @@ function MaterialSwatch({ mat }: { mat: any }) {
 
 export function MaterialsSection() {
   const router = useRouter();
+  const { user } = useUser();
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+
+  const handleQuoteClick = () => {
+    if (!user) {
+      router.push('/login');
+    } else {
+      router.push('/dashboard');
+    }
+  };
 
   const filteredMaterials = useMemo(() => {
     return MATERIALS.filter(mat => {
@@ -297,7 +307,10 @@ export function MaterialsSection() {
                   </div>
                 </div>
                 <div className="pt-10">
-                  <Button className="w-full h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200 group">
+                  <Button 
+                    onClick={handleQuoteClick}
+                    className="w-full h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200 group"
+                  >
                     Quote with this Material <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>

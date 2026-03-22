@@ -41,18 +41,6 @@ const SERVICES: ServiceOption[] = [
     description: 'FDM, SLA, and SLS printing for rapid prototyping',
     icon: <Box className="w-6 h-6" />,
   },
-  {
-    id: 'cnc_turning',
-    name: 'CNC Turning / Lathe',
-    description: 'Cylindrical parts manufacturing with precision turning',
-    icon: <CircleDot className="w-6 h-6" />,
-  },
-  {
-    id: 'wire_edm',
-    name: 'Wire EDM',
-    description: 'Electrical discharge machining for intricate cuts',
-    icon: <Move3d className="w-6 h-6" />,
-  },
 ];
 
 interface ServiceSelectionProps {

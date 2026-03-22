@@ -38,8 +38,8 @@ type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
 const STEPS: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
   { id: 'service', label: 'Service', icon: <Layers className="w-4 h-4" /> },
   { id: 'file', label: 'CAD File', icon: <Upload className="w-4 h-4" /> },
-  { id: 'material', label: 'Material', icon: <Layers className="w-4 h-4" /> },
-  { id: 'secondary', label: 'Secondary', icon: <Palette className="w-4 h-4" /> },
+  { id: 'material', label: 'Mat. Specs', icon: <Layers className="w-4 h-4" /> },
+  { id: 'secondary', label: 'Coating/Finish', icon: <Palette className="w-4 h-4" /> },
   { id: 'quantity', label: 'Quantity', icon: <Hash className="w-4 h-4" /> },
 ];
 
@@ -57,7 +57,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   const [partName, setPartName] = useState('');
   const [selectedService, setSelectedService] = useState<ManufacturingService | null>(null);
   const [uploadedFile, setUploadedFile] = useState<{ fileName: string; fileUrl: string; fileSize: number } | null>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; name: string; grade: string; thickness?: number } | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; name: string; grade: string; thickness?: number; thicknesses?: number[] } | null>(null);
   const [secondaryProcesses, setSecondaryProcesses] = useState<SecondaryProcess[]>([]);
   const [coatingColor, setCoatingColor] = useState<ColorOption | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -66,9 +66,9 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   // ── CENTRALIZED PRICING LOGIC ──
   const calculatePricing = () => {
     const basePrice = selectedService === 'cnc_machining' ? 4500 : selectedService === 'sheet_metal_cutting' ? 1200 : 800;
-    const materialMultiplier = selectedMaterial?.name.toLowerCase().includes('titanium') ? 2.5 : selectedMaterial?.name.toLowerCase().includes('aluminum') ? 1.2 : 1;
+    const materialMultiplier = selectedMaterial?.name.toLowerCase().includes('titanium') ? 2.5 : selectedMaterial?.name.toLowerCase().includes('aluminium') ? 1.2 : 1;
     const processCost = secondaryProcesses.length * 800;
-    const unitPrice = (basePrice * materialMultiplier) + (processCost / Math.max(1, quantity));
+    const unitPrice = (basePrice * (materialMultiplier || 1)) + (processCost / Math.max(1, quantity));
     const totalPrice = unitPrice * quantity;
     return { unitPrice, totalPrice };
   };
@@ -84,7 +84,11 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
       case 'file':
         return uploadedFile !== null;
       case 'material':
-        return selectedMaterial !== null;
+        if (!selectedMaterial) return false;
+        if (selectedMaterial.thicknesses && selectedMaterial.thicknesses.length > 0) {
+          return selectedMaterial.thickness !== undefined;
+        }
+        return true;
       case 'secondary':
         const needsColor = secondaryProcesses.some(pid =>
           (SECONDARY_PROCESSES as any[]).find(p => p.id === pid)?.requiresColor
@@ -199,7 +203,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
               case 'material':
                 return selectedService ? <MaterialSelection selectedService={selectedService} selectedMaterial={selectedMaterial} onSelect={setSelectedMaterial} /> : null;
               case 'secondary':
-                return selectedService ? <SecondaryProcessSelection selectedService={selectedService} selectedProcesses={secondaryProcesses} coatingColor={coatingColor} onProcessToggle={handleSecondaryProcessToggle} onColorSelect={setCoatingColor} /> : null;
+                return selectedService ? <SecondaryProcessSelection selectedService={selectedService} selectedMaterial={selectedMaterial} selectedProcesses={secondaryProcesses} coatingColor={coatingColor} onProcessToggle={handleSecondaryProcessToggle} onColorSelect={setCoatingColor} /> : null;
               case 'quantity':
                 return <QuantityStep quantity={quantity} onQuantityChange={setQuantity} onDiscountTierChange={setDiscountTier} />;
               default:
