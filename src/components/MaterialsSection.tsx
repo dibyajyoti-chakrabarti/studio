@@ -7,8 +7,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 // --- DATA ---
-const CATEGORIES = [
-  "ALL", "STEEL", "ALUMINUM", "STAINLESS", "TITANIUM",
+const CATEGORIES = ["STEEL", "ALUMINUM", "STAINLESS", "TITANIUM",
   "COMPOSITES", "PLASTICS", "3D PRINTING", "NON-FERROUS", "WOODS", "RUBBER"
 ];
 
@@ -99,7 +98,7 @@ function MaterialSwatch({ mat }: { mat: any }) {
 
 export function MaterialsSection() {
   const router = useRouter();
-  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [activeFilter, setActiveFilter] = useState('STEEL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
 
@@ -118,30 +117,37 @@ export function MaterialsSection() {
   }, [selectedMaterial]);
 
   return (
-    <section id="materials" className="py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200">
+    <section id="materials" className="py-16 md:py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200">
+      {/* Layer 1: Subtle Background Visuals */}
+      <div className="absolute inset-0 blueprint-grid opacity-[0.03] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-white to-transparent opacity-80 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#F1F5F9] to-transparent opacity-100 pointer-events-none" />
+
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#2F5FA7] mb-4">WHAT WE WORK WITH</div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-6">
+        {/* Layer 2: Hero Content */}
+        <div className="text-center mb-10 md:mb-16">
+          <div className="inline-block text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] text-[#2F5FA7] mb-4 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-100/50">
+            INDUSTRIAL CATALOG
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-4 md:mb-6 leading-tight">
             <span className="text-[#2F5FA7]">{MATERIALS.length}+</span> materials in stock
           </h2>
-          <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium">
+          <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium mb-8 text-balance">
             Every material is stocked, cut to order, and shipped fast. No minimums. No surprises.
           </p>
+          <div className="max-w-md mx-auto relative mb-12">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search specifications..."
+              className="w-full h-12 md:h-14 pl-12 pr-4 bg-white border border-slate-300/50 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all outline-none text-slate-700 font-medium text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="max-w-xl mx-auto mb-10 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search materials..."
-            className="w-full h-14 pl-12 pr-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-slate-700 font-medium"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        <div className="flex overflow-x-auto pb-6 mb-8 no-scrollbar gap-2 max-w-7xl mx-auto px-2">
+        <div className="flex overflow-x-auto pb-4 md:pb-8 mb-4 md:mb-8 no-scrollbar gap-2 max-w-7xl mx-auto px-2">
           {CATEGORIES.map(cat => {
             const count = cat === 'ALL'
               ? MATERIALS.length
@@ -151,17 +157,20 @@ export function MaterialsSection() {
                 key={cat}
                 onClick={() => setActiveFilter(cat)}
                 className={`
-                  flex-shrink-0 px-6 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300
-                  ${activeFilter === cat ? 'bg-[#1e40af] text-white shadow-lg shadow-blue-200' : 'bg-slate-100 text-[#475569] hover:bg-blue-100 hover:text-[#1e40af]'}
+                  flex-shrink-0 px-5 md:px-6 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold tracking-wider uppercase transition-all duration-300 border
+                  ${activeFilter === cat
+                    ? 'bg-[#1e40af] text-white shadow-xl shadow-blue-200 border-[#1e40af]'
+                    : 'bg-white text-[#475569] border-slate-200 hover:border-blue-300 hover:text-[#1e40af] hover:shadow-md'}
                 `}
               >
-                {cat} {count > 0 && <span className="ml-1 opacity-50">· {count}</span>}
+                {cat} {count > 0 && <span className="ml-1 opacity-60">· {count}</span>}
               </button>
             );
           })}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
+        {/* Layer 3: Highlight Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto">
           {filteredMaterials.map((mat, idx) => (
             <div
               key={mat.name}
@@ -172,19 +181,21 @@ export function MaterialsSection() {
                   setSelectedMaterial(mat);
                 }
               }}
-              className="group bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-4 cursor-pointer transition-all duration-300 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-0.5 animate-in fade-in zoom-in-95 duration-200"
+              className="group bg-white border border-slate-100 rounded-xl md:rounded-2xl p-3 md:p-5 flex items-center gap-4 cursor-pointer transition-all duration-300 hover:border-blue-400/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 active:scale-95 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-sm"
             >
               <MaterialSwatch mat={mat} />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-[#0F172A] mb-0.5 truncate uppercase tracking-tight">{mat.name}</div>
-                <div className="text-[10px] font-mono font-medium text-slate-500 mb-2 truncate">{mat.thicknesses}</div>
+                <div className="text-xs md:text-sm font-bold text-[#0F172A] mb-0.5 truncate uppercase tracking-tight group-hover:text-blue-600 transition-colors">{mat.name}</div>
+                <div className="text-[10px] font-mono font-medium text-slate-500 mb-2 truncate opacity-80">{mat.thicknesses}</div>
                 <div className="flex flex-wrap gap-1">
                   {mat.processes.slice(0, 2).map(p => (
-                    <span key={p} className="text-[9px] px-2 py-0.5 bg-blue-50 text-[#1e40af] rounded-md font-bold uppercase tracking-wide">{p}</span>
+                    <span key={p} className="text-[8px] md:text-[9px] px-2 py-0.5 bg-slate-50 text-slate-600 rounded-md font-bold uppercase tracking-wide border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">{p}</span>
                   ))}
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white" />
+              </div>
             </div>
           ))}
         </div>
@@ -239,8 +250,8 @@ export function MaterialsSection() {
                   </div>
                 </div>
                 <div className="pt-10">
-                  <Button className="w-full h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-200 group">
-                    Start Quote with this Material <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <Button className="w-full h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200 group">
+                    Quote with this Material <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
               </div>

@@ -89,26 +89,28 @@ export function ServicesSection() {
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6 max-w-7xl mx-auto px-2 md:px-0">
                     {SERVICES.map((service) => (
                         <div
                             key={service.num}
-                            className="group bg-slate-100 rounded-[32px] p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                            className="group bg-slate-100 rounded-xl md:rounded-[32px] p-2 md:p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 active:scale-95 md:active:scale-100"
                         >
-                            <div className="w-full aspect-[4/3] relative mb-8 flex items-center justify-center">
+                            <div className="w-full aspect-square md:aspect-[4/3] relative mb-2 md:mb-8 flex items-center justify-center overflow-hidden rounded-lg md:rounded-2xl bg-white/50">
                                 <Image
                                     src={service.img}
                                     alt={service.title}
                                     width={240}
                                     height={180}
-                                    className="object-contain drop-shadow-2xl brightness-105"
+                                    className="object-contain drop-shadow-xl md:drop-shadow-2xl brightness-105 group-hover:scale-110 transition-transform duration-500 h-12 md:h-auto"
                                 />
                             </div>
-                            <h3 className="text-lg font-bold text-[#0F172A] mb-3">{service.title}</h3>
-                            <p className="text-[#64748B] text-sm leading-relaxed mb-6 font-medium">
+                            <h3 className="text-[10px] md:text-lg font-bold text-[#0F172A] mb-1 md:mb-3 line-clamp-1">
+                                {service.title}
+                            </h3>
+                            <p className="text-[#64748B] text-[8px] md:text-sm leading-tight md:leading-relaxed mb-2 md:mb-6 font-medium line-clamp-2">
                                 {service.desc}
                             </p>
-                            <div className="mt-auto">
+                            <div className="mt-auto hidden md:block">
                                 <div className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center group-hover:bg-white transition-colors">
                                     <ArrowRight className="w-5 h-5 text-blue-500" />
                                 </div>
@@ -117,15 +119,15 @@ export function ServicesSection() {
                     ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-16">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-12 md:mt-16 px-4">
                     <Button
                         variant="outline"
-                        className="h-14 px-10 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-base font-bold uppercase tracking-wide"
+                        className="w-full sm:w-auto h-12 md:h-14 px-10 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-xs md:text-base font-bold uppercase tracking-wide"
                     >
                         View All Services
                     </Button>
                     <Button
-                        className="h-14 px-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-base font-bold uppercase tracking-wide shadow-lg shadow-blue-200"
+                        className="w-full sm:w-auto h-12 md:h-14 px-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-base font-bold uppercase tracking-wide shadow-lg shadow-blue-200"
                     >
                         Get Started
                     </Button>

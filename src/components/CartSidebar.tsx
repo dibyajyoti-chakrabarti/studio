@@ -86,7 +86,7 @@ export function CartSidebar() {
                                         onDoubleClick={() => handleItemClick(item.id)}
                                         title="Double click to view details"
                                     >
-                                        <div className="relative w-24 h-24 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-[#2F5FA7]/40 transition-all duration-500">
+                                        <div className="relative w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-[#2F5FA7]/40 transition-all duration-500">
                                             {item.image ? (
                                                 <Image
                                                     src={item.image}
@@ -105,22 +105,22 @@ export function CartSidebar() {
                                             </div>
                                         </div>
 
-                                        <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                                            <div>
-                                                <div className="flex justify-between items-start gap-2">
-                                                    <h4 className="text-sm font-bold text-[#1E3A66] truncate group-hover:text-[#2F5FA7] transition-colors leading-tight tracking-tight uppercase">{item.name}</h4>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                                        className="text-slate-400 hover:text-red-500 transition-all p-1.5 hover:bg-red-50 rounded-lg group/trash"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5 group-hover/trash:scale-110 transition-transform" />
-                                                    </button>
+                                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-[13px] md:text-sm font-bold text-[#1E3A66] truncate group-hover:text-[#2F5FA7] transition-colors leading-tight tracking-tight uppercase">{item.name}</h4>
+                                                    <p className="text-[9px] font-bold text-[#2F5FA7]/60 uppercase tracking-widest mt-0.5">Verified Component</p>
                                                 </div>
-                                                <p className="text-[9px] font-bold text-[#2F5FA7]/60 uppercase tracking-widest mt-1">Verified Component</p>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
+                                                    className="text-slate-400 hover:text-red-500 transition-all p-1 hover:bg-red-50 rounded-lg group/trash shrink-0"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5 group-hover/trash:scale-110 transition-transform" />
+                                                </button>
                                             </div>
 
-                                            <div className="flex justify-between items-end mt-2">
-                                                <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden h-8">
+                                            <div className="flex justify-between items-center sm:items-end mt-2 gap-2">
+                                                <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden h-8 shrink-0">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity - 1); }}
                                                         className="w-8 h-full flex items-center justify-center hover:bg-slate-200 text-[#64748B] hover:text-[#1E3A66] transition-colors border-r border-slate-200"
@@ -131,14 +131,13 @@ export function CartSidebar() {
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); updateQuantity(item.id, item.quantity + 1); }}
                                                         disabled={item.quantity >= item.inventory}
-                                                        className={`w-7 h-7 flex items-center justify-center hover:bg-slate-200 text-[#64748B] hover:text-[#1E3A66] transition-colors ${item.quantity >= item.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
+                                                        className={`w-8 h-full flex items-center justify-center hover:bg-slate-200 text-[#64748B] hover:text-[#1E3A66] transition-colors ${item.quantity >= item.inventory ? 'opacity-20 cursor-not-allowed' : ''}`}
                                                     >
-                                                        <Plus className="w-3 h-3" />
+                                                        <Plus className="w-2.5 h-2.5" />
                                                     </button>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-[10px] text-[#64748B] font-bold leading-none mb-1">₹{item.salePrice.toLocaleString()} ea</p>
-                                                    <p className="text-base font-bold text-[#1E3A66] group-hover:text-[#2F5FA7] transition-colors">₹{(item.salePrice * item.quantity).toLocaleString()}</p>
+                                                <div className="text-right shrink-0">
+                                                    <p className="text-sm md:text-base font-bold text-[#1E3A66] group-hover:text-[#2F5FA7] transition-colors whitespace-nowrap">₹{(item.salePrice * item.quantity).toLocaleString()}</p>
                                                 </div>
                                             </div>
                                         </div>
