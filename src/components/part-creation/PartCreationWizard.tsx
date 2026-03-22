@@ -277,6 +277,7 @@ export function PartCreationWizard({
         return selectedService ? (
           <SecondaryProcessSelection
             selectedService={selectedService}
+            selectedMaterial={selectedMaterial}
             selectedProcesses={secondaryProcesses}
             coatingColor={coatingColor}
             onProcessToggle={handleSecondaryProcessToggle}

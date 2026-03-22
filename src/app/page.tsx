@@ -141,7 +141,7 @@ export default function Home() {
               </div>
 
               <p className="text-sm md:text-xl text-white/80 max-w-xl leading-relaxed mb-8 md:mb-12 font-medium animate-in fade-in slide-in-from-left-8 duration-1000 line-clamp-3 md:line-clamp-none">
-                MechHub connects innovators with verified Indian manufacturers. <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
+                <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
               </p>
 
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-5 mb-10 md:mb-16 w-full md:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
