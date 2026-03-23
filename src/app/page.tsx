@@ -326,6 +326,13 @@ export default function Home() {
               </Button>
             </Link>
           </div>
+
+          <div className="mt-12 text-center opacity-70">
+            <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#2F5FA7]" />
+               Enterprise-grade Data Protection — All designs protected by NDA & AES-256 encryption.
+            </p>
+          </div>
         </div>
       </section>
 

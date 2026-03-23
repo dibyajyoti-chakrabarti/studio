@@ -85,8 +85,8 @@ export default function AboutPage() {
                         {[
                             { name: 'Ujjawal Kumar', role: 'Founder & CEO', focus: 'Product · Strategy · P&L Management', bio: 'VIT Vellore. Leading strategic growth and partnerships.', image: '/team/ujjawal.jpg' },
                             { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Innovation · Technology · AI', bio: 'Techno Main Salt Lake. Architect of the MechHub platform.', image: '/team/divyanshu.jpg' },
-                            { name: 'Dristi Sengupta', role: 'COO', focus: 'Execution · Operation . Leadership', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
-                            { name: 'Ram', role: 'CPO', focus: 'Product · Strategy · Growth', bio: 'VIT Vellore. Aligning cross-functional teams to deliver customer value and drive business growth.', image: '/team/siddharth.jpg' },
+                            { name: 'Dristi Sengupta', role: 'Co-Founder & COO', focus: 'Execution · Operation . Leadership', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
+                            { name: 'Ramchadiran', role: 'CPO', focus: 'Product · Strategy · Growth', bio: 'VIT Vellore. Aligning cross-functional teams to deliver customer value and drive business growth.', image: '/team/ram_image.jpeg' },
                         ].map(member => (
                             <div key={member.name} className="group p-8 rounded-2xl border border-slate-100 bg-white hover:border-blue-200 hover:shadow-xl transition-all duration-300 text-center space-y-4">
                                 <div className="w-28 h-28 rounded-full overflow-hidden mx-auto ring-4 ring-slate-50 ring-offset-2 ring-offset-white group-hover:ring-blue-100 transition-all border border-slate-100 relative">

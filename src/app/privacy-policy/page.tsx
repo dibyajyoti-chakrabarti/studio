@@ -54,6 +54,20 @@ export default function PrivacyPolicyPage() {
                             <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Usage & Device Data:</strong> Pages visited, interaction patterns, device type, and encrypted IP address for security auditing.</p></li>
                             <li className="flex gap-4"><div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" /><p><strong className="text-slate-900 underline decoration-blue-100 decoration-4 underline-offset-4">Cookies:</strong> Essential session management and anonymized Google Analytics to optimize platform performance.</p></li>
                         </ul>
+
+                        <h3 className="text-lg font-bold text-slate-800 mb-4 mt-8">2.3 Google User Data</h3>
+                        <p className="mb-4">If you choose to sign in via Google OAuth, MechHub requests access to your Google account primary email and public profile information. We use this data exclusively for:</p>
+                        <ul className="space-y-4">
+                            <li className="flex gap-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" />
+                                <p>Identifying you as a unique user and creating your personalized MechHub workspace.</p>
+                            </li>
+                            <li className="flex gap-4">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-2 shrink-0" />
+                                <p>Securely managing your CAD files, manufacturing orders, and communication with MechMasters.</p>
+                            </li>
+                        </ul>
+                        <p className="mt-4 text-sm italic">MechHub does not use your Google data for any purpose other than providing and improving the platform&apos;s core manufacturing services.</p>
                     </section>
 
                     <section>
