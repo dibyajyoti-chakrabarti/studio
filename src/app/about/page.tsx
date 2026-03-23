@@ -13,7 +13,7 @@ export default function AboutPage() {
         <div className="min-h-screen bg-[#F8FAFC] text-slate-900 relative overflow-hidden">
             {/* Background mesh */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none" />
-            
+
             {/* Nav */}
             <div className="container mx-auto px-4 py-8">
                 <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group">
@@ -44,7 +44,7 @@ export default function AboutPage() {
                         </h2>
                         <div className="prose prose-slate max-w-none">
                             <p className="text-slate-500 leading-relaxed text-lg font-medium">
-                                India&apos;s custom manufacturing market is worth ₹40,000 Crore — yet there is no unified platform connecting buyers with precision manufacturing shops. 
+                                India&apos;s custom manufacturing market is worth ₹40,000 Crore — yet there is no unified platform connecting buyers with precision manufacturing shops.
                             </p>
                             <p className="text-slate-500 leading-relaxed text-base mt-6">
                                 MechHub exists to bridge this gap. We are building a vertically integrated marketplace where any engineer can upload a CAD file, receive an instant DFM review, get matched with a verified manufacturing partner (<strong className="text-[#2F5FA7]">MechMasters</strong>), and receive precision parts delivered to their doorstep with full quality documentation.
@@ -83,9 +83,10 @@ export default function AboutPage() {
                     <p className="text-slate-500 mb-10 leading-relaxed font-medium">Engineers solving the high-friction procurement gap in India.</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { name: 'Ujjawal Kumar', role: 'Founder & CEO', focus: 'Product · Growth · Sales', bio: 'VIT Vellore. Leading strategic growth and partnerships.', image: '/team/ujjawal.jpg' },
-                            { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Platform · Technology · AI', bio: 'Techno Main Salt Lake. Architect of the MechHub platform.', image: '/team/divyanshu.jpg' },
-                            { name: 'Dristi Sengupta', role: 'Co-Founder & Ops', focus: 'Vendors · Ops · QA', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
+                            { name: 'Ujjawal Kumar', role: 'Founder & CEO', focus: 'Product · Strategy · P&L Management', bio: 'VIT Vellore. Leading strategic growth and partnerships.', image: '/team/ujjawal.jpg' },
+                            { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Innovation · Technology · AI', bio: 'Techno Main Salt Lake. Architect of the MechHub platform.', image: '/team/divyanshu.jpg' },
+                            { name: 'Dristi Sengupta', role: 'COO', focus: 'Execution · Operation . Leadership', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
+                            { name: 'Ram', role: 'CPO', focus: 'Product · Strategy · Growth', bio: 'VIT Vellore. Aligning cross-functional teams to deliver customer value and drive business growth.', image: '/team/siddharth.jpg' },
                         ].map(member => (
                             <div key={member.name} className="group p-8 rounded-2xl border border-slate-100 bg-white hover:border-blue-200 hover:shadow-xl transition-all duration-300 text-center space-y-4">
                                 <div className="w-28 h-28 rounded-full overflow-hidden mx-auto ring-4 ring-slate-50 ring-offset-2 ring-offset-white group-hover:ring-blue-100 transition-all border border-slate-100 relative">
@@ -138,7 +139,7 @@ export default function AboutPage() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-4">
-                             <div className="flex items-start gap-4">
+                            <div className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
                                     <MapPin className="w-5 h-5 text-slate-400" />
                                 </div>
@@ -147,7 +148,7 @@ export default function AboutPage() {
                                     <p className="text-slate-800 font-bold">Synchubb Innovations Pvt Ltd</p>
                                     <p className="text-slate-500 text-sm font-medium">VIT Vellore, Tamil Nadu, India</p>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                         <div className="space-y-6">
                             <div className="flex items-center gap-4">
