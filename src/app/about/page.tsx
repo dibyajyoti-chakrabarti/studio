@@ -163,8 +163,8 @@ export default function AboutPage() {
                         {[
                             { name: 'Ujjawal Kumar', role: 'Founder & CEO', focus: 'Product · Strategy · P&L', bio: 'VIT Vellore. Leading strategic growth and institutional partnerships.', image: '/team/ujjawal.jpg' },
                             { name: 'Divyanshu Ranjan', role: 'Co-Founder & CTO', focus: 'Innovation · Technology · AI', bio: 'Techno Main Salt Lake. Architect of the MechHub platform engine.', image: '/team/divyanshu.jpg' },
-                            { name: 'Dristi Sengupta', role: 'Co-Founder & COO', focus: 'Operations · Supply Chain', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
-                            { name: 'Raamchandiran', role: 'Chief Product Officer', focus: 'Product · UX Strategy', bio: 'VIT Vellore. Aligning cross-functional teams to deliver customer value.', image: '/team/ram_image.jpeg' },
+                            { name: 'Dristi Sengupta', role: 'Co-Founder & COO', focus: 'Operations . SupplyChain . Execution', bio: 'VIT Vellore. Managing 20+ verified manufacturing partners.', image: '/team/dristi.png' },
+                            { name: 'Raamchandiran', role: 'Chief Product Officer', focus: 'Product . Strategy . Customer ', bio: 'VIT Vellore. Aligning cross-functional teams to deliver customer value.', image: '/team/ram_image.jpeg' },
                         ].map(member => (
                             <div key={member.name} className="group space-y-6">
                                 <div className="relative aspect-[4/5] rounded-[32px] overflow-hidden bg-slate-100 group-hover:scale-[1.02] transition-transform duration-500">
