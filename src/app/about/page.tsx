@@ -172,7 +172,7 @@ export default function AboutPage() {
                                         src={member.image}
                                         alt={member.name}
                                         fill
-                                        className="object-cover group-hover:scale-110 transition-transform duration-700 grayscale hover:grayscale-0"
+                                        className="object-cover group-hover:scale-110 transition-transform duration-700 hover:grayscale-0"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                                         <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">{member.focus}</p>
