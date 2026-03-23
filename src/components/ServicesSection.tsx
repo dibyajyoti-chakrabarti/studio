@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,7 @@ const SERVICES = [
         num: '06',
         title: 'Hardware Insertion',
         desc: 'Add strong, permanent fasteners to your metal parts.',
-        img: '/hardware_insertion_service.png',
+        img: '/hardware-stand-off.png',
     },
     {
         num: '07',
@@ -90,33 +91,85 @@ export function ServicesSection() {
                 </div>
 
                 <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6 max-w-7xl mx-auto px-2 md:px-0">
-                    {SERVICES.map((service) => (
-                        <div
-                            key={service.num}
-                            className="group bg-slate-100 rounded-xl md:rounded-[32px] p-2 md:p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 active:scale-95 md:active:scale-100"
-                        >
-                            <div className="w-full aspect-square md:aspect-[4/3] relative mb-2 md:mb-8 flex items-center justify-center overflow-hidden rounded-lg md:rounded-2xl bg-white/50">
-                                <Image
-                                    src={service.img}
-                                    alt={service.title}
-                                    width={240}
-                                    height={180}
-                                    className="object-contain drop-shadow-xl md:drop-shadow-2xl brightness-105 group-hover:scale-110 transition-transform duration-500 h-12 md:h-auto"
-                                />
-                            </div>
-                            <h3 className="text-[10px] md:text-lg font-bold text-[#0F172A] mb-1 md:mb-3 line-clamp-1">
-                                {service.title}
-                            </h3>
-                            <p className="text-[#64748B] text-[8px] md:text-sm leading-tight md:leading-relaxed mb-2 md:mb-6 font-medium line-clamp-2">
-                                {service.desc}
-                            </p>
-                            <div className="mt-auto hidden md:block">
-                                <div className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center group-hover:bg-white transition-colors">
-                                    <ArrowRight className="w-5 h-5 text-blue-500" />
+                    {SERVICES.map((service) => {
+                        const isCNC = service.title === 'CNC Machining';
+                        const isBending = service.title === 'Bending';
+                        const isCountersinking = service.title === 'Countersinking';
+                        const isCutting = service.title === 'Precision Sheet Cutting';
+                        const isHardware = service.title === 'Hardware Insertion';
+                        const CardContent = (
+                            <div
+                                className="group bg-slate-100 rounded-xl md:rounded-[32px] p-2 md:p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 active:scale-95 md:active:scale-100 h-full"
+                            >
+                                <div className="w-full aspect-square md:aspect-[4/3] relative mb-2 md:mb-8 flex items-center justify-center overflow-hidden rounded-lg md:rounded-2xl bg-white/50">
+                                    <Image
+                                        src={service.img}
+                                        alt={service.title}
+                                        width={240}
+                                        height={180}
+                                        className="object-contain drop-shadow-xl md:drop-shadow-2xl brightness-105 group-hover:scale-110 transition-transform duration-500 h-12 md:h-auto"
+                                    />
+                                </div>
+                                <h3 className="text-[10px] md:text-lg font-bold text-[#0F172A] mb-1 md:mb-3 line-clamp-1">
+                                    {service.title}
+                                </h3>
+                                <p className="text-[#64748B] text-[8px] md:text-sm leading-tight md:leading-relaxed mb-2 md:mb-6 font-medium line-clamp-2">
+                                    {service.desc}
+                                </p>
+                                <div className="mt-auto hidden md:block">
+                                    <div className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center group-hover:bg-white transition-colors">
+                                        <ArrowRight className="w-5 h-5 text-blue-500" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+
+                        if (isCNC) {
+                            return (
+                                <Link key={service.num} href="/services/cnc-machining" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isBending) {
+                            return (
+                                <Link key={service.num} href="/services/bending" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isCountersinking) {
+                            return (
+                                <Link key={service.num} href="/services/countersinking" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isCutting) {
+                            return (
+                                <Link key={service.num} href="/services/precision-sheet-cutting" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isHardware) {
+                            return (
+                                <Link key={service.num} href="/services/hardware-insertion" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        return (
+                            <div key={service.num}>
+                                {CardContent}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </section>

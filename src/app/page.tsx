@@ -118,8 +118,8 @@ export default function Home() {
 
         <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full border border-white/20 bg-white/10 text-white text-[10px] md:text-xs font-semibold tracking-[0.15em] md:tracking-widest uppercase mb-6 md:mb-10 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full border border-white/20 bg-white/10 text-white text-[10px] md:text-xs font-semibold tracking-[0.15em] md:tracking-widest uppercase mb-6 md:mb-10 shadow-2xl backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
@@ -127,42 +127,39 @@ export default function Home() {
                 India&apos;s Premier Manufacturing Network
               </div>
 
-              <div className="relative mb-6 md:mb-8 min-h-[auto] md:min-h-[180px] lg:min-h-[140px] w-full transition-opacity duration-700 ease-in-out" style={{ opacity: fade ? 1 : 0 }}>
-                <h1 className="font-poppins tracking-tight uppercase text-balance leading-[1.1] md:leading-[1.05] drop-shadow-md">
-                  <div className="text-3xl md:text-5xl lg:text-[60px] text-white font-bold mb-3 md:mb-6">
+              <div className="relative mb-6 md:mb-8 min-h-[auto] w-full transition-opacity duration-700 ease-in-out">
+                <h1 className="font-poppins tracking-tight uppercase leading-[0.95] drop-shadow-md">
+                  <div className="text-4xl md:text-5xl lg:text-6xl text-white font-black mb-4">
                     {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[0]}
                   </div>
                   {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1] && (
-                    <div className="text-lg md:text-xl lg:text-2xl text-cyan-200 tracking-tight mt-1 opacity-90 font-medium">
+                    <div className="text-xl md:text-2xl lg:text-3xl text-cyan-200 tracking-wider mt-2 opacity-90 font-black">
                       {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1]}
                     </div>
                   )}
                 </h1>
               </div>
 
-              <p className="text-sm md:text-xl text-white/80 max-w-xl leading-relaxed mb-8 md:mb-12 font-medium animate-in fade-in slide-in-from-left-8 duration-1000 line-clamp-3 md:line-clamp-none">
+              <p className="text-lg md:text-xl text-white/80 max-w-xl leading-relaxed mb-10 font-medium">
                 <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
               </p>
 
-              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-5 mb-10 md:mb-16 w-full md:w-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="flex flex-col md:flex-row items-center gap-6 mb-16 w-full lg:justify-start">
                 <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto">
                   <Button
                     size="lg"
-                    className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-sm md:text-base font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-xl md:rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
+                    className="w-full md:w-auto h-16 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-xl md:rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
                   >
-                    <span className="relative z-10 flex items-center justify-center">
-                      Upload Your Design
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2F5FA7]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                    Upload Your Design
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
                   </Button>
                 </Link>
               </div>
 
-              <div className="w-full overflow-x-auto no-scrollbar pb-4 md:pb-0 animate-in fade-in duration-1000">
+              <div className="w-full overflow-x-auto no-scrollbar pb-4 md:pb-0">
                 <div className="flex items-center lg:justify-start gap-4 min-w-max px-4 lg:px-0">
                   {['CNC Machining', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
-                    <div key={tag} className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm whitespace-nowrap">
+                    <div key={tag} className="flex items-center gap-2.5 px-4 py-2 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm">
                       <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0" />
                       {tag}
                     </div>
@@ -171,41 +168,31 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center animate-in fade-in zoom-in duration-1000">
-              <div className="relative w-full aspect-square">
+            <div className="lg:col-span-1" /> {/* Spacer */}
+
+            <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center">
+              <div className="relative w-full aspect-square lg:aspect-[4/5] xl:aspect-square">
                 <div className="absolute inset-x-0 top-1/2 h-px bg-white/10 border-dashed border-b border-white/5 flex justify-between items-center px-4">
                   <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
-                  <span className="text-[9px] font-mono text-white/30 bg-[#2F5FA7] px-2">STRUCTURAL DATUM: V1.2</span>
                   <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                 </div>
 
-                <div className="absolute inset-y-0 left-1/2 w-px bg-white/10 border-dashed border-r border-white/5 flex flex-col justify-between items-center py-4">
-                  <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
-                  <span className="text-[9px] font-mono text-white/30 bg-[#2F5FA7] px-2 [writing-mode:vertical-lr] rotate-180">PRECISION ALIGNMENT</span>
-                  <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
-                </div>
-
-                <div className="relative z-10 w-full h-full p-4 animate-float">
-                  <div className="relative w-full max-w-5xl mx-auto">
-                    <div className="relative aspect-[40/25] rounded-2xl overflow-hidden shadow-xl">
-                      <Image
-                        src="/aa832cb7-74a8-45fd-887d-6610840e96be (1).png"
-                        alt="MechHub Industrial Cluster"
-                        fill
-                        priority
-                        className="object-cover"
-                      />
+                <div className="relative z-10 w-full h-full p-2 md:p-4 animate-float">
+                  <div className="relative w-full h-full rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border-8 border-white/10 group transition-all duration-700 hover:border-white/20">
+                    <Image
+                      src="/home_page12.jpg"
+                      alt="MechHub High-Precision Manufacturing"
+                      fill
+                      priority
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-8 left-8 flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-2xl">
+                      <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                      <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Facility V1.4</span>
                     </div>
                   </div>
-                  <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-white/20" />
-                  <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-white/20" />
-                  <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-2">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <div key={i} className={`w-1 h-8 rounded-full ${i <= 3 ? 'bg-white' : 'bg-white/10'} animate-pulse`} style={{ animationDelay: `${i * 150}ms` }} />
-                    ))}
-                  </div>
                 </div>
-                <RotatingGears />
               </div>
             </div>
           </div>
@@ -330,7 +317,7 @@ export default function Home() {
           <div className="mt-12 text-center opacity-70">
             <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#2F5FA7]" />
-               Enterprise-grade Data Protection — All designs protected by NDA & AES-256 encryption.
+              Enterprise-grade Data Protection — All designs protected by NDA & AES-256 encryption.
             </p>
           </div>
         </div>

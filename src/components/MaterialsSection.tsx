@@ -12,87 +12,87 @@ const CATEGORIES = ["ALL", "ALUMINUM", "STEEL", "STAINLESS", "COMPOSITES", "PLAS
 
 const MATERIALS = [
   // ALUMINUM
-  { 
-    name: "Aluminium 5052", 
-    category: "aluminum", 
-    processes: ["Sheet Cutting", "Bending"], 
-    thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm", 
+  {
+    name: "Aluminium 5052",
+    category: "aluminum",
+    processes: ["Sheet Cutting", "Bending"],
+    thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", color: "bg-zinc-400" 
+    thumb: "", color: "bg-zinc-400"
   },
-  { 
-    name: "Aluminium 6061", 
-    category: "aluminum", 
-    processes: ["Sheet Cutting", "CNC Machining"], 
-    thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm", 
+  {
+    name: "Aluminium 6061",
+    category: "aluminum",
+    processes: ["Sheet Cutting", "CNC Machining"],
+    thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: "not for bending, powder coating available",
-    thumb: "", color: "bg-zinc-500" 
+    thumb: "", color: "bg-zinc-500"
   },
 
   // STEEL
-  { 
-    name: "CRCA Mild Steel", 
-    category: "steel", 
-    processes: ["Sheet Cutting", "Bending"], 
-    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm", 
+  {
+    name: "CRCA Mild Steel",
+    category: "steel",
+    processes: ["Sheet Cutting", "Bending"],
+    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "/mild_steel_swatch.png", color: "bg-slate-400" 
+    thumb: "/mild_steel_swatch.png", color: "bg-slate-400"
   },
 
   // STAINLESS STEEL
-  { 
-    name: "Stainless Steel 304", 
-    category: "stainless", 
-    processes: ["Sheet Cutting", "Bending"], 
-    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm", 
+  {
+    name: "Stainless Steel 304",
+    category: "stainless",
+    processes: ["Sheet Cutting", "Bending"],
+    thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", color: "bg-stone-300" 
+    thumb: "", color: "bg-stone-300"
   },
 
   // COMPOSITES
-  { 
-    name: "Carbon Fiber Plate", 
-    category: "composites", 
-    processes: ["Sheet Cutting"], 
-    thicknesses: "1, 1.6, 2, 3, 4, 5 mm", 
+  {
+    name: "Carbon Fiber Plate",
+    category: "composites",
+    processes: ["Sheet Cutting"],
+    thicknesses: "1, 1.6, 2, 3, 4, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-neutral-800" 
+    thumb: "", color: "bg-neutral-800"
   },
 
   // PLASTICS
-  { 
-    name: "Acrylic", 
-    category: "plastics", 
-    processes: ["Laser Cut", "Sheet Cutting"], 
-    thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm", 
+  {
+    name: "Acrylic",
+    category: "plastics",
+    processes: ["Laser Cut", "Sheet Cutting"],
+    thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-purple-200" 
+    thumb: "", color: "bg-purple-200"
   },
 
   // WOODS
-  { 
-    name: "MDF", 
-    category: "woods", 
-    processes: ["Laser Cut", "CNC Machining"], 
-    thicknesses: "3.2, 6.3, 9.5, 12.7 mm", 
+  {
+    name: "MDF",
+    category: "woods",
+    processes: ["Laser Cut", "CNC Machining"],
+    thicknesses: "3.2, 6.3, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-orange-100" 
+    thumb: "", color: "bg-orange-100"
   },
-  { 
-    name: "Plywood", 
-    category: "woods", 
-    processes: ["Laser Cut", "Sheet Cutting"], 
-    thicknesses: "3.2, 6.3, 9, 12 mm", 
+  {
+    name: "Plywood",
+    category: "woods",
+    processes: ["Laser Cut", "Sheet Cutting"],
+    thicknesses: "3.2, 6.3, 9, 12 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-amber-100" 
+    thumb: "", color: "bg-amber-100"
   },
-  { 
-    name: "Balsa Wood", 
-    category: "woods", 
-    processes: ["Laser Cut"], 
-    thicknesses: "1, 3, 5 mm", 
+  {
+    name: "Balsa Wood",
+    category: "woods",
+    processes: ["Laser Cut"],
+    thicknesses: "1, 3, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-stone-200" 
+    thumb: "", color: "bg-stone-200"
   },
 
   // 3D PRINTING
@@ -129,7 +129,7 @@ function MaterialSwatch({ mat }: { mat: any }) {
 export function MaterialsSection() {
   const router = useRouter();
   const { user } = useUser();
-  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [activeFilter, setActiveFilter] = useState('ALUMINUM');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
 
@@ -190,7 +190,7 @@ export function MaterialsSection() {
           {/* Subtle Masking gradients for overflow indication */}
           <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none md:hidden" />
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
-          
+
           <div className="flex overflow-x-auto pb-4 md:pb-6 gap-2 no-scrollbar-on-mobile custom-scrollbar-on-desktop">
             {CATEGORIES.map(cat => {
               const count = cat === 'ALL'
@@ -216,7 +216,7 @@ export function MaterialsSection() {
 
         {/* Layer 3: Highlight Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto">
-            {filteredMaterials.map((mat, idx) => (
+          {filteredMaterials.map((mat, idx) => (
             <div
               key={mat.name}
               onClick={() => {
@@ -278,7 +278,7 @@ export function MaterialsSection() {
                 {selectedMaterial.notes && (
                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
                     <h4 className="text-[10px] font-black text-[#2F5FA7] uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                       <ShieldCheck className="w-3 h-3" /> MANUFACTURING NOTES
+                      <ShieldCheck className="w-3 h-3" /> MANUFACTURING NOTES
                     </h4>
                     <p className="text-xs font-bold text-[#1E3A66] leading-relaxed">
                       {selectedMaterial.notes}
@@ -307,7 +307,7 @@ export function MaterialsSection() {
                   </div>
                 </div>
                 <div className="pt-10">
-                  <Button 
+                  <Button
                     onClick={handleQuoteClick}
                     className="w-full h-16 bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-200 group"
                   >
