@@ -3,6 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LandingNav } from '@/components/LandingNav';
+
 import {
   Settings,
   ShieldCheck,
@@ -95,8 +97,10 @@ export default function HardwareInsertionPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 overflow-x-hidden">
+      <LandingNav />
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden bg-[#2F5FA7]">
+      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden bg-slate-950">
+
         {/* Architect/Blueprint Background Pattern */}
         <div className="absolute inset-0 z-0 opacity-20"
           style={{

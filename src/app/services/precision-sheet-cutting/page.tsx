@@ -80,7 +80,7 @@ export default function PrecisionSheetCuttingPage() {
       <LandingNav />
 
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden bg-[#2F5FA7]">
+      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden  bg-slate-950">
         {/* Architect/Blueprint Background Pattern */}
         <div className="absolute inset-0 z-0 opacity-20"
           style={{
@@ -278,14 +278,14 @@ export default function PrecisionSheetCuttingPage() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 md:p-10">
-                   <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
-                     <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
-                     <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Geometry Verification</p>
-                       <p className="text-sm font-bold text-slate-900 text-nowrap">Automated Kerf Compensation Active</p>
-                     </div>
-                   </div>
-                 </div>
+                  <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Geometry Verification</p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">Automated Kerf Compensation Active</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
             </div>

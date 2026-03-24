@@ -80,7 +80,7 @@ export default function PrecisionCuttingPage() {
       <LandingNav />
 
       {/* Hero Section - Premium Architectural Blue/White */}
-      <section className="relative pt-32 pb-44 overflow-hidden bg-white border-b border-slate-100">
+      <section className="relative pt-32 pb-44 overflow-hidden bg-white border-b  bg-slate-950">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none" />
         <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-blue-500/5 blur-[150px] rounded-full -mr-96 -mt-96" />
 
@@ -95,9 +95,9 @@ export default function PrecisionCuttingPage() {
                 Low Tolerance ± 0.127mm
               </div>
 
-              <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[0.95] uppercase text-slate-900">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tighter uppercase">
                 Precision <br />
-                <span className="text-[#2F5FA7] underline decoration-blue-100 decoration-8 underline-offset-8">CNC Cutting.</span>
+                <span className="text-cyan-300">CNC Cutting.</span>
               </h1>
 
               <p className="text-xl text-slate-500 leading-relaxed max-w-2xl font-medium">

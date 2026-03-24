@@ -250,7 +250,7 @@ export default function Home() {
               How It Works
             </h2>
             <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium px-4 text-balance">
-              From design file to finished part — a streamlined process built for speed, quality, and full transparency.
+              From design file to finished part. A streamlined process built for speed, quality, and full transparency.
             </p>
           </div>
 
@@ -317,7 +317,7 @@ export default function Home() {
           <div className="mt-12 text-center opacity-70">
             <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#2F5FA7]" />
-              Enterprise-grade Data Protection — All designs protected by NDA & AES-256 encryption.
+              Enterprise-grade Data Protection , All designs protected by NDA & AES-256 encryption.
             </p>
           </div>
         </div>
@@ -369,7 +369,7 @@ export default function Home() {
                   Need Expert <br className="hidden md:block" /> Manufacturing Guidance?
                 </h2>
                 <p className="text-[#64748B] text-sm md:text-lg leading-relaxed mb-8 md:mb-10 font-medium max-w-lg mx-auto lg:mx-0">
-                  Get your design reviewed, value-engineered, or fully optimised by our in-house experts — before a single chip is cut.
+                  Get your design reviewed, value-engineered, or fully optimised by our in-house experts, before a single chip is cut.
                 </p>
 
                 <div className="lg:hidden w-full mb-10 order-2">

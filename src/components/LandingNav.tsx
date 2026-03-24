@@ -186,6 +186,41 @@ export function LandingNav() {
                     <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Raw Materials
                   </DropdownMenuItem>
                 </Link>
+                <Link href="/services/dimple-forming">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Dimple Forming
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/tapping">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Tapping
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/anodizing">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Anodizing
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/deburring">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Deburring
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/plating">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Plating
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/powder-coating">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Powder Coating
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/services/tumbling">
+                  <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
+                    <Package2 className="w-4 h-4 text-[#2F5FA7]" /> Tumbling
+                  </DropdownMenuItem>
+                </Link>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -344,6 +379,27 @@ export function LandingNav() {
               </Link>
               <Link href="/shop?category=raw-materials" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
                 <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Materials
+              </Link>
+              <Link href="/services/dimple-forming" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Dimple
+              </Link>
+              <Link href="/services/tapping" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Tapping
+              </Link>
+              <Link href="/services/anodizing" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Anodizing
+              </Link>
+              <Link href="/services/deburring" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Deburring
+              </Link>
+              <Link href="/services/plating" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Plating
+              </Link>
+              <Link href="/services/powder-coating" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Powder Coating
+              </Link>
+              <Link href="/services/tumbling" className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
+                <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> Tumbling
               </Link>
             </div>
 

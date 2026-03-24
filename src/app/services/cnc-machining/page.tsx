@@ -71,7 +71,7 @@ export default function CNCMachiningPage() {
       <LandingNav />
 
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden bg-[#2F5FA7]">
+      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden  bg-slate-950">
         {/* Architect/Blueprint Background Pattern */}
         <div className="absolute inset-0 z-0 opacity-20"
           style={{
@@ -151,17 +151,17 @@ export default function CNCMachiningPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
-              { 
-                title: "CNC Milling", 
-                desc: "3-axis, 4-axis, and 5-axis vertical/horizontal milling for complex prismatic parts.", 
-                icon: Cpu, 
+              {
+                title: "CNC Milling",
+                desc: "3-axis, 4-axis, and 5-axis vertical/horizontal milling for complex prismatic parts.",
+                icon: Cpu,
                 color: "bg-blue-600",
                 features: ["±0.01mm Position Accuracy", "High-speed 20k RPM Spindles", "Large Platform 1000mm+"]
               },
-              { 
-                title: "CNC Turning", 
-                desc: "High-precision lathe services for shafts, bushings, and round components with live-tooling.", 
-                icon: Settings, 
+              {
+                title: "CNC Turning",
+                desc: "High-precision lathe services for shafts, bushings, and round components with live-tooling.",
+                icon: Settings,
                 color: "bg-cyan-500",
                 features: ["Concentricity ±0.01mm", "Live Tooling Capability", "Sub-spindle Finishing"]
               }
@@ -234,14 +234,14 @@ export default function CNCMachiningPage() {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 md:p-10">
-                   <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
-                     <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
-                     <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Geometry Audit</p>
-                       <p className="text-sm font-bold text-slate-900 text-nowrap">Auto-Detection of Sub-mm Walls Active</p>
-                     </div>
-                   </div>
-                 </div>
+                  <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Geometry Audit</p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">Auto-Detection of Sub-mm Walls Active</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
@@ -281,7 +281,7 @@ export default function CNCMachiningPage() {
                         <div className="flex flex-wrap gap-2 leading-none">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block w-full mb-1">Stock Availability:</span>
                           <span className="bg-white border border-slate-200 px-3 py-1 rounded-md text-xs font-bold text-slate-700 shadow-sm transition-colors group-hover:border-blue-200">
-                             Industrial Grade
+                            Industrial Grade
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 font-bold italic bg-white/10 p-2 rounded-lg border border-slate-100 leading-normal">
@@ -363,7 +363,7 @@ export default function CNCMachiningPage() {
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">Precision Engineering</p>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-10 max-w-2xl mx-auto tracking-tighter uppercase leading-tight">
-             Machine your components with absolute confidence.
+            Machine your components with absolute confidence.
           </h2>
           <div className="flex flex-wrap justify-center gap-6">
             <div className="flex items-center gap-3">

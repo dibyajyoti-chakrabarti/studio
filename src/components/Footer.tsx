@@ -67,7 +67,7 @@ export function Footer() {
                             <span className="text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">MechHub</span>
                         </Link>
                         <p className="text-blue-100/70 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-medium">
-                            India's precision manufacturing marketplace — connecting design teams with verified CNC, laser, and fabrication experts.
+                            India's precision manufacturing marketplace connecting design teams with verified CNC, laser, and fabrication experts.
                         </p>
                         {/* Mini trust badges */}
                         <div className="flex flex-wrap justify-center lg:justify-start gap-2.5">

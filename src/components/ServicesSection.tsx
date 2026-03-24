@@ -97,6 +97,13 @@ export function ServicesSection() {
                         const isCountersinking = service.title === 'Countersinking';
                         const isCutting = service.title === 'Precision Sheet Cutting';
                         const isHardware = service.title === 'Hardware Insertion';
+                        const isDimpleForming = service.title === 'Dimple Forming';
+                        const isTapping = service.title === 'Tapping';
+                        const isAnodizing = service.title === 'Anodizing';
+                        const isDeburring = service.title === 'Deburring';
+                        const isPlating = service.title === 'Plating';
+                        const isPowderCoating = service.title === 'Powder Coating';
+                        const isTumbling = service.title === 'Tumbling';
                         const CardContent = (
                             <div
                                 className="group bg-slate-100 rounded-xl md:rounded-[32px] p-2 md:p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 active:scale-95 md:active:scale-100 h-full"
@@ -159,6 +166,62 @@ export function ServicesSection() {
                         if (isHardware) {
                             return (
                                 <Link key={service.num} href="/services/hardware-insertion" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isDimpleForming) {
+                            return (
+                                <Link key={service.num} href="/services/dimple-forming" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isTapping) {
+                            return (
+                                <Link key={service.num} href="/services/tapping" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isAnodizing) {
+                            return (
+                                <Link key={service.num} href="/services/anodizing" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isDeburring) {
+                            return (
+                                <Link key={service.num} href="/services/deburring" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isPlating) {
+                            return (
+                                <Link key={service.num} href="/services/plating" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isPowderCoating) {
+                            return (
+                                <Link key={service.num} href="/services/powder-coating" className="block cursor-pointer">
+                                    {CardContent}
+                                </Link>
+                            );
+                        }
+
+                        if (isTumbling) {
+                            return (
+                                <Link key={service.num} href="/services/tumbling" className="block cursor-pointer">
                                     {CardContent}
                                 </Link>
                             );

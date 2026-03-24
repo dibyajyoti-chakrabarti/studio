@@ -50,7 +50,7 @@ export default function BendingPage() {
       <LandingNav />
 
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden bg-[#2F5FA7]">
+      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden  bg-slate-950">
         {/* Architect/Blueprint Background Pattern */}
         <div className="absolute inset-0 z-0 opacity-20"
           style={{
@@ -158,15 +158,15 @@ export default function BendingPage() {
             ].map((type, index) => (
               <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl">
                 <div className="relative h-64 mb-8 rounded-3xl overflow-hidden shadow-lg bg-white flex items-center justify-center p-8">
-                   <div className="p-4 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-500">
+                  <div className="p-4 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-500">
                     <type.icon className="w-20 h-20 text-[#2F5FA7]" />
                   </div>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{type.title}</h3>
                 <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{type.desc}</p>
                 <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-4">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Tooling Type</span>
-                    <span className="text-sm font-black text-slate-900">Standard / Universal</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Tooling Type</span>
+                  <span className="text-sm font-black text-slate-900">Standard / Universal</span>
                 </div>
               </div>
             ))}
@@ -220,14 +220,14 @@ export default function BendingPage() {
                   className="object-contain p-12 transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
-                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
-                     <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
-                     <div>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">DFM Check</p>
-                       <p className="text-sm font-bold text-slate-900 text-nowrap">K-Factor Compensation Applied</p>
-                     </div>
-                   </div>
-                 </div>
+                  <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">DFM Check</p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">K-Factor Compensation Applied</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
@@ -260,14 +260,14 @@ export default function BendingPage() {
                           {material.name}
                         </h4>
                         <div className="flex gap-2">
-                           <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Forming Ready</span>
+                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Forming Ready</span>
                         </div>
                       </div>
                       <div className="space-y-4">
                         <div className="flex flex-wrap gap-2 leading-none">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block w-full mb-1">Thickness Range:</span>
                           <span className="bg-white border border-slate-200 px-3 py-1 rounded-md text-xs font-bold text-slate-700 shadow-sm transition-colors group-hover:border-blue-200">
-                             {material.sizes}
+                            {material.sizes}
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 font-bold italic bg-white/10 p-2 rounded-lg border border-slate-100 leading-normal">
