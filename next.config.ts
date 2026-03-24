@@ -38,6 +38,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/auth/verify',
+        destination: '/api/v1/auth/verify',
+      },
+    ];
+  },
 };
 
 export default withContentlayer(nextConfig);

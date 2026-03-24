@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         });
 
         // 3. Send email using Resend
-        const verificationUrl = `${APP_URL}/api/auth/verify?token=${token}`;
+        const verificationUrl = `${APP_URL}/api/v1/auth/verify?token=${token}`;
         const safeName = name || 'Innovator';
 
         const { data, error } = await resend.emails.send({
