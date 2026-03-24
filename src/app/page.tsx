@@ -66,6 +66,7 @@ export default function Home() {
   ];
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [fade, setFade] = useState(true);
+  const [showFAB, setShowFAB] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,6 +82,13 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
+
+    const handleScroll = () => {
+      setShowFAB(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Fetch a subset of active vendors for the landing page showcase
@@ -438,17 +446,19 @@ export default function Home() {
 
       <Footer />
 
-      <div className="md:hidden fixed bottom-6 left-4 right-4 z-[100] animate-in slide-in-from-bottom-20 duration-1000 fade-in delay-1000">
-        <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
-          <Button
-            size="lg"
-            className="w-full h-14 bg-white hover:bg-slate-50 text-[#2F5FA7] font-bold rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-blue-100 group transition-all active:scale-95"
-          >
-            Upload Your Design
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1" />
-          </Button>
-        </Link>
-      </div>
+      {showFAB && (
+        <div className="md:hidden fixed bottom-6 left-4 right-4 z-[100] animate-in slide-in-from-bottom-5 duration-500 fade-in">
+          <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
+            <Button
+              size="lg"
+              className="w-full h-14 bg-white hover:bg-slate-50 text-[#2F5FA7] font-bold rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-blue-100 group transition-all active:scale-95"
+            >
+              Upload Your Design
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1" />
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
