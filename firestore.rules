@@ -298,6 +298,16 @@ service cloud.firestore {
       // Only admin can update order status or delete
       allow update, delete: if isAdmin();
     }
+    // ─────────────────────────────────────────
+    // restockRequests/{requestId}
+    // ─────────────────────────────────────────
+    match /restockRequests/{requestId} {
+      // Anyone can signal interest (customer-friendly)
+      allow create: if request.resource.data.productId != null;
+      
+      // Only admin can read and manage demand index
+      allow read, update, delete: if isAdmin();
+    }
 
   }
 }

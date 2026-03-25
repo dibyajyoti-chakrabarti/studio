@@ -53,7 +53,8 @@ import {
   LayoutGrid,
   Box,
   MessageSquare,
-  Phone
+  Phone,
+  ArrowUpRight
 } from 'lucide-react';
 import { useFirestore, useCollection, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
@@ -188,6 +189,7 @@ export default function AdminPanel() {
   const consultationsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'consultationRequests'), orderBy('requestDate', 'desc')) : null, [db, isAdminConfirmed]);
   const productsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'products'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
   const shopOrdersQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'orders'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
+  const restockRequestsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'restockRequests'), orderBy('requestedAt', 'desc')) : null, [db, isAdminConfirmed]);
 
   const quotationsQuery = useMemoFirebase(() => {
     if (!db || !isAdminConfirmed || !selectedRfq) return null;
@@ -205,6 +207,7 @@ export default function AdminPanel() {
   const { data: consultations, isLoading: isConsultationsLoading } = useCollection(consultationsQuery);
   const { data: products, isLoading: isProductsLoading, error: productError } = useCollection(productsQuery);
   const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
+  const { data: restockRequests, isLoading: isRestockLoading } = useCollection(restockRequestsQuery);
   const { data: selectedRfqQuotes } = useCollection(quotationsQuery);
   const { data: selectedRfqParts } = useCollection(projectPartsQuery);
 
@@ -218,6 +221,14 @@ export default function AdminPanel() {
     if (!rfqs) return [];
     return rfqs.filter(rfq => rfq.status !== 'draft');
   }, [rfqs]);
+
+  const restockCounts = useMemo(() => {
+    if (!restockRequests) return {};
+    return (restockRequests as any[]).reduce((acc: any, curr: any) => {
+      acc[curr.productId] = (acc[curr.productId] || 0) + 1;
+      return acc;
+    }, {});
+  }, [restockRequests]);
 
   // Sync partCosts when selectedRfqParts changes
   useEffect(() => {
@@ -733,6 +744,7 @@ export default function AdminPanel() {
           {[
             { key: 'rfqs', label: 'RFQs', icon: ClipboardList },
             { key: 'shop_orders', label: 'Shop Orders', icon: Package },
+            { key: 'demand', label: 'Demand Hub', icon: TrendingUp },
             { key: 'products', label: 'Products', icon: ShoppingCart },
             { key: 'users', label: 'Buyers', icon: UserIcon },
             { key: 'vendors', label: 'MechMasters', icon: Factory },
@@ -752,6 +764,125 @@ export default function AdminPanel() {
         </aside>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          {activeTab === 'demand' && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Industrial Demand Hub</h1>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Algorithm-driven prioritization based on buyer interest flags.</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl">
+                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest">Active Flags</p>
+                    <p className="text-xl font-mono font-bold text-blue-700">{restockRequests?.length || 0}</p>
+                  </div>
+                  <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
+                    <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">High Probability</p>
+                    <p className="text-xl font-mono font-bold text-emerald-700">{restockRequests?.filter((r:any) => r.status === 'pending').length || 0}</p>
+                  </div>
+                </div>
+              </div>
+
+              <Card className="border-slate-200 overflow-hidden shadow-sm">
+                <Table>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-slate-200">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Component Profile</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Request Volume</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Interested Buyers</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Last Activity</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Priority Score</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-right">Operations</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                        {isRestockLoading ? (
+                          <TableRow><TableCell colSpan={6} className="text-center py-12"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></TableCell></TableRow>
+                        ) : restockRequests?.length === 0 ? (
+                          <TableRow><TableCell colSpan={6} className="text-center py-24"><div className="flex flex-col items-center gap-3"><TrendingUp className="w-8 h-8 text-slate-200" /><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">No market signals captured.</p></div></TableCell></TableRow>
+                        ) : (
+                          Object.entries(
+                            (restockRequests || []).reduce((acc: any, curr: any) => {
+                              if (!acc[curr.productId]) {
+                                acc[curr.productId] = { 
+                                  name: curr.productName, 
+                                  sku: curr.sku, 
+                                  count: 0, 
+                                  lastDate: curr.requestedAt,
+                                  buyers: []
+                                };
+                              }
+                              acc[curr.productId].count += 1;
+                              if (new Date(curr.requestedAt) > new Date(acc[curr.productId].lastDate)) {
+                                acc[curr.productId].lastDate = curr.requestedAt;
+                              }
+                              // Collect unique buyers
+                              if (!acc[curr.productId].buyers.some((b: any) => b.email === curr.userEmail)) {
+                                acc[curr.productId].buyers.push({
+                                  email: curr.userEmail,
+                                  userId: curr.userId,
+                                  at: curr.requestedAt
+                                });
+                              }
+                              return acc;
+                            }, {})
+                          )
+                          .sort((a: any, b: any) => b[1].count - a[1].count)
+                          .map(([prodId, data]: any) => (
+                            <TableRow key={prodId} className="hover:bg-slate-50/30 transition-colors border-slate-100 group">
+                              <TableCell className="py-4">
+                                <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{data.name}</div>
+                                <div className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter mt-0.5">{data.sku}</div>
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <Badge className="bg-blue-50 text-blue-600 border-blue-100 font-black text-xs px-2 py-0">
+                                  {data.count} Leads
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <div className="max-w-[180px] space-y-1">
+                                  {data.buyers.slice(0, 2).map((b: any, i: number) => (
+                                    <div key={i} className="text-[9px] text-slate-600 flex items-center gap-1 group/item">
+                                      <span className="w-1 h-1 rounded-full bg-blue-400" />
+                                      <span className="truncate">{b.email}</span>
+                                    </div>
+                                  ))}
+                                  {data.buyers.length > 2 && (
+                                    <div className="text-[8px] text-blue-500 font-bold uppercase tracking-tighter">
+                                      + {data.buyers.length - 2} more interested
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-4 text-[11px] text-slate-500 font-medium">
+                                {new Date(data.lastDate).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <Badge className={`text-[9px] font-black uppercase tracking-widest border-none ${data.count > 3 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
+                                  {data.count > 3 ? 'Critical' : 'Growing Demand'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-4 text-right">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 text-[10px] font-black uppercase tracking-widest text-[#2F5FA7] hover:bg-blue-50 rounded-lg group"
+                                  onClick={() => {
+                                    setActiveTab('products');
+                                  }}
+                                >
+                                  Update Inventory <ArrowUpRight className="w-3 h-3 ml-1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
           {activeTab === 'rfqs' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-2">
@@ -962,7 +1093,16 @@ export default function AdminPanel() {
                             <div className="text-[10px] text-slate-400 line-through opacity-60">₹{prod.basePrice}</div>
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className={`text-sm font-bold ${prod.inventory < 10 ? 'text-orange-600' : 'text-slate-600'}`}>{prod.inventory}</span>
+                            <div className="flex flex-col items-center gap-1">
+                              <span className={`text-sm font-bold ${prod.inventory <= 0 ? 'text-red-600' : prod.inventory < 20 ? 'text-orange-600' : 'text-slate-600'}`}>
+                                {prod.inventory <= 0 ? 'OUT OF STOCK' : prod.inventory}
+                              </span>
+                              {restockCounts[prod.id] > 0 && (
+                                <Badge className="bg-blue-500 text-white border-none text-[8px] px-1 py-0 animate-pulse">
+                                  {restockCounts[prod.id]} REQUESTS
+                                </Badge>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className={prod.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600 border-slate-200'}>
