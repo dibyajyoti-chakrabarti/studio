@@ -19,7 +19,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService } from '@/types/project';
 
@@ -101,6 +101,15 @@ export default function UserDashboard() {
   const [negPrice, setNegPrice] = useState('');
   const [negLeadTime, setNegLeadTime] = useState('');
   const [negMessage, setNegMessage] = useState('');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState('projects');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['projects', 'designs', 'shop_orders', 'profile'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const userProfileRef = useMemoFirebase(() => user && db ? doc(db, 'users', user.uid) : null, [db, user?.uid]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
@@ -413,7 +422,7 @@ export default function UserDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both" style={{ animationDelay: '200ms' }}>
-            <Tabs defaultValue="projects" className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
                 <TabsTrigger value="projects" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Project RFQs</TabsTrigger>
                 <TabsTrigger value="designs" className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0">Designs</TabsTrigger>

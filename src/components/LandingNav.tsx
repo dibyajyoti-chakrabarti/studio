@@ -302,7 +302,7 @@ export function LandingNav() {
                           <LayoutDashboard className="w-4 h-4 text-zinc-400" /> Dashboard
                         </DropdownMenuItem>
                       </Link>
-                      <Link href={dashboardHref}>
+                      <Link href={`${dashboardHref}?tab=profile`}>
                         <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
                           <UserIcon className="w-4 h-4 text-zinc-400" /> My Profile
                         </DropdownMenuItem>

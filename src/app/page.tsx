@@ -44,7 +44,8 @@ import {
   HardHat,
   Palette,
   Users,
-  Package
+  Package,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -115,17 +116,17 @@ export default function Home() {
     <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
       <LandingNav />
 
-      <section className="relative pt-32 pb-24 overflow-hidden bg-[#2F5FA7]">
+      <section className="relative pt-24 pb-16 overflow-hidden bg-[#2F5FA7]">
         {/* Advanced Background Elements */}
         <div className="blueprint-grid opacity-[0.1]" suppressHydrationWarning />
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A66] via-[#2F5FA7] to-[#1E3A66] opacity-90" />
 
         {/* Cinematic glow effects */}
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-300/10 blur-[150px] pointer-events-none" aria-hidden="true" />
+        <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full bg-blue-300/10 blur-[150px] pointer-events-none" aria-hidden="true" />
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1E3A66] to-transparent pointer-events-none z-10" />
 
-        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="container mx-auto px-4 md:px-10 lg:px-30 relative z-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-16 items-center">
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full border border-white/20 bg-white/10 text-white text-[10px] md:text-xs font-semibold tracking-[0.15em] md:tracking-widest uppercase mb-6 md:mb-10 shadow-2xl backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
@@ -137,22 +138,22 @@ export default function Home() {
 
               <div className="relative mb-6 md:mb-8 min-h-[auto] w-full transition-opacity duration-700 ease-in-out">
                 <h1 className="font-poppins tracking-tight uppercase leading-[0.95] drop-shadow-md">
-                  <div className="text-4xl md:text-5xl lg:text-6xl text-white font-black mb-4">
+                  <div className="text-3xl md:text-4xl lg:text-5xl text-white font-black mb-4">
                     {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[0]}
                   </div>
                   {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1] && (
-                    <div className="text-xl md:text-2xl lg:text-3xl text-cyan-200 tracking-wider mt-2 opacity-90 font-black">
+                    <div className="text-lg md:text-xl lg:text-2xl text-cyan-200 tracking-wider mt-2 opacity-90 font-black">
                       {heroPhrases[currentPhraseIndex % heroPhrases.length]?.split('\n')[1]}
                     </div>
                   )}
                 </h1>
               </div>
 
-              <p className="text-lg md:text-xl text-white/80 max-w-xl leading-relaxed mb-10 font-medium">
+              <p className="text-base md:text-lg text-white/80 max-w-xl leading-relaxed mb-10 font-medium">
                 <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
               </p>
 
-              <div className="flex flex-col md:flex-row items-center gap-6 mb-16 w-full lg:justify-start">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16 w-full lg:justify-start">
                 <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto">
                   <Button
                     size="lg"
@@ -164,47 +165,73 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="w-full overflow-x-auto no-scrollbar pb-4 md:pb-0">
-                <div className="flex items-center lg:justify-start gap-4 min-w-max px-4 lg:px-0">
-                  {['CNC Machining', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
-                    <div key={tag} className="flex items-center gap-2.5 px-4 py-2 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0" />
-                      {tag}
-                    </div>
-                  ))}
+              <div className="container mx-auto px-0 relative z-10 mt-12 md:mt-16">
+                <div className="w-full overflow-x-auto no-scrollbar pb-8 touch-pan-x">
+                  <div className="flex items-center justify-start gap-4 md:gap-6 w-max mx-auto px-0">
+                    {['CNC Machining', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
+                      <div key={tag} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20 whitespace-nowrap">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0 shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
+
+
             </div>
 
             <div className="lg:col-span-1" /> {/* Spacer */}
 
-            <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center">
-              <div className="relative w-full aspect-square lg:aspect-[4/5] xl:aspect-square">
-                <div className="absolute inset-x-0 top-1/2 h-px bg-white/10 border-dashed border-b border-white/5 flex justify-between items-center px-4">
-                  <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
-                  <div className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
-                </div>
+            <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center animate-in fade-in slide-in-from-right-12 duration-1000 fill-mode-both" style={{ animationDelay: '400ms' }}>
+              <div className="relative w-full  max-w-[700px] h-[600px] group">
+                {/* Cinematic Card with Large Rounding */}
+                <div className="relative w-full h-full rounded-[4rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] border-[8px] border-white/10 transition-all duration-700 group-hover:border-white/20 group-hover:shadow-[0_60px_120px_rgba(0,0,0,0.7)]">
+                  <Image
+                    src="/home_page12.jpg"
+                    alt="MechHub Smart Manufacturing Facility"
+                    fill
+                    priority
+                    className="object-cover transition-transform duration-1000"
+                  />
 
-                <div className="relative z-10 w-full h-full p-2 md:p-4 animate-float">
-                  <div className="relative w-full h-full rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border-8 border-white/10 group transition-all duration-700 hover:border-white/20">
-                    <Image
-                      src="/home_page12.jpg"
-                      alt="MechHub High-Precision Manufacturing"
-                      fill
-                      priority
-                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-8 left-8 flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-2xl">
-                      <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                      <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Facility V1.4</span>
+                  {/* Overlay Gradients for Readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
+
+                  {/* Top Label Tag */}
+                  <div className="absolute top-10 left-10">
+                    <div className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl">
+                      Facility V1.4
+                    </div>
+                  </div>
+
+                  {/* Bottom Content Area */}
+                  <div className="absolute bottom-12 left-10 right-10 space-y-8">
+                    <div className="space-y-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-700 delay-100">
+                      <h2 className="text-white text-4xl font-black tracking-tight leading-[0.9] drop-shadow-2xl">
+                        AUTOMATED<br />Manufacturing
+                      </h2>
+                      <p className="text-white/60 text-[10px] font-bold uppercase tracking-[0.4em] ml-1">
+                        Precision Engineered Parts Delivered with Transparency
+                      </p>
+                    </div>
+                    <div>
+                      <Button
+                        className="h-14 px-10  bg-white hover:bg-white/90 text-[#1E3A66] ">
+                        Explore Services
+                      </Button>
                     </div>
                   </div>
                 </div>
+
+                {/* Ambient Glows */}
+                <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none -z-10" />
+                <div className="absolute -top-10 -left-10 w-48 h-48 bg-cyan-400/10 blur-[80px] rounded-full pointer-events-none -z-10" />
               </div>
             </div>
           </div>
         </div>
+
         <div className="flex marquee-container mt-auto relative z-20">
           <div className="flex animate-marquee gap-4 md:gap-8 items-center py-4 md:py-6 overflow-x-auto no-scrollbar px-4 lg:px-0 scroll-smooth">
             {[1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2].map((i, idx) => (
