@@ -133,7 +133,11 @@ export default function Home() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
-                India&apos;s Premier Manufacturing Network
+                Built in India for Builders <img
+                  src="https://flagcdn.com/in.svg"
+                  alt="India Flag"
+                  className="w-6 h-4 object-cover shadow-sm"
+                />
               </div>
 
               <div className="relative mb-6 md:mb-8 min-h-[auto] w-full transition-opacity duration-700 ease-in-out">
