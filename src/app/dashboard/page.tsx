@@ -136,7 +136,7 @@ export default function UserDashboard() {
   }, [db, user?.uid]);
 
   const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
-  
+
   const completedShopOrders = React.useMemo(() => {
     if (!shopOrders) return [];
     return (shopOrders as any[]).filter(order => order.status === 'delivered');
@@ -175,11 +175,21 @@ export default function UserDashboard() {
   }, [rfqs, selectedOrderId]);
 
   useEffect(() => {
-    // If profile exists and onboarded is explicitly false (or missing for a logged in user with profile), open modal
-    if (!isProfileLoading && user && profile && (profile.onboarded === false || !profile.onboarded)) {
-      setIsOnboardingOpen(true);
+    // Only onboard customers. Admins/Vendors should skip this automated flow.
+    if (!isProfileLoading && user && profile && profile.role === 'customer') {
+      const hasEssentialDetails = profile.fullName && profile.phone && profile.teamName && profile.designation;
+
+      if (!profile.onboarded && !hasEssentialDetails) {
+        setIsOnboardingOpen(true);
+      } else if (!profile.onboarded && hasEssentialDetails && db) {
+        // If they have all details but just missing the flag, update it silently
+        updateDocumentNonBlocking(doc(db, 'users', user.uid), {
+          onboarded: true,
+          updatedAt: new Date().toISOString()
+        });
+      }
     }
-  }, [isProfileLoading, profile, user]);
+  }, [isProfileLoading, profile, user, db]);
 
   const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
   const selectedOrderParts = allParts?.filter(p => p.projectId === selectedOrderId) || [];
