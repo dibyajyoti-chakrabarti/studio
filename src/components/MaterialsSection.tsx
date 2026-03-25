@@ -18,7 +18,8 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", color: "bg-zinc-400"
+    thumb: "", 
+    colors: { base: "#C0C7CF", alt: "#A8B0B8", hover: "#D6DBE1" }
   },
   {
     name: "Aluminium 6061",
@@ -26,7 +27,8 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "CNC Machining"],
     thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: "not for bending, powder coating available",
-    thumb: "", color: "bg-zinc-500"
+    thumb: "", 
+    colors: { base: "#B0B7BF", alt: "#9AA3AB" }
   },
 
   // STEEL
@@ -36,7 +38,8 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "/mild_steel_swatch.png", color: "bg-slate-400"
+    thumb: "/mild_steel_swatch.png", 
+    colors: { base: "#6E6E6E", alt: "#4B4B4B" }
   },
 
   // STAINLESS STEEL
@@ -46,7 +49,8 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", color: "bg-stone-300"
+    thumb: "", 
+    colors: { base: "#D9DEE3", alt: "#BFC5CC", highlight: "#8E959C" }
   },
 
   // COMPOSITES
@@ -56,7 +60,8 @@ const MATERIALS = [
     processes: ["Sheet Cutting"],
     thicknesses: "1, 1.6, 2, 3, 4, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-neutral-800"
+    thumb: "", 
+    colors: { base: "#1C1C1E", pattern: "#2A2A2D" }
   },
 
   // PLASTICS
@@ -66,7 +71,8 @@ const MATERIALS = [
     processes: ["Laser Cut", "Sheet Cutting"],
     thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-purple-200"
+    thumb: "", 
+    colors: { base: "rgba(200, 220, 255, 0.25)", frosted: "#E6F0FF", edge: "#BFD7FF" }
   },
 
   // WOODS
@@ -76,7 +82,8 @@ const MATERIALS = [
     processes: ["Laser Cut", "CNC Machining"],
     thicknesses: "3.2, 6.3, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-orange-100"
+    thumb: "", 
+    colors: { base: "#C49A6C", alt: "#A67C52" }
   },
   {
     name: "Plywood",
@@ -84,7 +91,8 @@ const MATERIALS = [
     processes: ["Laser Cut", "Sheet Cutting"],
     thicknesses: "3.2, 6.3, 9, 12 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-amber-100"
+    thumb: "", 
+    colors: { base: "#D2A679", alt: "#B98A5A" }
   },
   {
     name: "Balsa Wood",
@@ -92,36 +100,77 @@ const MATERIALS = [
     processes: ["Laser Cut"],
     thicknesses: "1, 3, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", color: "bg-stone-200"
+    thumb: "", 
+    colors: { base: "#E6CFA8" }
   },
 
   // 3D PRINTING
-  { name: "PLA", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-yellow-200" },
-  { name: "TPU", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-blue-400" },
-  { name: "ABS", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "/abs_swatch.png", color: "bg-red-400" },
-  { name: "PETG", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-green-400" },
-  { name: "ASA", category: "3dprinting", processes: ["3D Printing"], thicknesses: "Any geometry", thumb: "", color: "bg-orange-400" },
+  { name: "PLA", category: "3d_printing", processes: ["3D Printing"], thicknesses: "Any geometry", colors: { base: "#E8E8E8" } },
+  { name: "TPU", category: "3d_printing", processes: ["3D Printing"], thicknesses: "Any geometry", colors: { base: "#2E2E2E", alt: "#3A3A3A" } },
+  { name: "ABS", category: "3d_printing", processes: ["3D Printing"], thicknesses: "Any geometry", colors: { base: "#D6D6D6", alt: "#2F2F30" } },
+  { name: "PETG", category: "3d_printing", processes: ["3D Printing"], thicknesses: "Any geometry", colors: { base: "#DFF3FF", translucent: "rgba(180, 220, 255, 0.35)" } },
+  { name: "ASA", category: "3d_printing", processes: ["3D Printing"], thicknesses: "Any geometry", colors: { base: "#C8CDD2" } },
 ];
 
-function MaterialSwatch({ mat }: { mat: any }) {
-  if (mat.thumb && mat.thumb.startsWith('/')) {
+function MaterialSwatch({ mat, overrideColor }: { mat: any, overrideColor?: string }) {
+  const isMetal = ["aluminum", "steel", "stainless"].includes(mat.category);
+  const isWood = mat.category === "woods";
+  const isPlastic = mat.category === "plastics" || mat.category === "3d_printing";
+  const isComposite = mat.category === "composites";
+
+  if (mat.thumb && mat.thumb.startsWith('/') && !overrideColor) {
     return (
       <div className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200 bg-white">
-        <Image
-          src={mat.thumb}
-          alt={mat.name}
-          fill
-          className="object-cover"
-        />
+        <Image src={mat.thumb} alt={mat.name} fill className="object-cover" />
       </div>
     );
   }
 
-  // Fallback high-fidelity CSS swatch
+  let style: React.CSSProperties = {
+    backgroundColor: overrideColor || mat.colors?.base || '#CBD5E1'
+  };
+
+  if (overrideColor) {
+    style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%)';
+  } else if (isMetal) {
+    style.backgroundImage = `linear-gradient(145deg, ${mat.colors?.base || '#C0C7CF'} 0%, ${mat.colors?.alt || '#A8B0B8'} 100%)`;
+  } else if (isComposite) {
+    style.backgroundImage = `
+      repeating-linear-gradient(45deg, ${mat.colors?.base} 0px, ${mat.colors?.base} 2px, ${mat.colors?.pattern} 2px, ${mat.colors?.pattern} 4px),
+      repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 10px)
+    `;
+  } else if (isWood) {
+    style.backgroundImage = `
+      linear-gradient(to right, ${mat.colors?.base}, ${mat.colors?.alt || mat.colors?.base}),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 4px)
+    `;
+  } else if (mat.name === "Acrylic") {
+    style.backdropFilter = "blur(8px)";
+    style.border = "1px solid rgba(255,255,255,0.3)";
+    style.backgroundImage = `linear-gradient(135deg, ${mat.colors?.base}, rgba(255,255,255,0.1))`;
+  } else if (mat.name === "PETG") {
+    style.backgroundImage = `linear-gradient(135deg, ${mat.colors?.base}, ${mat.colors?.translucent || mat.colors?.base})`;
+  } else if (isPlastic) {
+    style.backgroundImage = `linear-gradient(145deg, ${mat.colors?.base}, ${mat.colors?.alt || mat.colors?.base})`;
+  }
+
   return (
-    <div className={`w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200 ${mat.color}`}>
-      <div className="absolute inset-0 bg-black/10" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-white/5 blur-[2px]" />
+    <div 
+      className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200/50 group-hover:scale-105 transition-transform duration-500" 
+      style={style}
+    >
+      {/* Dynamic Shine/Texture Overlays */}
+      {isMetal && (
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      )}
+      {isWood && (
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png")' }} />
+      )}
+      {isComposite && (
+        <div className="absolute inset-0 bg-white/5 mix-blend-overlay" />
+      )}
+      <div className="absolute inset-0 bg-black/5" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-black/5 blur-[4px]" />
     </div>
   );
 }
@@ -132,6 +181,7 @@ export function MaterialsSection() {
   const [activeFilter, setActiveFilter] = useState('ALUMINUM');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [selectedCoating, setSelectedCoating] = useState<string | undefined>(undefined);
 
   const handleQuoteClick = () => {
     if (!user) {
@@ -250,11 +300,11 @@ export function MaterialsSection() {
 
       {selectedMaterial && (
         <>
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] animate-in fade-in duration-300" onClick={() => setSelectedMaterial(null)} />
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] animate-in fade-in duration-300" onClick={() => { setSelectedMaterial(null); setSelectedCoating(undefined); }} />
           <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-[101] shadow-2xl animate-in slide-in-from-right duration-500 overflow-y-auto">
             <div className="p-8">
               <div className="flex justify-between items-start mb-10">
-                <button onClick={() => setSelectedMaterial(null)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors">
+                <button onClick={() => { setSelectedMaterial(null); setSelectedCoating(undefined); }} className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors">
                   <X className="w-6 h-6 text-slate-400" />
                 </button>
                 <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-slate-200 text-slate-700`}>
@@ -264,7 +314,7 @@ export function MaterialsSection() {
 
               <div className="flex items-center gap-6 mb-12">
                 <div className="w-24 h-24 relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                  <MaterialSwatch mat={selectedMaterial} />
+                  <MaterialSwatch mat={selectedMaterial} overrideColor={selectedCoating} />
                 </div>
                 <div>
                   <h3 className="text-2xl font-black text-slate-900 leading-tight uppercase tracking-tight mb-2">{selectedMaterial.name}</h3>
@@ -283,6 +333,35 @@ export function MaterialsSection() {
                     <p className="text-xs font-bold text-[#1E3A66] leading-relaxed">
                       {selectedMaterial.notes}
                     </p>
+                  </div>
+                )}
+
+                {selectedMaterial.notes?.toLowerCase().includes("powder coating") && (
+                  <div>
+                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">POWDER COATING COLORS</h4>
+                    <div className="flex gap-3">
+                      {[
+                        { name: 'Black', hex: '#1C1C1C' },
+                        { name: 'White', hex: '#F5F5F5' },
+                        { name: 'Red', hex: '#C62828' },
+                        { name: 'Blue', hex: '#1565C0' },
+                        { name: 'Yellow', hex: '#F9A825' }
+                      ].map(color => (
+                        <button
+                          key={color.name}
+                          onClick={() => setSelectedCoating(color.hex)}
+                          className={`w-10 h-10 rounded-full border-2 transition-all ${selectedCoating === color.hex ? 'border-blue-500 scale-110 shadow-lg' : 'border-slate-200 hover:border-slate-300'}`}
+                          style={{ backgroundColor: color.hex }}
+                          title={color.name}
+                        />
+                      ))}
+                      <button
+                        onClick={() => setSelectedCoating(undefined)}
+                        className={`px-4 py-2 rounded-xl border-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!selectedCoating ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-400 hover:border-slate-300'}`}
+                      >
+                        Raw
+                      </button>
+                    </div>
                   </div>
                 )}
                 <div>
