@@ -126,7 +126,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1E3A66] to-transparent pointer-events-none z-10" />
 
         <div className="container mx-auto px-4 md:px-10 lg:px-30 relative z-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-28 items-center">
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="inline-flex items-center gap-2.5 px-4 md:px-5 py-1.5 md:py-2 rounded-full border border-white/20 bg-white/10 text-white text-[10px] md:text-xs font-semibold tracking-[0.15em] md:tracking-widest uppercase mb-6 md:mb-10 shadow-2xl backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
@@ -169,17 +169,17 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="container mx-auto px-0 relative z-10 mt-12 md:mt-16">
-                <div className="w-full overflow-x-auto no-scrollbar pb-8 touch-pan-x">
-                  <div className="flex items-center justify-start gap-4 md:gap-6 w-max mx-auto px-0">
-                    {['CNC Milling/Turning', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
-                      <div key={tag} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20 whitespace-nowrap">
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0 shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
+
+              <div className="w-full overflow-x-auto no-scrollbar pb-8 touch-pan-x">
+                <div className="flex items-center justify-start gap-4 md:gap-6 w-max mx-auto px-0">
+                  {['Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal', 'CNC Milling/Turning'].map((tag) => (
+                    <div key={tag} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20 whitespace-nowrap">
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0 shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
+                      {tag}
+                    </div>
+                  ))}
                 </div>
+
               </div>
 
 
