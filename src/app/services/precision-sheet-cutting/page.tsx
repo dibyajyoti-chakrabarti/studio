@@ -9,22 +9,18 @@ import {
   ShieldCheck,
   Target,
   CheckCircle2,
-  Info,
-  Clock,
-  Layers,
-  Cpu,
-  Factory,
-  Database,
-  Search,
-  Maximize2,
-  Minimize2,
   Scissors,
   Droplets,
-  Wrench
+  Wrench,
+  Maximize2,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
+import { ServiceHero } from '@/components/ServiceHero';
+import { ServiceMaterialGrid } from '@/components/ServiceMaterialGrid';
+import { ExpertCTA } from '@/components/part-creation/ExpertCTA';
 
 const CUTTING_SERVICES = [
   {
@@ -56,98 +52,25 @@ const CUTTING_SERVICES = [
   }
 ];
 
-const CUTTING_MATERIALS = [
-  {
-    category: "Metals",
-    items: [
-      { name: "Aluminium 5052", sizes: "1mm – 9.5mm", notes: "Excellent for Laser & Waterjet. Bending notes apply.", color: "bg-slate-200" },
-      { name: "Aluminium 6061", sizes: "1mm – 9.5mm", notes: "High strength. Ideal for Laser & CNC Routing.", color: "bg-slate-300" },
-      { name: "CRCA Mild Steel", sizes: "0.8mm – 9.5mm", notes: "Cost-effective. Best for Laser Cutting/Powder Coating.", color: "bg-slate-500" },
-      { name: "Stainless Steel 304", sizes: "0.8mm – 9.5mm", notes: "Clean edges with Nitrogen-assist Laser Cutting.", color: "bg-zinc-300" },
-    ]
-  },
-  {
-    category: "Non-Metals",
-    items: [
-      { name: "Carbon Fiber Plate", sizes: "1mm – 5mm", notes: "Waterjet or CNC Routing recommended to prevent delamination.", color: "bg-zinc-800" },
-      { name: "Acrylic", sizes: "1.6mm – 12.7mm", notes: "Laser Cutting produces polished edges.", color: "bg-blue-100/40" },
-      { name: "MDF / Plywood", sizes: "3.2mm – 12.7mm", notes: "CNC Routing for clean mechanical cuts.", color: "bg-amber-100" },
-      { name: "PLA / TPU / ABS", sizes: "Custom", notes: "Soft plastics. Waterjet or CNC Routing only.", color: "bg-blue-500" },
-    ]
-  }
-];
-
 export default function PrecisionSheetCuttingPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-[#2F5FA7] font-sans overflow-x-hidden">
       <LandingNav />
 
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden  bg-slate-950">
-        {/* Architect/Blueprint Background Pattern */}
-        <div className="absolute inset-0 z-0 opacity-20"
-          style={{
-            backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px), linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
-            backgroundSize: '20px 20px, 100px 100px, 100px 100px'
-          }}></div>
-
-        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 animate-in fade-in slide-in-from-left-12 duration-1000">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold tracking-widest uppercase mb-4">
-                <Scissors className="w-4 h-4" />
-                Industrial Fabrication
-              </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tighter uppercase">
-                Precision <br />
-                <span className="text-cyan-300">Sheet Cutting</span>
-              </h1>
-              <p className="text-xl text-white/80 max-w-xl leading-relaxed">
-                From high-speed fiber lasers to cold-waterjet cutting. We deliver industrial-grade components with institutional precision across metals, plastics, and advanced composites.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <Target className="w-5 h-5 text-cyan-300" />
-                  <span>± 0.005" Tolerance</span>
-                </div>
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <Zap className="w-5 h-5 text-cyan-300" />
-                  <span>1-3 Day Production</span>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Link href="/login?redirect=/dashboard">
-                  <Button size="lg" className="w-full sm:w-auto px-10 h-16 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-lg gap-2 shadow-2xl">
-                    Get Instant Quote <ArrowRight className="w-5 h-5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="relative group animate-in fade-in zoom-in duration-1000 hidden md:block">
-              <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
-              <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-8 border-white/10 shadow-2xl aspect-square md:aspect-[4/3]">
-                <Image
-                  src="/focus-image.jpg"
-                  alt="Precision Laser Cutting Blueprint"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  priority
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 md:p-10">
-                  <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
-                    <div className="w-3 h-3 rounded-full bg-blue-600 animate-pulse" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Operational Status</p>
-                      <p className="text-sm font-bold text-slate-900">High-Speed Fiber Laser Active</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        title="Precision"
+        subtitle="Sheet Cutting"
+        description="From high-speed fiber lasers to cold-waterjet cutting. We deliver industrial-grade components with institutional precision across metals, plastics, and advanced composites."
+        badge="Industrial Fabrication"
+        icon={Scissors}
+        image="/sheet_cutting_service.png"
+        operationalStatus="High-Speed Fiber Laser Active"
+        statusLabel="Operational Status"
+        stats={[
+          { label: "Tolerance", value: "± 0.005\" Tolerance", icon: Target },
+          { label: "Production", value: "1-3 Day Production", icon: Zap }
+        ]}
+      />
 
       {/* Cutting Methods Grid */}
       <section className="py-24 bg-white">
@@ -168,9 +91,7 @@ export default function PrecisionSheetCuttingPage() {
                   <img
                     src={service.img}
                     alt={service.title}
-                    width={240}
-                    height={180}
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${service.color} flex items-center justify-center text-white shadow-xl`}>
@@ -178,7 +99,7 @@ export default function PrecisionSheetCuttingPage() {
                   </div>
                 </div>
                 <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{service.title}</h3>
-                <p className="text-slate-600 mb-8 font-medium leading-relaxed">{service.desc}</p>
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{service.desc}</p>
                 <div className="space-y-4 border-t border-slate-200 pt-8">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Tolerance</span>
@@ -192,56 +113,15 @@ export default function PrecisionSheetCuttingPage() {
               </div>
             ))}
           </div>
+
+          <ExpertCTA 
+            description="If your project requires material types not listed above, extreme precision beyond ± 0.1mm, or specialized edge finishing (like deburring/rounding), connect with our expert team."
+          />
         </div>
       </section>
 
-      {/* Materials Grid */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Available Materials
-            </h2>
-            <p className="text-lg text-slate-600 font-medium leading-relaxed">
-              We stock a comprehensive range of industrial substrates. Use the tables below to verify thicknesses and processing notes for each technology.
-            </p>
-          </div>
-
-          <div className="space-y-16">
-            {CUTTING_MATERIALS.map((group, groupIndex) => (
-              <div key={groupIndex}>
-                <h3 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-blue-600 pl-6 uppercase tracking-widest">{group.category}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {group.items.map((material, mIndex) => (
-                    <div key={mIndex} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-blue-600/20 transition-all hover:bg-white hover:shadow-xl group">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                        <h4 className="text-lg font-black text-slate-900 flex items-center gap-2 lowercase">
-                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                          {material.name}
-                        </h4>
-                        <div className="flex gap-2">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Cutting Verified</span>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2 leading-none">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block w-full mb-1">Stock Thicknesses:</span>
-                          <span className="bg-white border border-slate-200 px-3 py-1 rounded-md text-xs font-bold text-slate-700 shadow-sm transition-colors group-hover:border-blue-200">
-                            {material.sizes}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 font-bold italic bg-white/10 p-2 rounded-lg border border-slate-100 leading-normal">
-                          <span className="text-blue-600 inline-block mr-1">Note:</span> {material.notes}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Standardized Material Grid */}
+      <ServiceMaterialGrid serviceName="Sheet Cutting" />
 
       {/* Engineering Guidelines */}
       <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
@@ -298,7 +178,7 @@ export default function PrecisionSheetCuttingPage() {
                   </div>
                 </div>
               </div>
-              <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
           </div>
         </div>
@@ -316,7 +196,7 @@ export default function PrecisionSheetCuttingPage() {
               <p className="text-slate-600 font-medium mb-12">
                 Our automated pipeline ensures your custom sheet components are cut to exact specifications.
               </p>
-              <div className="hidden lg:block">
+              <div className="block mt-12">
                 <div className="w-full aspect-[4/5] relative rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl">
                   <Image src="https://images.unsplash.com/photo-1531289172671-1ed49202fb47?auto=format&fit=crop&q=80" alt="Process Visualization" fill className="object-cover" />
                   <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
@@ -342,8 +222,8 @@ export default function PrecisionSheetCuttingPage() {
                   description: "Once confirmed, your parts are nested into high-efficiency sheets and cut using industrial-grade CNC equipment."
                 }
               ].map((item, idx) => (
-                <div key={idx} className="flex gap-10 group">
-                  <div className="text-4xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
+                <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
+                  <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
                     {item.step}
                   </div>
                   <div className="pt-2">

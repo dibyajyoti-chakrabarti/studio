@@ -10,111 +10,35 @@ import {
   Target,
   CheckCircle2,
   Info,
-  Clock,
   Layers,
-  Cpu,
-  Factory,
-  Database,
-  Search,
   Maximize2,
-  Minimize2,
-  Table
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
-
-const COUNTERSINK_MATERIALS = [
-  {
-    category: "Metals (Recommended)",
-    items: [
-      { name: "Aluminium 5052", sizes: "3.2mm - 12.7mm (.125\" - .500\")", notes: "Standard 82°/90° countersinks available.", color: "bg-slate-200" },
-      { name: "Aluminium 6061", sizes: "3.2mm - 19.0mm (.125\" - .750\")", notes: "Excellent for deep countersinks. High strength.", color: "bg-slate-300" },
-      { name: "Stainless Steel 304", sizes: "3.2mm - 9.5mm (.125\" - .375\")", notes: "Requires rigid setup. ± 0.2mm positional accuracy.", color: "bg-zinc-300" },
-      { name: "CRCA Mild Steel", sizes: "3.2mm - 19.0mm (.125\" - .750\")", notes: "Cost-effective for structural countersinking.", color: "bg-slate-500" },
-    ]
-  },
-  {
-    category: "Plastics & Composites",
-    items: [
-      { name: "ABS Plastic", sizes: "3.2mm - 6.0mm (.125\" - .234\")", notes: "Soft material. Max 60% depth rule strictly enforced.", color: "bg-zinc-800" },
-      { name: "Delrin / Acetal", sizes: "3.2mm - 6.3mm (.125\" - .250\")", notes: "Self-lubricating. Clean, burr-free countersinks.", color: "bg-zinc-100/50" },
-      { name: "HDPE", sizes: "6.3mm - 12.7mm (.250\" - .500\")", notes: "High impact resistance. Good for flush mounting.", color: "bg-blue-50" },
-    ]
-  }
-];
+import { ServiceHero } from '@/components/ServiceHero';
+import { ServiceMaterialGrid } from '@/components/ServiceMaterialGrid';
+import { ExpertCTA } from '@/components/part-creation/ExpertCTA';
 
 export default function CountersinkingPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-[#2F5FA7] font-sans overflow-x-hidden">
       <LandingNav />
 
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] lg:h-[70vh] flex items-center py-20 lg:py-0 overflow-hidden  bg-slate-950">
-        {/* Architect/Blueprint Background Pattern */}
-        <div className="absolute inset-0 z-0 opacity-20"
-          style={{
-            backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px), linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
-            backgroundSize: '20px 20px, 100px 100px, 100px 100px'
-          }}></div>
-
-        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 animate-in fade-in slide-in-from-left-12 duration-1000">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold tracking-widest uppercase mb-4">
-                <Maximize2 className="w-4 h-4" />
-                Flush Mounting Systems
-              </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tighter uppercase">
-                Precision <br />
-                <span className="text-cyan-300">Countersinking</span>
-              </h1>
-              <p className="text-xl text-white/80 max-w-xl leading-relaxed">
-                Professional-grade hole finishing for flush-mounted fasteners. Our automated process ensures consistent 82° and 90° angles with micron-level depth control.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4 border-t border-white/10">
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <Target className="w-5 h-5 text-cyan-300" />
-                  <span>± 0.2mm Position</span>
-                </div>
-                <div className="flex items-center gap-2 text-white font-bold">
-                  <Zap className="w-5 h-5 text-cyan-300" />
-                  <span>82° & 90° Standard</span>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                <Link href="/login?redirect=/dashboard">
-                  <Button size="lg" className="w-full sm:w-auto px-10 h-16 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-lg gap-2 shadow-2xl">
-                    Get a Quote <ArrowRight className="w-5 h-5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="relative group animate-in fade-in zoom-in duration-1000 hidden md:block">
-              <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
-              <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white/10 shadow-2xl aspect-[4/3] bg-slate-900/40 backdrop-blur-sm">
-                <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985400/hole-aluminum-metal-made-chamfer-600nw-2733529461_wrekrv.webp"
-                  alt="Precision Countersinking"
-                  width={240}
-                  height={180}
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
-                  <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
-                    <div className="w-3 h-3 rounded-full bg-blue-600 animate-pulse" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Operational Status</p>
-                      <p className="text-sm font-bold text-slate-900">Drilling Station Active</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        title="Precision"
+        subtitle="Countersinking"
+        description="Professional-grade hole finishing for flush-mounted fasteners. Our automated process ensures consistent 82° and 90° angles with micron-level depth control."
+        badge="Flush Mounting Systems"
+        icon={Maximize2}
+        image="/countersinking_service.png"
+        operationalStatus="Drilling Station Active"
+        statusLabel="Operational Status"
+        stats={[
+          { label: "Position", value: "± 0.2mm Position", icon: Target },
+          { label: "Standard", value: "82° & 90° Standard", icon: Zap }
+        ]}
+      />
 
       <section className="bg-white border-b border-slate-100">
         <div className="container mx-auto px-4 md:px-10 lg:px-20 py-10 md:py-16">
@@ -153,19 +77,31 @@ export default function CountersinkingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: "Universal Compatibility", desc: "Our automated systems support dynamic hole tagging for both metric (90°) and imperial (82°) fasteners.", icon: Target },
-              { title: "Material Resiliency", desc: "Available for materials from 3.2mm up to 19mm thickness, ensuring structural integrity.", icon: ShieldCheck },
-              { title: "Precision Control", desc: "Depth is restricted to 60% of material thickness to prevent pull-through or structural weakening.", icon: Settings },
+              { title: "Precision Angularity", desc: "Maintain strict 82° and 90° angles for perfect fastener alignment and flush seating.", icon: ShieldCheck, img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80", color: "bg-blue-600" },
+              { title: "Consistent Depth", desc: "Automated depth stop controls ensure every countersink is identical across large production runs.", icon: Target, img: "https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80", color: "bg-blue-400" },
+              { title: "Burr-Free Finish", desc: "Optimized tool speeds and feed rates prevent edge rolling and exit burrs on sensitive materials.", icon: Zap, img: "https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80", color: "bg-[#2F5FA7]" },
             ].map((item, index) => (
-              <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl">
-                <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center mb-8 shadow-sm group-hover:bg-[#2F5FA7] group-hover:text-white transition-all duration-500">
-                  <item.icon className="w-8 h-8" />
+              <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+                <div className="relative h-48 mb-8 rounded-2xl overflow-hidden shadow-lg bg-white group-hover:shadow-2xl transition-all duration-500">
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-xl`}>
+                    <item.icon className="w-5 h-5" />
+                  </div>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                <p className="text-slate-600 font-medium leading-relaxed italic">{item.desc}</p>
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{item.desc}</p>
               </div>
             ))}
           </div>
+
+          <ExpertCTA 
+            description="Need non-standard pilot sizes, unique 100° aerospace countersinks, or work on hardened substrates? Our precision team can handle your requirement."
+          />
         </div>
       </section>
 
@@ -206,14 +142,12 @@ export default function CountersinkingPage() {
               </div>
             </div>
 
-            <div className="relative group hidden md:block">
+            <div className="relative group">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
                 <img
                   src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985400/hole-aluminum-metal-made-chamfer-600nw-2733529461_wrekrv.webp"
                   alt="Countersinking Geometry Guide"
-                  width={240}
-                  height={180}
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-[240px] h-[180px] object-cover transition-transform duration-700 group-hover:scale-105 mx-auto"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
@@ -225,59 +159,14 @@ export default function CountersinkingPage() {
                   </div>
                 </div>
               </div>
-              <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Materials Grid */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Substrates & Alloys
-            </h2>
-            <p className="text-lg text-slate-600 font-medium leading-relaxed">
-              We support a vast range of materials for automated countersinking, from high-strength metals to rigid composites.
-            </p>
-          </div>
-
-          <div className="space-y-16">
-            {COUNTERSINK_MATERIALS.map((group, groupIndex) => (
-              <div key={groupIndex}>
-                <h3 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-blue-600 pl-6 uppercase tracking-widest">{group.category}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {group.items.map((material, mIndex) => (
-                    <div key={mIndex} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-blue-600/20 transition-all hover:bg-white hover:shadow-xl group">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                        <h4 className="text-lg font-black text-slate-900 flex items-center gap-2 lowercase">
-                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                          {material.name}
-                        </h4>
-                        <div className="flex gap-2">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Institutional Grade</span>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2 leading-none">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block w-full mb-1">Depth Verification:</span>
-                          <span className="bg-white border border-slate-200 px-3 py-1 rounded-md text-xs font-bold text-slate-700 shadow-sm transition-colors group-hover:border-blue-200">
-                            {material.sizes}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 font-bold italic bg-white/10 p-2 rounded-lg border border-slate-100 leading-normal">
-                          <span className="text-blue-600 inline-block mr-1">Process Note:</span> {material.notes}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Standardized Material Grid */}
+      <ServiceMaterialGrid serviceName="Sheet Cutting" />
 
       {/* How it Works */}
       <section className="py-24 bg-slate-50 relative overflow-hidden">
@@ -291,7 +180,7 @@ export default function CountersinkingPage() {
               <p className="text-slate-600 font-medium mb-12">
                 Our configurator identifies hole geometries and calculates tool depth automatically during the quoting process.
               </p>
-              <div className="hidden lg:block">
+              <div className="block mt-12">
                 <div className="w-full aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-2xl">
                   <Image src="https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80" alt="Process Visualization" fill className="object-cover" />
                   <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
@@ -317,8 +206,8 @@ export default function CountersinkingPage() {
                   description: "Once confirmed, the design is queued for our automated countersinking stations where depth is strictly controlled."
                 }
               ].map((item, idx) => (
-                <div key={idx} className="flex gap-10 group">
-                  <div className="text-4xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
+                <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
+                  <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
                     {item.step}
                   </div>
                   <div className="pt-2">
@@ -361,23 +250,6 @@ export default function CountersinkingPage() {
       </section>
 
       <Footer />
-
-      <style jsx>{`
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }

@@ -10,6 +10,7 @@ export interface MaterialOption {
   canPowderCoat?: boolean;
   canAnodize?: boolean;
   maxThicknessForBending?: number;
+  notes?: string;
 }
 
 export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name: string; materials: MaterialOption[] }[] }> = {
@@ -26,7 +27,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             thicknesses: [1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5],
             canPowderCoat: true,
             canBend: true,
-            maxThicknessForBending: 5
+            maxThicknessForBending: 5,
+            notes: ">5mm not for bending, powder coating available"
           },
           {
             id: 'al-6061',
@@ -35,7 +37,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Metals',
             thicknesses: [1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5],
             canPowderCoat: true,
-            canBend: false
+            canBend: false,
+            notes: "not for bending, powder coating available"
           },
           {
             id: 'ms-crca',
@@ -45,7 +48,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             thicknesses: [0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5],
             canPowderCoat: true,
             canBend: true,
-            maxThicknessForBending: 5
+            maxThicknessForBending: 5,
+            notes: ">5mm not for bending, powder coating available"
           },
           {
             id: 'ss-304',
@@ -55,7 +59,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             thicknesses: [0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5],
             canPowderCoat: true,
             canBend: true,
-            maxThicknessForBending: 5
+            maxThicknessForBending: 5,
+            notes: ">5mm not for bending, powder coating available"
           },
         ],
       },
@@ -69,7 +74,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Composites',
             thicknesses: [1, 1.6, 2, 3, 4, 5],
             canBend: false,
-            canPowderCoat: false
+            canPowderCoat: false,
+            notes: "not for bending, not for powder coating"
           },
           {
             id: 'acrylic',
@@ -78,7 +84,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Plastics',
             thicknesses: [1.6, 3, 4.5, 5.4, 9.5, 12.7],
             canBend: false,
-            canPowderCoat: false
+            canPowderCoat: false,
+            notes: "not for bending, not for powder coating"
           },
         ]
       },
@@ -92,7 +99,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Woods',
             thicknesses: [3.2, 6.3, 9.5, 12.7],
             canBend: false,
-            canPowderCoat: false
+            canPowderCoat: false,
+            notes: "not for bending, not for powder coating"
           },
           {
             id: 'plywood',
@@ -101,7 +109,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Woods',
             thicknesses: [3.2, 6.3, 9, 12],
             canBend: false,
-            canPowderCoat: false
+            canPowderCoat: false,
+            notes: "not for bending, not for powder coating"
           },
           {
             id: 'balsa',
@@ -110,7 +119,8 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
             category: 'Woods',
             thicknesses: [1, 3, 5],
             canBend: false,
-            canPowderCoat: false
+            canPowderCoat: false,
+            notes: "Not for bending, not for powder coating"
           },
         ]
       }
@@ -121,11 +131,11 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
       {
         name: 'Filaments (FDM)',
         materials: [
-          { id: 'pla', name: 'PLA', grade: 'Standard', category: '3D Printing' },
-          { id: 'tpu', name: 'TPU', grade: 'Flexible', category: '3D Printing' },
-          { id: 'abs', name: 'ABS', grade: 'Engineering', category: '3D Printing' },
-          { id: 'petg', name: 'PETG', grade: 'Standard', category: '3D Printing' },
-          { id: 'asa', name: 'ASA', grade: 'Weather Resistant', category: '3D Printing' },
+          { id: 'pla', name: 'PLA', grade: 'Standard', category: '3D Printing', notes: "Rapid prototyping, multiple colors available" },
+          { id: 'tpu', name: 'TPU', grade: 'Flexible', category: '3D Printing', notes: "Functional parts, flexible" },
+          { id: 'abs', name: 'ABS', grade: 'Engineering', category: '3D Printing', notes: "Functional parts, rigid" },
+          { id: 'petg', name: 'PETG', grade: 'Standard', category: '3D Printing', notes: "Chemical resistant" },
+          { id: 'asa', name: 'ASA', grade: 'Weather Resistant', category: '3D Printing', notes: "UV resistant" },
         ],
       },
     ],
@@ -135,7 +145,7 @@ export const MATERIAL_CATALOG: Record<ManufacturingService, { categories: { name
       {
         name: 'Metals',
         materials: [
-          { id: 'al-6061-cnc', name: 'Aluminium 6061', grade: '6061', category: 'CNC Milling/Turning' },
+          { id: 'al-6061-cnc', name: 'Aluminium 6061', grade: '6061', category: 'CNC Milling/Turning', notes: "High strength, excellent machinability" },
         ],
       },
     ],

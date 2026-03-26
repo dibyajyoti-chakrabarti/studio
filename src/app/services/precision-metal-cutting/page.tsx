@@ -8,16 +8,9 @@ import {
   Zap,
   ShieldCheck,
   Target,
-  CheckCircle2,
-  Info,
-  Clock,
-  Layers,
-  Cpu,
-  Factory,
-  Database,
-  Search,
   Maximize2,
-  Minimize2,
+  Layers,
+  ChevronRight,
   Scissors,
   Droplets,
   Wrench
@@ -25,6 +18,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
+import { ServiceHero } from '@/components/ServiceHero';
+import { ServiceMaterialGrid } from '@/components/ServiceMaterialGrid';
+import { ExpertCTA } from '@/components/part-creation/ExpertCTA';
 
 const CUTTING_SERVICES = [
   {
@@ -33,7 +29,8 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.005\" (0.127mm)",
     thickness: "0.4mm – 19mm",
     icon: Zap,
-    color: "bg-blue-600"
+    color: "bg-blue-600",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1773983927/3e6da763-3528-4151-803a-895414e5e3b5.png"
   },
   {
     title: "Waterjet Cutting",
@@ -41,7 +38,8 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "1.0mm – 57mm",
     icon: Droplets,
-    color: "bg-blue-400"
+    color: "bg-blue-400",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120570/b-9_srsrkc.webp"
   },
   {
     title: "CNC Routing",
@@ -49,222 +47,219 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "3.0mm – 12.7mm",
     icon: Wrench,
-    color: "bg-[#2F5FA7]"
+    color: "bg-[#2F5FA7]",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120528/-0vw4uukf_qwvrit.webp"
   }
 ];
 
-const CUTTING_MATERIALS = [
-  {
-    category: "Metals",
-    items: [
-      { name: "Aluminium 5052", sizes: "1mm – 9.5mm", notes: "Excellent for Laser & Waterjet. Bending notes apply.", color: "bg-slate-200" },
-      { name: "Aluminium 6061", sizes: "1mm – 9.5mm", notes: "High strength. Ideal for Laser & CNC Routing.", color: "bg-slate-300" },
-      { name: "CRCA Mild Steel", sizes: "0.8mm – 9.5mm", notes: "Cost-effective. Best for Laser Cutting/Powder Coating.", color: "bg-slate-500" },
-      { name: "Stainless Steel 304", sizes: "0.8mm – 9.5mm", notes: "Clean edges with Nitrogen-assist Laser Cutting.", color: "bg-zinc-300" },
-    ]
-  },
-  {
-    category: "Non-Metals",
-    items: [
-      { name: "Carbon Fiber Plate", sizes: "1mm – 5mm", notes: "Waterjet or CNC Routing recommended to prevent delamination.", color: "bg-zinc-800" },
-      { name: "Acrylic", sizes: "1.6mm – 12.7mm", notes: "Laser Cutting produces polished edges.", color: "bg-blue-100/40" },
-      { name: "MDF / Plywood", sizes: "3.2mm – 12.7mm", notes: "CNC Routing for clean mechanical cuts.", color: "bg-amber-100" },
-      { name: "PLA / TPU / ABS", sizes: "Custom", notes: "Soft plastics. Waterjet or CNC Routing only.", color: "bg-blue-500" },
-    ]
-  }
-];
-
-export default function PrecisionCuttingPage() {
+export default function PrecisionMetalCuttingPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-[#2F5FA7] font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-[#2F5FA7] font-sans overflow-x-hidden">
       <LandingNav />
 
-      {/* Hero Section - Premium Architectural Blue/White */}
-      <section className="relative pt-32 pb-44 overflow-hidden bg-white border-b  bg-slate-950">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-blue-500/5 blur-[150px] rounded-full -mr-96 -mt-96" />
+      <ServiceHero
+        title="Industrial"
+        subtitle="Metal Cutting"
+        description="High-capacity metal processing for structural and mechanical components. We deliver precision-cut blanks and shapes with optimized material utilization."
+        badge="Metal Fabrication"
+        icon={Scissors}
+        image="/sheet_cutting_service.png"
+        operationalStatus="Heavy Gauge Lines Active"
+        statusLabel="Operational Status"
+        stats={[
+          { label: "Tolerance", value: "± 0.127mm Tolerance", icon: Target },
+          { label: "Production", value: "Rapid Blanking", icon: Zap }
+        ]}
+      />
 
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="flex-1 space-y-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-blue-100 bg-blue-50/50 text-[#2F5FA7] text-[10px] font-black tracking-[0.3em] uppercase shadow-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                </span>
-                Low Tolerance ± 0.127mm
-              </div>
-
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tighter uppercase">
-                Precision <br />
-                <span className="text-cyan-300">CNC Cutting.</span>
-              </h1>
-
-              <p className="text-xl text-slate-500 leading-relaxed max-w-2xl font-medium">
-                From sheet metal to advanced composites. We utilize Fiber Laser, Waterjet, and CNC Routing technologies to deliver industrial-grade components in record time.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <Link href="/login" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full sm:w-auto h-14 px-10 text-base font-black uppercase tracking-widest bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl transition-all shadow-xl shadow-blue-900/10">
-                    Quote Now <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest border-l border-slate-200 pl-6 hidden sm:block">
-                  No Minimum Order <br /> Automated DFM Checks
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 relative group">
-              <div className="relative aspect-video w-full max-w-[700px] mx-auto overflow-hidden rounded-[40px] shadow-2xl shadow-blue-900/10 border border-slate-100">
-                <Image
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1774120570/b-9_srsrkc.webp"
-                  alt="Precision Laser Cutting"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-              </div>
-              {/* Decorative Blur Element */}
-              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#2F5FA7]/10 blur-3xl -z-10" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Service Selection Grid */}
-      <section className="py-32 bg-white relative">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center mb-24 space-y-4">
-            <h2 className="text-4xl font-black uppercase tracking-tight text-slate-900">Cutting Methods Optimized for Your Application.</h2>
-            <p className="text-slate-500 font-medium max-w-xl mx-auto italic">Strategic manufacturing processes for diverse substrates.</p>
+      {/* Cutting Capabilities Grid */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 md:px-10 lg:px-20">
+          <div className="text-center max-w-3xl mx-auto mb-20 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
+              Metal Cutting Capabilities
+            </h2>
+            <p className="text-lg text-slate-600 font-medium">
+              Strategic manufacturing processes for diverse substrate thicknesses and industrial applications.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CUTTING_SERVICES.map((service, i) => (
-              <div key={i} className="group p-10 rounded-[40px] bg-[#F8FAFC] border border-slate-100 hover:bg-white hover:border-blue-100 hover:shadow-2xl hover:shadow-blue-900/5 transition-all duration-500">
-                <div className={`w-14 h-14 rounded-2xl ${service.color} flex items-center justify-center text-white mb-8 group-hover:scale-110 transition-transform shadow-lg`}>
-                  <service.icon className="w-7 h-7" />
+            {CUTTING_SERVICES.map((service, index) => (
+              <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+                <div className="relative h-48 mb-8 rounded-2xl overflow-hidden shadow-lg bg-white group-hover:shadow-2xl transition-all duration-500">
+                  <img
+                    src={service.img}
+                    alt={service.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${service.color} flex items-center justify-center text-white shadow-xl`}>
+                    <service.icon className="w-5 h-5" />
+                  </div>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4">{service.title}</h3>
-                <p className="text-slate-500 text-sm font-medium leading-relaxed mb-10">{service.desc}</p>
-
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{service.title}</h3>
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{service.desc}</p>
                 <div className="space-y-4 border-t border-slate-200 pt-8">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Tolerance</span>
                     <span className="text-sm font-black text-slate-900">{service.tolerance}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Thickness</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Max Thickness</span>
                     <span className="text-sm font-black text-slate-900">{service.thickness}</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          <ExpertCTA 
+            description="Looking for exotic alloys (Titanium, Inconel), extreme thickness processing over 50mm, or specialized abrasive waterjet finishes? Our manufacturing experts can consult on your specific requirements."
+          />
         </div>
       </section>
 
-      {/* Materials Grid */}
-      <section className="py-32 bg-[#F8FAFC] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02] pointer-events-none" />
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="space-y-20">
-            {CUTTING_MATERIALS.map((group, i) => (
-              <div key={i} className="space-y-8">
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#2F5FA7] border-l-4 border-[#2F5FA7] pl-4">{group.category}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {group.items.map((mat, j) => (
-                    <div key={j} className="group p-8 rounded-3xl bg-white border border-slate-200 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-900/5 transition-all duration-500">
-                      <div className={`w-12 h-12 rounded-xl ${mat.color} mb-6 shadow-inner ring-1 ring-slate-900/5 group-hover:scale-110 transition-transform`} />
-                      <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-3">{mat.name}</h4>
-                      <div className="space-y-4">
-                        <div className="space-y-1">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Inventory Status</span>
-                          <p className="text-xs text-slate-600 font-bold leading-relaxed">{mat.sizes}</p>
-                        </div>
-                        <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
-                          <Info className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
-                          <p className="text-[10px] text-slate-400 font-medium italic">{mat.notes}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+      {/* Standardized Material Grid */}
+      <ServiceMaterialGrid serviceName="Sheet Cutting" />
+
+      {/* Engineering Guidelines */}
+      <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#2F5FA7]/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+            <div className="space-y-12">
+              <div>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 uppercase tracking-tighter">
+                  Design for <br />
+                  <span className="text-cyan-400">Precision Cutting</span>
+                </h2>
+                <p className="text-xl text-slate-400 leading-relaxed font-medium">
+                  Optimizing your geometry for industrial cutting reduces waste and prevents edge deformation.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Features/Why MechHub Section */}
-      <section className="py-32 bg-white">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex flex-col lg:flex-row gap-24 items-center">
-            <div className="flex-1 relative">
-              <div className="bg-slate-100 rounded-[60px] p-12 lg:p-20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8">
-                  <Maximize2 className="w-64 h-64 text-slate-200/50" />
-                </div>
-                <div className="relative z-10 space-y-8">
-                  <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Industrial Standards. <br /> Institially Verified.</h3>
-                  <div className="space-y-6">
-                    {[
-                      "Automated Edge Break Technology",
-                      "Nitrogen-Assist Finish for Stainless Steel",
-                      "Taper Control for Thick Plates",
-                      "Burr-Free Finishes on Plastics"
-                    ].map((text, i) => (
-                      <div key={i} className="flex items-center gap-4">
-                        <CheckCircle2 className="w-6 h-6 text-[#2F5FA7]" />
-                        <span className="font-bold text-slate-700">{text}</span>
-                      </div>
-                    ))}
+              <div className="space-y-8">
+                {[
+                  { id: "M1", title: "Kerf Management", desc: "Account for the width of the cut. Laser usually 0.2mm, while Waterjet can be up to 0.8mm for thick plates.", icon: <Maximize2 className="w-5 h-5" /> },
+                  { id: "M2", title: "Internal Radii", desc: "For Routing, ensure internal corners have a radius equal to or greater than the router bit diameter.", icon: <Zap className="w-5 h-5" /> },
+                  { id: "M3", title: "Sheet Utilization", desc: "Maintain a minimum 5mm border around parts to ensure structural support of the sheet during the process.", icon: <Layers className="w-5 h-5" /> },
+                ].map((item) => (
+                  <div key={item.id} className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                    <div className="w-14 h-14 rounded-2xl bg-cyan-400/20 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-400/30 font-black text-xl group-hover:scale-110 transition-transform">
+                      {item.id}
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold mb-2 flex items-center gap-2">
+                        {item.title}
+                      </h4>
+                      <p className="text-slate-400 font-medium leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative group">
+              <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1200"
+                  alt="Cutting Geometry Guide"
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
+                  <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Nesting Analysis</p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">Material Utilization: 85% Optimized</p>
+                    </div>
                   </div>
                 </div>
               </div>
+              <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] opacity-30 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
+          <div className="flex flex-col lg:flex-row gap-20">
+            <div className="lg:w-1/3">
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 uppercase tracking-tighter leading-none">
+                The <br />
+                <span className="text-blue-600">Cutting Path</span>
+              </h2>
+              <p className="text-slate-600 font-medium mb-12">
+                Our automated industrial pipeline ensures your metal components are processed with institutional efficiency.
+              </p>
+              <div className="block mt-12">
+                <div className="w-full aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-2xl">
+                  <Image src="https://images.unsplash.com/photo-1531289172671-1ed49202fb47?auto=format&fit=crop&q=80" alt="Process Visualization" fill className="object-cover" />
+                  <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
+                </div>
+              </div>
             </div>
 
-            <div className="flex-1 space-y-12">
-              <div className="space-y-4">
-                <h2 className="text-4xl font-black uppercase tracking-tight">Zero-Margin <br /> Precision.</h2>
-                <div className="h-1.5 w-24 bg-[#2F5FA7]" />
-              </div>
-              <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                Our cutting algorithms optimized for material utilization ensure you get the best yield and the cleanest edges for your parts.
-              </p>
-              <div className="grid grid-cols-2 gap-8 pt-4">
-                <div className="space-y-1">
-                  <div className="text-3xl font-black text-slate-900">100%</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Inspection Rate</div>
+            <div className="lg:w-2/3 space-y-12">
+              {[
+                {
+                  step: "01",
+                  title: "CAD Processing",
+                  description: "Upload your DXF/STEP files. Our system analyzes geometry and suggests the best cutting technology for your material and budget."
+                },
+                {
+                  step: "02",
+                  title: "Traceable Sourcing",
+                  description: "We source certified metal sheets with full chemical composition transparency to ensure predictable performance."
+                },
+                {
+                  step: "03",
+                  title: "Automated Execution",
+                  description: "High-precision cutting heads execute the paths with continuous monitoring of power and gas/water pressure."
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
+                  <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
+                    {item.step}
+                  </div>
+                  <div className="pt-2">
+                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                    <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">{item.description}</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-black text-slate-900">0.02"</div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Min Kerf Width</div>
-                </div>
+              ))}
+
+              <div className="pt-10">
+                <Link href="/login?redirect=/dashboard">
+                  <Button size="lg" className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]">
+                    Start Your Project <ArrowRight className="w-6 h-6" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 bg-[#F8FAFC]">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="p-20 rounded-[4rem] bg-[#1E3A66] text-center space-y-10 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400/20 to-transparent pointer-events-none" />
-            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight relative z-10">Start Your Next <br /> Cutting Project.</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
-              <Link href="/login" className="w-full sm:w-auto">
-                <Button size="lg" className="h-16 px-12 text-lg font-black bg-[#2F5FA7] hover:bg-blue-600 text-white rounded-xl shadow-2xl">
-                  Configure Now <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="/" className="w-full sm:w-auto text-white/50 hover:text-white font-bold text-sm tracking-widest transition-colors uppercase">
-                Return to Core Services
-              </Link>
+      {/* Footer CTA */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">Industrial Logistics</p>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-10 max-w-2xl mx-auto tracking-tighter uppercase leading-tight">
+            Institutional-grade metal blanks.
+          </h2>
+          <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-green-500" />
+              <span className="font-bold text-slate-700 uppercase leading-none">Traceable Sourcing</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-green-500" />
+              <span className="font-bold text-slate-700 uppercase leading-none">Certified Blanks</span>
             </div>
           </div>
         </div>
