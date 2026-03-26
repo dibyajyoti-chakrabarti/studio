@@ -101,6 +101,21 @@ export function MaterialSelection({
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2F5FA7] flex items-center gap-2">
                           <CheckCircle className="w-3 h-3" /> Select Available Thickness (MM)
                         </p>
+                        
+                        {(material.canBend === false || material.canPowderCoat === false || material.maxThicknessForBending) && (
+                          <div className="flex flex-wrap gap-2 mb-1">
+                            {material.canBend === false && (
+                              <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-red-100 text-red-600 bg-red-50/50">
+                                No Bending
+                              </Badge>
+                            )}
+                            {material.canPowderCoat === false && (
+                              <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-slate-200 text-slate-500 bg-slate-50">
+                                No Powder Coating
+                              </Badge>
+                            )}
+                          </div>
+                        )}
                         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                           {material.thicknesses.map((thickness) => (
                             <button
@@ -112,13 +127,16 @@ export function MaterialSelection({
                                 thickness,
                                 ...(material as any) // Pass capabilities down
                               })}
-                              className={`h-10 rounded-lg flex items-center justify-center text-[10px] font-bold border transition-all ${
+                              className={`h-10 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-all ${
                                 selectedMaterial.thickness === thickness
                                   ? 'bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-md shadow-blue-500/20'
                                   : 'bg-white border-slate-200 text-slate-500 hover:border-blue-200 hover:text-[#2F5FA7]'
                               }`}
                             >
-                              {thickness}
+                              <span>{thickness}</span>
+                              {material.maxThicknessForBending && thickness > material.maxThicknessForBending && (
+                                <span className="text-[6px] opacity-70 uppercase tracking-tighter -mt-1 font-black">No Bend</span>
+                              )}
                             </button>
                           ))}
                         </div>

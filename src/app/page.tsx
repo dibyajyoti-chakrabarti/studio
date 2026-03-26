@@ -172,7 +172,7 @@ export default function Home() {
               <div className="container mx-auto px-0 relative z-10 mt-12 md:mt-16">
                 <div className="w-full overflow-x-auto no-scrollbar pb-8 touch-pan-x">
                   <div className="flex items-center justify-start gap-4 md:gap-6 w-max mx-auto px-0">
-                    {['CNC Machining', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
+                    {['CNC Milling/Turning', 'Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal'].map((tag) => (
                       <div key={tag} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20 whitespace-nowrap">
                         <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0 shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
                         {tag}
@@ -188,9 +188,9 @@ export default function Home() {
             <div className="lg:col-span-1" /> {/* Spacer */}
 
             <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center animate-in fade-in slide-in-from-right-12 duration-1000 fill-mode-both" style={{ animationDelay: '400ms' }}>
-              <div className="relative w-full  max-w-[700px] h-[600px] group">
+              <div className="relative w-full  max-w-[1000px] h-[500px] group">
                 {/* Cinematic Card with Large Rounding */}
-                <div className="relative w-full h-full rounded-[4rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] border-[8px] border-white/10 transition-all duration-700 group-hover:border-white/20 group-hover:shadow-[0_60px_120px_rgba(0,0,0,0.7)]">
+                <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] transition-all duration-700 group-hover:shadow-[0_60px_120px_rgba(0,0,0,0.7)]">
                   <Image
                     src="/home_page12.jpg"
                     alt="MechHub Smart Manufacturing Facility"
@@ -201,29 +201,15 @@ export default function Home() {
 
                   {/* Overlay Gradients for Readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
-
-                  {/* Top Label Tag */}
-                  <div className="absolute top-10 left-10">
-                    <div className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl">
-                      Facility V1.4
-                    </div>
-                  </div>
-
                   {/* Bottom Content Area */}
                   <div className="absolute bottom-12 left-10 right-10 space-y-8">
                     <div className="space-y-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-700 delay-100">
-                      <h2 className="text-white text-4xl font-black tracking-tight leading-[0.9] drop-shadow-2xl">
-                        AUTOMATED<br />Manufacturing
+                      <h2 className="text-white text-4xl font-black tracking-tight leading-[0.9] drop-shadow-2xl bottom-20">
+                        AUTOMATED<br />MANUFACTURING
                       </h2>
                       <p className="text-white/60 text-[10px] font-bold uppercase tracking-[0.4em] ml-1">
                         Precision Engineered Parts Delivered with Transparency
                       </p>
-                    </div>
-                    <div>
-                      <Button
-                        className="h-14 px-10  bg-white hover:bg-white/90 text-[#1E3A66] ">
-                        Explore Services
-                      </Button>
                     </div>
                   </div>
                 </div>

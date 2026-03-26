@@ -88,10 +88,10 @@ export default function CNCMachiningPage() {
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tighter uppercase">
                 Online CNC <br />
-                <span className="text-cyan-300">Machining</span>
+                <span className="text-cyan-300">Milling/Turning</span>
               </h1>
               <p className="text-xl text-white/80 max-w-xl leading-relaxed">
-                Professional 3-axis and 5-axis CNC machining services. From prototype to production, we deliver precision components with mechanical excellence and verified tolerances.
+                Professional 3-axis and 5-axis CNC milling/turning services. From prototype to production, we deliver precision components with mechanical excellence and verified tolerances.
               </p>
               <div className="flex flex-wrap gap-4 pt-4 border-t border-white/10">
                 <div className="flex items-center gap-2 text-white font-bold">
@@ -143,7 +143,7 @@ export default function CNCMachiningPage() {
         <div className="container mx-auto px-4 md:px-10 lg:px-20">
           <div className="text-center max-w-3xl mx-auto mb-20 leading-tight">
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Machining Capabilities
+              Milling/Turning Capabilities
             </h2>
             <p className="text-lg text-slate-600 font-medium">
               We utilize state-of-the-art subtractive centers to deliver high-performance mechanical components with institutional precision.
@@ -198,7 +198,7 @@ export default function CNCMachiningPage() {
               <div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 uppercase tracking-tighter">
                   Design for <br />
-                  <span className="text-cyan-400">Machining</span>
+                  <span className="text-cyan-400">Milling/Turning</span>
                 </h2>
                 <p className="text-xl text-slate-400 leading-relaxed font-medium">
                   Optimizing your geometry for subtractive tools reduces machine time and tooling cost. Follow these essential DFM rules.
@@ -255,7 +255,7 @@ export default function CNCMachiningPage() {
         <div className="container mx-auto px-4 md:px-10 lg:px-20 relative z-10">
           <div className="text-center mb-20 max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
-              Machining Materials
+              Milling/Turning Materials
             </h2>
             <p className="text-lg text-slate-600 font-medium leading-relaxed">
               We machine everything from aerospace-grade aluminum to high-temp engineering plastics.
@@ -275,7 +275,7 @@ export default function CNCMachiningPage() {
                           {material.name}
                         </h4>
                         <div className="flex gap-2">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Machining QC Passed</span>
+                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase">Milling/Turning QC Passed</span>
                         </div>
                       </div>
                       <div className="space-y-4">
@@ -350,7 +350,7 @@ export default function CNCMachiningPage() {
               <div className="pt-10">
                 <Link href="/login?redirect=/dashboard">
                   <Button size="lg" className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]">
-                    Start Machining <ArrowRight className="w-6 h-6" />
+                    Start Milling/Turning <ArrowRight className="w-6 h-6" />
                   </Button>
                 </Link>
               </div>

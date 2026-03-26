@@ -13,7 +13,7 @@ import {z} from 'genkit';
 const MechMasterRecommendationInputSchema = z.object({
   manufacturingProcess: z
     .string()
-    .describe('The primary manufacturing process required (e.g., CNC Machining, Laser Cutting).'),
+    .describe('The primary manufacturing process required (e.g., CNC Milling/Turning, Laser Cutting).'),
   material: z.string().describe('The material required for manufacturing (e.g., Stainless Steel, Aluminum, ABS Plastic).'),
   quantity: z.number().int().positive().describe('The quantity of parts to be manufactured.'),
   surfaceFinish: z.string().optional().describe('Optional: Specific surface finish requirements (e.g., Polished, Anodized, Powder Coated).'),

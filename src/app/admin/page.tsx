@@ -81,7 +81,7 @@ const STATUS_OPTIONS = [
 ];
 
 const SPECIALIZATIONS = [
-  'CNC Machining',
+  'CNC Milling/Turning',
   'Laser Cutting',
   'Welding & Fabrication',
   'Sheet Metal',

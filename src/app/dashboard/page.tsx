@@ -21,7 +21,7 @@ import {
 import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
-import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService } from '@/types/project';
+import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService, SERVICE_DISPLAY_NAMES } from '@/types/project';
 
 import {
   FileText,
@@ -416,12 +416,6 @@ export default function UserDashboard() {
               <PhoneCall className="w-4 h-4 mr-2 text-[#2F5FA7]" /> Book Free Consultation
             </Button>
             <Button
-              className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-[#2F5FA7] border border-blue-100 shadow-sm transition-all"
-              onClick={() => router.push('/quote')}
-            >
-              <Calculator className="w-4 h-4 mr-2 text-[#2F5FA7]" /> Budget Estimator
-            </Button>
-            <Button
               className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
               onClick={() => setIsCreateProjectOpen(true)}
             >
@@ -524,7 +518,7 @@ export default function UserDashboard() {
                                     {part.cadFile?.fileName.slice(-12)}
                                   </span>
                                 </div>
-                                <p className="text-[9px] font-bold text-[#2F5FA7] uppercase tracking-widest mt-0.5">{part.service.replace(/_/g, ' ')}</p>
+                                <p className="text-[9px] font-bold text-[#2F5FA7] uppercase tracking-widest mt-0.5">{SERVICE_DISPLAY_NAMES[part.service] || part.service}</p>
                                 <div className="space-y-2 mt-2">
                                   <div className="flex items-center gap-3 text-[9px] text-slate-400 font-bold uppercase tracking-widest">
                                     <span className="flex items-center gap-1 text-[#2F5FA7]">
@@ -648,7 +642,7 @@ export default function UserDashboard() {
                 <Card className="bg-white border-slate-200 shadow-2xl overflow-hidden">
                   <CardHeader className="border-b border-slate-50 pb-5">
                     <div className="flex justify-between items-start mb-3">
-                      <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">{selectedOrderParts[0]?.service.replace(/_/g, ' ') || 'PROJECT'}</Badge>
+                      <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">{SERVICE_DISPLAY_NAMES[selectedOrderParts[0]?.service] || 'PROJECT'}</Badge>
                       <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200">{STATUS_MAP[selectedOrder.status as ProjectRFQStatus]?.label}</Badge>
                     </div>
                     <CardTitle className="text-xl text-slate-900 tracking-tight uppercase">{selectedOrder.projectName}</CardTitle>

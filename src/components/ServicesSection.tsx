@@ -14,8 +14,8 @@ const SERVICES = [
     },
     {
         num: '02',
-        title: 'CNC Machining',
-        desc: 'Multi-axis CNC machining in billet stock.',
+        title: 'CNC Milling/Turning',
+        desc: 'Multi-axis CNC processing in billet stock.',
         img: 'https://res.cloudinary.com/dypbvtojf/image/upload/v1773985132/CNC-milling-housing-300x292_ppqvvc.jpg',
     },
     {
@@ -75,7 +75,7 @@ export function ServicesSection() {
 
                 <div className="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6 max-w-7xl mx-auto px-2 md:px-0">
                     {SERVICES.map((service) => {
-                        const isCNC = service.title === 'CNC Machining';
+                        const isCNC = service.title === 'CNC Milling/Turning';
                         const isBending = service.title === 'Bending';
                         const isCountersinking = service.title === 'Countersinking';
                         const isCutting = service.title === 'Precision Sheet Cutting';

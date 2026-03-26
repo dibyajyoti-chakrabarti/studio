@@ -224,7 +224,7 @@ export default function MatchingPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-6 min-h-12">
-                    {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Machining', 'Sheet Metal']).map((s: string, i: number) => (
+                    {(vendor.specializations && vendor.specializations.length > 0 ? vendor.specializations : ['CNC Milling/Turning', 'Sheet Metal']).map((s: string, i: number) => (
                       <Badge key={i} variant="outline" className="rounded-full bg-cyan-950/30 text-cyan-400 border-cyan-500/20 px-3 py-1 text-[9px] font-bold uppercase tracking-widest font-consolas">
                         {s}
                       </Badge>

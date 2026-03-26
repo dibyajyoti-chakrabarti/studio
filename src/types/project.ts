@@ -10,6 +10,15 @@ export type ManufacturingService =
   | 'wire_edm'
   | 'cnc_turning';
 
+/** Display names for manufacturing services */
+export const SERVICE_DISPLAY_NAMES: Record<ManufacturingService, string> = {
+  'cnc_machining': 'CNC Milling/Turning',
+  'sheet_metal_cutting': 'Sheet Metal Cutting',
+  '3d_printing': '3D Printing',
+  'wire_edm': 'Wire EDM',
+  'cnc_turning': 'CNC Turning',
+};
+
 /** Secondary manufacturing processes */
 export type SecondaryProcess =
   | 'powder_coating'

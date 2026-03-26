@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { ProjectRFQ, MechanicalPart, ProjectRFQStatus, ManufacturingService, NegotiationMessage } from '@/types/project';
+import { ProjectRFQ, MechanicalPart, ProjectRFQStatus, ManufacturingService, NegotiationMessage, SERVICE_DISPLAY_NAMES } from '@/types/project';
 import {
   ChevronLeft,
   Plus,
@@ -799,7 +799,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                                       {part.partName || `Part ${index + 1}`}
                                     </p>
                                     <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 text-[8px] uppercase tracking-wider font-bold px-1.5 py-0 h-4 shrink-0">
-                                      {part.service.replace(/_/g, ' ')}
+                                      {SERVICE_DISPLAY_NAMES[part.service] || part.service}
                                     </Badge>
                                   </div>
 

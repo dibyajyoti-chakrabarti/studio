@@ -15,7 +15,6 @@ import {
 interface ServiceOption {
   id: ManufacturingService;
   name: string;
-  description: string;
   icon: React.ReactNode;
   popular?: boolean;
 }
@@ -23,22 +22,19 @@ interface ServiceOption {
 const SERVICES: ServiceOption[] = [
   {
     id: 'cnc_machining',
-    name: 'CNC Machining',
-    description: '3-axis & 5-axis precision machining for complex metal parts',
+    name: 'CNC Milling/Turning',
     icon: <Cog className="w-6 h-6" />,
     popular: true,
   },
   {
     id: 'sheet_metal_cutting',
     name: 'Sheet Metal Cutting',
-    description: 'Fiber & CO2 laser cutting for sheet metal with high precision',
     icon: <Flame className="w-6 h-6" />,
     popular: true,
   },
   {
     id: '3d_printing',
     name: '3D Printing',
-    description: 'FDM, SLA, and SLS printing for rapid prototyping',
     icon: <Box className="w-6 h-6" />,
   },
 ];
@@ -105,26 +101,18 @@ export function ServiceSelection({
             >
               <div className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm transition-colors ${selectedService === service.id
+                  <div className={`w-5 h-6 rounded-xl flex items-center justify-center border shadow-sm transition-colors ${selectedService === service.id
                     ? 'bg-[#2F5FA7] text-white border-[#2F5FA7]'
                     : 'bg-slate-50 text-[#2F5FA7] border-slate-100 group-hover:bg-blue-50'
                     }`}>
                     {service.icon}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-2">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="font-bold text-slate-900 uppercase tracking-wide text-sm">
+                      <p className="font-bold  text-slate-900 uppercase tracking-wide text-sm justify-center items-center">
                         {service.name}
                       </p>
-                      {service.popular && (
-                        <Badge className="bg-orange-50 text-orange-600 border border-orange-100 text-[8px] uppercase tracking-wider font-bold px-1.5 py-0 h-4">
-                          Popular
-                        </Badge>
-                      )}
                     </div>
-                    <p className="text-[10px] text-slate-500 leading-relaxed">
-                      {service.description}
-                    </p>
                   </div>
                 </div>
               </div>

@@ -20,8 +20,8 @@ const MATERIALS = {
 };
 
 const PROCESSES = {
-    'CNC Machining 3-Axis': { rate: 1200, setup: 800, min: 600 },
-    'CNC Machining 5-Axis': { rate: 2200, setup: 1500, min: 1200 },
+    'CNC Milling/Turning 3-Axis': { rate: 1200, setup: 800, min: 600 },
+    'CNC Milling/Turning 5-Axis': { rate: 2200, setup: 1500, min: 1200 },
     'Laser Cutting Fiber': { rate: 900, setup: 400, min: 300 },
     'Laser Cutting CO2': { rate: 650, setup: 300, min: 250 },
     'Sheet Metal Bending': { rate: 700, setup: 500, min: 400 },
@@ -90,7 +90,7 @@ const FALLBACK_INSIGHTS = [
 const LOADING_MESSAGES = [
     "Parsing CAD geometry...",
     "Matching Indian material rates...",
-    "Calculating machining time...",
+    "Calculating milling/turning time...",
     "Applying quantity breaks...",
     "Fetching MechMaster availability...",
     "Generating AI insights..."
@@ -628,7 +628,7 @@ export default function QuoteEngine() {
                                         <span className="text-slate-900 font-bold">₹{results.material_cost_total?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between border-b border-slate-50 pb-3">
-                                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px] pt-1">Machining Cost</span>
+                                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px] pt-1">Milling/Turning Cost</span>
                                         <span className="text-slate-900 font-bold">₹{results.machining_cost_total?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
                                     <div className="flex justify-between border-b border-slate-50 pb-3">

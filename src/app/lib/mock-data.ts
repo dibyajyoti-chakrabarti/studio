@@ -14,7 +14,7 @@ export const MOCK_VENDORS: Vendor[] = [
     id: 'v1',
     name: 'Precision MechMasters Pune',
     rating: 4.8,
-    services: ['CNC Machining', 'Laser Cutting'],
+    services: ['CNC Milling/Turning', 'Laser Cutting'],
     location: 'Pune, Maharashtra',
     description: 'Specialists in high-precision aerospace components with ISO 9001 certification.',
     active: true,
@@ -44,7 +44,7 @@ export const MOCK_VENDORS: Vendor[] = [
     id: 'v4',
     name: 'Royal Machining Hub',
     rating: 4.2,
-    services: ['CNC Machining', 'Small Batch Production'],
+    services: ['CNC Milling/Turning', 'Small Batch Production'],
     location: 'Bengaluru, Karnataka',
     description: 'Quality small batch manufacturing with rapid turnaround times for engineering tools.',
     active: true,
@@ -64,7 +64,7 @@ export const MOCK_VENDORS: Vendor[] = [
     id: 'v6',
     name: 'Elite Mechanical Solutions',
     rating: 4.6,
-    services: ['CNC Machining', 'Welding & Fabrication'],
+    services: ['CNC Milling/Turning', 'Welding & Fabrication'],
     location: 'Hyderabad, Telangana',
     description: 'End-to-end mechanical solutions from design review to final surface treatment.',
     active: true,
@@ -73,7 +73,7 @@ export const MOCK_VENDORS: Vendor[] = [
 ];
 
 export const MANUFACTURING_PROCESSES = [
-  'CNC Machining',
+  'CNC Milling/Turning',
   'Laser Cutting',
   'Welding & Fabrication',
   'Sheet Metal',

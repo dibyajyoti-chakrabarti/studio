@@ -214,46 +214,46 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
 
         {/* Integrated Navigation for all steps - Fixed Mobile Layout */}
         <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black border-slate-200 text-slate-600 hover:bg-slate-50 transition-all rounded-xl"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black border-slate-200 text-slate-600 hover:bg-slate-50 transition-all rounded-xl"
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
 
-              {currentStepIndex === STEPS.length - 1 ? (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!canProceed() || isSubmitting}
-                  className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Finalize & Add Part
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={!canProceed() || isSubmitting}
-                  className="w-full sm:w-auto h-12 px-10 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl group"
-                >
-                  Next Step
-                </Button>
-              )}
-            </div>
+            {currentStepIndex === STEPS.length - 1 ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={!canProceed() || isSubmitting}
+                className="w-full sm:w-auto h-12 px-8 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Finalize & Add Part
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isSubmitting}
+                className="w-full sm:w-auto h-12 px-10 tracking-[0.2em] uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl group"
+              >
+                Next Step
+              </Button>
+            )}
           </div>
+        </div>
       </div>
     );
   };
@@ -297,9 +297,9 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
             ))}
             {/* Simple step indicator for small mobile */}
             <div className="lg:hidden flex items-center gap-2">
-               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
                 Step {currentStepIndex + 1} of {STEPS.length}
-               </span>
+              </span>
             </div>
           </div>
         </div>
@@ -329,7 +329,6 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
             <div className="mb-8 md:mb-12 text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full mb-4 md:mb-6">
                 <Zap className="w-3 h-3 text-[#2F5FA7]" />
-                <span className="text-[8px] md:text-[9px] font-black text-[#2F5FA7] uppercase tracking-[0.2em]">Focused Configuration Mode</span>
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">
                 {STEPS[currentStepIndex].label}

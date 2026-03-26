@@ -6,11 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { SecondaryProcess, ColorOption, ManufacturingService } from '@/types/project';
-import { 
-  Paintbrush, 
-  CornerUpRight, 
-  Sparkles, 
-  Shield, 
+import {
+  Paintbrush,
+  CornerUpRight,
+  Sparkles,
+  Shield,
   Chrome,
   Wind,
   CheckCircle,
@@ -34,7 +34,7 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
     description: 'Durable, eco-friendly coating in various colors',
     icon: <Paintbrush className="w-5 h-5" />,
     requiresColor: true,
-    applicableServices: ['cnc_machining', 'sheet_metal_cutting', 'cnc_turning'],
+    applicableServices: ['sheet_metal_cutting', 'cnc_turning'],
   },
   {
     id: 'bending',
@@ -49,42 +49,35 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
     description: 'Electrochemical process for aluminum',
     icon: <Sparkles className="w-5 h-5" />,
     requiresColor: true,
-    applicableServices: ['cnc_machining', 'cnc_turning', 'sheet_metal_cutting'],
-  },
-  {
-    id: 'zinc_plating',
-    name: 'Zinc Plating',
-    description: 'Corrosion-resistant zinc coating',
-    icon: <Shield className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning', 'sheet_metal_cutting'],
+    applicableServices: ['cnc_turning', 'sheet_metal_cutting'],
   },
   {
     id: 'chrome_plating',
     name: 'Chrome Plating',
     description: 'Decorative and protective chrome finish',
     icon: <Chrome className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning'],
+    applicableServices: ['cnc_turning'],
   },
   {
     id: 'sand_blasting',
     name: 'Sand Blasting',
     description: 'Surface texturing and cleaning',
     icon: <Wind className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning', '3d_printing'],
+    applicableServices: ['cnc_turning', '3d_printing'],
   },
   {
     id: 'heat_treatment',
     name: 'Heat Treatment',
     description: 'Hardening or softening the material',
     icon: <Flame className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning', 'wire_edm'],
+    applicableServices: ['cnc_turning', 'wire_edm'],
   },
   {
     id: 'nickel_plating',
     name: 'Nickel Plating',
     description: 'Wear and corrosion resistance',
     icon: <Zap className="w-5 h-5" />,
-    applicableServices: ['cnc_machining', 'cnc_turning'],
+    applicableServices: ['cnc_turning'],
   },
 ];
 
@@ -138,15 +131,15 @@ export function SecondaryProcessSelection({
     return true;
   });
 
-  const needsColor = selectedProcesses.some(pid => 
+  const needsColor = selectedProcesses.some(pid =>
     SECONDARY_PROCESSES.find(p => p.id === pid)?.requiresColor
   );
 
-  const activeColorProcesses = selectedProcesses.filter(pid => 
+  const activeColorProcesses = selectedProcesses.filter(pid =>
     SECONDARY_PROCESSES.find(p => p.id === pid)?.requiresColor
   );
 
-  const availableColors = COLOR_OPTIONS.filter(color => 
+  const availableColors = COLOR_OPTIONS.filter(color =>
     color.applicableProcesses.some(ap => activeColorProcesses.includes(ap))
   );
 
@@ -164,15 +157,14 @@ export function SecondaryProcessSelection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
         {filteredProcesses.map((process) => {
           const isSelected = selectedProcesses.includes(process.id);
-          
+
           return (
             <Card
               key={process.id}
-              className={`cursor-pointer transition-all duration-300 overflow-hidden ${
-                isSelected
+              className={`cursor-pointer transition-all duration-300 overflow-hidden ${isSelected
                   ? 'bg-blue-50 border-[#2F5FA7] ring-1 ring-[#2F5FA7]/20'
                   : 'bg-white border-slate-200 hover:border-blue-200 hover:bg-slate-50'
-              }`}
+                }`}
               onClick={() => onProcessToggle(process.id)}
             >
               <div className="p-4">
@@ -182,11 +174,10 @@ export function SecondaryProcessSelection({
                     onCheckedChange={() => onProcessToggle(process.id)}
                     className="mt-1 data-[state=checked]:bg-[#2F5FA7] data-[state=checked]:border-[#2F5FA7]"
                   />
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                    isSelected
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isSelected
                       ? 'bg-[#2F5FA7] text-white'
                       : 'bg-slate-100 text-slate-500'
-                  }`}>
+                    }`}>
                     {process.icon}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -212,7 +203,7 @@ export function SecondaryProcessSelection({
               Finish Color Required
             </Badge>
           </div>
-          
+
           <div>
             <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest mb-3 block">
               Selection ({activeColorProcesses.map(p => p.replace('_', ' ')).join(' & ')})
@@ -223,11 +214,10 @@ export function SecondaryProcessSelection({
                   key={colorOption.id}
                   type="button"
                   onClick={() => onColorSelect(colorOption.id)}
-                  className={`group relative w-full aspect-square rounded-xl border-2 transition-all duration-200 ${
-                    coatingColor === colorOption.id
+                  className={`group relative w-full aspect-square rounded-xl border-2 transition-all duration-200 ${coatingColor === colorOption.id
                       ? 'border-[#2F5FA7] ring-2 ring-[#2F5FA7]/20 scale-105'
                       : 'border-slate-200 hover:border-slate-300'
-                  }`}
+                    }`}
                   style={{ backgroundColor: colorOption.color }}
                 >
                   {coatingColor === colorOption.id && (
@@ -238,7 +228,7 @@ export function SecondaryProcessSelection({
                 </button>
               ))}
             </div>
-            
+
             {coatingColor && (
               <p className="mt-4 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
                 Selected: {COLOR_OPTIONS.find(c => c.id === coatingColor)?.name}

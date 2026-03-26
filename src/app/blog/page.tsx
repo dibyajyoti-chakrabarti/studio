@@ -61,7 +61,7 @@ export default function BlogPage() {
                         MechHub <span className="text-[#2F5FA7]">Chronicles</span>
                     </h1>
                     <p className="text-[#64748B] text-lg leading-relaxed font-medium">
-                        Expert insights into CNC machining, additive manufacturing, and the future of industrial engineering.
+                        Expert insights into CNC milling/turning, additive manufacturing, and the future of industrial engineering.
                     </p>
                 </div>
 

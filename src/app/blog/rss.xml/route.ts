@@ -5,7 +5,7 @@ import { compareDesc } from 'date-fns';
 export async function GET() {
     const feed = new RSS({
         title: 'MechHub Blog | Chronicles of Precision Manufacturing',
-        description: 'Expert insights into CNC machining, additive manufacturing, and hardware innovation.',
+        description: 'Expert insights into CNC milling/turning, additive manufacturing, and hardware innovation.',
         site_url: 'https://www.mechhub.in/blog',
         feed_url: 'https://www.mechhub.in/blog/rss.xml',
         language: 'en',

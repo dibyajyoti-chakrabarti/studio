@@ -18,16 +18,14 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "",
     colors: { base: "#C0C7CF", alt: "#A8B0B8", hover: "#D6DBE1" }
   },
   {
     name: "Aluminium 6061",
     category: "aluminum",
-    processes: ["Sheet Cutting", "CNC Machining"],
+    processes: ["Sheet Cutting", "CNC Milling/Turning"],
     thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: "not for bending, powder coating available",
-    thumb: "",
     colors: { base: "#B0B7BF", alt: "#9AA3AB" }
   },
 
@@ -38,7 +36,6 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "/mild_steel_swatch.png",
     colors: { base: "#6E6E6E", alt: "#4B4B4B" }
   },
 
@@ -49,7 +46,6 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "",
     colors: { base: "#D9DEE3", alt: "#BFC5CC", highlight: "#8E959C" }
   },
 
@@ -60,7 +56,6 @@ const MATERIALS = [
     processes: ["Sheet Cutting"],
     thicknesses: "1, 1.6, 2, 3, 4, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "",
     colors: { base: "#1C1C1E", pattern: "#2A2A2D" }
   },
 
@@ -68,10 +63,9 @@ const MATERIALS = [
   {
     name: "Acrylic",
     category: "plastics",
-    processes: ["Laser Cut", "Sheet Cutting"],
+    processes: ["Sheet Cutting"],
     thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "",
     colors: { base: "rgba(200, 220, 255, 0.25)", frosted: "#E6F0FF", edge: "#BFD7FF" }
   },
 
@@ -79,28 +73,25 @@ const MATERIALS = [
   {
     name: "MDF",
     category: "woods",
-    processes: ["Laser Cut", "CNC Machining"],
+    processes: ["Sheet Cutting", "CNC Milling/Turning"],
     thicknesses: "3.2, 6.3, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "",
     colors: { base: "#C49A6C", alt: "#A67C52" }
   },
   {
     name: "Plywood",
     category: "woods",
-    processes: ["Laser Cut", "Sheet Cutting"],
+    processes: ["Sheet Cutting"],
     thicknesses: "3.2, 6.3, 9, 12 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "",
     colors: { base: "#D2A679", alt: "#B98A5A" }
   },
   {
     name: "Balsa Wood",
     category: "woods",
-    processes: ["Laser Cut"],
+    processes: ["Sheet Cutting"],
     thicknesses: "1, 3, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "",
     colors: { base: "#E6CFA8" }
   },
 

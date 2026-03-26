@@ -217,7 +217,7 @@ export function FileUploadStep({
           Upload 3D Design
         </h3>
         <p className="text-xs uppercase tracking-widest font-bold text-slate-500">
-          Upload your STEP, STP, STL, or OBJ file to get started
+          Upload your STEP OR STP file to get started
         </p>
       </div>
 
@@ -298,8 +298,6 @@ export function FileUploadStep({
                     <div className="flex gap-2 mt-2">
                       <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">STEP</Badge>
                       <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">STP</Badge>
-                      <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">STL</Badge>
-                      <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">OBJ</Badge>
                     </div>
                   )}
                 </div>
@@ -307,26 +305,11 @@ export function FileUploadStep({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".step,.stp,.stl,.obj,.STEP,.STP,.STL,.OBJ"
+                  accept=".step,.stp"
                   onChange={handleInputChange}
                   className="hidden"
                 />
               </Card>
-
-              <div className="flex items-center justify-center gap-6">
-                <div className="flex items-center gap-2 text-[8px] uppercase font-black tracking-[0.2em] text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 shadow-sm">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Source Files Encrypted
-                </div>
-                <div className="flex items-center gap-2 text-[8px] uppercase font-black tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-2 rounded-full border border-blue-100 shadow-sm">
-                  <Lock className="w-3.5 h-3.5" />
-                  Secure Cloud Storage
-                </div>
-                <div className="flex items-center gap-2 text-[8px] uppercase font-black tracking-[0.2em] text-slate-600 bg-slate-100 px-4 py-2 rounded-full border border-slate-200 shadow-sm">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  Industrial Precision
-                </div>
-              </div>
             </div>
           ) : (
             <div className="space-y-4">

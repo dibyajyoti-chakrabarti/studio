@@ -57,14 +57,14 @@ export default function RefundPolicyPage() {
                             <li className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex gap-4 items-start">
                                 <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] mt-1.5 shrink-0" />
                                 <div>
-                                    <p className="font-bold text-slate-900">Post-Procurement / Pre-Machining</p>
+                                    <p className="font-bold text-slate-900">Post-Procurement / Pre-Milling/Turning</p>
                                     <p className="text-sm">Refund minus verifiable raw material costs purchased specifically for the order.</p>
                                 </div>
                             </li>
                             <li className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex gap-4 items-start border-l-4 border-l-red-100">
                                 <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0" />
                                 <div>
-                                    <p className="font-bold text-slate-900">Active Machining/Fabrication (Non-Refundable)</p>
+                                    <p className="font-bold text-slate-900">Active Milling/Turning/Fabrication (Non-Refundable)</p>
                                     <p className="text-sm">No refund is available once fabrication has commenced, as materials are irreversibly altered.</p>
                                 </div>
                             </li>

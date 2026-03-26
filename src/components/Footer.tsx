@@ -39,7 +39,6 @@ export function Footer() {
                     <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-8 md:gap-6 text-center lg:text-left">
                         <div className="space-y-2">
                             <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white">Ready to build your next part?</h3>
-                            <p className="text-blue-100/60 text-sm font-medium max-w-lg">Upload your design and get matched with a verified MechMaster in minutes.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
                             <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full sm:w-auto">
@@ -91,7 +90,6 @@ export function Footer() {
                             {[
                                 { label: 'About Us', href: '/about' },
                                 { label: 'How It Works', href: '#how-it-works' },
-                                { label: 'MechMasters', href: '#vendors' },
                                 { label: 'Blog', href: '/blog' },
                                 { label: 'Contact', href: '/contact' },
                             ].map(l => (
