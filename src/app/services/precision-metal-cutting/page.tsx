@@ -119,15 +119,11 @@ export default function PrecisionCuttingPage() {
             <div className="flex-1 relative group">
               <div className="relative aspect-video w-full max-w-[700px] mx-auto overflow-hidden rounded-[40px] shadow-2xl shadow-blue-900/10 border border-slate-100">
                 <Image
-                  src="/focus-image.jpg"
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1774120570/b-9_srsrkc.webp"
                   alt="Precision Laser Cutting"
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   priority
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=1200";
-                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
               </div>

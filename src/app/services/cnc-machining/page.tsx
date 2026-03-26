@@ -115,12 +115,13 @@ export default function CNCMachiningPage() {
             <div className="relative group animate-in fade-in zoom-in duration-1000">
               <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
               <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-8 border-white/10 shadow-2xl aspect-square md:aspect-[4/3] bg-slate-900/40 backdrop-blur-sm">
-                <Image
-                  src="/cnc.png"
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985132/CNC-milling-housing-300x292_ppqvvc.jpg"
                   alt="Precision CNC Machined Component"
-                  fill
-                  className="object-contain p-12 transition-transform duration-700 group-hover:scale-105"
-                  priority
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 md:p-10">
                   <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">

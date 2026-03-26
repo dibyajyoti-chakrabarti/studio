@@ -190,6 +190,7 @@ export default function AdminPanel() {
   const productsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'products'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
   const shopOrdersQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'orders'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
   const restockRequestsQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'restockRequests'), orderBy('requestedAt', 'desc')) : null, [db, isAdminConfirmed]);
+  const contactQueriesQuery = useMemoFirebase(() => (db && isAdminConfirmed) ? query(collection(db, 'contactQueries'), orderBy('createdAt', 'desc')) : null, [db, isAdminConfirmed]);
 
   const quotationsQuery = useMemoFirebase(() => {
     if (!db || !isAdminConfirmed || !selectedRfq) return null;
@@ -208,6 +209,7 @@ export default function AdminPanel() {
   const { data: products, isLoading: isProductsLoading, error: productError } = useCollection(productsQuery);
   const { data: shopOrders, isLoading: isShopOrdersLoading } = useCollection(shopOrdersQuery);
   const { data: restockRequests, isLoading: isRestockLoading } = useCollection(restockRequestsQuery);
+  const { data: contactQueries, isLoading: isContactQueriesLoading } = useCollection(contactQueriesQuery);
   const { data: selectedRfqQuotes } = useCollection(quotationsQuery);
   const { data: selectedRfqParts } = useCollection(projectPartsQuery);
 
@@ -749,6 +751,7 @@ export default function AdminPanel() {
             { key: 'users', label: 'Buyers', icon: UserIcon },
             { key: 'vendors', label: 'MechMasters', icon: Factory },
             { key: 'consultations', label: 'Consultations', icon: MessageCircleQuestion },
+            { key: 'contact_queries', label: 'Contact Queries', icon: MessageSquare },
           ].map(item => (
             <Button
               key={item.key}
@@ -1199,6 +1202,82 @@ export default function AdminPanel() {
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
                           No consultation requests found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'contact_queries' && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Contact Queries</h1>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Customer inquiries from the Contact Us page.</p>
+                </div>
+                <Badge variant="outline" className="px-3 py-1 border-slate-200 text-slate-500 uppercase tracking-widest font-bold">{contactQueries?.length || 0} Queries</Badge>
+              </div>
+
+              <Card className="border-slate-200 overflow-hidden shadow-sm">
+                <Table>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-slate-200">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Contact</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Company</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 min-w-[300px]">Message</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Date</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isContactQueriesLoading ? (
+                      <TableRow><TableCell colSpan={5} className="text-center py-12"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></TableCell></TableRow>
+                    ) : contactQueries?.length ? (contactQueries as any[]).map((cq: any) => (
+                      <TableRow key={cq.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                        <TableCell>
+                          <div className="font-bold text-sm text-[#1E3A66]">{cq.firstName} {cq.lastName}</div>
+                          <a href={`mailto:${cq.email}`} className="text-xs text-[#2F5FA7] hover:underline">{cq.email}</a>
+                          {cq.phone && <div className="text-[10px] text-slate-400 mt-0.5">{cq.phone}</div>}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-slate-700 font-medium">{cq.company || <span className="text-slate-400 italic">—</span>}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap rounded-md bg-slate-50/50 p-3 border border-slate-100 max-w-[400px]">
+                            {cq.message}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-[#1E3A66] font-medium">{new Date(cq.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                          <div className="text-xs text-slate-500">{new Date(cq.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={cq.status || 'new'}
+                            onValueChange={(val) => {
+                              if (!db) return;
+                              updateDocumentNonBlocking(doc(db, 'contactQueries', cq.id), { status: val, updatedAt: new Date().toISOString() });
+                              toast({ title: 'Status Updated', description: `Query marked as ${val}.` });
+                            }}
+                          >
+                            <SelectTrigger className="h-8 text-xs w-[130px] font-bold uppercase tracking-wider">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="resolved">Resolved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                          No contact queries yet.
                         </TableCell>
                       </TableRow>
                     )}

@@ -18,7 +18,7 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "1, 1.6, 2, 2.3, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#C0C7CF", alt: "#A8B0B8", hover: "#D6DBE1" }
   },
   {
@@ -27,7 +27,7 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "CNC Machining"],
     thicknesses: "1, 1.6, 2, 2.5, 3.2, 4.7, 6.3, 8, 9.5 mm",
     notes: "not for bending, powder coating available",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#B0B7BF", alt: "#9AA3AB" }
   },
 
@@ -38,7 +38,7 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.6, 3, 3.4, 4.8, 6.3, 8, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "/mild_steel_swatch.png", 
+    thumb: "/mild_steel_swatch.png",
     colors: { base: "#6E6E6E", alt: "#4B4B4B" }
   },
 
@@ -49,7 +49,7 @@ const MATERIALS = [
     processes: ["Sheet Cutting", "Bending"],
     thicknesses: "0.8, 1.2, 1.5, 1.9, 2.5, 3.2, 4.7, 6.3, 9.5 mm",
     notes: ">5mm not for bending, powder coating available",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#D9DEE3", alt: "#BFC5CC", highlight: "#8E959C" }
   },
 
@@ -60,7 +60,7 @@ const MATERIALS = [
     processes: ["Sheet Cutting"],
     thicknesses: "1, 1.6, 2, 3, 4, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#1C1C1E", pattern: "#2A2A2D" }
   },
 
@@ -71,7 +71,7 @@ const MATERIALS = [
     processes: ["Laser Cut", "Sheet Cutting"],
     thicknesses: "1.6, 3, 4.5, 5.4, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", 
+    thumb: "",
     colors: { base: "rgba(200, 220, 255, 0.25)", frosted: "#E6F0FF", edge: "#BFD7FF" }
   },
 
@@ -82,7 +82,7 @@ const MATERIALS = [
     processes: ["Laser Cut", "CNC Machining"],
     thicknesses: "3.2, 6.3, 9.5, 12.7 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#C49A6C", alt: "#A67C52" }
   },
   {
@@ -91,7 +91,7 @@ const MATERIALS = [
     processes: ["Laser Cut", "Sheet Cutting"],
     thicknesses: "3.2, 6.3, 9, 12 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#D2A679", alt: "#B98A5A" }
   },
   {
@@ -100,7 +100,7 @@ const MATERIALS = [
     processes: ["Laser Cut"],
     thicknesses: "1, 3, 5 mm",
     notes: "not for bending, not for powder coating",
-    thumb: "", 
+    thumb: "",
     colors: { base: "#E6CFA8" }
   },
 
@@ -155,8 +155,8 @@ function MaterialSwatch({ mat, overrideColor }: { mat: any, overrideColor?: stri
   }
 
   return (
-    <div 
-      className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200/50 group-hover:scale-105 transition-transform duration-500" 
+    <div
+      className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200/50 group-hover:scale-105 transition-transform duration-500"
       style={style}
     >
       {/* Dynamic Shine/Texture Overlays */}
@@ -178,7 +178,7 @@ function MaterialSwatch({ mat, overrideColor }: { mat: any, overrideColor?: stri
 export function MaterialsSection() {
   const router = useRouter();
   const { user } = useUser();
-  const [activeFilter, setActiveFilter] = useState('ALUMINUM');
+  const [activeFilter, setActiveFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [selectedCoating, setSelectedCoating] = useState<string | undefined>(undefined);

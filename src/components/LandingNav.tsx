@@ -14,20 +14,7 @@ import {
   ShoppingCart,
   Search,
   ChevronDown,
-  Package2,
-  Cpu,
-  Scissors,
-  Zap,
-  Droplets,
-  Wrench,
-  Settings,
-  Layers,
-  ShieldCheck,
-  Palette,
-  Maximize2,
-  CheckCircle2,
-  Settings2,
-  Hammer
+  Package2
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect, useRef } from 'react';
@@ -51,20 +38,6 @@ const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
 ];
 
-const SERVICES_LIST = [
-  { name: "CNC Machining", href: "/services/cnc-machining", icon: Cpu, desc: "High-precision vertical & horizontal milling." },
-  { name: "Precision Sheet Cutting", href: "/services/precision-sheet-cutting", icon: Zap, desc: "High-speed sheet metal fabrication." },
-  { name: "Bending", href: "/services/bending", icon: Hammer, desc: "Multi-axis press brake forming." },
-  { name: "Countersinking", href: "/services/countersinking", icon: Maximize2, desc: "Precision hole preparation for fasteners." },
-  { name: "Tapping", href: "/services/tapping", icon: Settings2, desc: "Internal threading for machine screws." },
-  { name: "Dimple Forming", href: "/services/dimple-forming", icon: Layers, desc: "High-strength structural dimples." },
-  { name: "Hardware Insertion", href: "/services/hardware-insertion", icon: Settings, desc: "PEM® fastener installation services." },
-  { name: "Anodizing", href: "/services/anodizing", icon: Palette, desc: "Durable MIL-A-8625 Type II finishes." },
-  { name: "Deburring", href: "/services/deburring", icon: ShieldCheck, desc: "Vibratory & manual edge finishing." },
-  { name: "Plating", href: "/services/plating", icon: CheckCircle2, desc: "Zinc, Nickel, and Chrome coatings." },
-  { name: "Powder Coating", href: "/services/powder-coating", icon: Droplets, desc: "Industrial-grade durable paint finishes." },
-  { name: "Tumbling", href: "/services/tumbling", icon: Wrench, desc: "Surface smoothing & metal polishing." },
-];
 
 const CATEGORIES_LIST = [
   { name: "Bearings", href: "/shop?category=bearings" },
@@ -200,33 +173,14 @@ export function LandingNav() {
               }}
             />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="relative px-4 py-2 text-sm font-semibold text-[#64748B] hover:text-[#2F5FA7] flex items-center gap-1.5 transition-colors"
-                  onMouseEnter={() => handleMouseEnter(-2)}
-                >
-                  Services <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[900px] bg-white border border-slate-100 rounded-[2rem] p-4 mt-2 shadow-[0_30px_60px_-15px_rgba(47,95,167,0.2)]">
-                <div className="grid grid-cols-3 gap-2">
-                  {SERVICES_LIST.map((service) => (
-                    <Link key={service.href} href={service.href}>
-                      <DropdownMenuItem className="flex items-start gap-4 p-4 rounded-2xl cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-all group">
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#2F5FA7] group-hover:scale-110 group-hover:bg-[#2F5FA7] group-hover:text-white transition-all shadow-sm">
-                          <service.icon className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="font-bold text-sm text-[#1E3A66] group-hover:text-[#2F5FA7] transition-colors">{service.name}</p>
-                          <p className="text-[10px] text-slate-500 font-medium leading-relaxed italic">{service.desc}</p>
-                        </div>
-                      </DropdownMenuItem>
-                    </Link>
-                  ))}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href="/#services"
+              onMouseEnter={() => handleMouseEnter(-2)}
+              className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${activeIndex === -2 ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
+                }`}
+            >
+              Services
+            </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -390,20 +344,13 @@ export function LandingNav() {
               </Link>
             ))}
 
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mt-3 mb-1">Services</div>
-            <div className="grid grid-cols-2 gap-2 px-2 max-h-[50vh] overflow-y-auto">
-              {SERVICES_LIST.map((service) => (
-                <Link key={service.href} href={service.href} className="flex items-start gap-3 p-3 rounded-xl text-[10px] font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
-                  <div className="w-7 h-7 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-[#2F5FA7] shrink-0">
-                    <service.icon className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="leading-tight">{service.name}</p>
-                    <p className="text-[8px] text-slate-400 font-medium italic truncate w-32">{service.desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <Link
+              href="/#services"
+              className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              Services
+            </Link>
 
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mt-3 mb-1">Categories</div>
             <div className="grid grid-cols-2 gap-2 px-2">

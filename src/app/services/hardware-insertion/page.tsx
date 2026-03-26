@@ -144,12 +144,12 @@ export default function HardwareInsertionPage() {
             <div className="relative group animate-in fade-in zoom-in duration-1000 hidden md:block">
               <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
               <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white/10 shadow-2xl aspect-[4/3]">
-                <Image
-                  src="/hardware_installation_diagram_blueprint_1774274037231.png"
-                  alt="Hardware Insertion Blueprint"
-                  fill
-                  className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
-                  priority
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984866/inserting_tisw_TitleImageSwap500x408_u9dldf.webp"
+                  alt="Precision Hardware Installation"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
@@ -239,11 +239,12 @@ export default function HardwareInsertionPage() {
 
             <div className="relative group hidden md:block">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative">
-                <Image
-                  src="/hardware_installation_diagram_blueprint_1774274037231.png"
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984866/inserting_tisw_TitleImageSwap500x408_u9dldf.webp"
                   alt="Installation Geometry Guide"
-                  fill
-                  className="object-contain p-4"
+                  width={240}
+                  height={180}
+                  className="object-cover"
                 />
               </div>
               <div className="absolute -z-10 -bottom-6 -right-6 w-full h-full border-4 border-cyan-400 rounded-[3rem] hidden lg:block opacity-30 group-hover:opacity-100 transition-opacity duration-500" />

@@ -6,6 +6,7 @@ import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Construction } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 
 
@@ -14,6 +15,7 @@ export function Footer() {
     const [currentYear, setCurrentYear] = useState<number | null>(null);
     const { toast } = useToast();
     const user = useUser();
+    const router = useRouter();
 
     useEffect(() => {
         setCurrentYear(new Date().getFullYear());
@@ -48,7 +50,10 @@ export function Footer() {
                                     Upload Your Design <ArrowRight className="ml-1.5 w-3.5 h-3.5 inline" />
                                 </Button>
                             </Link>
-                            <Button variant="ghost" className="w-full sm:w-auto h-11 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold" suppressHydrationWarning>
+                            <Button
+                                variant="ghost"
+                                onClick={() => router.push("#services")}
+                                className="w-full sm:w-auto h-11 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold" suppressHydrationWarning>
                                 View Services
                             </Button>
                         </div>
@@ -67,7 +72,7 @@ export function Footer() {
                             <span className="text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">MechHub</span>
                         </Link>
                         <p className="text-blue-100/70 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-medium">
-                            India's precision manufacturing marketplace connecting design teams with verified CNC, laser, and fabrication experts.
+                            Real Parts . Real Engineers . Real Deadlines
                         </p>
                         {/* Mini trust badges */}
                         <div className="flex flex-wrap justify-center lg:justify-start gap-2.5">
@@ -88,7 +93,7 @@ export function Footer() {
                                 { label: 'How It Works', href: '#how-it-works' },
                                 { label: 'MechMasters', href: '#vendors' },
                                 { label: 'Blog', href: '/blog' },
-                                { label: 'Contact', href: '/about' },
+                                { label: 'Contact', href: '/contact' },
                             ].map(l => (
                                 <li key={l.label}>
                                     <Link href={l.href} className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium">{l.label}</Link>
@@ -113,29 +118,6 @@ export function Footer() {
                             ))}
                         </ul>
                     </div>
-
-                    {/* Vendors */}
-                    <div>
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-5">For Vendors</h4>
-                        <ul className="space-y-3">
-                            {[
-                                { label: 'Onboarding Guide', href: '#' },
-                                { label: 'Seller Portal', href: '#' },
-                                { label: 'Quality Standards', href: '#' },
-                                { label: 'Partner FAQs', href: '#' },
-                            ].map(l => (
-                                <li key={l.label}>
-                                    <button
-                                        onClick={(e) => handleWIPClick(e, l.label)}
-                                        className="text-sm text-blue-100/60 hover:text-white transition-colors text-left font-medium"
-                                    >
-                                        {l.label}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
                 </div>
             </div>
 

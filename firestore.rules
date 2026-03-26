@@ -233,6 +233,17 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────
+    // contactQueries/{queryId}
+    // ─────────────────────────────────────────
+    match /contactQueries/{queryId} {
+      // Public submissions (unauthenticated contact form)
+      allow create: if true;
+
+      // Only admin reads and manages contact queries
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────
     // newsletter_subscribers/{docId}
     // ─────────────────────────────────────────
     match /newsletter_subscribers/{docId} {

@@ -33,7 +33,8 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.005\" (0.127mm)",
     thickness: "0.4mm – 19mm",
     icon: Zap,
-    color: "bg-blue-600"
+    color: "bg-blue-600",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1773983927/3e6da763-3528-4151-803a-895414e5e3b5.png"
   },
   {
     title: "Waterjet Cutting",
@@ -41,7 +42,8 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "1.0mm – 57mm",
     icon: Droplets,
-    color: "bg-blue-400"
+    color: "bg-blue-400",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120570/b-9_srsrkc.webp"
   },
   {
     title: "CNC Routing",
@@ -49,7 +51,8 @@ const CUTTING_SERVICES = [
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "3.0mm – 12.7mm",
     icon: Wrench,
-    color: "bg-[#2F5FA7]"
+    color: "bg-[#2F5FA7]",
+    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120528/-0vw4uukf_qwvrit.webp"
   }
 ];
 
@@ -161,9 +164,17 @@ export default function PrecisionSheetCuttingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {CUTTING_SERVICES.map((service, index) => (
               <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-                <div className="relative h-48 mb-8 rounded-2xl overflow-hidden shadow-lg bg-white flex items-center justify-center p-8">
-                  <div className={`w-20 h-20 rounded-2xl ${service.color} flex items-center justify-center text-white shadow-xl transform group-hover:rotate-12 transition-transform duration-500`}>
-                    <service.icon className="w-10 h-10" />
+                <div className="relative h-48 mb-8 rounded-2xl overflow-hidden shadow-lg bg-white group-hover:shadow-2xl transition-all duration-500">
+                  <img
+                    src={service.img}
+                    alt={service.title}
+                    width={240}
+                    height={180}
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${service.color} flex items-center justify-center text-white shadow-xl`}>
+                    <service.icon className="w-5 h-5" />
                   </div>
                 </div>
                 <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{service.title}</h3>

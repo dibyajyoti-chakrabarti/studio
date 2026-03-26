@@ -104,13 +104,13 @@ export default function PowderCoatingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 w-full h-full relative z-10 opacity-40">
-                  <div className="bg-red-500 rounded-3xl" />
-                  <div className="bg-blue-500 rounded-3xl" />
-                  <div className="bg-yellow-500 rounded-3xl" />
-                  <div className="bg-black rounded-3xl" />
-                </div>
-                <Droplet className="absolute w-40 h-40 text-white/10" />
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985460/powder-coated-profile_e6k4yo.png"
+                  alt="Powder Coated Profile"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
               </div>
             </div>
           </div>

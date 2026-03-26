@@ -94,12 +94,12 @@ export default function BendingPage() {
             <div className="relative group animate-in fade-in zoom-in duration-1000 hidden md:block">
               <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
               <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white/10 shadow-2xl aspect-[4/3] bg-slate-900/40 backdrop-blur-sm">
-                <Image
-                  src="/bending_illustration.png"
-                  alt="Precision Bending Blueprint"
-                  fill
-                  className="object-contain p-12 transition-transform duration-700 group-hover:scale-110"
-                  priority
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984524/sheet-metal-bending-parts-014_ofmchf.jpg"
+                  alt="Precision Bending"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
@@ -213,11 +213,12 @@ export default function BendingPage() {
 
             <div className="relative group hidden md:block">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
-                <Image
-                  src="/bending_illustration.png"
-                  alt="Bending Geometry Guide"
-                  fill
-                  className="object-contain p-12 transition-transform duration-700 group-hover:scale-105"
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984524/sheet-metal-bending-parts-014_ofmchf.jpg"
+                  alt="Bending Engineering Guide"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">

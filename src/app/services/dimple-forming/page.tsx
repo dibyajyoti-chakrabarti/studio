@@ -89,7 +89,13 @@ export default function DimpleFormingPage() {
             <div className="relative group animate-in fade-in zoom-in duration-1000 hidden md:block">
               <div className="absolute -inset-4 bg-white/10 rounded-[3rem] blur-2xl group-hover:bg-white/20 transition-all duration-700 opacity-50"></div>
               <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white/10 shadow-2xl aspect-[4/3] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
-                <Cpu className="w-48 h-48 text-cyan-300/20 animate-pulse" />
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984647/1771003010117-dimple-forming-1.jpg_rbtfn0.jpg"
+                  alt="Precision Dimple Forming"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
                     <div className="w-3 h-3 rounded-full bg-blue-600 animate-pulse" />

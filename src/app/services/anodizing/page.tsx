@@ -112,14 +112,22 @@ export default function AnodizingPage() {
             </div>
 
             <div className="relative animate-in fade-in zoom-in duration-1000 delay-300 lg:block hidden">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4 pt-12">
-                  <div className="h-48 rounded-[2rem] bg-gradient-to-br from-blue-600 to-blue-800 shadow-2xl transition-transform hover:-translate-y-2 duration-500" />
-                  <div className="h-64 rounded-[2rem] bg-zinc-900 border border-white/10 shadow-2xl transition-transform hover:-translate-y-2 duration-500" />
-                </div>
-                <div className="space-y-4">
-                  <div className="h-64 rounded-[2rem] bg-gradient-to-br from-red-600 to-red-800 shadow-2xl transition-transform hover:-translate-y-2 duration-500" />
-                  <div className="h-48 rounded-[2rem] bg-slate-200 shadow-2xl transition-transform hover:-translate-y-2 duration-500" />
+              <div className="relative rounded-[3rem] overflow-hidden border-8 border-white/10 shadow-2xl aspect-[4/3] bg-slate-900/40 backdrop-blur-sm">
+                <img
+                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985502/anodized-parts_c6bzzo.webp"
+                  alt="Anodized Aluminum Parts"
+                  width={240}
+                  height={180}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
+                  <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
+                    <div className="w-3 h-3 rounded-full bg-blue-600 animate-pulse" />
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Quality Check</p>
+                      <p className="text-sm font-bold text-slate-900">MIL-SPEC Type II Active</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
