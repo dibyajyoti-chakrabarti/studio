@@ -11,6 +11,7 @@ import {
   Move3d,
   CircleDot
 } from 'lucide-react';
+import { ExpertCTA } from './ExpertCTA';
 
 interface ServiceOption {
   id: ManufacturingService;
@@ -124,6 +125,11 @@ export function ServiceSelection({
           ))}
         </div>
       </div>
+
+      <ExpertCTA 
+        description="Providing elite manufacturing for precision parts. If your required service is not listed, our experts can help with custom fabrication."
+        buttonText="Contact Expert"
+      />
     </div>
   );
 }

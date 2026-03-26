@@ -17,6 +17,7 @@ import {
   Flame,
   Zap
 } from 'lucide-react';
+import { ExpertCTA } from './ExpertCTA';
 
 export interface SecondaryProcessOption {
   id: SecondaryProcess;
@@ -245,6 +246,11 @@ export function SecondaryProcessSelection({
           </p>
         </div>
       )}
+
+      <ExpertCTA 
+        description="Need a specialized surface treatment or plating not listed? Our engineering experts handle complex custom finishing requirements."
+        buttonText="Consult Finishing"
+      />
     </div>
   );
 }

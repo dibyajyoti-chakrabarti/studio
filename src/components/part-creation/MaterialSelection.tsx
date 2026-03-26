@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ManufacturingService } from '@/types/project';
 import { Layers3, CheckCircle, Info } from 'lucide-react';
 import { MATERIAL_CATALOG, MaterialOption } from '@/lib/data/material-data';
+import { ExpertCTA } from './ExpertCTA';
 
 interface MaterialSelectionProps {
   selectedService: ManufacturingService;
@@ -150,12 +151,10 @@ export function MaterialSelection({
         ))}
       </div>
 
-      <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
-        <Info className="w-4 h-4 text-[#2F5FA7] mt-0.5" />
-        <p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold leading-relaxed">
-          The thicknesses shown are currently in stock and ready for immediate manufacturing. If you require a custom thickness, please contact our support team.
-        </p>
-      </div>
+      <ExpertCTA 
+        description="Looking for a specific material or thickness not listed above? Our procurement team can source custom materials for your project."
+        buttonText="Inquire Material"
+      />
     </div>
   );
 }
