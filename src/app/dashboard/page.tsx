@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService, SERVICE_DISPLAY_NAMES } from '@/types/project';
@@ -51,7 +51,8 @@ import {
   Hash,
   Box,
   RotateCcw,
-  ShieldAlert
+  ShieldAlert,
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { isAdmin } from '@/lib/auth-utils';
@@ -375,6 +376,46 @@ export default function UserDashboard() {
     toast({ title: "Proposal Sent", description: "The vendor will review your counter-offer." });
   };
 
+  const handleDeleteProject = async (rfq: ProjectRFQ) => {
+    if (rfq.status !== 'draft') {
+      toast({
+        title: "Cannot Delete",
+        description: "Projects with requested quotations cannot be removed.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete "${rfq.projectName}"? This will also remove all associated parts and design files. This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      // 1. Delete associated parts
+      const partsToDelete = allParts?.filter(p => p.projectId === rfq.id) || [];
+      partsToDelete.forEach(part => {
+        deleteDocumentNonBlocking(doc(db!, 'projectParts', part.id));
+      });
+
+      // 2. Delete the RFQ document
+      deleteDocumentNonBlocking(doc(db!, 'projectRFQs', rfq.id));
+
+      // 3. Reset selection and notify
+      setSelectedOrderId(null);
+      toast({
+        title: "Project Deleted",
+        description: `"${rfq.projectName}" has been successfully removed.`
+      });
+    } catch (error) {
+      console.error("Deletion error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while deleting the project.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (isUserLoading || !user) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>;
 
   return (
@@ -643,7 +684,20 @@ export default function UserDashboard() {
                   <CardHeader className="border-b border-slate-50 pb-5">
                     <div className="flex justify-between items-start mb-3">
                       <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">{SERVICE_DISPLAY_NAMES[selectedOrderParts[0]?.service] || 'PROJECT'}</Badge>
-                      <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200">{STATUS_MAP[selectedOrder.status as ProjectRFQStatus]?.label}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200">{STATUS_MAP[selectedOrder.status as ProjectRFQStatus]?.label}</Badge>
+                        {selectedOrder.status === 'draft' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                            onClick={() => handleDeleteProject(selectedOrder)}
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <CardTitle className="text-xl text-slate-900 tracking-tight uppercase">{selectedOrder.projectName}</CardTitle>
                     <CardDescription className="text-xs uppercase tracking-widest text-slate-500 font-bold mt-2 max-w-[80%] leading-relaxed border-l-2 border-[#2F5FA7]/30 pl-3">
