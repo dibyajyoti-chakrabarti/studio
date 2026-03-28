@@ -157,7 +157,7 @@ export default function Home() {
                 <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
               </p>
 
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16 w-full lg:justify-start">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-12 md:mb-20 w-full lg:justify-start">
                 <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto">
                   <Button
                     size="lg"
@@ -170,17 +170,6 @@ export default function Home() {
               </div>
 
 
-              <div className="w-full overflow-x-auto no-scrollbar pb-8 touch-pan-x">
-                <div className="flex items-center justify-start gap-4 md:gap-6 w-max mx-auto px-0">
-                  {['Laser Cutting', '3D Printing', 'Fabrication', 'Sheet Metal', 'CNC Milling/Turning'].map((tag) => (
-                    <div key={tag} className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest text-white border border-white/10 backdrop-blur-sm transition-all hover:bg-white/20 whitespace-nowrap">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-300 shrink-0 shadow-[0_0_8px_rgba(103,232,249,0.5)]" />
-                      {tag}
-                    </div>
-                  ))}
-                </div>
-
-              </div>
 
 
             </div>
@@ -222,19 +211,19 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex marquee-container mt-auto relative z-20">
-          <div className="flex animate-marquee gap-4 md:gap-8 items-center py-4 md:py-6 overflow-x-auto no-scrollbar px-4 lg:px-0 scroll-smooth">
-            {[1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2].map((i, idx) => (
+        <div className="marquee-container mt-auto relative z-20">
+          <div className="flex animate-marquee gap-3 md:gap-6 items-center py-4 md:py-6">
+            {[1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2, 1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2].map((i, idx) => (
               <div
                 key={`part-1-${idx}`}
-                className="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-2xl md:rounded-[32px] border border-white/10 flex items-center justify-center group duration-500 relative overflow-hidden bg-white shadow-lg"
+                className="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl md:rounded-[24px] border border-white/10 flex items-center justify-center group duration-500 relative overflow-hidden bg-white shadow-lg"
               >
                 <Image
                   src={`/part_${i}.png`}
                   alt={`Industrial Component ${idx}`}
-                  width={80}
-                  height={80}
-                  className="object-contain opacity-100 group-hover:scale-110 transition-all duration-700 md:w-[100px] md:h-[100px]"
+                  width={50}
+                  height={50}
+                  className="object-contain opacity-100 group-hover:scale-110 transition-all duration-700 md:w-[70px] md:h-[70px]"
                 />
               </div>
             ))}
@@ -250,7 +239,7 @@ export default function Home() {
           }
           @keyframes marquee {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            100% { transform: translateX(-50%); }
           }
           .animate-marquee:hover {
             animation-play-state: paused;

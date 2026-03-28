@@ -96,7 +96,7 @@ export function ServicesSection() {
                                         src={service.img}
                                         alt={service.title}
                                         fill
-                                        className="object-cover transition-transform duration-700 group-hover:scale-110"                                    />
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
                                 </div>
                                 <h3 className="text-sm md:text-xl font-black text-[#0F172A] mb-2 md:mb-4 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
