@@ -13,7 +13,12 @@ import {
   Droplets,
   Wrench,
   Maximize2,
-  Layers
+  Layers,
+  Clock,
+  Boxes,
+  Truck,
+  FileCode2,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
@@ -24,31 +29,31 @@ import { ExpertCTA } from '@/components/part-creation/ExpertCTA';
 
 const CUTTING_SERVICES = [
   {
-    title: "Laser Cutting",
-    desc: "High-speed fiber lasers for thin to medium gauge metals. Ideal for intricate geometries and tight tolerances.",
+    title: "Fiber Laser Cutting",
+    desc: "The industrial standard for high-speed, high-precision metal fabrication. Our fiber lasers deliver clean edges and intricate detail with minimal heat-affected zones.",
     tolerance: "± 0.005\" (0.127mm)",
     thickness: "0.4mm – 19mm",
     icon: Zap,
     color: "bg-blue-600",
-    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1773983927/3e6da763-3528-4151-803a-895414e5e3b5.png"
+    img: "/laser-cutting.png"
   },
   {
-    title: "Waterjet Cutting",
-    desc: "Cold-cutting process using high-pressure water and abrasive. Best for thick plates and heat-sensitive materials.",
+    title: "Abrasive Waterjet",
+    desc: "A powerful, cold-cutting process ideal for thick plates and heat-sensitive materials. Perfect for maintaining material properties without edge hardening.",
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "1.0mm – 57mm",
     icon: Droplets,
     color: "bg-blue-400",
-    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120570/b-9_srsrkc.webp"
+    img: "/waterjet-cutting.png"
   },
   {
     title: "CNC Routing",
-    desc: "Mechanical cutting for non-ferrous metals, plastics, and wood. Perfect for large-format sheets.",
+    desc: "Mechanical precision for large-format sheets. Optimized for non-ferrous metals, industrial plastics, and composite materials requiring structural accuracy.",
     tolerance: "± 0.009\" (0.228mm)",
     thickness: "3.0mm – 12.7mm",
     icon: Wrench,
     color: "bg-[#2F5FA7]",
-    img: "https://res.cloudinary.com/dypbvtojf/image/upload/v1774120528/-0vw4uukf_qwvrit.webp"
+    img: "/cnc-routing.png"
   }
 ];
 
@@ -58,17 +63,17 @@ export default function PrecisionSheetCuttingPage() {
       <LandingNav />
 
       <ServiceHero
-        title="Precision"
-        subtitle="Sheet Cutting"
-        description="From high-speed fiber lasers to cold-waterjet cutting. We deliver industrial-grade components with institutional precision across metals, plastics, and advanced composites."
-        badge="Industrial Fabrication"
+        title="Industrial Grade"
+        subtitle="Sheet Metal Cutting"
+        description="State-of-the-art fiber laser, waterjet, and CNC routing services. Get instant DFM feedback, no minimum orders, and rapid lead times starting at just 2 days."
+        badge="Institutional Fabrication"
         icon={Scissors}
-        image="/sheet_cutting_service.png"
-        operationalStatus="High-Speed Fiber Laser Active"
+        image="/focus-image.jpg"
+        operationalStatus="Fiber Laser & Waterjet Lines Active"
         statusLabel="Operational Status"
         stats={[
-          { label: "Tolerance", value: "± 0.005\" Tolerance", icon: Target },
-          { label: "Production", value: "1-3 Day Production", icon: Zap }
+          { label: "Tolerances", value: "Up to ±0.005\"", icon: Target },
+          { label: "Lead Time", value: "Ships in 2-4 Days", icon: Zap }
         ]}
       />
 
@@ -87,14 +92,14 @@ export default function PrecisionSheetCuttingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {CUTTING_SERVICES.map((service, index) => (
               <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-                <div className="relative h-48 mb-8 rounded-2xl overflow-hidden shadow-lg bg-white group-hover:shadow-2xl transition-all duration-500">
+                <div className="relative aspect-[4/3] mb-8 rounded-2xl overflow-hidden shadow-lg bg-white/80 group-hover:shadow-2xl transition-all duration-500 border border-slate-100 flex items-center justify-center p-8">
                   <img
                     src={service.img}
                     alt={service.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${service.color} flex items-center justify-center text-white shadow-xl`}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
+                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${service.color} flex items-center justify-center text-white shadow-xl z-10`}>
                     <service.icon className="w-5 h-5" />
                   </div>
                 </div>
@@ -114,9 +119,47 @@ export default function PrecisionSheetCuttingPage() {
             ))}
           </div>
 
-          <ExpertCTA 
+          <ExpertCTA
             description="If your project requires material types not listed above, extreme precision beyond ± 0.1mm, or specialized edge finishing (like deburring/rounding), connect with our expert team."
           />
+        </div>
+      </section>
+
+      {/* Why Choose MechHub */}
+      <section className="py-24 bg-slate-50 border-y border-slate-100">
+        <div className="container mx-auto px-4 md:px-10 lg:px-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              {
+                title: "No Minimum Orders",
+                desc: "Whether it's a single prototype or a production run of 10,000, we provide the same institutional quality with no MOQ constraints.",
+                icon: Boxes,
+                color: "text-blue-600"
+              },
+              {
+                title: "Industrial Precision",
+                desc: "Our state-of-the-art fiber lasers and waterjets maintain tight tolerances (up to ±0.005\") across a wide range of materials and thicknesses.",
+                icon: Target,
+                color: "text-cyan-600"
+              },
+              {
+                title: "Rapid Lead Times",
+                desc: "Leveraging automated DFM and high-speed equipment, we offer industry-leading turnaround times, shipping parts in as little as 2 days.",
+                icon: Clock,
+                color: "text-indigo-600"
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="flex flex-col items-start gap-6">
+                <div className={`w-14 h-14 rounded-2xl bg-white shadow-lg flex items-center justify-center ${item.color} border border-slate-100`}>
+                  <item.icon className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                  <p className="text-slate-600 font-medium leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -208,26 +251,37 @@ export default function PrecisionSheetCuttingPage() {
               {[
                 {
                   step: "01",
-                  title: "Upload Your Design",
-                  description: "Drag and drop your DXF, DWG, or AI files. Our engine instantly analyzes your geometry for cut paths and hole diameters."
+                  title: "Secure Upload",
+                  description: "Upload your CAD files (DXF, STEP, AI, EPS) to our secure engine. Our system instantly parses geometry for manufacturing compatibility.",
+                  icon: FileCode2
                 },
                 {
                   step: "02",
-                  title: "Select Technology",
-                  description: "Compare Laser, Waterjet, and Routing in real-time. Choose the process that matches your tolerance and edge-finish requirements."
+                  title: "Instant Quote & DFM",
+                  description: "Receive real-time pricing and automated Design for Manufacturing (DFM) feedback. Adjust materials and quantities to optimize your budget.",
+                  icon: Zap
                 },
                 {
                   step: "03",
-                  title: "Automated Production",
-                  description: "Once confirmed, your parts are nested into high-efficiency sheets and cut using industrial-grade CNC equipment."
+                  title: "Precision Cutting",
+                  description: "Your parts are precision-cut using industrial fiber lasers or waterjets, ensuring edge quality and dimensional accuracy.",
+                  icon: Scissors
+                },
+                {
+                  step: "04",
+                  title: "Inspection & Delivery",
+                  description: "Every part undergoes a rigorous institutional quality check before being packed and shipped directly to your facility.",
+                  icon: Truck
                 }
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
-                  <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
+                  <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none shrink-0">
                     {item.step}
                   </div>
                   <div className="pt-2">
-                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
+                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter flex items-center gap-3">
+                      {item.title}
+                    </h3>
                     <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">{item.description}</p>
                   </div>
                 </div>
@@ -240,6 +294,58 @@ export default function PrecisionSheetCuttingPage() {
                   </Button>
                 </Link>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 bg-white border-t border-slate-100">
+        <div className="container mx-auto px-4 md:px-10 lg:px-20">
+          <div className="flex flex-col lg:flex-row gap-20">
+            <div className="lg:w-1/3">
+              <div className="sticky top-32">
+                <HelpCircle className="w-12 h-12 text-blue-600 mb-6" />
+                <h2 className="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter leading-none">
+                  Technical <br />
+                  <span className="text-blue-600">FAQ</span>
+                </h2>
+                <p className="text-slate-600 font-medium">
+                  Find answers to common questions about our sheet cutting processes and technical requirements.
+                </p>
+              </div>
+            </div>
+            <div className="lg:w-2/3 space-y-6">
+              {[
+                {
+                  q: "What file formats do you accept for sheet cutting?",
+                  a: "For 2D sheet cutting, we recommend DXF or DWG files with a 1:1 scale. We also support vector files like AI and EPS, as well as 3D STEP files which our engine will automatically flatten."
+                },
+                {
+                  q: "What is your standard tolerance for laser cutting?",
+                  a: "Our fiber lasers maintain a standard linear tolerance of ± 0.005\" (0.127mm). For thicker materials over 12mm, tolerances may vary slightly depending on the geometry."
+                },
+                {
+                  q: "Do you have a minimum order quantity (MOQ)?",
+                  a: "No. MechHub is built for both prototyping and production. You can order as little as one part or as many as ten thousand."
+                },
+                {
+                  q: "How do you handle internal sharp corners?",
+                  a: "Laser and waterjet cutting can produce very tight internal radii (typically 0.1mm - 0.2mm). However, for CNC routing, the internal radius is limited by the diameter of the cutting tool (usually 3mm minimum)."
+                },
+                {
+                  q: "Can you provide finishing services after cutting?",
+                  a: "Yes. We offer integrated secondary operations including bending, tapping, hardware insertion, anodizing, and powder coating for a complete turn-key solution."
+                }
+              ].map((faq, idx) => (
+                <div key={idx} className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 hover:border-blue-200 transition-colors group">
+                  <h3 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-tight flex items-center gap-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                    {faq.q}
+                  </h3>
+                  <p className="text-slate-600 font-medium leading-relaxed italic">{faq.a}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

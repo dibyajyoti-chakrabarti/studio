@@ -29,9 +29,9 @@ export function ServiceHero({
   badge
 }: ServiceHeroProps) {
   return (
-    <section className="relative min-h-[80vh] lg:h-[80vh] flex items-center py-12 lg:py-0 overflow-hidden bg-slate-950">
+    <section className="relative min-h-[60vh] lg:h-[90vh] flex items-center py-10 lg:py-0 overflow-hidden bg-slate-950">
       {/* Background Pattern */}
-      <div 
+      <div
         className="absolute inset-0 z-0 opacity-20"
         style={{
           backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px), linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
@@ -47,16 +47,16 @@ export function ServiceHero({
               <Icon className="w-4 h-4" />
               {badge}
             </div>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tighter uppercase">
+
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tighter uppercase">
               {title} <br />
               <span className="text-cyan-300">{subtitle}</span>
             </h1>
-            
-            <p className="text-base md:text-xl text-white/80 max-w-xl leading-relaxed font-medium">
+
+            <p className="text-sm md:text-lg text-white/80 max-w-xl leading-relaxed font-medium">
               {description}
             </p>
-            
+
             <div className="flex flex-wrap gap-6 pt-4 border-t border-white/10">
               {stats.map((stat, idx) => (
                 <div key={idx} className="flex items-center gap-2.5 text-white font-bold">
@@ -65,11 +65,11 @@ export function ServiceHero({
                 </div>
               ))}
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <Link href="/login?redirect=/dashboard">
-                <Button size="lg" className="w-full sm:w-auto px-10 h-16 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-lg gap-2 shadow-2xl transition-all hover:scale-105 active:scale-95">
-                  Get a Quote <ArrowRight className="w-5 h-5" />
+                <Button size="lg" className="w-full sm:w-auto px-8 h-14 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-base gap-2 shadow-2xl transition-all hover:scale-105 active:scale-95">
+                  Get a Quote <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
