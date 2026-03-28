@@ -14,7 +14,10 @@ import {
   ShoppingCart,
   Search,
   ChevronDown,
-  Package2
+  Package2,
+  Layers,
+  Settings,
+  MessageSquare
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect, useRef } from 'react';
@@ -39,12 +42,7 @@ const NAV_LINKS = [
 ];
 
 
-const CATEGORIES_LIST = [
-  { name: "Bearings", href: "/shop?category=bearings" },
-  { name: "Linear Motion", href: "/shop?category=linear-motion" },
-  { name: "Transmission", href: "/shop?category=transmission" },
-  { name: "Raw Materials", href: "/shop?category=raw-materials" },
-];
+
 
 const MATERIAL_CATEGORIES = [
   { name: "METAL", items: ["2024 T3 Aluminum", "AR400", "AR500", "Brass", "Copper", "Mild Steel"] },
@@ -182,25 +180,6 @@ export function LandingNav() {
               Services
             </Link>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="relative px-4 py-2 text-sm font-semibold text-[#64748B] hover:text-[#2F5FA7] flex items-center gap-1.5 transition-colors"
-                  onMouseEnter={() => handleMouseEnter(-1)}
-                >
-                  Categories <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-white border border-slate-100 rounded-xl p-1.5 mt-2 shadow-xl">
-                {CATEGORIES_LIST.map((cat) => (
-                  <Link key={cat.href} href={cat.href}>
-                    <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-[#1E3A66] focus:bg-slate-50">
-                      <Package2 className="w-4 h-4 text-[#2F5FA7]" /> {cat.name}
-                    </DropdownMenuItem>
-                  </Link>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
 
             {NAV_LINKS.map((link, i) => (
               <Link
@@ -282,7 +261,7 @@ export function LandingNav() {
                     </Link>
                     <Link href="/login" className="mr-2 sm:mr-0">
                       <button
-                        className="relative inline-flex items-center gap-1.5 px-4 py-1.5 sm:px-6 sm:py-2 text-xs sm:text-sm font-bold text-white rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] shadow-[0_4px_14px_rgba(47,95,167,0.3)] hover:shadow-[0_6px_20px_rgba(47,95,167,0.4)] transition-all duration-300"
+                        className="relative inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-6 sm:py-2 text-[10px] sm:text-sm font-bold text-white rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] shadow-md hover:shadow-lg transition-all duration-300"
                         suppressHydrationWarning
                       >
                         Get Started
@@ -309,71 +288,43 @@ export function LandingNav() {
             }`}
         >
           <div className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-4 flex flex-col gap-1`}>
-            {/* Mobile Search - Only for smallest screens */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (searchQuery.trim()) {
-                  router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
-                } else {
-                  router.push('/shop');
-                }
-                setMobileOpen(false);
-              }}
-              className="sm:hidden relative mb-3"
-            >
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border-slate-200 pl-10 h-10 rounded-xl text-sm"
-              />
-            </form>
 
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-1">Navigation</div>
-            {NAV_LINKS.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <Link
-              href="/#services"
-              className="flex items-center px-4 py-3 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-xl hover:bg-slate-50 transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              Services
-            </Link>
-
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mt-3 mb-1">Categories</div>
-            <div className="grid grid-cols-2 gap-2 px-2">
-              {CATEGORIES_LIST.map((cat) => (
-                <Link key={cat.href} href={cat.href} className="flex items-center gap-2 p-2 rounded-lg text-xs font-bold text-[#1E3A66] bg-slate-50 hover:bg-blue-50 transition-colors" onClick={() => setMobileOpen(false)}>
-                  <Package2 className="w-3.5 h-3.5 text-[#2F5FA7]" /> {cat.name}
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 mb-3">Navigation</div>
+            <div className="flex flex-col gap-1 px-1">
+              {[
+                { label: 'Services', href: '/#services', icon: Settings },
+                { label: 'Materials', href: '/#materials', icon: Layers },
+                { label: 'Shop', href: '/shop', icon: ShoppingCart },
+                { label: 'Blog', href: '/blog', icon: MessageSquare },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-[#1E3A66] border border-transparent hover:border-slate-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-[#2F5FA7] transition-colors shrink-0">
+                    <link.icon className="w-5 h-5" />
+                  </div>
+                  {link.label}
                 </Link>
               ))}
             </div>
 
+
             <div className="border-t border-slate-100 mt-4 pt-3 flex flex-col gap-2">
               {!user ? (
                 <>
-                  <Link href="/login" onClick={() => setMobileOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start font-bold text-[#64748B]">Sign In</Button>
+                  <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
+                    <Button variant="ghost" className="w-full justify-start font-bold text-[#64748B] text-sm h-12 rounded-2xl hover:bg-slate-50">Sign In</Button>
                   </Link>
-                  <Link href="/login" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold">Get Started</Button>
+                  <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
+                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-2xl h-12 text-sm shadow-none">Get Started</Button>
                   </Link>
                 </>
               ) : (
                 <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold">Go to Dashboard</Button>
+                  <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-xl h-11 text-sm shadow-none">Go to Dashboard</Button>
                 </Link>
               )}
             </div>

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { resolveUserFriendlyMessage } from '@/lib/error-mapping';
 import { ProjectRFQ, MechanicalPart, ProjectRFQStatus, ManufacturingService, NegotiationMessage, SERVICE_DISPLAY_NAMES } from '@/types/project';
 import {
   ChevronLeft,
@@ -478,13 +479,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Quote Requested!',
         description: 'Your order is being reviewed. You will receive your quotation shortly.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error requesting quote:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to request quote. Please try again.',
-        variant: 'destructive',
-      });
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) toast(msg);
     } finally {
       setIsRequestingQuote(false);
     }
@@ -513,8 +511,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Counter-offer Sent',
         description: 'Your message has been sent to the Admin for review.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error negotiating:', error);
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) toast(msg);
     }
   };
 
@@ -529,8 +529,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Quote Accepted',
         description: 'Please provide delivery details and pay the advance to start production.',
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      const msg = resolveUserFriendlyMessage(err);
+      if (msg) toast(msg);
     }
   };
 
@@ -607,7 +609,8 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
     } catch (error: any) {
       console.error('Payment error:', error);
-      toast({ title: 'Payment Initiation Failed', description: error.message, variant: 'destructive' });
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) toast(msg);
     } finally {
       setIsPaying(false);
     }
@@ -636,13 +639,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Download Started',
         description: `Preparing ${fileName} for download...`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Download error:', error);
-      toast({
-        title: 'Download Failed',
-        description: 'Could not retrieve the secure download link.',
-        variant: 'destructive',
-      });
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) toast(msg);
     }
   };
 
@@ -655,13 +655,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Part Deleted',
         description: 'The part has been removed from your project.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting part:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete part. Please try again.',
-        variant: 'destructive',
-      });
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) toast(msg);
     }
   };
 

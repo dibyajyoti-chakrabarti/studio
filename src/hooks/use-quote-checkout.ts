@@ -19,7 +19,7 @@ export function useQuoteCheckout(cartItems: QuoteCartItem[], shopItems: any[], c
   const [order, setOrder] = useState<QuoteOrder | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any>(null);
 
   const router = useRouter();
 
@@ -82,7 +82,7 @@ export function useQuoteCheckout(cartItems: QuoteCartItem[], shopItems: any[], c
       setStep('payment');
     } catch (e: any) {
       logger.error({ event: 'Order initiation failed', error: e });
-      setError(e.message);
+      setError(e);
     } finally {
       setIsProcessing(false);
     }
@@ -125,7 +125,7 @@ export function useQuoteCheckout(cartItems: QuoteCartItem[], shopItems: any[], c
       clearShopCart();
     } catch (e: any) {
       logger.error({ event: 'Payment verification failed', error: e });
-      setError(e.message);
+      setError(e);
     } finally {
       setIsVerifying(false);
     }

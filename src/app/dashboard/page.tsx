@@ -1008,6 +1008,7 @@ export default function UserDashboard() {
           className="bg-white text-slate-600 border-slate-200 shadow-2xl rounded-3xl sm:max-w-[450px] overflow-hidden p-0"
           onPointerDownOutside={(e) => { if (!profile?.onboarded) e.preventDefault(); }}
           onEscapeKeyDown={(e) => { if (!profile?.onboarded) e.preventDefault(); }}
+          hideCloseButton={!profile?.onboarded}
         >
           {/* Top accent glow */}
           <div className="h-1.5 bg-[#2F5FA7]" />

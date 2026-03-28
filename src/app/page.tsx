@@ -247,9 +247,14 @@ export default function Home() {
         `}</style>
       </section>
 
-      <div className="flex flex-col items-center mt-20 mb-15 animate-pulse">
-        <span className="text-[10px] uppercase tracking-[0.4em] text-[#0d7cbcff] font-bold mb-4">Explore Operations</span>
-        <LaserArrow size={24} color="#0d7cbcff" className="opacity-50" />
+      <div className="flex flex-col items-center mt-24 mb-16 relative">
+        <div className="absolute inset-0 bg-[#0d7cbc]/5 blur-3xl rounded-full scale-150 animate-pulse" />
+        <span className="text-xs md:text-sm uppercase tracking-[0.6em] text-[#0d7cbcff] font-black mb-6 animate-pulse transition-all hover:tracking-[0.8em] cursor-default relative z-10">
+          Explore Operations
+        </span>
+        <div className="relative z-10 animate-bounce">
+          <LaserArrow size={32} color="#0d7cbcff" className="drop-shadow-[0_0_15px_rgba(13,124,188,0.5)]" />
+        </div>
       </div>
 
       <ServicesSection />
@@ -329,7 +334,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 text-center opacity-70">
-            <p className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+            <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#2F5FA7]" />
               Enterprise-grade Data Protection , All designs protected by NDA & AES-256 encryption.
             </p>
@@ -342,28 +347,28 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-50/40 via-transparent to-transparent opacity-70" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h2 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-slate-400 mb-2">Build FOR</h2>
-            <div className="h-1 w-12 bg-blue-600/20 mx-auto rounded-full" />
+            <h2 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-slate-500 mb-3">Designed For</h2>
+            <div className="h-0.5 w-10 bg-blue-600/30 mx-auto rounded-full" />
           </div>
 
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               { icon: Rocket, label: 'Startups', desc: 'Rapid prototyping' },
-              { icon: HardHat, label: 'Product developers', desc: 'Full-scale production' },
-              { icon: Palette, label: 'Hobbyists', desc: 'Custom creations' },
-              { icon: Users, label: 'Student teams', desc: 'Innovation projects' },
+              { icon: HardHat, label: 'Manufacturers', desc: 'Full-scale production' },
+              { icon: Palette, label: 'Designers', desc: 'Custom creations' },
+              { icon: Users, label: 'Student Teams', desc: 'Innovation projects' },
             ].map((item, i) => (
               <div
                 key={item.label}
-                className="group flex flex-col items-center p-6 md:p-10 rounded-[40px] bg-white border border-slate-100 hover:border-blue-100 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] transition-all duration-500 cursor-default animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
+                className="group flex flex-col items-center p-6 md:p-10 rounded-2xl md:rounded-[2.5rem] bg-white border border-slate-100/80 hover:border-blue-100 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] transition-all duration-500 cursor-default animate-in fade-in slide-in-from-bottom-8 fill-mode-both"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
-                <div className="w-16 h-16 md:w-24 md:h-24 rounded-[32px] bg-gradient-to-br from-blue-50 to-slate-50 flex items-center justify-center mb-6 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-blue-100/50">
-                  <item.icon className="w-7 h-7 md:w-10 md:h-10 text-[#2F5FA7] transition-all duration-500 group-hover:scale-110" />
+                <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-slate-50 flex items-center justify-center mb-6 transition-all duration-500 group-hover:bg-blue-50 group-hover:scale-105 shadow-sm">
+                  <item.icon className="w-6 h-6 md:w-8 md:h-8 text-[#2F5FA7] transition-all duration-500" />
                 </div>
                 <div className="text-center">
-                  <span className="block text-sm md:text-lg font-bold text-slate-900 mb-1">{item.label}</span>
-                  <span className="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-widest">{item.desc}</span>
+                  <h3 className="block text-sm md:text-xl font-bold text-slate-900 mb-2">{item.label}</h3>
+                  <p className="block text-[9px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -451,20 +456,6 @@ export default function Home() {
       </section>
 
       <Footer />
-
-      {showFAB && (
-        <div className="md:hidden fixed bottom-6 left-4 right-4 z-[100] animate-in slide-in-from-bottom-5 duration-500 fade-in">
-          <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"}>
-            <Button
-              size="lg"
-              className="w-full h-14 bg-white hover:bg-slate-50 text-[#2F5FA7] font-bold rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-blue-100 group transition-all active:scale-95"
-            >
-              Upload Your Design
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

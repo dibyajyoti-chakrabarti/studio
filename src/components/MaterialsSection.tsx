@@ -18,7 +18,7 @@ function MaterialSwatch({ mat, overrideColor }: { mat: any, overrideColor?: stri
 
   if (mat.thumb && mat.thumb.startsWith('/') && !overrideColor) {
     return (
-      <div className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200 bg-white">
+      <div className="w-full h-full rounded-xl relative overflow-hidden shadow-inner border border-slate-200 bg-white">
         <Image src={mat.thumb} alt={mat.name} fill className="object-cover" />
       </div>
     );
@@ -54,7 +54,7 @@ function MaterialSwatch({ mat, overrideColor }: { mat: any, overrideColor?: stri
 
   return (
     <div
-      className="w-14 h-14 rounded-xl relative overflow-hidden shadow-inner border border-slate-200/50 group-hover:scale-105 transition-transform duration-500"
+      className="w-full h-full rounded-xl relative overflow-hidden shadow-inner border border-slate-200/50 group-hover:scale-105 transition-transform duration-500"
       style={style}
     >
       {/* Dynamic Shine/Texture Overlays */}
@@ -178,7 +178,9 @@ export function MaterialsSection() {
               }}
               className="group bg-white border border-slate-100 rounded-xl md:rounded-2xl p-3 md:p-5 flex items-center gap-4 cursor-pointer transition-all duration-300 hover:border-blue-400/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 active:scale-95 animate-in fade-in zoom-in-95 duration-200 backdrop-blur-sm"
             >
-              <MaterialSwatch mat={mat} />
+              <div className="w-14 h-14 shrink-0">
+                <MaterialSwatch mat={mat} />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs md:text-sm font-bold text-[#0F172A] mb-0.5 truncate uppercase tracking-tight group-hover:text-blue-600 transition-colors">{mat.name}</div>
                 <div className="text-[10px] font-mono font-medium text-slate-500 mb-2 truncate opacity-80">{mat.thicknesses}</div>
@@ -216,8 +218,13 @@ export function MaterialsSection() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black text-slate-900 leading-tight uppercase tracking-tight mb-2">{selectedMaterial.name}</h3>
-                  <div className="flex items-center gap-2 text-blue-600 font-mono text-sm font-bold">
-                    <Info className="w-4 h-4" /> IN STOCK · SHIPS FAST
+                  <div className="flex items-center gap-2 text-blue-600 font-mono text-[10px] md:text-sm font-bold flex-wrap">
+                    <Info className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span>IN STOCK</span>
+                      <span className="opacity-30">·</span>
+                      <span>SHIPS FAST</span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -24,7 +24,7 @@ export default function AboutPage() {
             </div>
 
             {/* Hero Section */}
-            <section className="relative pt-40 pb-32 overflow-hidden bg-white border-b border-slate-100">
+            <section className="relative pt-40 pb-16 overflow-hidden bg-white border-b border-slate-100">
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none" />
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 blur-[120px] rounded-full -mr-96 -mt-96" />
 
@@ -64,9 +64,9 @@ export default function AboutPage() {
             </section>
 
             {/* Market Stats Segment */}
-            <section className="py-24 bg-white">
+            <section className="py-12 bg-white">
                 <div className="container mx-auto px-4 max-w-6xl">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left border-y border-slate-100 py-16">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left border-y border-slate-100 py-10">
                         <div>
                             <div className="text-5xl font-bold text-slate-900 mb-2">₹40,000<span className="text-[#2F5FA7]"> Cr</span></div>
                             <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Total Addressable Market</div>
@@ -84,7 +84,7 @@ export default function AboutPage() {
             </section>
 
             {/* Strategic Mission */}
-            <section className="py-24 relative overflow-hidden">
+            <section className="py-20 relative overflow-hidden">
                 <div className="container mx-auto px-4 max-w-6xl relative z-10">
                     <div className="flex flex-col lg:flex-row gap-16 lg:items-center">
                         <div className="flex-1 space-y-6 text-center lg:text-left">
@@ -115,7 +115,7 @@ export default function AboutPage() {
             </section>
 
             {/* Core Differentiators */}
-            <section className="py-32 bg-slate-50/50">
+            <section className="py-24 bg-slate-50/50">
                 <div className="container mx-auto px-4 max-w-6xl">
                     <div className="text-center mb-20 space-y-4">
                         <h2 className="text-4xl font-bold tracking-tight text-slate-900">Why Engineers Choose MechHub</h2>
@@ -141,7 +141,7 @@ export default function AboutPage() {
             </section>
 
             {/* Leadership Team */}
-            <section className="py-32 bg-white">
+            <section className="py-24 bg-white">
                 <div className="container mx-auto px-4 max-w-6xl">
                     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-20">
                         <div className="space-y-4 text-center lg:text-left">
@@ -190,7 +190,7 @@ export default function AboutPage() {
             </section>
 
             {/* Institutional Liaison */}
-            <section className="py-32 border-t border-slate-100">
+            <section className="py-24 border-t border-slate-100">
                 <div className="container mx-auto px-4 max-w-6xl">
                     <div className="p-12 md:p-20 rounded-[3rem] bg-[#1E3A66] relative overflow-hidden text-center lg:text-left">
                         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 blur-[120px] rounded-full -mr-48 -mt-48" />

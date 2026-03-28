@@ -37,6 +37,7 @@ import { PaymentSection } from '@/components/checkout/PaymentSection';
 import { OrderConfirmation } from '@/components/checkout/OrderConfirmation';
 import { ShopCart } from '@/components/checkout/ShopCart';
 import { Badge as UI_Badge } from '@/components/ui/badge';
+import { resolveUserFriendlyMessage } from '@/lib/error-mapping';
 
 export default function CheckoutPage() {
     const shopCart = useCart();
@@ -44,6 +45,7 @@ export default function CheckoutPage() {
     const { user, isUserLoading } = useUser();
     const db = useFirestore();
     const router = useRouter();
+    const { toast } = useToast();
 
     const checkout = useQuoteCheckout(
         quoteCart.items, 
@@ -66,6 +68,19 @@ export default function CheckoutPage() {
             router.push('/login?redirect=/checkout');
         }
     }, [user, isUserLoading, router]);
+
+    useEffect(() => {
+        if (checkout.error) {
+            const msg = resolveUserFriendlyMessage(checkout.error);
+            if (msg) {
+                toast({
+                    title: msg.title,
+                    description: msg.description,
+                    variant: msg.variant,
+                });
+            }
+        }
+    }, [checkout.error, toast]);
 
     if (isUserLoading || !quoteCart.isInitialized) {
         return (

@@ -99,10 +99,10 @@ export function ServicesSection() {
                                         className="object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
                                 </div>
-                                <h3 className="text-sm md:text-xl font-black text-[#0F172A] mb-2 md:mb-4 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
+                                <h3 className="text-[9px] sm:text-lg md:text-xl font-black text-[#0F172A] mb-1.5 md:mb-4 uppercase tracking-tight group-hover:text-blue-600 transition-colors">
                                     {service.title}
                                 </h3>
-                                <p className="text-[#64748B] text-[10px] md:text-sm leading-relaxed mb-4 md:mb-8 font-medium line-clamp-2">
+                                <p className="text-[#64748B] text-[8px] sm:text-xs md:text-sm leading-relaxed mb-4 md:mb-8 font-medium line-clamp-2">
                                     {service.desc}
                                 </p>
                                 <div className="mt-auto hidden md:block">

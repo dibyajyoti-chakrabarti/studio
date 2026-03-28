@@ -5,6 +5,7 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
+import Fuse from 'fuse.js';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import {
@@ -63,6 +64,8 @@ const FILTERS = {
 export default function ShopPage() {
     const db = useFirestore();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('Popular');
     const { addItem, totalItems } = useCart();
@@ -75,21 +78,37 @@ export default function ShopPage() {
 
     const { data: products, isLoading, error } = useCollection(productsRef);
 
+    useEffect(() => {
+        setIsSearching(true);
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+            setIsSearching(false);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     const filteredProducts = useMemo(() => {
         if (!products) return [];
         let result = products.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.sku.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
-            return matchesSearch && matchesCategory && p.isActive !== false;
+            return matchesCategory && p.isActive !== false;
         });
 
-        // Basic sorting
-        if (sortBy === 'Price: Low to High') result.sort((a, b) => a.salePrice - b.salePrice);
-        if (sortBy === 'Price: High to Low') result.sort((a, b) => b.salePrice - a.salePrice);
+        if (debouncedSearchQuery) {
+            const fuse = new Fuse(result, {
+                keys: ['name', 'sku', 'specs'],
+                threshold: 0.35,
+            });
+            result = fuse.search(debouncedSearchQuery).map(r => r.item);
+        }
 
-        return result;
-    }, [products, searchQuery, selectedCategory, sortBy]);
+        // Basic sorting
+        const sortedResult = [...result];
+        if (sortBy === 'Price: Low to High') sortedResult.sort((a, b) => a.salePrice - b.salePrice);
+        if (sortBy === 'Price: High to Low') sortedResult.sort((a, b) => b.salePrice - a.salePrice);
+
+        return sortedResult;
+    }, [products, debouncedSearchQuery, selectedCategory, sortBy]);
 
     const toggleCompare = (product: any) => {
         setCompareList(prev => {
@@ -135,8 +154,7 @@ export default function ShopPage() {
 
                             {/* Integrated Industrial Search - Premium Pill */}
                             <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000 mb-10">
-                                <div className="absolute -inset-2 bg-blue-500/5 rounded-[32px] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                                <div className="relative bg-white border border-slate-200 rounded-[28px] md:rounded-full flex flex-col md:flex-row items-stretch md:items-center p-1.5 shadow-[0_15px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all">
+                                <div className="relative bg-white border border-slate-200 rounded-[28px] flex flex-col md:flex-row items-stretch md:items-center p-1.5 shadow-[0_15px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all">
                                     <div className="flex items-center flex-1">
                                         <div className="pl-5 pr-3">
                                             <Search className="w-5 h-5 text-slate-300 group-focus-within:text-[#2F5FA7] transition-colors" />
@@ -148,9 +166,6 @@ export default function ShopPage() {
                                             className="bg-transparent border-none h-14 md:h-16 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1 font-medium"
                                         />
                                     </div>
-                                    <Button className="rounded-[22px] md:rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] text-white font-black uppercase tracking-widest h-12 md:h-14 px-8 shadow-lg shadow-blue-500/20 text-xs md:text-sm w-full md:w-auto transition-all active:scale-95">
-                                        Find Parts
-                                    </Button>
                                 </div>
                             </div>
 
@@ -197,45 +212,6 @@ export default function ShopPage() {
                                             alt="Mechanical Components"
                                             className="w-full h-full object-contain scale-125 opacity-90 drop-shadow-2xl hover:scale-150 transition-transform duration-1000 ease-out"
                                         />
-                                    </div>
-                                </div>
-
-                                {/* Stats Card Overlay */}
-                                <div className="absolute bottom-0 right-0 bg-white border border-slate-100 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-20 min-w-[260px] animate-in slide-in-from-bottom-8 duration-700">
-                                    <div className="space-y-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                                                <Boxes className="w-5 h-5 text-[#2F5FA7]" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Available Parts</p>
-                                                <p className="text-sm font-bold text-slate-900 tracking-tight">15,000+ SKUs</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                                <Truck className="w-5 h-5 text-emerald-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Global Dispatch</p>
-                                                <p className="text-sm font-bold text-slate-900 tracking-tight">24-48 Hours</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                                                <Settings className="w-5 h-5 text-[#2F5FA7]" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Trusted By</p>
-                                                <p className="text-sm font-bold text-slate-900 tracking-tight">120+ Eng. Teams</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-6 pt-5 border-t border-slate-50 flex items-center justify-between">
-                                        <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Status
-                                        </span>
-                                        <span className="text-[9px] font-mono text-slate-300 font-bold">ID: 9002-SRV</span>
                                     </div>
                                 </div>
                             </div>

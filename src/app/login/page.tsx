@@ -15,6 +15,7 @@ import { LandingNav } from '@/components/LandingNav';
 import { Loader2, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo, deleteUser } from 'firebase/auth';
+import { resolveUserFriendlyMessage } from '@/lib/error-mapping';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" {...props}>
@@ -147,22 +148,14 @@ export default function LoginPage() {
       // If verified, useEffect will redirect
     } catch (error: any) {
       setLoading(false);
-      let message = "An unexpected error occurred.";
-      if (error.code === 'auth/invalid-credential') {
-        message = "Invalid email or password. Please verify your credentials.";
-      } else if (error.code === 'auth/user-not-found') {
-        message = "No account found with this email.";
-      } else if (error.code === 'auth/wrong-password') {
-        message = "Incorrect password.";
-      } else {
-        message = error.message;
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) {
+        toast({
+          variant: msg.variant,
+          title: msg.title,
+          description: msg.description,
+        });
       }
-
-      toast({
-        variant: "destructive",
-        title: "Sign In Failed",
-        description: message,
-      });
     }
   };
 
@@ -173,6 +166,16 @@ export default function LoginPage() {
     const fullName = formData.get('fullName') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+
+    if (password.length < 8) {
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Security Requirement",
+        description: "Passwords must be at least 8 characters long to meet our security protocols.",
+      });
+      return;
+    }
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
@@ -192,14 +195,16 @@ export default function LoginPage() {
       // Sign out to prevent access
       await signOut(auth);
       setLoading(false);
-
     } catch (error: any) {
       setLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Registration Failed",
-        description: error.message,
-      });
+      const msg = resolveUserFriendlyMessage(error);
+      if (msg) {
+        toast({
+          variant: msg.variant,
+          title: msg.title,
+          description: msg.description,
+        });
+      }
     }
   };
 
@@ -271,11 +276,14 @@ export default function LoginPage() {
     } catch (error: any) {
       setLoading(false);
       if (error.code !== 'auth/popup-closed-by-user') {
-        toast({
-          variant: "destructive",
-          title: "Google Sign In Failed",
-          description: error.message,
-        });
+        const msg = resolveUserFriendlyMessage(error);
+        if (msg) {
+          toast({
+            variant: msg.variant,
+            title: msg.title,
+            description: msg.description,
+          });
+        }
       }
     }
   };
@@ -444,7 +452,7 @@ export default function LoginPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="reg-password" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Create Password</Label>
-                        <Input id="reg-password" name="password" type="password" placeholder="Min. 8 characters" className="bg-slate-50 border-slate-200 focus:border-[#2F5FA7] focus:ring-[#2F5FA7]/10 text-slate-900 placeholder:text-slate-400 h-11 px-4 rounded-xl" required />
+                        <Input id="reg-password" name="password" type="password" placeholder="Min. 8 characters" className="bg-slate-50 border-slate-200 focus:border-[#2F5FA7] focus:ring-[#2F5FA7]/10 text-slate-900 placeholder:text-slate-400 h-11 px-4 rounded-xl" minLength={8} required />
                       </div>
                       <div className="pt-2 flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-tight">
                         <ShieldCheck className="w-4 h-4 text-[#2F5FA7]" />
