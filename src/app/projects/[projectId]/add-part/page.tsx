@@ -31,7 +31,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
 

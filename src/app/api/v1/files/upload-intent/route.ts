@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { nanoid } from 'nanoid';
 import { s3Client } from '@/lib/s3-client';
 import { PutObjectCommand } from '@aws-sdk/client-s3';

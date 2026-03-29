@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { logger } from './logger';
+import { logger } from '@/utils/logger';
 
 
 export function getFirebaseAdmin() {

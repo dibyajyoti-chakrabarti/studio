@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useMDXComponent } from 'next-contentlayer2/hooks';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 const components = {
     h1: ({ className, ...props }: any) => (

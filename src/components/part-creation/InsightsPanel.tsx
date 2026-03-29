@@ -12,7 +12,7 @@ import {
   Lock,
   CheckCircle2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { ManufacturingService, SecondaryProcess } from '@/types/project';
 import { Box } from 'lucide-react';
 

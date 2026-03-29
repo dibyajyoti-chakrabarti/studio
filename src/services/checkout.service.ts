@@ -6,13 +6,13 @@ import {
   PaymentStatus 
 } from '@/types/checkout';
 import { QuoteResult, QuoteCartItem } from '@/types/quoting';
-import { Result, ok, err } from '@/lib/result';
-import { AppError, ErrorCode, internalError, validationError } from '@/lib/errors';
+import { Result, ok, err } from '@/utils/result';
+import { AppError, ErrorCode, internalError, validationError } from '@/utils/errors';
 import { OrdersRepository } from '@/lib/firebase/repositories/orders';
-import { QuotingService } from '@/services/quoting-service';
-import { logger } from '@/lib/logger';
+import { QuotingService } from '@/services/quoting.service';
+import { logger } from '@/utils/logger';
 import { nanoid } from 'nanoid';
-import { calculateProjectFinances } from '@/lib/utils/finance';
+import { calculateProjectFinances } from '@/utils/finance';
 
 // ═══════════════════════════════════════════════════
 // CheckoutService — Orchestrates the checkout process

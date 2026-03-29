@@ -61,7 +61,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { calculateProjectFinances } from '@/lib/utils/finance';
+import { calculateProjectFinances } from '@/utils/finance';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -694,6 +694,8 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   }
 
   const statusInfo = STATUS_MAP[project.status] || STATUS_MAP.draft;
+  const partsSubtotal = projectParts.reduce((sum, p) => sum + ((p.unitCost || 0) * (p.quantity || 0)), 0);
+  const basePrice = project.finalPrice || project.quotedPrice || partsSubtotal || 0;
 
   return (
     <div className="min-h-screen pt-24 pb-12 bg-[#F8FAFC] font-sans text-slate-600 relative">
@@ -1067,7 +1069,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                               Reply with Counter-Offer
                             </Button>
                           </DialogTrigger>
-                          <NegotiationDialog onSend={handleNegotiate} currentPrice={project.quotedPrice || 1000} />
+                          <NegotiationDialog onSend={handleNegotiate} currentPrice={basePrice} />
                         </Dialog>
                       </div>
                     )}
@@ -1193,7 +1195,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                           Parts Subtotal
                         </td>
                         <td className="px-4 py-2.5 text-right text-xs font-bold text-[#1E3A66] font-mono">
-                          ₹{projectParts.reduce((sum, p) => sum + ((p.unitCost || 0) * (p.quantity || 0)), 0).toLocaleString('en-IN')}
+                          ₹{Math.max(basePrice, projectParts.reduce((sum, p) => sum + ((p.unitCost || 0) * (p.quantity || 0)), 0)).toLocaleString('en-IN')}
                         </td>
                       </tr>
                     </tfoot>
@@ -1214,7 +1216,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                         Official Quote
                       </p>
                       <p className="font-bold uppercase tracking-wide text-lg">
-                        ₹{project.quotedPrice?.toLocaleString() || '---'}
+                        ₹{basePrice.toLocaleString() || '---'}
                       </p>
                     </div>
                   </div>
@@ -1223,7 +1225,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest text-slate-500">
                       <span>Total Price</span>
-                      <span className="text-slate-900">₹{project.quotedPrice?.toLocaleString()}</span>
+                      <span className="text-slate-900">₹{basePrice.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest text-slate-500">
                       <span>Lead Time</span>
@@ -1245,7 +1247,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                           Negotiate Price
                         </Button>
                       </DialogTrigger>
-                      <NegotiationDialog onSend={handleNegotiate} currentPrice={project.quotedPrice || 0} />
+                      <NegotiationDialog onSend={handleNegotiate} currentPrice={basePrice} />
                     </Dialog>
                   </div>
                 </CardContent>
@@ -1272,7 +1274,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 <CardContent className="p-5 space-y-4">
                   <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3">
                     {(() => {
-                      const finances = calculateProjectFinances(project.quotedPrice || 0);
+                      const finances = calculateProjectFinances(basePrice);
 
                       return (
                         <div className="space-y-2">
@@ -1367,7 +1369,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 <CardContent className="p-5 space-y-4">
                   <div className="p-4 bg-white/70 rounded-lg border border-blue-100 space-y-3">
                     {(() => {
-                      const finances = calculateProjectFinances(project.quotedPrice || 0);
+                      const finances = calculateProjectFinances(basePrice);
 
                       return (
                         <div className="space-y-2">

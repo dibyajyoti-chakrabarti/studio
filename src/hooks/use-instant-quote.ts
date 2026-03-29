@@ -16,7 +16,7 @@ import {
   getAvailableFinishes, getFinishRate, TURNAROUND_OPTIONS,
 } from '@/lib/quoting/materials';
 import { getVisualTierTable, getSavingsPercent } from '@/lib/quoting/quantity-tiers';
-import { isOk } from '@/lib/result';
+import { isOk } from '@/utils/result';
 
 export interface QuoteState {
   materialId: string;

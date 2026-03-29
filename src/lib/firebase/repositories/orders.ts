@@ -1,9 +1,9 @@
 import { db } from '@/firebase/config';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { Result, ok, err } from '@/lib/result';
-import { AppError, internalError, notFoundError } from '@/lib/errors';
+import { Result, ok, err } from '@/utils/result';
+import { AppError, internalError, notFoundError } from '@/utils/errors';
 import { QuoteOrder } from '@/types/checkout';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { serverTimestamp as clientServerTimestamp } from 'firebase/firestore'; // For client-side if needed
 
 // ═══════════════════════════════════════════════════

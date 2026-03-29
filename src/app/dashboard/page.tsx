@@ -22,7 +22,7 @@ import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDo
 import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService, SERVICE_DISPLAY_NAMES } from '@/types/project';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 import {
   FileText,
@@ -55,6 +55,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { isAdmin } from '@/lib/auth-utils';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
+import { calculateProjectFinances } from '@/utils/finance';
 
 
 const STATUS_MAP: Record<ProjectRFQStatus, { label: string, color: string, icon: any }> = {
@@ -121,6 +122,16 @@ export default function UserDashboard() {
   const { data: rfqsData, isLoading: isRfqsLoading } = useCollection(rfqsQuery);
   const rfqs = rfqsData as ProjectRFQ[] | null;
 
+  // 1. Sort RFQs by createdAt descending (Latest on Top)
+  const sortedRfqs = React.useMemo(() => {
+    if (!rfqs) return [];
+    return [...rfqs].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+  }, [rfqs]);
+
   const partsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return query(collection(db, 'projectParts'), where('userId', '==', user.uid));
@@ -173,8 +184,8 @@ export default function UserDashboard() {
 
 
   useEffect(() => {
-    if (rfqs?.length && !selectedOrderId) setSelectedOrderId(rfqs[0].id);
-  }, [rfqs, selectedOrderId]);
+    if (sortedRfqs?.length && !selectedOrderId) setSelectedOrderId(sortedRfqs[0].id);
+  }, [sortedRfqs, selectedOrderId]);
 
   useEffect(() => {
     // Only onboard customers. Admins/Vendors should skip this automated flow.
@@ -193,8 +204,10 @@ export default function UserDashboard() {
     }
   }, [isProfileLoading, profile, user, db]);
 
-  const selectedOrder = rfqs?.find(r => r.id === selectedOrderId);
+  const selectedOrder = sortedRfqs?.find(r => r.id === selectedOrderId);
   const selectedOrderParts = allParts?.filter(p => p.projectId === selectedOrderId) || [];
+  const partsSubtotal = selectedOrderParts.reduce((sum, p) => sum + ((p.unitCost || 0) * (p.quantity || 0)), 0);
+  const basePrice = selectedOrder ? (selectedOrder.finalPrice || selectedOrder.quotedPrice || partsSubtotal || 0) : 0;
 
   const quotationQuery = useMemoFirebase(() => {
     if (!db || !user || !selectedOrder) return null;
@@ -477,13 +490,13 @@ export default function UserDashboard() {
               </TabsList>
 
               <TabsContent value="projects" className="space-y-4">
-                {isRfqsLoading && (!rfqs || rfqs.length === 0) && (
+                {isRfqsLoading && (!sortedRfqs || sortedRfqs.length === 0) && (
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin text-[#2F5FA7]" />
                   </div>
                 )}
 
-                {!isRfqsLoading && (!rfqs || rfqs.length === 0) && (
+                {!isRfqsLoading && (!sortedRfqs || sortedRfqs.length === 0) && (
                   <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-4">
                     <History className="w-12 h-12 mx-auto text-slate-300 opacity-20" />
                     <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">You haven't started any projects yet.</p>
@@ -491,7 +504,7 @@ export default function UserDashboard() {
                   </div>
                 )}
 
-                {!isRfqsLoading && rfqs && rfqs.length > 0 && rfqs.map((order) => {
+                {!isRfqsLoading && sortedRfqs && sortedRfqs.length > 0 && sortedRfqs.map((order) => {
                   const projectParts = allParts?.filter(p => p.projectId === order.id) || [];
                   const mainMaterial = projectParts.length > 0 ? projectParts[0].material.name : 'No Parts';
                   const totalQty = projectParts.reduce((sum, p) => sum + (p.quantity || 0), 0);
@@ -826,158 +839,202 @@ export default function UserDashboard() {
                     {/* ── ADVANCE PAYMENT (status = accepted, advance not yet paid) ── */}
                     {selectedOrder.status === 'accepted' && !selectedOrder.paymentStatus?.advance?.paid && (
                       <div className="rounded-2xl border border-orange-200 bg-white shadow-xl overflow-hidden">
-                        <div className="p-5 border-b border-orange-50 bg-orange-50/50">
-                          <div className="flex items-center gap-2 mb-1">
-                            <CreditCard className="w-4 h-4 text-orange-600" />
-                            <p className="text-sm font-bold text-slate-900 uppercase tracking-widest">Advance Payment Required</p>
-                          </div>
-                          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Pay 50% to lock in your MechMaster and start production.</p>
-                        </div>
-                        <div className="p-5 space-y-5">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Order Value</p>
-                              <p className="text-lg font-bold text-slate-900 font-consolas">₹{(selectedOrder.finalPrice || 0).toLocaleString()}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-widest mb-1">Advance (50%)</p>
-                              <p className="text-2xl font-bold text-orange-600 font-consolas">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-3 text-[10px] text-slate-500 bg-slate-50 rounded-xl p-3.5 border border-slate-100 shadow-sm">
-                            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                            <p className="leading-relaxed font-bold tracking-wide">Advance is held securely in escrow. Remaining 50% is due only after you confirm delivery of your parts.</p>
-                          </div>
-                          <Button
-                            className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
-                            onClick={() => handlePayment('advance')}
-                            disabled={isPayingAdvance}
-                          >
-                            {isPayingAdvance
-                              ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>
-                              : <><Zap className="w-4 h-4 mr-2" />Pay ₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()} Advance</>
-                            }
-                          </Button>
-                        </div>
+                        {(() => {
+                          const finances = calculateProjectFinances(basePrice);
+                          return (
+                            <>
+                              <div className="p-5 border-b border-orange-50 bg-orange-50/50">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <CreditCard className="w-4 h-4 text-orange-600" />
+                                  <p className="text-sm font-bold text-slate-900 uppercase tracking-widest">Advance Payment Required</p>
+                                </div>
+                                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Pay 50% to lock in your MechMaster and start production.</p>
+                              </div>
+                              <div className="p-5 space-y-5">
+                                <div className="space-y-3 mb-2">
+                                  <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400">
+                                    <span>Base Quote</span>
+                                    <span>₹{(finances.subtotal).toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400">
+                                    <span>GST (18%)</span>
+                                    <span>₹{(finances.gst).toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400">
+                                    <span>Logistic Logistics</span>
+                                    <span>₹{(finances.shipping).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+                                  <div>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total Order Value</p>
+                                    <p className="text-lg font-bold text-slate-900 font-consolas">₹{finances.total.toLocaleString()}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-orange-600 font-bold uppercase tracking-widest mb-1">Advance (50%)</p>
+                                    <p className="text-2xl font-bold text-orange-600 font-consolas">₹{finances.advance.toLocaleString()}</p>
+                                  </div>
+                                </div>
+                                <div className="flex gap-3 text-[10px] text-slate-500 bg-slate-50 rounded-xl p-3.5 border border-slate-100 shadow-sm">
+                                  <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                                  <p className="leading-relaxed font-bold tracking-wide">Advance is held securely in escrow. Remaining 50% is due only after you confirm delivery of your parts.</p>
+                                </div>
+                                <Button
+                                  className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
+                                  onClick={() => handlePayment('advance')}
+                                  disabled={isPayingAdvance || finances.subtotal <= 0}
+                                >
+                                  {isPayingAdvance
+                                    ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>
+                                    : finances.subtotal <= 0 
+                                      ? "Price Pending Review" 
+                                      : <><Zap className="w-4 h-4 mr-2" />Pay ₹{finances.advance.toLocaleString()} Advance</>
+                                  }
+                                </Button>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
 
                     {/* ── IN PRODUCTION (advance paid) ── */}
                     {selectedOrder.status === 'in_production' && (
                       <div className="rounded-2xl border border-blue-200 bg-white shadow-xl p-6 space-y-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm">
-                            <Hammer className="w-5 h-5 text-[#2F5FA7]" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">In Production</p>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Your MechMaster is manufacturing your parts.</p>
-                          </div>
-                        </div>
-                        {selectedOrder.paymentStatus?.advance?.paid && (
-                          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
-                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                            <div className="flex-1">
-                              <span className="text-emerald-700">Advance Paid</span>
-                              <span className="text-slate-400 ml-2 font-consolas text-xs">· ₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</span>
-                            </div>
-                            {selectedOrder.paymentStatus.advance.paidAt && (
-                              <span className="text-slate-400 font-consolas text-xs">{new Date(selectedOrder.paymentStatus.advance.paidAt).toLocaleDateString()}</span>
-                            )}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-wide text-slate-500 shadow-sm">
-                          <Clock className="w-4 h-4 shrink-0 text-[#2F5FA7] animate-pulse" />
-                          <span className="leading-relaxed">Remaining <strong className="text-[#2F5FA7] font-consolas text-xs">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</strong> will be due upon delivery.</span>
-                        </div>
+                        {(() => {
+                          const finances = calculateProjectFinances(basePrice);
+                          return (
+                            <>
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm">
+                                  <Hammer className="w-5 h-5 text-[#2F5FA7]" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">In Production</p>
+                                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Your MechMaster is manufacturing your parts.</p>
+                                </div>
+                              </div>
+                              {selectedOrder.paymentStatus?.advance?.paid && (
+                                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
+                                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                                  <div className="flex-1">
+                                    <span className="text-emerald-700">Advance Paid</span>
+                                    <span className="text-slate-400 ml-2 font-consolas text-xs">· ₹{finances.advance.toLocaleString()}</span>
+                                  </div>
+                                  {selectedOrder.paymentStatus.advance.paidAt && (
+                                    <span className="text-slate-400 font-consolas text-xs">{new Date(selectedOrder.paymentStatus.advance.paidAt).toLocaleDateString()}</span>
+                                  )}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-bold uppercase tracking-wide text-slate-500 shadow-sm">
+                                <Clock className="w-4 h-4 shrink-0 text-[#2F5FA7] animate-pulse" />
+                                <span className="leading-relaxed">Remaining <strong className="text-[#2F5FA7] font-consolas text-xs">₹{finances.balance.toLocaleString()}</strong> will be due upon delivery.</span>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
 
                     {/* ── SHIPPED OR DELIVERED — Completion Payment ── */}
                     {(selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered' || selectedOrder.status === 'shipping') && (
                       <div className="space-y-4">
-                        <div className="rounded-2xl border border-orange-200 bg-white shadow-xl p-6 space-y-4">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100 shadow-sm animate-pulse">
-                              <Truck className="w-5 h-5 text-orange-600" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">Parts Ready for Arrival</p>
-                              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Complete full payment to receive your order.</p>
-                            </div>
-                          </div>
-                          {selectedOrder.paymentStatus?.advance?.paid && (
-                            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
-                              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                              <span className="text-emerald-700">Advance <strong className="font-consolas text-xs">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</strong> Paid</span>
-                            </div>
-                          )}
-                        </div>
-                        {!selectedOrder.paymentStatus?.completion?.paid && (
-                          <div className="rounded-2xl border border-slate-200 bg-[#F8FAFC] shadow-inner p-6 space-y-5">
-                            <div>
-                              <p className="text-sm font-bold text-slate-900 mb-1 uppercase tracking-widest">Pay Balance & Complete Order</p>
-                              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Once full payment is received, your MechMaster will ensure delivery of your parts.</p>
-                            </div>
-                            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                              <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Balance Due (50%)</p>
-                              <p className="text-2xl font-bold text-[#2F5FA7] font-consolas">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</p>
-                            </div>
-                            <Button
-                              className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
-                              onClick={() => handlePayment('completion')}
-                              disabled={isPayingCompletion}
-                            >
-                              {isPayingCompletion
-                                ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>
-                                : <><Check className="w-4 h-4 mr-2" />Pay ₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()} & Complete Order</>
-                              }
-                            </Button>
-                          </div>
-                        )}
+                        {(() => {
+                          const finances = calculateProjectFinances(basePrice);
+                          return (
+                            <>
+                              <div className="rounded-2xl border border-orange-200 bg-white shadow-xl p-6 space-y-4">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100 shadow-sm animate-pulse">
+                                    <Truck className="w-5 h-5 text-orange-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">Parts Ready for Arrival</p>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Complete full payment to receive your order.</p>
+                                  </div>
+                                </div>
+                                {selectedOrder.paymentStatus?.advance?.paid && (
+                                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
+                                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                                    <span className="text-emerald-700">Advance <strong className="font-consolas text-xs">₹{finances.advance.toLocaleString()}</strong> Paid</span>
+                                  </div>
+                                )}
+                              </div>
+                              {!selectedOrder.paymentStatus?.completion?.paid && (
+                                <div className="rounded-2xl border border-slate-200 bg-[#F8FAFC] shadow-inner p-6 space-y-5">
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-900 mb-1 uppercase tracking-widest">Pay Balance & Complete Order</p>
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Once full payment is received, your MechMaster will ensure delivery of your parts.</p>
+                                  </div>
+                                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                    <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Balance Due (50%)</p>
+                                    <p className="text-2xl font-bold text-[#2F5FA7] font-consolas">₹{finances.balance.toLocaleString()}</p>
+                                  </div>
+                                  <Button
+                                    className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
+                                    onClick={() => handlePayment('completion')}
+                                    disabled={isPayingCompletion}
+                                  >
+                                    {isPayingCompletion
+                                      ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>
+                                      : <><Check className="w-4 h-4 mr-2" />Pay ₹{finances.balance.toLocaleString()} & Complete Order</>
+                                    }
+                                  </Button>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
 
                     {/* ── FULLY COMPLETED ── */}
                     {selectedOrder.status === 'completed' && (
                       <div className="rounded-2xl border border-[#2F5FA7]/20 bg-white shadow-2xl p-8 space-y-6">
-                        <div className="text-center space-y-3">
-                          <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                            <CheckCircle2 className="text-emerald-500 w-8 h-8" />
-                          </div>
-                          <p className="text-2xl font-bold uppercase tracking-widest text-slate-900">Order Complete!</p>
-                          <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">All payments settled. Thanks for building with MechHub.</p>
-                        </div>
-                        <div className="space-y-3 pt-4 border-t border-slate-50">
-                          {selectedOrder.paymentStatus?.advance?.paid && (
-                            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm text-xs">
-                              <div className="flex items-center gap-3">
-                                <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Advance Paid</span>
+                        {(() => {
+                          const finances = calculateProjectFinances(basePrice);
+                          return (
+                            <>
+                              <div className="text-center space-y-3">
+                                <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                                  <CheckCircle2 className="text-emerald-500 w-8 h-8" />
+                                </div>
+                                <p className="text-2xl font-bold uppercase tracking-widest text-slate-900">Order Complete!</p>
+                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">All payments settled. Thanks for building with MechHub.</p>
                               </div>
-                              <div className="text-right flex items-center gap-3">
-                                <p className="font-consolas text-slate-900 font-bold">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</p>
-                                {selectedOrder.paymentStatus.advance.paidAt && (
-                                  <p className="font-consolas text-slate-400 text-[10px]">{new Date(selectedOrder.paymentStatus.advance.paidAt).toLocaleDateString()}</p>
+                              <div className="space-y-3 pt-4 border-t border-slate-50">
+                                {selectedOrder.paymentStatus?.advance?.paid && (
+                                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm text-xs">
+                                    <div className="flex items-center gap-3">
+                                      <Check className="w-4 h-4 text-emerald-500" />
+                                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Advance Paid</span>
+                                    </div>
+                                    <div className="text-right flex items-center gap-3">
+                                      <p className="font-consolas text-slate-900 font-bold">₹{finances.advance.toLocaleString()}</p>
+                                      {selectedOrder.paymentStatus.advance.paidAt && (
+                                        <p className="font-consolas text-slate-400 text-[10px]">{new Date(selectedOrder.paymentStatus.advance.paidAt).toLocaleDateString()}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                                {selectedOrder.paymentStatus?.completion?.paid && (
+                                  <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm text-xs">
+                                    <div className="flex items-center gap-3">
+                                      <Check className="w-4 h-4 text-emerald-500" />
+                                      <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Final Payment</span>
+                                    </div>
+                                    <div className="text-right flex items-center gap-3">
+                                      <p className="font-consolas text-slate-900 font-bold">₹{finances.balance.toLocaleString()}</p>
+                                      {selectedOrder.paymentStatus.completion.paidAt && (
+                                        <p className="font-consolas text-slate-400 text-[10px]">{new Date(selectedOrder.paymentStatus.completion.paidAt).toLocaleDateString()}</p>
+                                      )}
+                                    </div>
+                                  </div>
                                 )}
                               </div>
-                            </div>
-                          )}
-                          {selectedOrder.paymentStatus?.completion?.paid && (
-                            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm text-xs">
-                              <div className="flex items-center gap-3">
-                                <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Final Payment</span>
-                              </div>
-                              <div className="text-right flex items-center gap-3">
-                                <p className="font-consolas text-slate-900 font-bold">₹{Math.round((selectedOrder.finalPrice || 0) * 0.5).toLocaleString()}</p>
-                                {selectedOrder.paymentStatus.completion.paidAt && (
-                                  <p className="font-consolas text-slate-400 text-[10px]">{new Date(selectedOrder.paymentStatus.completion.paidAt).toLocaleDateString()}</p>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
 

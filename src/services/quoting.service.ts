@@ -3,11 +3,11 @@ import {
   QuoteResult, 
   ParsedGeometry 
 } from '@/types/quoting';
-import { Result, ok, err } from '@/lib/result';
-import { AppError, ErrorCode, internalError } from '@/lib/errors';
+import { Result, ok, err } from '@/utils/result';
+import { AppError, ErrorCode, internalError } from '@/utils/errors';
 import { generateQuote } from '@/lib/quoting/pricing-engine';
 import { QuotesRepository } from '@/lib/firebase/repositories/quotes';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 // ═══════════════════════════════════════════════════
 // QuotingService — Orchestrates the quoting process

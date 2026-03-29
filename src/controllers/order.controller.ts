@@ -1,0 +1,197 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { CheckoutService } from '@/services/checkout.service';
+import { checkoutSchema } from '@/lib/validation/checkout';
+import { logger } from '@/utils/logger';
+import { ErrorCode } from '@/utils/errors';
+import { SHIPPING_OPTIONS } from '@/types/checkout';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
+
+/**
+ * OrderController handles all API requests related to ordering and payments.
+ */
+export const OrderController = {
+  /**
+   * Creates a new order and a Razorpay order.
+   */
+  async createOrder(req: NextRequest) {
+    const requestId = req.headers.get('x-request-id') || 'req_internal';
+
+    try {
+      const body = await req.json();
+      logger.info({ event: 'API: Order creation request', requestId });
+
+      // 1. Validation
+      const validation = checkoutSchema.safeParse(body);
+      if (!validation.success) {
+        logger.warn({ event: 'API: Order validation failed', requestId, errors: validation.error.flatten() });
+        const firstError = validation.error.errors[0]?.message || 'Invalid order data';
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: { 
+              code: ErrorCode.VALIDATION_FAILED, 
+              message: firstError, 
+              details: validation.error.flatten() 
+            } 
+          },
+          { status: 400 }
+        );
+      }
+
+      const { 
+        items, 
+        shopItems, 
+        shippingAddress, 
+        shippingOptionId, 
+        userId, 
+        projectId, 
+        isAdvance, 
+        isBalance, 
+        advancePercentage 
+      } = validation.data;
+
+      // 2. Resolve shipping option
+      const shippingOption = SHIPPING_OPTIONS.find(o => o.id === shippingOptionId);
+      if (!shippingOption) {
+        return NextResponse.json(
+          { success: false, error: { code: ErrorCode.NOT_FOUND, message: 'Invalid shipping option' } },
+          { status: 400 }
+        );
+      }
+
+      // 3. Create Razorpay Order
+      const quoteSubtotal = (items || []).reduce((sum: number, item: any) => sum + item.quote.totalPrice, 0);
+      const shopSubtotal = (shopItems || []).reduce((sum: number, item: any) => sum + (item.salePrice * item.quantity), 0);
+      const subtotal = quoteSubtotal + shopSubtotal;
+      
+      const gst = Math.round(subtotal * 0.18);
+      let finalTotal = subtotal + gst + shippingOption.price;
+      
+      if (projectId && advancePercentage) {
+        finalTotal = Math.round(finalTotal * advancePercentage);
+      }
+
+      const amountPaise = Math.round(finalTotal * 100);
+
+      const razorpayOrder = await razorpay.orders.create({
+        amount: amountPaise,
+        currency: 'INR',
+        receipt: `quote_${Date.now()}`,
+        notes: {
+          userId,
+          type: isBalance ? 'project_balance' : (projectId ? 'project_advance' : 'quote_order'),
+          projectId: projectId || ''
+        }
+      });
+
+      // 4. Create internal order record via Service
+      const result = await CheckoutService.createOrder(
+        userId,
+        items as any,
+        shopItems as any,
+        shippingAddress as any,
+        shippingOption,
+        razorpayOrder.id,
+        projectId,
+        advancePercentage,
+        isBalance
+      );
+
+      if (!result.success) {
+        const error = result.error;
+        logger.error({ event: 'API: Checkout service processing failed', requestId, error });
+        return NextResponse.json(
+          { success: false, error: { code: error.code, message: error.message } },
+          { status: error.statusCode }
+        );
+      }
+
+      logger.info({ event: 'API: Order successfully created', requestId, orderId: result.data.id });
+
+      return NextResponse.json(
+        { success: true, data: result.data },
+        { status: 201 }
+      );
+
+    } catch (e) {
+      logger.error({ event: 'API: Fatal error in OrderController.createOrder', requestId, error: e });
+      return NextResponse.json(
+        { success: false, error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to process order' } },
+        { status: 500 }
+      );
+    }
+  },
+
+  /**
+   * Verifies a Razorpay payment and marks the order as paid.
+   */
+  async verifyOrder(req: NextRequest) {
+    const requestId = req.headers.get('x-request-id') || 'req_verify';
+
+    try {
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        orderId,
+        userId
+      } = await req.json() as {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+        orderId: string;
+        userId: string;
+      };
+
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId || !userId) {
+        return NextResponse.json(
+          { success: false, error: { code: ErrorCode.VALIDATION_FAILED, message: 'Missing verification fields' } },
+          { status: 400 }
+        );
+      }
+
+      // 1. Signature Verification
+      const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+        .update(body)
+        .digest('hex');
+
+      if (expectedSignature !== razorpay_signature) {
+        logger.warn({ event: 'API: Payment signature verification failed', requestId, orderId });
+        return NextResponse.json(
+          { success: false, error: { code: ErrorCode.VALIDATION_FAILED, message: 'Invalid payment signature' } },
+          { status: 400 }
+        );
+      }
+
+      // 2. Business Logic Execution
+      const result = await CheckoutService.markAsPaid(orderId, razorpay_payment_id);
+
+      if (!result.success) {
+        const error = result.error;
+        logger.error({ event: 'API: Post-payment processing service failed', requestId, orderId, error });
+        return NextResponse.json(
+          { success: false, error: { code: error.code, message: error.message } },
+          { status: error.statusCode }
+        );
+      }
+
+      logger.info({ event: 'API: Order verification successful', requestId, orderId });
+      return NextResponse.json({ success: true, orderId });
+
+    } catch (err: any) {
+      logger.error({ event: 'API: Fatal error in OrderController.verifyOrder', requestId, error: err });
+      return NextResponse.json(
+        { success: false, error: { code: ErrorCode.INTERNAL_ERROR, message: 'Verification failed' } },
+        { status: 500 }
+      );
+    }
+  }
+};

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CreditCard, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import type { QuoteOrder } from '@/types/checkout';
 
 interface PaymentSectionProps {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
 // Firebase Admin is handled by getFirebaseAdmin() central logic

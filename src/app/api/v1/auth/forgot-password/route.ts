@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { Resend } from 'resend';
 
 let resendInstance: Resend | null = null;

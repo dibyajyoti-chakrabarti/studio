@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { type ShippingAddress, type ShippingOption, type QuoteOrder, SHIPPING_OPTIONS } from '@/types/checkout';
 import type { QuoteCartItem } from '@/types/quoting';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { useRouter } from 'next/navigation';
 
 export type CheckoutStep = 'cart' | 'shipping' | 'payment' | 'success';

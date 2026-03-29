@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { logger } from '@/lib/logger';
-import { calculateProjectFinances } from '@/lib/utils/finance';
+import { logger } from '@/utils/logger';
+import { calculateProjectFinances } from '@/utils/finance';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
 // Firebase Admin is handled by getFirebaseAdmin() central logic

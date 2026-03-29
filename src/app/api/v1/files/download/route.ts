@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { getPresignedDownloadUrl } from '@/lib/s3-client';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 /**
  * GET /api/v1/files/download?key=[fileKey]

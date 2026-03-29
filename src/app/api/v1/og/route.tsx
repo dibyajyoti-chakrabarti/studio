@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 export const runtime = 'edge';
 

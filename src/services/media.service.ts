@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import sharp from 'sharp';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client, S3_BUCKET, S3_REGION } from "@/lib/s3-client";
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 
 
 export interface ImageUploadMetadata {

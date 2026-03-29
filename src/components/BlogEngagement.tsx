@@ -5,7 +5,7 @@ import { Heart } from 'lucide-react';
 import { useAuth, useFirestore } from '@/firebase';
 import { doc, getDoc, setDoc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { useRouter } from 'next/navigation';
 
 interface BlogEngagementProps {

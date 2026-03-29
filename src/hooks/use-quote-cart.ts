@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { QuoteCartItem, QuoteResult } from '@/types/quoting';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { nanoid } from 'nanoid';
 
 const CART_STORAGE_KEY = 'mechhub_quote_cart';

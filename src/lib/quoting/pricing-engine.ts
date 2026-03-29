@@ -8,8 +8,8 @@ import type {
   Material, Machine, ParsedGeometry, FinishType,
   TurnaroundType, QuoteResult, QuoteBreakdown,
 } from '@/types/quoting';
-import { type Result, ok, err } from '@/lib/result';
-import { AppError, ErrorCode } from '@/lib/errors';
+import { type Result, ok, err } from '@/utils/result';
+import { AppError, ErrorCode } from '@/utils/errors';
 import { getMaterialById, getFinishRate, getTurnaroundOption, LASER_MACHINE } from './materials';
 import { calcQuantityMultiplier } from './quantity-tiers';
 import { runDFMChecks, hasBlockingIssues } from './dfm-checks';

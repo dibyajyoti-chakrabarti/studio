@@ -57,37 +57,28 @@ import {
 import { useFirestore, useCollection, useDoc, useUser, useMemoFirebase, updateDocumentNonBlocking, addDocumentNonBlocking, useAuth, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc, getDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { calculateProjectFinances } from '@/lib/utils/finance';
+import { calculateProjectFinances } from '@/utils/finance';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { isAdmin } from '@/lib/auth-utils';
+import { STATUS_OPTIONS, SPECIALIZATIONS } from '@/config/constants';
+
+// Modular Components
+import { AdminService } from '@/services/admin.service';
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { RfqManagement } from '@/components/admin/RfqManagement';
+import { UserDirectory } from '@/components/admin/UserDirectory';
+import { VendorRegistry } from '@/components/admin/VendorRegistry';
+import { ProductCatalogue } from '@/components/admin/ProductCatalogue';
+import { ConsultationRequests } from '@/components/admin/ConsultationRequests';
+import { OrderManagement } from '@/components/admin/OrderManagement';
+import { IndustrialDemandHub } from '@/components/admin/IndustrialDemandHub';
+import { ContactQueries } from '@/components/admin/ContactQueries';
 
 
-const STATUS_OPTIONS = [
-  { value: 'quote_requested', label: 'Quote Requested' },
-  { value: 'quotation_sent', label: 'Quotation Sent' },
-  { value: 'negotiation', label: 'In Negotiation' },
-  { value: 'accepted', label: 'Order Accepted' },
-  { value: 'deposit_pending', label: 'Deposit Pending' },
-  { value: 'in_production', label: 'In Production' },
-  { value: 'shipped', label: 'Shipped' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'rejected', label: 'Rejected' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
-
-const SPECIALIZATIONS = [
-  'CNC Milling/Turning',
-  'Laser Cutting',
-  'Welding & Fabrication',
-  'Sheet Metal',
-  'Prototype Manufacturing',
-  '3D Printing',
-  'Small Batch Production'
-];
+// Constants moved to @/config/constants
 
 export default function AdminPanel() {
   const router = useRouter();
@@ -327,13 +318,20 @@ export default function AdminPanel() {
     }
   };
 
-  const handleUpdateStatus = (rfqId: string, newStatus: string) => {
-    if (!db) return;
-    updateDocumentNonBlocking(doc(db, 'projectRFQs', rfqId), {
-      status: newStatus,
-      updatedAt: new Date().toISOString(),
-    });
-    toast({ title: "Status Updated", description: `Project lifecycle updated to ${newStatus}.` });
+  const handleUpdateStatus = async (rfqId: string, newStatus: string) => {
+    try {
+      await AdminService.updateProjectRfqStatus(rfqId, newStatus);
+      toast({
+        title: "Status Synchronized",
+        description: `RFQ lifecycle stage set to ${newStatus}.`,
+      });
+    } catch (e) {
+      logger.error({ event: 'Admin RFQ update failed', id: rfqId, status: newStatus, error: e });
+      toast({
+        title: "Update Failed",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShortlistVendor = (rfqId: string, vendorId: string) => {
@@ -754,636 +752,84 @@ export default function AdminPanel() {
           <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
         )}
 
-        <aside className={`
-          border-r border-slate-200 bg-card flex flex-col p-3 space-y-1.5 transition-all duration-200 ease-in-out shrink-0 z-40
-          fixed md:relative top-16 md:top-0 bottom-0 left-0
-          ${sidebarOpen ? 'w-56 translate-x-0' : 'w-[60px] -translate-x-full md:translate-x-0'}
-        `}>
-          {[
-            { key: 'rfqs', label: 'RFQs', icon: ClipboardList },
-            { key: 'shop_orders', label: 'Shop Orders', icon: Package },
-            { key: 'demand', label: 'Demand Hub', icon: TrendingUp },
-            { key: 'products', label: 'Products', icon: ShoppingCart },
-            { key: 'users', label: 'Buyers', icon: UserIcon },
-            { key: 'vendors', label: 'MechMasters', icon: Factory },
-            { key: 'consultations', label: 'Consultations', icon: MessageCircleQuestion },
-            { key: 'contact_queries', label: 'Contact Queries', icon: MessageSquare },
-          ].map(item => (
-            <Button
-              key={item.key}
-              variant={activeTab === item.key ? 'secondary' : 'ghost'}
-              className={`gap-3 transition-all duration-200 ${activeTab === item.key ? 'text-[#1E3A66] bg-slate-100' : 'text-slate-600 hover:text-[#1E3A66] hover:bg-slate-50'} ${sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'}`}
-              onClick={() => { setActiveTab(item.key); if (window.innerWidth < 768) setSidebarOpen(false); }}
-              title={item.label}
-            >
-              <item.icon className="w-4 h-4 shrink-0" />
-              {sidebarOpen && <span className="truncate text-sm">{item.label}</span>}
-            </Button>
-          ))}
-        </aside>
+        <AdminSidebar 
+          sidebarOpen={sidebarOpen} 
+          setSidebarOpen={setSidebarOpen} 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+        />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {activeTab === 'demand' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Industrial Demand Hub</h1>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Algorithm-driven prioritization based on buyer interest flags.</p>
-                </div>
-                <div className="flex gap-3">
-                  <div className="px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl">
-                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest">Active Flags</p>
-                    <p className="text-xl font-mono font-bold text-blue-700">{restockRequests?.length || 0}</p>
-                  </div>
-                  <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
-                    <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">High Probability</p>
-                    <p className="text-xl font-mono font-bold text-emerald-700">{restockRequests?.filter((r: any) => r.status === 'pending').length || 0}</p>
-                  </div>
-                </div>
-              </div>
-
-              <Card className="border-slate-200 overflow-hidden shadow-sm">
-                <Table>
-                  <TableHeader className="bg-slate-50/50">
-                    <TableRow className="border-slate-200">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Component Profile</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Request Volume</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Interested Buyers</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Last Activity</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Priority Score</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 text-right">Operations</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isRestockLoading ? (
-                      <TableRow><TableCell colSpan={6} className="text-center py-12"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></TableCell></TableRow>
-                    ) : restockRequests?.length === 0 ? (
-                      <TableRow><TableCell colSpan={6} className="text-center py-24"><div className="flex flex-col items-center gap-3"><TrendingUp className="w-8 h-8 text-slate-200" /><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">No market signals captured.</p></div></TableCell></TableRow>
-                    ) : (
-                      Object.entries(
-                        (restockRequests || []).reduce((acc: any, curr: any) => {
-                          if (!acc[curr.productId]) {
-                            acc[curr.productId] = {
-                              name: curr.productName,
-                              sku: curr.sku,
-                              count: 0,
-                              lastDate: curr.requestedAt,
-                              buyers: []
-                            };
-                          }
-                          acc[curr.productId].count += 1;
-                          if (new Date(curr.requestedAt) > new Date(acc[curr.productId].lastDate)) {
-                            acc[curr.productId].lastDate = curr.requestedAt;
-                          }
-                          // Collect unique buyers
-                          if (!acc[curr.productId].buyers.some((b: any) => b.email === curr.userEmail)) {
-                            acc[curr.productId].buyers.push({
-                              email: curr.userEmail,
-                              userId: curr.userId,
-                              at: curr.requestedAt
-                            });
-                          }
-                          return acc;
-                        }, {})
-                      )
-                        .sort((a: any, b: any) => b[1].count - a[1].count)
-                        .map(([prodId, data]: any) => (
-                          <TableRow key={prodId} className="hover:bg-slate-50/30 transition-colors border-slate-100 group">
-                            <TableCell className="py-4">
-                              <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{data.name}</div>
-                              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter mt-0.5">{data.sku}</div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <Badge className="bg-blue-50 text-blue-600 border-blue-100 font-black text-xs px-2 py-0">
-                                {data.count} Leads
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="max-w-[180px] space-y-1">
-                                {data.buyers.slice(0, 2).map((b: any, i: number) => (
-                                  <div key={i} className="text-[9px] text-slate-600 flex items-center gap-1 group/item">
-                                    <span className="w-1 h-1 rounded-full bg-blue-400" />
-                                    <span className="truncate">{b.email}</span>
-                                  </div>
-                                ))}
-                                {data.buyers.length > 2 && (
-                                  <div className="text-[8px] text-blue-500 font-bold uppercase tracking-tighter">
-                                    + {data.buyers.length - 2} more interested
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4 text-[11px] text-slate-500 font-medium">
-                              {new Date(data.lastDate).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <Badge className={`text-[9px] font-black uppercase tracking-widest border-none ${data.count > 3 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
-                                {data.count > 3 ? 'Critical' : 'Growing Demand'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="py-4 text-right">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 text-[10px] font-black uppercase tracking-widest text-[#2F5FA7] hover:bg-blue-50 rounded-lg group"
-                                onClick={() => {
-                                  setActiveTab('products');
-                                }}
-                              >
-                                Update Inventory <ArrowUpRight className="w-3 h-3 ml-1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <IndustrialDemandHub 
+              restockRequests={restockRequests || []}
+              isLoading={isRestockLoading}
+              onUpdateInventory={() => setActiveTab('products')}
+            />
           )}
 
           {activeTab === 'rfqs' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Project Lifecycle Control</h1>
-                <Badge variant="outline" className="px-3 py-1 border-slate-200 text-slate-500">{filteredRfqs.length} RFQs</Badge>
-              </div>
-
-              <Card className="bg-card border-slate-200 overflow-x-auto">
-                <Table className="min-w-[700px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500">Project & Buyer</TableHead>
-                      <TableHead className="text-slate-500">Requirements</TableHead>
-                      <TableHead className="text-slate-500">Lifecycle Stage</TableHead>
-                      <TableHead className="text-slate-500">Payment</TableHead>
-                      <TableHead className="text-slate-500">Assignment</TableHead>
-                      <TableHead className="text-slate-500">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isRfqsLoading ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                    ) : filteredRfqs.map((rfq) => (
-                      <TableRow key={rfq.id} className="border-b border-slate-100">
-                        <TableCell>
-                          <div className="font-bold text-slate-900">{rfq.projectName}</div>
-                          <div className="text-sm text-slate-500">{rfq.userName}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs text-slate-700">{rfq.manufacturingProcess || 'Multi-Part Project'}</div>
-                          <div className="text-[10px] text-slate-500 uppercase">
-                            {rfq.material ? `${rfq.material} | Qty: ${rfq.quantity}` : 'Review parts for details'}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Select value={rfq.status} onValueChange={(val) => handleUpdateStatus(rfq.id, val)}>
-                            <SelectTrigger className="w-[180px] h-8 text-xs bg-white border-slate-200">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {STATUS_OPTIONS.map(opt => (
-                                <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          {rfq.paymentStatus?.advance?.paid ? (
-                            <Badge className={rfq.paymentStatus?.completion?.paid ? 'bg-blue-600 text-white' : 'bg-green-50 text-green-700 border-green-200'}>
-                              {rfq.paymentStatus?.completion?.paid ? '100% Paid' : '50% Paid'}
-                            </Badge>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest pl-2 italic">Unpaid</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {rfq.assignedVendorId ? (
-                            <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200">Assigned</Badge>
-                          ) : (
-                            <Badge variant="outline" className="border-slate-200 text-slate-500">Pending</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Button size="icon" variant="ghost" className="w-8 h-8" onClick={() => { setSelectedRfq(rfq); setShowDetailsModal(true); }}>
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <RfqManagement 
+              rfqs={filteredRfqs}
+              isLoading={isRfqsLoading}
+              onUpdateStatus={handleUpdateStatus}
+              onViewDetails={(rfq) => { setSelectedRfq(rfq); setShowDetailsModal(true); }}
+            />
           )}
 
           {activeTab === 'users' && (
-            <div className="space-y-6">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Innovator Directory</h1>
-              <Card className="bg-card border-slate-200 overflow-x-auto">
-                <Table className="min-w-[600px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500">Full Name</TableHead>
-                      <TableHead className="text-slate-500">Organization</TableHead>
-                      <TableHead className="text-slate-500">Contact</TableHead>
-                      <TableHead className="text-slate-500">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {buyers?.map((u) => (
-                      <TableRow key={u.id} className="border-b border-white/5">
-                        <TableCell className="font-bold text-slate-900">{u.fullName}</TableCell>
-                        <TableCell className="text-slate-700">{u.teamName}</TableCell>
-                        <TableCell>
-                          <div className="text-sm text-slate-600">{u.email}</div>
-                          <div className="text-xs text-slate-500">{u.phone}</div>
-                        </TableCell>
-                        <TableCell><Badge className="bg-primary/20 text-primary">{u.status}</Badge></TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <UserDirectory users={buyers || []} />
           )}
 
           {activeTab === 'vendors' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">MechMaster Registry</h1>
-                <Button onClick={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }} className="gap-2" size="sm">
-                  <Plus className="w-4 h-4" /> Add MechMaster
-                </Button>
-              </div>
-              <Card className="bg-card border-slate-200 overflow-x-auto">
-                <Table className="min-w-[700px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500">Company</TableHead>
-                      <TableHead className="text-slate-500">Capabilities</TableHead>
-                      <TableHead className="text-slate-500">Rating</TableHead>
-                      <TableHead className="text-slate-500">Location</TableHead>
-                      <TableHead className="text-slate-500">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {vendors?.map((v) => (
-                      <TableRow key={v.id} className="border-b border-slate-100">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="relative w-10 h-10 rounded overflow-hidden bg-slate-100">
-                              <Image src={v.imageUrl || "/mechhub.png"} alt={v.fullName || "Vendor Logo"} fill className="object-cover" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-900 flex items-center gap-1">{v.fullName} {v.isVerified && <ShieldCheck className="w-3 h-3 text-secondary" />}</div>
-                              <div className="text-[10px] text-slate-500">{v.teamName}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {v.specializations?.map((s: string, i: number) => (
-                              <Badge key={i} className="text-[8px] uppercase border-secondary/20 bg-secondary/5 text-secondary">{s}</Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-yellow-500 font-bold text-xs"><Star className="w-3 h-3 fill-yellow-500" /> {v.rating}</div>
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-700"><MapPin className="w-3.5 h-3.5 inline mr-1.5 text-slate-400" />{v.location}</TableCell>
-                        <TableCell>
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setSelectedVendorProfile(v); setProfileImage(v.imageUrl); setShowVendorModal(true); }}>
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <VendorRegistry 
+              vendors={vendors || []}
+              onAddVendor={() => { setSelectedVendorProfile(null); setShowVendorModal(true); }}
+              onEditVendor={(v) => { setSelectedVendorProfile(v); setProfileImage(v.imageUrl); setShowVendorModal(true); }}
+            />
           )}
 
           {activeTab === 'products' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Product Catalogue</h1>
-                <Button onClick={() => { setSelectedProduct(null); setShowProductModal(true); }} className="gap-2" size="sm">
-                  <Plus className="w-4 h-4" /> Add SKU
-                </Button>
-              </div>
-
-              <Card className="bg-card border-slate-200 overflow-x-auto">
-                <Table className="min-w-[800px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500">Product & SKU</TableHead>
-                      <TableHead className="text-slate-500">Category</TableHead>
-                      <TableHead className="text-slate-500">Pricing (INR)</TableHead>
-                      <TableHead className="text-slate-500 text-center">Stock</TableHead>
-                      <TableHead className="text-slate-500">Status</TableHead>
-                      <TableHead className="text-slate-500 text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isProductsLoading ? (
-                      <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                    ) : productError ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-10">
-                          <AlertCircle className="w-10 h-10 mx-auto text-destructive/50 mb-3" />
-                          <p className="text-sm font-bold text-destructive">Permission Denied</p>
-                          <p className="text-xs text-muted-foreground mt-1">Check Firestore security rules or authentication status.</p>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      products?.map((prod) => (
-                        <TableRow key={prod.id} className="border-b border-slate-100 group hover:bg-slate-50/50">
-                          <TableCell>
-                            <div className="font-bold text-slate-900 mb-0.5">{prod.name}</div>
-                            <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{prod.sku}</div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-[10px] border-slate-200 uppercase tracking-widest text-[#1E3A66]">{prod.categoryId}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm font-bold text-slate-900">₹{prod.salePrice}</div>
-                            <div className="text-[10px] text-slate-400 line-through opacity-60">₹{prod.basePrice}</div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex flex-col items-center gap-1">
-                              <span className={`text-sm font-bold ${prod.inventory <= 0 ? 'text-red-600' : prod.inventory < 20 ? 'text-orange-600' : 'text-slate-600'}`}>
-                                {prod.inventory <= 0 ? 'OUT OF STOCK' : prod.inventory}
-                              </span>
-                              {restockCounts[prod.id] > 0 && (
-                                <Badge className="bg-blue-500 text-white border-none text-[8px] px-1 py-0 animate-pulse">
-                                  {restockCounts[prod.id]} REQUESTS
-                                </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={prod.isActive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600 border-slate-200'}>
-                              {prod.isActive ? 'Active' : 'Disabled'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              <Button size="icon" variant="ghost" className="w-8 h-8 hover:text-primary transition-colors" onClick={() => { setSelectedProduct(prod); setShowProductModal(true); }}>
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="w-8 h-8 hover:text-destructive transition-colors"
-                                onClick={() => handleDeleteProduct(prod.id)}
-                                disabled={!!isDeletingProduct}
-                              >
-                                {isDeletingProduct === prod.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                )}
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <ProductCatalogue 
+              products={products || []}
+              isLoading={isProductsLoading}
+              error={productError}
+              restockCounts={restockCounts}
+              isDeletingProduct={isDeletingProduct}
+              onAddProduct={() => { setSelectedProduct(null); setShowProductModal(true); }}
+              onEditProduct={(prod) => { setSelectedProduct(prod); setShowProductModal(true); }}
+              onDeleteProduct={handleDeleteProduct}
+            />
           )}
 
           {activeTab === 'consultations' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Consultation Requests</h1>
-                <Badge variant="outline" className="px-3 py-1 border-slate-200 text-slate-500">{consultations?.length || 0} Requests</Badge>
-              </div>
-
-              <Card className="bg-card border-slate-200 overflow-x-auto">
-                <Table className="min-w-[900px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500 w-[180px]">Customer</TableHead>
-                      <TableHead className="text-slate-500 w-[250px]">RFQ Details</TableHead>
-                      <TableHead className="text-slate-500 min-w-[300px]">Project Brief</TableHead>
-                      <TableHead className="text-slate-500 w-[140px] text-right">Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isConsultationsLoading ? (
-                      <TableRow><TableCell colSpan={4} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                    ) : consultations?.map((req) => (
-                      <TableRow key={req.id} className="border-b border-slate-100 align-top">
-                        <TableCell>
-                          <div className="font-bold text-slate-900">{req.name}</div>
-                          <div className="text-sm text-slate-500">{req.email}</div>
-                          <div className="text-xs text-slate-400">{req.phone}</div>
-                        </TableCell>
-                        <TableCell>
-                          {req.quoteRef ? (
-                            <div className="space-y-1.5 p-2 rounded-md bg-blue-950/20 border border-blue-900/40">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-950 px-1.5 py-0.5 rounded">
-                                  {req.quoteRef}
-                                </span>
-                                <span className="text-xs font-bold text-emerald-400">{req.estimate}</span>
-                              </div>
-                              <div className="flex flex-wrap gap-1">
-                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-muted-foreground border-white/10">{req.process}</Badge>
-                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-muted-foreground border-white/10">{req.material}</Badge>
-                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 bg-white/5 text-muted-foreground border-white/10">{req.quantity} pcs</Badge>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-xs text-muted-foreground italic">General Inquiry (No Quote Ref)</div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap rounded-md bg-slate-50/50 p-3 border border-slate-100">
-                            {req.message}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="text-sm text-[#1E3A66] font-medium">{new Date(req.requestDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                          <div className="text-xs text-slate-500">{new Date(req.requestDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {!isConsultationsLoading && consultations?.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
-                          No consultation requests found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <ConsultationRequests 
+              consultations={consultations || []}
+              isLoading={isConsultationsLoading}
+            />
           )}
 
           {activeTab === 'contact_queries' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Contact Queries</h1>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Customer inquiries from the Contact Us page.</p>
-                </div>
-                <Badge variant="outline" className="px-3 py-1 border-slate-200 text-slate-500 uppercase tracking-widest font-bold">{contactQueries?.length || 0} Queries</Badge>
-              </div>
-
-              <Card className="border-slate-200 overflow-hidden shadow-sm">
-                <Table>
-                  <TableHeader className="bg-slate-50/50">
-                    <TableRow className="border-slate-200">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Contact</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Company</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4 min-w-[300px]">Message</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Date</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest py-4">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isContactQueriesLoading ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-12"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></TableCell></TableRow>
-                    ) : contactQueries?.length ? (contactQueries as any[]).map((cq: any) => (
-                      <TableRow key={cq.id} className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <TableCell>
-                          <div className="font-bold text-sm text-[#1E3A66]">{cq.firstName} {cq.lastName}</div>
-                          <a href={`mailto:${cq.email}`} className="text-xs text-[#2F5FA7] hover:underline">{cq.email}</a>
-                          {cq.phone && <div className="text-[10px] text-slate-400 mt-0.5">{cq.phone}</div>}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-slate-700 font-medium">{cq.company || <span className="text-slate-400 italic">—</span>}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap rounded-md bg-slate-50/50 p-3 border border-slate-100 max-w-[400px]">
-                            {cq.message}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-[#1E3A66] font-medium">{new Date(cq.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                          <div className="text-xs text-slate-500">{new Date(cq.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={cq.status || 'new'}
-                            onValueChange={(val) => {
-                              if (!db) return;
-                              updateDocumentNonBlocking(doc(db, 'contactQueries', cq.id), { status: val, updatedAt: new Date().toISOString() });
-                              toast({ title: 'Status Updated', description: `Query marked as ${val}.` });
-                            }}
-                          >
-                            <SelectTrigger className="h-8 text-xs w-[130px] font-bold uppercase tracking-wider">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="new">New</SelectItem>
-                              <SelectItem value="in-progress">In Progress</SelectItem>
-                              <SelectItem value="resolved">Resolved</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                          No contact queries yet.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <ContactQueries 
+              queries={contactQueries || []}
+              isLoading={isContactQueriesLoading}
+              onUpdateStatus={(id, val) => {
+                if (!db) return;
+                updateDocumentNonBlocking(doc(db, 'contactQueries', id), { status: val, updatedAt: new Date().toISOString() });
+                toast({ title: 'Status Updated', description: `Query marked as ${val}.` });
+              }}
+            />
           )}
 
           {activeTab === 'shop_orders' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66] uppercase italic">Shop Procurement Hub</h1>
-                <Badge variant="outline" className="px-3 py-1 border-slate-200 text-slate-500 uppercase tracking-widest font-bold">{shopOrders?.length || 0} Orders</Badge>
-              </div>
-
-              <Card className="bg-card border-slate-200 overflow-x-auto shadow-sm">
-                <Table className="min-w-[900px]">
-                  <TableHeader>
-                    <TableRow className="border-slate-200 hover:bg-transparent">
-                      <TableHead className="text-slate-500">Order Ref</TableHead>
-                      <TableHead className="text-slate-500">Customer & Logistics</TableHead>
-                      <TableHead className="text-slate-500">Component Lineage</TableHead>
-                      <TableHead className="text-slate-500 text-right">Value (INR)</TableHead>
-                      <TableHead className="text-slate-500">Fulfillment Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isShopOrdersLoading ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                    ) : shopOrders?.length ? shopOrders.map((order: any) => (
-                      <TableRow key={order.id} className="border-b border-slate-100 group hover:bg-slate-50/50">
-                        <TableCell>
-                          <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">#{order.id.slice(-8)}</div>
-                          <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold">{new Date(order.createdAt).toLocaleDateString()}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-bold text-slate-900 text-sm italic underline decoration-slate-200 underline-offset-4">{order.shippingAddress?.fullName || 'N/A'}</div>
-                          <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter truncate max-w-[150px]">{order.shippingAddress?.city || 'Unknown'}, {order.shippingAddress?.state || 'N/A'}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            {(order.items || []).map((item: any, idx: number) => (
-                              <div key={`quote-${idx}`} className="text-[10px] text-slate-700 font-medium flex items-center gap-2">
-                                <span className="text-[#2F5FA7]">[{item.quantity}x]</span> {item.name} <span className="text-[8px] text-slate-400 italic">(Quote)</span>
-                              </div>
-                            ))}
-                            {(order.shopItems || []).map((item: any, idx: number) => (
-                              <div key={`shop-${idx}`} className="text-[10px] text-slate-700 font-medium flex items-center gap-2">
-                                <span className="text-[#2F5FA7]">[{item.quantity}x]</span> {item.name} <span className="text-[8px] text-slate-400 italic">(Product)</span>
-                              </div>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="text-sm font-bold font-mono text-slate-900">₹{(order.pricing?.total || 0).toLocaleString()}</div>
-                          <Badge variant="outline" className="text-[8px] border-emerald-500/20 text-emerald-600 uppercase py-0 leading-tight">GST PAID</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={order.status}
-                            onValueChange={(val) => {
-                              updateDocumentNonBlocking(doc(db, 'orders', order.id), { status: val, updatedAt: new Date().toISOString() });
-                              toast({ title: "Order Updated", description: `Order status set to ${val}` });
-                            }}
-                          >
-                            <SelectTrigger className="w-[140px] h-8 text-[10px] bg-white border-slate-200 uppercase font-bold tracking-widest text-[#1E3A66]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="paid" className="text-[10px] font-bold">PAID (TXN)</SelectItem>
-                              <SelectItem value="processing" className="text-[10px] font-bold">PROCESSING</SelectItem>
-                              <SelectItem value="shipped" className="text-[10px] font-bold">SHIPPED</SelectItem>
-                              <SelectItem value="delivered" className="text-[10px] font-bold">DELIVERED</SelectItem>
-                              <SelectItem value="cancelled" className="text-[10px] font-bold">CANCELLED</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                          No shop orders found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </Card>
-            </div>
+            <OrderManagement 
+              orders={shopOrders || []}
+              isLoading={isShopOrdersLoading}
+              onUpdateStatus={(id, val) => {
+                updateDocumentNonBlocking(doc(db, 'orders', id), { status: val, updatedAt: new Date().toISOString() });
+                toast({ title: "Order Updated", description: `Order status set to ${val}` });
+              }}
+            />
           )}
 
         </main>
