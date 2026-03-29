@@ -1,4 +1,6 @@
 import * as admin from 'firebase-admin';
+import { logger } from './logger';
+
 
 export function getFirebaseAdmin() {
     if (!admin.apps.length) {
@@ -18,7 +20,11 @@ export function getFirebaseAdmin() {
                             privateKey = parsed.private_key;
                         }
                     } catch (e) {
-                        console.error("Failed to parse FIREBASE_PRIVATE_KEY as JSON, continuing anyway.");
+                        logger.error({
+                            event: 'firebase_admin_key_parse_failed',
+                            error: 'Failed to parse FIREBASE_PRIVATE_KEY as JSON'
+                        });
+
                     }
                 }
 
@@ -54,12 +60,23 @@ export function getFirebaseAdmin() {
                     }),
                     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
                 });
-                console.log('Firebase Admin initialized successfully');
+                logger.info({
+                    event: 'firebase_admin_init_success'
+                });
+
             } else {
-                console.warn('Firebase Admin skipped: Missing env vars');
+                logger.warn({
+                    event: 'firebase_admin_init_skipped',
+                    reason: 'Missing env vars'
+                });
+
             }
         } catch (error) {
-            console.error('Firebase Admin initialization error', error);
+            logger.error({
+                event: 'firebase_admin_init_failed',
+                error: (error as Error).message
+            });
+
         }
     }
 

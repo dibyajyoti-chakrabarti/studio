@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
 // Firebase Admin is handled by getFirebaseAdmin() central logic
 
 export async function POST(req: NextRequest) {
+    let razorpayOrderId = 'unknown';
     try {
         const {
             razorpay_order_id,
@@ -22,6 +24,7 @@ export async function POST(req: NextRequest) {
             paymentType: 'advance' | 'completion';
             userId: string;
         };
+        razorpayOrderId = razorpay_order_id;
 
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !rfqId || !paymentType || !userId) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
@@ -35,7 +38,11 @@ export async function POST(req: NextRequest) {
             .digest('hex');
 
         if (expectedSignature !== razorpay_signature) {
-            console.warn('[verify] Signature mismatch — possible tamper attempt');
+            logger.warn({
+                event: 'payment_signature_mismatch',
+                orderId: razorpay_order_id,
+                userId
+            });
             return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
         }
 
@@ -89,7 +96,11 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true, paymentType, paidAt });
     } catch (err: any) {
-        console.error('[verify] Error:', err);
+        logger.error({
+            event: 'payment_verification_error',
+            error: err.message,
+            orderId: razorpayOrderId
+        });
         return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
     }
 }

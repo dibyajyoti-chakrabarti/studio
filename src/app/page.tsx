@@ -8,44 +8,21 @@ import { MaterialsSection } from '@/components/MaterialsSection';
 import { Footer } from '@/components/Footer';
 import { LaserArrow } from '@/components/LaserArrow';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Logo } from '@/components/Logo';
 import {
   Settings,
   Zap,
-  Flame,
-  Layers,
-  Cpu,
-  Boxes,
   ArrowRight,
   Upload,
-  Search,
   CheckCircle2,
-  Star,
-  MapPin,
-  TrendingUp,
   ShieldCheck,
   CircleDollarSign,
-  FastForward,
-  Users2,
-  Lock,
-  LayoutDashboard,
   ClipboardCheck,
   MessageSquare,
-  Loader2,
-  Check,
-  Factory,
-  Clock,
   Rocket,
   HardHat,
   Palette,
   Users,
   Package,
-  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';

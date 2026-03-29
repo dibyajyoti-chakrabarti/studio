@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { Resend } from 'resend';
 
 let resendInstance: Resend | null = null;
@@ -15,6 +16,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+    let currentEmail = 'unknown';
     try {
         const ip = req.headers.get('x-forwarded-for') || 'anonymous';
         const limiter = await rateLimit(`auth-forgot:${ip}`, 3, 60000);
@@ -23,6 +25,7 @@ export async function POST(req: Request) {
         }
 
         const { email } = await req.json();
+        currentEmail = email;
 
         if (!email) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -117,14 +120,22 @@ export async function POST(req: Request) {
         });
 
         if (error) {
-            console.error('Resend email error:', error);
+            logger.error({
+                event: 'forgot_password_email_failed',
+                error: error.message,
+                email
+            });
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
 
     } catch (error: any) {
-        console.error('Forgot password error:', error);
+        logger.error({
+            event: 'forgot_password_process_failed',
+            error: error.message,
+            email: currentEmail
+        });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getFirebaseAdmin } from "@/lib/firebase-admin";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 
 const DesignFileSchema = z.object({
     name: z.string().min(1).max(255),
@@ -82,7 +83,11 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, rfqId: rfqRef.id });
 
     } catch (error: any) {
-        console.error("RFQ Submission Error:", error);
+        logger.error({
+            event: 'rfq_submission_failed',
+            error: error.message,
+            stack: error.stack
+        });
         return NextResponse.json({ error: "Failed to submit RFQ. Please try again later." }, { status: 500 });
     }
 }

@@ -1,5 +1,7 @@
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { NextResponse } from 'next/server';
+import { logger } from './logger';
+
 import { Transaction, DocumentSnapshot } from 'firebase-admin/firestore';
 
 /**
@@ -10,7 +12,11 @@ export async function rateLimit(identifier: string, limit: number = 10, windowMs
     const { adminFirestore } = getFirebaseAdmin();
     
     if (!adminFirestore) {
-        console.warn("Firestore Admin not initialized, skipping rate limit");
+        logger.warn({
+            event: 'rate_limit_skipped',
+            reason: 'Firestore Admin not initialized'
+        });
+
         return { success: true, remaining: 999, reset: Date.now() };
     }
 
@@ -41,7 +47,12 @@ export async function rateLimit(identifier: string, limit: number = 10, windowMs
         
         return result;
     } catch (error) {
-        console.error("Rate limit error:", error);
+        logger.error({
+            event: 'rate_limit_error',
+            error: (error as Error).message,
+            identifier
+        });
+
         // Fallback to allow if transaction fails to avoid blocking users
         return { success: true, remaining: 1, reset: now + windowMs };
     }

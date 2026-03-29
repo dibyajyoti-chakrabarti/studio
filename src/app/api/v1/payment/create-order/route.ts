@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { calculateProjectFinances } from '@/lib/utils/finance';
 
 // ── Firebase Admin init (reuse if already initialised) ─────────────────────
@@ -12,12 +13,14 @@ const razorpay = new Razorpay({
 });
 
 export async function POST(req: NextRequest) {
+    let currentRfqId = 'unknown';
     try {
         const { rfqId, paymentType, userId } = await req.json() as {
             rfqId: string;
             paymentType: 'advance' | 'completion';
             userId: string;
         };
+        currentRfqId = rfqId;
 
         if (!rfqId || !paymentType || !userId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -99,7 +102,11 @@ export async function POST(req: NextRequest) {
             customerPhone: rfq.contactPhone || '',
         });
     } catch (err: any) {
-        console.error('[create-order] Error:', err);
+        logger.error({
+            event: 'payment_order_creation_failed',
+            error: err.message,
+            rfqId: currentRfqId
+        });
         return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
     }
 }

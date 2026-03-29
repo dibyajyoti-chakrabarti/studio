@@ -22,7 +22,6 @@ import {
   ShieldCheck,
   Factory,
   User as UserIcon,
-  DollarSign,
   Download,
   UserCheck,
   History,
@@ -50,7 +49,6 @@ import {
   Package,
   CreditCard,
   ShoppingCart,
-  LayoutGrid,
   Box,
   MessageSquare,
   Phone,
@@ -63,6 +61,7 @@ import { calculateProjectFinances } from '@/lib/utils/finance';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 import { isAdmin } from '@/lib/auth-utils';
 
 
@@ -302,7 +301,11 @@ export default function AdminPanel() {
 
       toast({ title: "Download started", description: fileName });
     } catch (error: any) {
-      console.error('Download error:', error);
+      logger.error({
+        event: 'file_download_failed',
+        fileName,
+        error: error.message
+      });
       toast({
         title: "Download failed",
         description: error.message,
@@ -623,7 +626,11 @@ export default function AdminPanel() {
 
       toast({ title: "Assets Deployed", description: `${fileArray.length} views optimized and indexed.` });
     } catch (err: any) {
-      console.error(err);
+      logger.error({
+        event: 'product_image_upload_failed',
+        productId: selectedProduct?.id,
+        error: err.message
+      });
       toast({ title: "Upload Failed", description: err.message || "Could not process asset.", variant: "destructive" });
     } finally {
       setIsUploadingImage(false);
@@ -673,8 +680,13 @@ export default function AdminPanel() {
       setSelectedProduct({ ...selectedProduct, images: updatedImages });
 
       toast({ title: "Asset Erased", description: "Storage and metadata purged." });
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      logger.error({
+        event: 'product_image_delete_failed',
+        productId: selectedProduct?.id,
+        imageId: image.id,
+        error: err.message
+      });
       toast({ title: "Delete Failed", description: "Could not purge asset.", variant: "destructive" });
     }
   };
@@ -701,7 +713,11 @@ export default function AdminPanel() {
 
       toast({ title: "Product & Assets Purged", description: "Catalog synchronized and storage reclaimed." });
     } catch (err: any) {
-      console.error(err);
+      logger.error({
+        event: 'product_purge_failed',
+        productId,
+        error: err.message
+      });
       toast({
         title: "Purge Failed",
         description: err.message || "Manual cleanup may be required in Firestore/S3.",

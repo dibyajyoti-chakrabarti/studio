@@ -2,6 +2,8 @@ import * as admin from 'firebase-admin';
 import sharp from 'sharp';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client, S3_BUCKET, S3_REGION } from "@/lib/s3-client";
+import { logger } from '@/lib/logger';
+
 
 export interface ImageUploadMetadata {
     productId: string;
@@ -68,7 +70,13 @@ export class MediaService {
             const fileName = `${imageId}-${metadata.type}-${size.name}.webp`;
             const storagePath = `products/${slug}/${fileName}`;
 
-            console.log(`[MediaService] Processing ${size.name}: ${storagePath} in bucket ${this.bucketName}`);
+            logger.info({
+                event: 'media_processing',
+                size: size.name,
+                path: storagePath,
+                bucket: this.bucketName
+            });
+
 
             const optimizedBuffer = await sharp(buffer)
                 .resize(size.width, size.width, {
@@ -88,10 +96,13 @@ export class MediaService {
                     CacheControl: 'public, max-age=31536000, immutable'
                 }));
             } catch (err: any) {
-                console.error(`[MediaService] S3 Save failed for ${storagePath}:`, {
-                    message: err.message,
+                logger.error({
+                    event: 'media_upload_failed',
+                    path: storagePath,
+                    error: err.message,
                     code: err.code
                 });
+
                 throw err;
             }
 
@@ -141,7 +152,12 @@ export class MediaService {
                     }));
                 }
             } catch (err: any) {
-                console.warn(`[MediaService] Failed to delete S3 asset at ${url}:`, err.message);
+                logger.warn({
+                    event: 'media_delete_failed',
+                    url: url,
+                    error: err.message
+                });
+
             }
         });
 
@@ -174,7 +190,12 @@ export class MediaService {
         const data = productDoc.data();
         const images = data?.images || [];
 
-        console.log(`[MediaService] Starting full purge for product ${productId} (${images.length} images)`);
+        logger.info({
+            event: 'media_purge_start',
+            productId,
+            imageCount: images.length
+        });
+
 
         // 1. Delete all images from S3
         const allDeletePromises: Promise<any>[] = [];
@@ -192,7 +213,12 @@ export class MediaService {
                             }));
                         }
                     } catch (err: any) {
-                        console.warn(`[MediaService] Failed to delete S3 asset during purge: ${url}`, err.message);
+                        logger.warn({
+                            event: 'media_purge_delete_failed',
+                            url: url,
+                            error: err.message
+                        });
+
                     }
                 });
                 allDeletePromises.push(...variantPromises);
@@ -204,6 +230,10 @@ export class MediaService {
         // 2. Delete Firestore document
         await productRef.delete();
         
-        console.log(`[MediaService] Full purge complete for ${productId}`);
+        logger.info({
+            event: 'media_purge_complete',
+            productId
+        });
+
     }
 }

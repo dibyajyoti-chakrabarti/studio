@@ -22,6 +22,7 @@ import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, updateDo
 import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { MechanicalPart, ProjectRFQ, ProjectRFQStatus, ManufacturingService, SERVICE_DISPLAY_NAMES } from '@/types/project';
+import { logger } from '@/lib/logger';
 
 import {
   FileText,
@@ -30,20 +31,12 @@ import {
   Plus,
   Loader2,
   Check,
-  CreditCard,
   Truck,
-  MessageSquare,
   Package,
   History,
   TrendingUp,
   AlertCircle,
-  Gavel,
-  Hammer,
-  Zap,
-  ShieldCheck,
   UserIcon,
-  IndianRupee,
-  Calculator,
   PhoneCall,
   CheckCircle2,
   MapPin,
@@ -52,7 +45,12 @@ import {
   Box,
   RotateCcw,
   ShieldAlert,
-  Trash2
+  Trash2,
+  Zap,
+  Hammer,
+  ShieldCheck,
+  MessageSquare,
+  CreditCard
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { isAdmin } from '@/lib/auth-utils';
@@ -163,7 +161,10 @@ export default function UserDashboard() {
           localStorage.removeItem('pendingRfqToSubmit');
           toast({ title: "Order Confirmed!", description: "Your pending order has been successfully saved to your dashboard." });
         } catch (e) {
-          console.error("Failed to recover pending RFQ", e);
+          logger.error({
+            event: 'pending_rfq_recovery_failed',
+            error: (e as Error).message
+          });
           localStorage.removeItem('pendingRfqToSubmit');
         }
       }

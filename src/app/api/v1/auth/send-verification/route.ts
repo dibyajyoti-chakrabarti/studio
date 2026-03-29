@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
@@ -113,14 +114,22 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      console.error('Resend email error:', error);
+      logger.error({
+        event: 'email_send_failed',
+        error: error.message,
+        email
+      });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Verification email sent' });
 
   } catch (error: any) {
-    console.error('Send verification error:', error);
+    logger.error({
+      event: 'verification_email_process_failed',
+      error: error.message,
+      stack: error.stack
+    });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

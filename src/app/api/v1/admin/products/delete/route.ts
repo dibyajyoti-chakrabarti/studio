@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 import { MediaService } from '@/lib/services/media-service';
 
 /**
@@ -7,6 +8,7 @@ import { MediaService } from '@/lib/services/media-service';
  * Purges all S3 assets and removes the product document from Firestore.
  */
 export async function DELETE(req: NextRequest) {
+    let currentProductId = "unknown";
     try {
         const { adminAuth, adminFirestore } = getFirebaseAdmin();
         
@@ -29,6 +31,7 @@ export async function DELETE(req: NextRequest) {
 
         // 2. Parse Payload
         const { productId } = await req.json();
+        currentProductId = productId;
 
         if (!productId) {
             return NextResponse.json({ error: 'Missing productId' }, { status: 400 });
@@ -44,7 +47,11 @@ export async function DELETE(req: NextRequest) {
         });
 
     } catch (error: any) {
-        console.error('[Product Delete API] Critical Error:', error);
+        logger.error({
+            event: 'product_delete_api_failed',
+            error: error.message,
+            productId: currentProductId
+        });
         return NextResponse.json({ 
             error: error.message || 'Internal Server Error' 
         }, { status: 500 });

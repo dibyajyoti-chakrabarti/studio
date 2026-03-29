@@ -83,10 +83,7 @@ export function ServicesSection() {
                         const isDimpleForming = service.title === 'Dimple Forming';
                         const isTapping = service.title === 'Tapping';
                         const isAnodizing = service.title === 'Anodizing';
-                        const isDeburring = service.title === 'Deburring';
-                        const isPlating = service.title === 'Plating';
                         const isPowderCoating = service.title === 'Powder Coating';
-                        const isTumbling = service.title === 'Tumbling';
                         const CardContent = (
                             <div
                                 className="group bg-slate-100 rounded-xl md:rounded-[32px] p-2 md:p-8 flex flex-col items-start transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 active:scale-95 md:active:scale-100 h-full"
