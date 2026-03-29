@@ -8,8 +8,8 @@
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "next lint .",
+    "lint:fix": "next lint . --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },

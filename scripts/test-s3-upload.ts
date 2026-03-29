@@ -11,7 +11,7 @@ async function testS3Upload() {
 
   // Dynamically import to ensure env vars are already in process.env
   const { getFirebaseAdmin } = await import('../src/lib/firebase-admin');
-  const { MediaService } = await import('../src/lib/services/media-service');
+  const { MediaService } = await import('../src/services/media.service');
 
   const { adminFirestore } = getFirebaseAdmin();
 
