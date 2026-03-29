@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -136,7 +136,7 @@ const SERVICE_ICONS: Record<ManufacturingService, any> = {
   cnc_turning: RotateCcw,
 };
 
-export default function UserDashboard() {
+function UserDashboardContent() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState(false);
   const db = useFirestore();
@@ -1010,154 +1010,154 @@ export default function UserDashboard() {
                       selectedOrder.status === 'under_review' ||
                       selectedOrder.status === 'quotation_sent' ||
                       selectedOrder.status === 'negotiation') && (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                            <TrendingUp className="w-4 h-4 text-[#2F5FA7]" /> Received Quotations
-                          </h3>
-                          <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold">
-                            {quotations?.length || 0} Offers
-                          </Badge>
-                        </div>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4 text-[#2F5FA7]" /> Received Quotations
+                            </h3>
+                            <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold">
+                              {quotations?.length || 0} Offers
+                            </Badge>
+                          </div>
 
-                        {quotations && quotations.length > 0 ? (
-                          <div className="space-y-4">
-                            {quotations.map((quote) => {
-                              const lastNeg =
-                                quote.negotiationHistory?.[quote.negotiationHistory.length - 1];
-                              const isCounter = lastNeg?.party === 'vendor';
+                          {quotations && quotations.length > 0 ? (
+                            <div className="space-y-4">
+                              {quotations.map((quote) => {
+                                const lastNeg =
+                                  quote.negotiationHistory?.[quote.negotiationHistory.length - 1];
+                                const isCounter = lastNeg?.party === 'vendor';
 
-                              return (
-                                <Card
-                                  key={quote.id}
-                                  className="bg-white border-slate-200 shadow-lg hover:border-[#2F5FA7]/50 hover:bg-slate-50 transition-all overflow-hidden group"
-                                >
-                                  <div className="p-5 space-y-4">
-                                    <div className="flex justify-between items-start">
-                                      <div>
-                                        <p className="font-bold text-slate-900 tracking-tight uppercase">
-                                          {quote.vendorName || 'MechMaster'}
-                                        </p>
-                                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                                          <TrendingUp className="w-3 h-3 text-[#2F5FA7]" />
-                                          {quote.vendorRating || '4.5'} Rating
-                                        </div>
-                                      </div>
-                                      <div className="text-right">
-                                        <p className="text-2xl font-bold font-consolas text-[#2F5FA7]">
-                                          ₹{quote.quotedPrice.toLocaleString()}
-                                        </p>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                          Lead Time:{' '}
-                                          <span className="text-slate-900">
-                                            {quote.leadTimeDays} Days
-                                          </span>
-                                        </p>
-                                      </div>
-                                    </div>
-
-                                    {quote.negotiationHistory &&
-                                      quote.negotiationHistory.length > 0 && (
-                                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl space-y-3 mt-4 shadow-sm">
-                                          <p className="text-[10px] font-bold text-[#2F5FA7] uppercase tracking-widest mb-2 flex items-center gap-2">
-                                            <MessageSquare className="w-3 h-3" /> Negotiation
-                                            History
+                                return (
+                                  <Card
+                                    key={quote.id}
+                                    className="bg-white border-slate-200 shadow-lg hover:border-[#2F5FA7]/50 hover:bg-slate-50 transition-all overflow-hidden group"
+                                  >
+                                    <div className="p-5 space-y-4">
+                                      <div className="flex justify-between items-start">
+                                        <div>
+                                          <p className="font-bold text-slate-900 tracking-tight uppercase">
+                                            {quote.vendorName || 'MechMaster'}
                                           </p>
-                                          <div className="max-h-[150px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                                            {quote.negotiationHistory.map(
-                                              (hist: any, idx: number) => (
-                                                <div
-                                                  key={idx}
-                                                  className={`p-3 rounded-lg text-xs border ${hist.party === 'admin' ? 'bg-blue-50 border-blue-100' : hist.party === 'vendor' ? 'bg-amber-50 border-amber-100' : 'bg-slate-100 border-slate-200'}`}
-                                                >
-                                                  <div className="flex justify-between font-bold mb-2 uppercase tracking-widest text-[10px] text-slate-400">
-                                                    <span
-                                                      className={
-                                                        hist.party === 'admin'
-                                                          ? 'text-blue-600'
-                                                          : hist.party === 'vendor'
-                                                            ? 'text-amber-600'
-                                                            : 'text-[#2F5FA7]'
-                                                      }
-                                                    >
-                                                      {hist.party}
-                                                    </span>
-                                                    <span className="font-consolas">
-                                                      {new Date(
-                                                        hist.createdAt
-                                                      ).toLocaleDateString()}
-                                                    </span>
-                                                  </div>
-                                                  <p className="text-slate-600 leading-relaxed mb-2 italic">
-                                                    "{hist.message}"
-                                                  </p>
-                                                  <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest mt-2 bg-white/50 p-2 rounded-md">
-                                                    <span className="text-[#2F5FA7]">
-                                                      ₹{hist.price}
-                                                    </span>
-                                                    <span className="text-slate-300">|</span>
-                                                    <span className="text-[#2F5FA7]">
-                                                      {hist.leadTime} Days
-                                                    </span>
-                                                  </div>
-                                                </div>
-                                              )
-                                            )}
+                                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                                            <TrendingUp className="w-3 h-3 text-[#2F5FA7]" />
+                                            {quote.vendorRating || '4.5'} Rating
                                           </div>
                                         </div>
-                                      )}
+                                        <div className="text-right">
+                                          <p className="text-2xl font-bold font-consolas text-[#2F5FA7]">
+                                            ₹{quote.quotedPrice.toLocaleString()}
+                                          </p>
+                                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                            Lead Time:{' '}
+                                            <span className="text-slate-900">
+                                              {quote.leadTimeDays} Days
+                                            </span>
+                                          </p>
+                                        </div>
+                                      </div>
 
-                                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                                      <Button
-                                        className="flex-1 tracking-widest h-11 text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
-                                        onClick={() => handleSelectVendor(quote)}
-                                        disabled={isConfirming}
-                                      >
-                                        {isConfirming ? (
-                                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                        ) : (
-                                          <Check className="w-4 h-4 mr-2" />
+                                      {quote.negotiationHistory &&
+                                        quote.negotiationHistory.length > 0 && (
+                                          <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl space-y-3 mt-4 shadow-sm">
+                                            <p className="text-[10px] font-bold text-[#2F5FA7] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                              <MessageSquare className="w-3 h-3" /> Negotiation
+                                              History
+                                            </p>
+                                            <div className="max-h-[150px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                                              {quote.negotiationHistory.map(
+                                                (hist: any, idx: number) => (
+                                                  <div
+                                                    key={idx}
+                                                    className={`p-3 rounded-lg text-xs border ${hist.party === 'admin' ? 'bg-blue-50 border-blue-100' : hist.party === 'vendor' ? 'bg-amber-50 border-amber-100' : 'bg-slate-100 border-slate-200'}`}
+                                                  >
+                                                    <div className="flex justify-between font-bold mb-2 uppercase tracking-widest text-[10px] text-slate-400">
+                                                      <span
+                                                        className={
+                                                          hist.party === 'admin'
+                                                            ? 'text-blue-600'
+                                                            : hist.party === 'vendor'
+                                                              ? 'text-amber-600'
+                                                              : 'text-[#2F5FA7]'
+                                                        }
+                                                      >
+                                                        {hist.party}
+                                                      </span>
+                                                      <span className="font-consolas">
+                                                        {new Date(
+                                                          hist.createdAt
+                                                        ).toLocaleDateString()}
+                                                      </span>
+                                                    </div>
+                                                    <p className="text-slate-600 leading-relaxed mb-2 italic">
+                                                      "{hist.message}"
+                                                    </p>
+                                                    <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest mt-2 bg-white/50 p-2 rounded-md">
+                                                      <span className="text-[#2F5FA7]">
+                                                        ₹{hist.price}
+                                                      </span>
+                                                      <span className="text-slate-300">|</span>
+                                                      <span className="text-[#2F5FA7]">
+                                                        {hist.leadTime} Days
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                )
+                                              )}
+                                            </div>
+                                          </div>
                                         )}
-                                        Accept Offer
-                                      </Button>
-                                      <div className="flex flex-1 gap-3">
+
+                                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                         <Button
-                                          variant="outline"
-                                          className="flex-1 tracking-widest h-11 text-[10px] uppercase border-[#2F5FA7]/30 text-[#2F5FA7] bg-blue-50/50 hover:bg-blue-50 hover:text-[#1E3A66] transition-all"
-                                          onClick={() => {
-                                            setNegotiatingQuote(quote);
-                                            setNegPrice(quote.quotedPrice.toString());
-                                            setNegLeadTime(quote.leadTimeDays.toString());
-                                            setIsNegotiating(true);
-                                          }}
+                                          className="flex-1 tracking-widest h-11 text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
+                                          onClick={() => handleSelectVendor(quote)}
+                                          disabled={isConfirming}
                                         >
-                                          <MessageSquare className="w-3 h-3 mr-1" /> Negotiate
+                                          {isConfirming ? (
+                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                          ) : (
+                                            <Check className="w-4 h-4 mr-2" />
+                                          )}
+                                          Accept Offer
                                         </Button>
-                                        <Button
-                                          variant="destructive"
-                                          className="flex-1 tracking-widest h-11 text-[10px] uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all shadow-sm"
-                                          onClick={() => handleRejectQuotation(quote)}
-                                        >
-                                          <AlertCircle className="w-3 h-3 mr-1" /> Reject
-                                        </Button>
+                                        <div className="flex flex-1 gap-3">
+                                          <Button
+                                            variant="outline"
+                                            className="flex-1 tracking-widest h-11 text-[10px] uppercase border-[#2F5FA7]/30 text-[#2F5FA7] bg-blue-50/50 hover:bg-blue-50 hover:text-[#1E3A66] transition-all"
+                                            onClick={() => {
+                                              setNegotiatingQuote(quote);
+                                              setNegPrice(quote.quotedPrice.toString());
+                                              setNegLeadTime(quote.leadTimeDays.toString());
+                                              setIsNegotiating(true);
+                                            }}
+                                          >
+                                            <MessageSquare className="w-3 h-3 mr-1" /> Negotiate
+                                          </Button>
+                                          <Button
+                                            variant="destructive"
+                                            className="flex-1 tracking-widest h-11 text-[10px] uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all shadow-sm"
+                                            onClick={() => handleRejectQuotation(quote)}
+                                          >
+                                            <AlertCircle className="w-3 h-3 mr-1" /> Reject
+                                          </Button>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </Card>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <div className="p-8 text-center bg-card/50 rounded-xl border border-dashed border-white/10">
-                            <Clock className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-3 animate-pulse" />
-                            <p className="text-xs text-muted-foreground">
-                              Waiting for MechMasters to review your design and submit competitive
-                              bids.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="p-8 text-center bg-card/50 rounded-xl border border-dashed border-white/10">
+                              <Clock className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-3 animate-pulse" />
+                              <p className="text-xs text-muted-foreground">
+                                Waiting for MechMasters to review your design and submit competitive
+                                bids.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                     {/* ── ADVANCE PAYMENT (status = accepted, advance not yet paid) ── */}
                     {selectedOrder.status === 'accepted' &&
@@ -1302,81 +1302,81 @@ export default function UserDashboard() {
                     {(selectedOrder.status === 'shipped' ||
                       selectedOrder.status === 'delivered' ||
                       selectedOrder.status === 'shipping') && (
-                      <div className="space-y-4">
-                        {(() => {
-                          const finances = calculateProjectFinances(basePrice);
-                          return (
-                            <>
-                              <div className="rounded-2xl border border-orange-200 bg-white shadow-xl p-6 space-y-4">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100 shadow-sm animate-pulse">
-                                    <Truck className="w-5 h-5 text-orange-600" />
+                        <div className="space-y-4">
+                          {(() => {
+                            const finances = calculateProjectFinances(basePrice);
+                            return (
+                              <>
+                                <div className="rounded-2xl border border-orange-200 bg-white shadow-xl p-6 space-y-4">
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100 shadow-sm animate-pulse">
+                                      <Truck className="w-5 h-5 text-orange-600" />
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">
+                                        Parts Ready for Arrival
+                                      </p>
+                                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                        Complete full payment to receive your order.
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="font-bold text-slate-900 text-sm uppercase tracking-widest">
-                                      Parts Ready for Arrival
-                                    </p>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                                      Complete full payment to receive your order.
-                                    </p>
-                                  </div>
+                                  {selectedOrder.paymentStatus?.advance?.paid && (
+                                    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
+                                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                                      <span className="text-emerald-700">
+                                        Advance{' '}
+                                        <strong className="font-consolas text-xs">
+                                          ₹{finances.advance.toLocaleString()}
+                                        </strong>{' '}
+                                        Paid
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                                {selectedOrder.paymentStatus?.advance?.paid && (
-                                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] uppercase font-bold tracking-widest shadow-sm">
-                                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                                    <span className="text-emerald-700">
-                                      Advance{' '}
-                                      <strong className="font-consolas text-xs">
-                                        ₹{finances.advance.toLocaleString()}
-                                      </strong>{' '}
-                                      Paid
-                                    </span>
+                                {!selectedOrder.paymentStatus?.completion?.paid && (
+                                  <div className="rounded-2xl border border-slate-200 bg-[#F8FAFC] shadow-inner p-6 space-y-5">
+                                    <div>
+                                      <p className="text-sm font-bold text-slate-900 mb-1 uppercase tracking-widest">
+                                        Pay Balance & Complete Order
+                                      </p>
+                                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                                        Once full payment is received, your MechMaster will ensure
+                                        delivery of your parts.
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                                      <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest">
+                                        Balance Due (50%)
+                                      </p>
+                                      <p className="text-2xl font-bold text-[#2F5FA7] font-consolas">
+                                        ₹{finances.balance.toLocaleString()}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
+                                      onClick={() => handlePayment('completion')}
+                                      disabled={isPayingCompletion}
+                                    >
+                                      {isPayingCompletion ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                          Processing...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Check className="w-4 h-4 mr-2" />
+                                          Pay ₹{finances.balance.toLocaleString()} & Complete Order
+                                        </>
+                                      )}
+                                    </Button>
                                   </div>
                                 )}
-                              </div>
-                              {!selectedOrder.paymentStatus?.completion?.paid && (
-                                <div className="rounded-2xl border border-slate-200 bg-[#F8FAFC] shadow-inner p-6 space-y-5">
-                                  <div>
-                                    <p className="text-sm font-bold text-slate-900 mb-1 uppercase tracking-widest">
-                                      Pay Balance & Complete Order
-                                    </p>
-                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                                      Once full payment is received, your MechMaster will ensure
-                                      delivery of your parts.
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                    <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest">
-                                      Balance Due (50%)
-                                    </p>
-                                    <p className="text-2xl font-bold text-[#2F5FA7] font-consolas">
-                                      ₹{finances.balance.toLocaleString()}
-                                    </p>
-                                  </div>
-                                  <Button
-                                    className="w-full h-12 font-bold tracking-widest uppercase text-xs bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-xl shadow-lg transition-all border-none"
-                                    onClick={() => handlePayment('completion')}
-                                    disabled={isPayingCompletion}
-                                  >
-                                    {isPayingCompletion ? (
-                                      <>
-                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                        Processing...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Check className="w-4 h-4 mr-2" />
-                                        Pay ₹{finances.balance.toLocaleString()} & Complete Order
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
 
                     {/* ── FULLY COMPLETED ── */}
                     {selectedOrder.status === 'completed' && (
@@ -1688,3 +1688,16 @@ export default function UserDashboard() {
     </div>
   );
 }
+
+export default function UserDashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2F5FA7]"></div>
+      </div>
+    }>
+      <UserDashboardContent />
+    </Suspense>
+  );
+}
+

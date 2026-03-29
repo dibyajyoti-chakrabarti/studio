@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, Suspense } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
@@ -23,7 +24,7 @@ import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const id = params.id as string;
@@ -345,5 +346,17 @@ export default function OrderConfirmationPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2F5FA7]"></div>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

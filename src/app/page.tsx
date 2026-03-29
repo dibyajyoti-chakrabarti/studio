@@ -140,7 +140,7 @@ export default function Home() {
 
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-12 md:mb-20 w-full lg:justify-start">
                 <Link
-                  href={user ? '/dashboard' : '/login?tab=register&redirect=/dashboard'}
+                  href="/login?tab=register&redirect=/dashboard"
                   className="w-full md:w-auto"
                 >
                   <Button
@@ -336,7 +336,7 @@ export default function Home() {
               </p>
             </div>
             <Link
-              href={user ? '/dashboard' : '/login?tab=register&redirect=/dashboard'}
+              href="/login?tab=register&redirect=/dashboard"
               className="w-full md:w-auto shrink-0"
             >
               <Button className="w-full md:w-auto h-12 px-8 text-sm font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-lg transition-all">
@@ -455,7 +455,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     onClick={() =>
-                      router.push(user ? '/consultation' : '/login?redirect=/consultation')
+                      router.push('/login?redirect=/consultation')
                     }
                     className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-sm md:text-base font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-xl transition-all"
                   >

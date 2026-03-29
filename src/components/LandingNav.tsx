@@ -254,21 +254,17 @@ export function LandingNav() {
                   </DropdownMenu>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Link href="/login">
-                      <button
-                        className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-full hover:bg-slate-50 transition-all duration-200"
-                        suppressHydrationWarning
-                      >
-                        Sign In
-                      </button>
+                    <Link
+                      href="/login"
+                      className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-[#64748B] hover:text-[#2F5FA7] rounded-full hover:bg-slate-50 transition-all duration-200"
+                    >
+                      Sign In
                     </Link>
-                    <Link href="/login" className="mr-2 sm:mr-0">
-                      <button
-                        className="relative inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-6 sm:py-2 text-[10px] sm:text-sm font-bold text-white rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] shadow-md hover:shadow-lg transition-all duration-300"
-                        suppressHydrationWarning
-                      >
-                        Get Started
-                      </button>
+                    <Link
+                      href="/login"
+                      className="relative inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-6 sm:py-2 text-[10px] sm:text-sm font-bold text-white rounded-full bg-[#2F5FA7] hover:bg-[#1E3A66] shadow-md hover:shadow-lg transition-all duration-300 mr-2 sm:mr-0"
+                    >
+                      Get Started
                     </Link>
                   </div>
                 )}
@@ -321,18 +317,19 @@ export function LandingNav() {
             <div className="border-t border-slate-100 mt-4 pt-3 flex flex-col gap-2">
               {!user ? (
                 <>
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start font-bold text-[#64748B] text-sm h-12 rounded-2xl hover:bg-slate-50"
-                    >
-                      Sign In
-                    </Button>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-start px-5 font-bold text-[#64748B] text-sm h-12 rounded-2xl hover:bg-slate-50 transition-colors"
+                  >
+                    Sign In
                   </Link>
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
-                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-2xl h-12 text-sm shadow-none">
-                      Get Started
-                    </Button>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-2xl h-12 text-sm text-white shadow-none transition-colors"
+                  >
+                    Get Started
                   </Link>
                 </>
               ) : (
