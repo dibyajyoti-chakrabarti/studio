@@ -67,7 +67,8 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { isAdmin } from '@/lib/auth-utils';
+import { checkIsAdmin } from '@/lib/auth-utils';
+import { getIdTokenResult } from 'firebase/auth';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { calculateProjectFinances } from '@/utils/finance';
 
@@ -137,6 +138,7 @@ const SERVICE_ICONS: Record<ManufacturingService, any> = {
 
 export default function UserDashboard() {
   const { user, isUserLoading } = useUser();
+  const [isAdminConfirmed, setIsAdminConfirmed] = useState(false);
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
@@ -209,7 +211,17 @@ export default function UserDashboard() {
   }, [shopOrders]);
 
   useEffect(() => {
-    if (!isUserLoading && !user) router.push('/login');
+    async function checkAdminStatus() {
+      if (!isUserLoading && !user) {
+        router.push('/login');
+        return;
+      }
+      if (user) {
+        const tokenResult = await getIdTokenResult(user);
+        setIsAdminConfirmed(checkIsAdmin(tokenResult.claims));
+      }
+    }
+    checkAdminStatus();
   }, [user, isUserLoading, router]);
 
   // Intercept pending RFQs upon successful login
@@ -528,7 +540,7 @@ export default function UserDashboard() {
       />
       <LandingNav />
       <div className="container mx-auto px-4 relative z-10">
-        {isAdmin(user?.email) && (
+        {isAdminConfirmed && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-700 gap-4">
             <div className="flex items-center gap-3">
               <ShieldAlert className="w-5 h-5 text-blue-600 shrink-0" />

@@ -92,7 +92,8 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
 import { logger } from '@/utils/logger';
-import { isAdmin } from '@/lib/auth-utils';
+import { checkIsAdmin } from '@/lib/auth-utils';
+import { getIdTokenResult } from 'firebase/auth';
 import { STATUS_OPTIONS, SPECIALIZATIONS } from '@/config/constants';
 
 // Modular Components
@@ -168,38 +169,46 @@ export default function AdminPanel() {
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
   useEffect(() => {
-    if (isUserLoading || isProfileLoading || !db) return;
-
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    const emailIsAdmin = isAdmin(user.email);
-    const profileIsAdmin = profile?.role === 'admin';
-
-    if (emailIsAdmin) {
-      setIsAdminConfirmed(true);
-
-      // Auto-correct role in Firestore if it's missing or wrong
-      if (profile && profile.role !== 'admin') {
-        updateDocumentNonBlocking(doc(db, 'users', user.uid), {
-          role: 'admin',
-          updatedAt: new Date().toISOString(),
-        });
+    async function verifyAdmin() {
+      if (isUserLoading || isProfileLoading || !db || !user) {
+        if (!isUserLoading && !user) router.push('/login');
+        return;
       }
-    } else if (profileIsAdmin) {
-      // Trust the DB if the email isn't in the hardcoded list but role is admin
-      setIsAdminConfirmed(true);
-    } else if (profile && profile.role !== 'admin') {
-      setIsAdminConfirmed(false);
-      toast({
-        title: 'Access Denied',
-        description: 'You do not have administrative privileges.',
-        variant: 'destructive',
-      });
-      router.push('/dashboard');
+
+      try {
+        const tokenResult = await getIdTokenResult(user);
+        const hasAdminClaim = checkIsAdmin(tokenResult.claims);
+        const profileIsAdmin = profile?.role === 'admin';
+
+        if (hasAdminClaim) {
+          setIsAdminConfirmed(true);
+          // Sync profile if needed
+          if (profile && profile.role !== 'admin') {
+            updateDocumentNonBlocking(doc(db, 'users', user.uid), {
+              role: 'admin',
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        } else if (profileIsAdmin) {
+          // Fallback to profile but warn/handle
+          setIsAdminConfirmed(true);
+          logger.warn({ event: 'admin_fallback_to_profile', uid: user.uid });
+        } else {
+          setIsAdminConfirmed(false);
+          toast({
+            title: 'Access Denied',
+            description: 'Administrative privileges are required for this section.',
+            variant: 'destructive',
+          });
+          router.push('/dashboard');
+        }
+      } catch (err) {
+        console.error('Admin verification failed:', err);
+        router.push('/dashboard');
+      }
     }
+
+    verifyAdmin();
   }, [user, isUserLoading, profile, isProfileLoading, router, toast, db]);
 
   const buyersQuery = useMemoFirebase(

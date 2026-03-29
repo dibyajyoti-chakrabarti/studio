@@ -70,8 +70,14 @@ export function LandingNav() {
 
   const { data: profile } = useDoc(userProfileRef);
 
-  const handleSignOut = () => {
-    signOut(auth);
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      await fetch('/api/v1/auth/session', { method: 'DELETE' });
+      router.push('/');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   const displayName = profile?.fullName || user?.email?.split('@')[0] || 'Account';

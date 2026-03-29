@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { isAdmin } from '@/lib/auth-utils';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function GET(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`auth-verify-attempt:${ip}`, 5, 60000); // 5 attempts per minute
+
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
+
     const url = new URL(req.url);
     const token = url.searchParams.get('token');
 
@@ -50,7 +58,9 @@ export async function GET(req: Request) {
       emailVerified: true,
     });
 
-    // 4. Update the User profile in Firestore (use set with merge since it might not exist yet)
+    // 4. Update the User profile in Firestore
+    const userRole = isAdmin(email) ? 'admin' : 'customer';
+    
     await adminFirestore
       .collection('users')
       .doc(uid)
@@ -59,11 +69,20 @@ export async function GET(req: Request) {
           emailVerified: true,
           status: 'active',
           email: email,
-          role: isAdmin(email) ? 'admin' : 'customer',
+          role: userRole,
           updatedAt: new Date().toISOString(),
         },
         { merge: true }
       );
+
+    // 4.1 Set Custom Claims if admin
+    if (userRole === 'admin') {
+      try {
+        await adminAuth.setCustomUserClaims(uid, { admin: true });
+      } catch (claimError) {
+        console.error('Failed to set admin claim:', claimError);
+      }
+    }
 
     // 5. Mark token as used
     await tokenRef.update({

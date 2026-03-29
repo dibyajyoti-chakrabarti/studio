@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, useUser, useFirestore } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { isAdmin } from '@/lib/auth-utils';
+import { checkIsAdmin } from '@/lib/auth-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,8 +28,7 @@ import {
   updateProfile,
   signInWithPopup,
   GoogleAuthProvider,
-  getAdditionalUserInfo,
-  deleteUser,
+  getIdTokenResult,
 } from 'firebase/auth';
 import { resolveUserFriendlyMessage } from '@/lib/error-mapping';
 
@@ -92,33 +91,73 @@ export default function LoginPage() {
     }
   }, [resendCooldown]);
 
+  /**
+   * CREATE SESSION COOKE
+   * Exchanges Firebase ID Token for a server-side HttpOnly cookie.
+   */
+  const createSession = async (firebaseUser: any) => {
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const res = await fetch('/api/v1/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to establish secure session.');
+      }
+      return true;
+    } catch (error) {
+      console.error('Session creation failed:', error);
+      toast({
+        title: 'Session Error',
+        description: 'We could not secure your session. Please try again.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     async function syncUserAndRedirect() {
       if (user && db) {
-        // Enforce email verification (Google sign-in is typically verified automatically)
+        // 1. Enforce email verification
         if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
           setVerificationState({
             email: user.email || '',
             uid: user.uid,
             name: user.displayName || 'Innovator',
           });
-          await signOut(auth); // Force them out until verified
+          await signOut(auth);
+          await fetch('/api/v1/auth/session', { method: 'DELETE' });
           return;
         }
 
         setLoading(true);
         try {
+          // 2. Establish Server Session
+          const sessionCreated = await createSession(user);
+          if (!sessionCreated) {
+            await signOut(auth);
+            return;
+          }
+
+          // 3. Check Claims and Sync Profile
+          const tokenResult = await getIdTokenResult(user);
+          const isAdmin = checkIsAdmin(tokenResult.claims);
+          
           const userRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userRef);
 
-          let role = isAdmin(user.email) ? 'admin' : 'customer';
+          let role = isAdmin ? 'admin' : 'customer';
 
           if (!userSnap.exists()) {
             const initialProfile = {
               uid: user.uid,
               fullName: user.displayName || '',
               email: user.email,
-              role: role, // Use the calculated role
+              role: role,
               onboarded: false,
               status: 'active',
               createdAt: new Date().toISOString(),
@@ -128,7 +167,7 @@ export default function LoginPage() {
             await setDoc(userRef, initialProfile);
           } else {
             const profileData = userSnap.data();
-            // If it's an admin email but the role in Firestore is not admin, correct it
+            // Sync Firestore role with claims if needed
             if (role === 'admin' && profileData.role !== 'admin') {
               await setDoc(userRef, { role: 'admin' }, { merge: true });
             } else {
@@ -136,12 +175,14 @@ export default function LoginPage() {
             }
           }
 
+          // 4. Redirect based on role
+          const redirectPath = searchParams.get('redirect');
           if (role === 'admin') {
             router.push('/admin');
           } else if (role === 'vendor') {
             router.push('/vendor');
           } else {
-            router.push(searchParams.get('redirect') || '/dashboard');
+            router.push(redirectPath || '/dashboard');
           }
         } catch (err) {
           console.error('Error syncing user profile:', err);
@@ -163,9 +204,7 @@ export default function LoginPage() {
 
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
-
-      // If not verified, the useEffect will catch it, update state, and sign out.
-      // But we can also handle it right here for an immediate UI response:
+      // If not verified, useEffect will handle it.
       if (!userCred.user.emailVerified) {
         setVerificationState({
           email: userCred.user.email || '',
@@ -176,8 +215,6 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-
-      // If verified, useEffect will redirect
     } catch (error: any) {
       setLoading(false);
       const msg = resolveUserFriendlyMessage(error);
@@ -204,17 +241,15 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Security Requirement',
-        description: 'Passwords must be at least 8 characters long to meet our security protocols.',
+        description: 'Passwords must be at least 8 characters long.',
       });
       return;
     }
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
-
       await updateProfile(userCred.user, { displayName: fullName });
 
-      // Call API to send verification
       await fetch('/api/v1/auth/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -223,8 +258,6 @@ export default function LoginPage() {
 
       setVerificationState({ email, uid: userCred.user.uid, name: fullName });
       setResendCooldown(60);
-
-      // Sign out to prevent access
       await signOut(auth);
       setLoading(false);
     } catch (error: any) {
@@ -242,14 +275,9 @@ export default function LoginPage() {
 
   const handleResend = async () => {
     if (!verificationState || resendCooldown > 0) return;
-
     try {
-      setResendCooldown(60); // Start cooldown immediately
-      toast({
-        title: 'Sending...',
-        description: 'Requesting a new verification email.',
-        variant: 'default',
-      });
+      setResendCooldown(60);
+      toast({ title: 'Sending...', description: 'Requesting a new verification email.' });
 
       const res = await fetch('/api/v1/auth/send-verification', {
         method: 'POST',
@@ -262,13 +290,12 @@ export default function LoginPage() {
       toast({
         title: 'Email Sent',
         description: 'A new verification link has been sent to your inbox.',
-        variant: 'default',
       });
     } catch (error) {
-      setResendCooldown(0); // Reset on error
+      setResendCooldown(0);
       toast({
         title: 'Error',
-        description: 'Failed to resend email. Try again later.',
+        description: 'Failed to resend email.',
         variant: 'destructive',
       });
     }
@@ -287,21 +314,18 @@ export default function LoginPage() {
         body: JSON.stringify({ email }),
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to send password reset email');
-      }
+      if (!res.ok) throw new Error('Failed to send password reset email');
 
       setResetEmailSent(true);
       toast({
         title: 'Reset Email Sent',
-        description: "If an account with that email exists, we've sent a password reset link.",
-        variant: 'default',
+        description: "If an account exists, we've sent a reset link.",
       });
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error.message || 'Something went wrong. Please try again later.',
+        description: error.message || 'Something went wrong.',
       });
     } finally {
       setLoading(false);
@@ -313,10 +337,6 @@ export default function LoginPage() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      // If verified or Google user, the useEffect (syncUserAndRedirect) will handle everything
-      // including profile creation and role-based redirection.
-
-      // If verified, useEffect will handle redirect.
     } catch (error: any) {
       setLoading(false);
       if (error.code !== 'auth/popup-closed-by-user') {
@@ -332,7 +352,6 @@ export default function LoginPage() {
     }
   };
 
-  // Prevent flash for authenticated users during sync/redirect
   if (isUserLoading || (user && !verificationState)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
@@ -355,8 +374,7 @@ export default function LoginPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Check Your Inbox</h2>
             <p className="text-slate-500 mb-8 font-medium leading-relaxed">
               We've sent a verification link to{' '}
-              <strong className="text-[#2F5FA7]">{verificationState.email}</strong>. Please click
-              the link in that email to activate your account and access your dashboard.
+              <strong className="text-[#2F5FA7]">{verificationState.email}</strong>.
             </p>
             <div className="space-y-4">
               <Button
@@ -387,7 +405,6 @@ export default function LoginPage() {
       <LandingNav />
 
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Form Side - Left on Desktop, Bottom on Mobile */}
         <div className="flex-1 flex items-center justify-center p-6 lg:p-12 relative z-10">
           <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <div className="flex flex-col items-center gap-4 mb-2 lg:hidden">
@@ -672,7 +689,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Visual Side - Right on Desktop, Hidden on Mobile */}
         <div className="hidden lg:block lg:w-1/2 relative overflow-hidden h-screen fixed right-0 top-0 h-[900px] w-[800px]">
           <Image
             src="/manufacturing_clean.png"
@@ -720,17 +736,6 @@ export default function LoginPage() {
                 <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                   Certified Ops
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute top-12 right-12 opacity-20 hover:opacity-100 transition-opacity duration-500">
-            <div className="text-right">
-              <div className="text-white text-xs font-black uppercase tracking-widest">
-                Production Unit 04
-              </div>
-              <div className="text-slate-500 text-[10px] uppercase font-bold tracking-tighter">
-                Automated Facility
               </div>
             </div>
           </div>
