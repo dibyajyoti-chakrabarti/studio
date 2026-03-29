@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     const fileId = `file_${nanoid(12)}`;
     const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const key = `cad-files/${nanoid(8)}/${sanitizedName}`;
-    const bucket = process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
+    const bucket =
+      process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
 
     // 3. Create Presigned PUT URL
     const command = new PutObjectCommand({
@@ -53,10 +54,9 @@ export async function POST(request: Request) {
       bucket,
       fields: {
         'Content-Type': contentType || 'application/octet-stream',
-        'Key': key,
-      }
+        Key: key,
+      },
     });
-
   } catch (e) {
     logger.error({ event: 'API: Unexpected error in upload-intent route', reqId, error: e });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

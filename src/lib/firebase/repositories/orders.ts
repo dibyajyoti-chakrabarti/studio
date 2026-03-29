@@ -32,7 +32,7 @@ export const OrdersRepository = {
         logger.info({
           event: 'Order saved via Firebase Admin',
           orderId: order.id,
-          userId: order.userId
+          userId: order.userId,
         });
         return ok(order.id);
       } else {
@@ -53,9 +53,9 @@ export const OrdersRepository = {
         error: {
           message: errorMessage,
           code: e.code,
-          stack: e.stack
+          stack: e.stack,
         },
-        orderId: order.id
+        orderId: order.id,
       });
       // Pass the real error message through for easier debugging
       return err(internalError(`Database Error: ${errorMessage}`));
@@ -108,5 +108,5 @@ export const OrdersRepository = {
       logger.error({ event: 'Failed to fetch user orders', error: e, userId });
       return err(internalError('Failed to fetch user orders from database'));
     }
-  }
+  },
 };

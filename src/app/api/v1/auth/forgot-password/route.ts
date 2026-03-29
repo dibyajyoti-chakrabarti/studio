@@ -5,10 +5,10 @@ import { Resend } from 'resend';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
-    if (!resendInstance) {
-        resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
-    }
-    return resendInstance;
+  if (!resendInstance) {
+    resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
+  }
+  return resendInstance;
 };
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
@@ -16,66 +16,68 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
-    let currentEmail = 'unknown';
+  let currentEmail = 'unknown';
+  try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`auth-forgot:${ip}`, 3, 60000);
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
+
+    const { email } = await req.json();
+    currentEmail = email;
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    const { adminAuth } = getFirebaseAdmin();
+    const resend = getResend();
+
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
+    }
+
+    // 1. Check if user exists (optional, could just return success to prevent email enumeration, but Firebase will throw if not found)
     try {
-        const ip = req.headers.get('x-forwarded-for') || 'anonymous';
-        const limiter = await rateLimit(`auth-forgot:${ip}`, 3, 60000);
-        if (!limiter.success) {
-            return rateLimitResponse(limiter.reset);
-        }
-
-        const { email } = await req.json();
-        currentEmail = email;
-
-        if (!email) {
-            return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-        }
-
-        const { adminAuth } = getFirebaseAdmin();
-        const resend = getResend();
-
-        if (!adminAuth) {
-            return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
-        }
-
-        // 1. Check if user exists (optional, could just return success to prevent email enumeration, but Firebase will throw if not found)
-        try {
-            await adminAuth.getUserByEmail(email);
-        } catch (error: any) {
-            // If user not found, silently return success to prevent email enumeration attacks
-            if (error.code === 'auth/user-not-found') {
-                return NextResponse.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
-            }
-            throw error; // Re-throw other errors
-        }
-
-
-        // 2. Generate a secure password reset link pointing to our custom page
-        // The actionCodeSettings instruct Firebase to create a link like:
-        // http://localhost:9002/reset-password?mode=resetPassword&oobCode=...
-        const resetLink = await adminAuth.generatePasswordResetLink(email, {
-            url: `${APP_URL}/reset-password`,
-            handleCodeInApp: false
+      await adminAuth.getUserByEmail(email);
+    } catch (error: any) {
+      // If user not found, silently return success to prevent email enumeration attacks
+      if (error.code === 'auth/user-not-found') {
+        return NextResponse.json({
+          success: true,
+          message: 'If an account exists, a reset link has been sent.',
         });
+      }
+      throw error; // Re-throw other errors
+    }
 
-        // The generated link looks like: 
-        // https://[PROJECT_ID].firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=[CODE]...
-        // We want to extract the oobCode to build our own clean URL so the user stays on our domain.
-        const urlObj = new URL(resetLink);
-        const oobCode = urlObj.searchParams.get('oobCode');
+    // 2. Generate a secure password reset link pointing to our custom page
+    // The actionCodeSettings instruct Firebase to create a link like:
+    // http://localhost:9002/reset-password?mode=resetPassword&oobCode=...
+    const resetLink = await adminAuth.generatePasswordResetLink(email, {
+      url: `${APP_URL}/reset-password`,
+      handleCodeInApp: false,
+    });
 
-        if (!oobCode) {
-            throw new Error("Failed to extract reset code from Firebase.");
-        }
+    // The generated link looks like:
+    // https://[PROJECT_ID].firebaseapp.com/__/auth/action?mode=resetPassword&oobCode=[CODE]...
+    // We want to extract the oobCode to build our own clean URL so the user stays on our domain.
+    const urlObj = new URL(resetLink);
+    const oobCode = urlObj.searchParams.get('oobCode');
 
-        const customResetUrl = `${APP_URL}/reset-password?oobCode=${oobCode}`;
+    if (!oobCode) {
+      throw new Error('Failed to extract reset code from Firebase.');
+    }
 
-        // 3. Send email using Resend
-        const { data, error } = await resend.emails.send({
-            from: 'MechHub <outreach@mechhub.in>',
-            to: [email],
-            subject: 'Reset Your MechHub Password',
-            html: `
+    const customResetUrl = `${APP_URL}/reset-password?oobCode=${oobCode}`;
+
+    // 3. Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'MechHub <outreach@mechhub.in>',
+      to: [email],
+      subject: 'Reset Your MechHub Password',
+      html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -116,26 +118,28 @@ export async function POST(req: Request) {
           </div>
         </body>
         </html>
-      `
-        });
+      `,
+    });
 
-        if (error) {
-            logger.error({
-                event: 'forgot_password_email_failed',
-                error: error.message,
-                email
-            });
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
-
-    } catch (error: any) {
-        logger.error({
-            event: 'forgot_password_process_failed',
-            error: error.message,
-            email: currentEmail
-        });
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    if (error) {
+      logger.error({
+        event: 'forgot_password_email_failed',
+        error: error.message,
+        email,
+      });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    return NextResponse.json({
+      success: true,
+      message: 'If an account exists, a reset link has been sent.',
+    });
+  } catch (error: any) {
+    logger.error({
+      event: 'forgot_password_process_failed',
+      error: error.message,
+      email: currentEmail,
+    });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

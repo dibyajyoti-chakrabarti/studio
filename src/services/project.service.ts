@@ -1,13 +1,5 @@
 import { db } from '@/firebase/config';
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  collection, 
-  query,
-  where,
-  getDocs
-} from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { logger } from '@/utils/logger';
 
 /**
@@ -31,10 +23,10 @@ export const ProjectService = {
     };
 
     await setDoc(rfqRef, rfqData);
-    logger.info({ 
-      event: 'Project RFQ submitted successfully', 
+    logger.info({
+      event: 'Project RFQ submitted successfully',
       rfqId: rfqRef.id,
-      projectName: data.projectName 
+      projectName: data.projectName,
     });
     return rfqRef.id;
   },
@@ -61,10 +53,10 @@ export const ProjectService = {
     try {
       const q = query(collection(db, 'projectRFQs'), where('userId', '==', userId));
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => doc.data());
+      return snapshot.docs.map((doc) => doc.data());
     } catch (error) {
       logger.error({ event: 'Failed to fetch user Project RFQs', error, userId });
       throw error;
     }
-  }
+  },
 };

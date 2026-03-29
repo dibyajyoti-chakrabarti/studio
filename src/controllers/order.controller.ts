@@ -29,50 +29,63 @@ export const OrderController = {
       // 1. Validation
       const validation = checkoutSchema.safeParse(body);
       if (!validation.success) {
-        logger.warn({ event: 'API: Order validation failed', requestId, errors: validation.error.flatten() });
+        logger.warn({
+          event: 'API: Order validation failed',
+          requestId,
+          errors: validation.error.flatten(),
+        });
         const firstError = validation.error.errors[0]?.message || 'Invalid order data';
         return NextResponse.json(
-          { 
-            success: false, 
-            error: { 
-              code: ErrorCode.VALIDATION_FAILED, 
-              message: firstError, 
-              details: validation.error.flatten() 
-            } 
+          {
+            success: false,
+            error: {
+              code: ErrorCode.VALIDATION_FAILED,
+              message: firstError,
+              details: validation.error.flatten(),
+            },
           },
           { status: 400 }
         );
       }
 
-      const { 
-        items, 
-        shopItems, 
-        shippingAddress, 
-        shippingOptionId, 
-        userId, 
-        projectId, 
-        isAdvance, 
-        isBalance, 
-        advancePercentage 
+      const {
+        items,
+        shopItems,
+        shippingAddress,
+        shippingOptionId,
+        userId,
+        projectId,
+        isAdvance,
+        isBalance,
+        advancePercentage,
       } = validation.data;
 
       // 2. Resolve shipping option
-      const shippingOption = SHIPPING_OPTIONS.find(o => o.id === shippingOptionId);
+      const shippingOption = SHIPPING_OPTIONS.find((o) => o.id === shippingOptionId);
       if (!shippingOption) {
         return NextResponse.json(
-          { success: false, error: { code: ErrorCode.NOT_FOUND, message: 'Invalid shipping option' } },
+          {
+            success: false,
+            error: { code: ErrorCode.NOT_FOUND, message: 'Invalid shipping option' },
+          },
           { status: 400 }
         );
       }
 
       // 3. Create Razorpay Order
-      const quoteSubtotal = (items || []).reduce((sum: number, item: any) => sum + item.quote.totalPrice, 0);
-      const shopSubtotal = (shopItems || []).reduce((sum: number, item: any) => sum + (item.salePrice * item.quantity), 0);
+      const quoteSubtotal = (items || []).reduce(
+        (sum: number, item: any) => sum + item.quote.totalPrice,
+        0
+      );
+      const shopSubtotal = (shopItems || []).reduce(
+        (sum: number, item: any) => sum + item.salePrice * item.quantity,
+        0
+      );
       const subtotal = quoteSubtotal + shopSubtotal;
-      
+
       const gst = Math.round(subtotal * 0.18);
       let finalTotal = subtotal + gst + shippingOption.price;
-      
+
       if (projectId && advancePercentage) {
         finalTotal = Math.round(finalTotal * advancePercentage);
       }
@@ -85,9 +98,9 @@ export const OrderController = {
         receipt: `quote_${Date.now()}`,
         notes: {
           userId,
-          type: isBalance ? 'project_balance' : (projectId ? 'project_advance' : 'quote_order'),
-          projectId: projectId || ''
-        }
+          type: isBalance ? 'project_balance' : projectId ? 'project_advance' : 'quote_order',
+          projectId: projectId || '',
+        },
       });
 
       // 4. Create internal order record via Service
@@ -114,15 +127,18 @@ export const OrderController = {
 
       logger.info({ event: 'API: Order successfully created', requestId, orderId: result.data.id });
 
-      return NextResponse.json(
-        { success: true, data: result.data },
-        { status: 201 }
-      );
-
+      return NextResponse.json({ success: true, data: result.data }, { status: 201 });
     } catch (e) {
-      logger.error({ event: 'API: Fatal error in OrderController.createOrder', requestId, error: e });
+      logger.error({
+        event: 'API: Fatal error in OrderController.createOrder',
+        requestId,
+        error: e,
+      });
       return NextResponse.json(
-        { success: false, error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to process order' } },
+        {
+          success: false,
+          error: { code: ErrorCode.INTERNAL_ERROR, message: 'Failed to process order' },
+        },
         { status: 500 }
       );
     }
@@ -135,23 +151,27 @@ export const OrderController = {
     const requestId = req.headers.get('x-request-id') || 'req_verify';
 
     try {
-      const {
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-        orderId,
-        userId
-      } = await req.json() as {
-        razorpay_order_id: string;
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-        orderId: string;
-        userId: string;
-      };
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId, userId } =
+        (await req.json()) as {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+          orderId: string;
+          userId: string;
+        };
 
-      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId || !userId) {
+      if (
+        !razorpay_order_id ||
+        !razorpay_payment_id ||
+        !razorpay_signature ||
+        !orderId ||
+        !userId
+      ) {
         return NextResponse.json(
-          { success: false, error: { code: ErrorCode.VALIDATION_FAILED, message: 'Missing verification fields' } },
+          {
+            success: false,
+            error: { code: ErrorCode.VALIDATION_FAILED, message: 'Missing verification fields' },
+          },
           { status: 400 }
         );
       }
@@ -166,7 +186,10 @@ export const OrderController = {
       if (expectedSignature !== razorpay_signature) {
         logger.warn({ event: 'API: Payment signature verification failed', requestId, orderId });
         return NextResponse.json(
-          { success: false, error: { code: ErrorCode.VALIDATION_FAILED, message: 'Invalid payment signature' } },
+          {
+            success: false,
+            error: { code: ErrorCode.VALIDATION_FAILED, message: 'Invalid payment signature' },
+          },
           { status: 400 }
         );
       }
@@ -176,7 +199,12 @@ export const OrderController = {
 
       if (!result.success) {
         const error = result.error;
-        logger.error({ event: 'API: Post-payment processing service failed', requestId, orderId, error });
+        logger.error({
+          event: 'API: Post-payment processing service failed',
+          requestId,
+          orderId,
+          error,
+        });
         return NextResponse.json(
           { success: false, error: { code: error.code, message: error.message } },
           { status: error.statusCode }
@@ -185,13 +213,19 @@ export const OrderController = {
 
       logger.info({ event: 'API: Order verification successful', requestId, orderId });
       return NextResponse.json({ success: true, orderId });
-
     } catch (err: any) {
-      logger.error({ event: 'API: Fatal error in OrderController.verifyOrder', requestId, error: err });
+      logger.error({
+        event: 'API: Fatal error in OrderController.verifyOrder',
+        requestId,
+        error: err,
+      });
       return NextResponse.json(
-        { success: false, error: { code: ErrorCode.INTERNAL_ERROR, message: 'Verification failed' } },
+        {
+          success: false,
+          error: { code: ErrorCode.INTERNAL_ERROR, message: 'Verification failed' },
+        },
         { status: 500 }
       );
     }
-  }
+  },
 };

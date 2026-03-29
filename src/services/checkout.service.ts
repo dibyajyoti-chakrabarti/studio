@@ -1,9 +1,9 @@
-import { 
-  QuoteOrder, 
-  ShippingAddress, 
-  ShippingOption, 
-  OrderStatus, 
-  PaymentStatus 
+import {
+  QuoteOrder,
+  ShippingAddress,
+  ShippingOption,
+  OrderStatus,
+  PaymentStatus,
 } from '@/types/checkout';
 import { QuoteResult, QuoteCartItem } from '@/types/quoting';
 import { Result, ok, err } from '@/utils/result';
@@ -33,33 +33,42 @@ export const CheckoutService = {
     advancePercentage?: number,
     isBalance?: boolean
   ): Promise<Result<QuoteOrder, AppError>> {
-    logger.info({ event: 'Creating multi-part order', userId, quoteCount: cartItems.length, shopCount: shopItems.length });
+    logger.info({
+      event: 'Creating multi-part order',
+      userId,
+      quoteCount: cartItems.length,
+      shopCount: shopItems.length,
+    });
 
     try {
       // 1. Verify all quotes in the cart are still valid and have no blocking DFM
       for (const item of cartItems) {
         if (item.quote.hasBlockingIssues) {
-          return err(validationError(`Part "${item.fileName}" has blocking DFM issues and cannot be ordered.`));
+          return err(
+            validationError(
+              `Part "${item.fileName}" has blocking DFM issues and cannot be ordered.`
+            )
+          );
         }
-        
+
         // In a real system, we would re-verify the quote from DB here to ensure they aren't expired.
         // For MVP, we trust the client-provided cart for now, but QuotingService.getQuote could be called.
       }
 
       // 2. Calculate final totals
       const quoteSubtotal = cartItems.reduce((sum, item) => sum + item.quote.totalPrice, 0);
-      const shopSubtotal = shopItems.reduce((sum, item) => sum + (item.salePrice * item.quantity), 0);
+      const shopSubtotal = shopItems.reduce((sum, item) => sum + item.salePrice * item.quantity, 0);
       const subtotal = quoteSubtotal + shopSubtotal;
-      
+
       const isAdvance = !!(projectId && advancePercentage && !isBalance);
-      
+
       // Use unified finance logic for project-based orders
       const finances = calculateProjectFinances(subtotal);
-      
+
       const gst = finances.gst;
       const shippingCost = finances.shipping;
       let finalTotal = finances.total;
-      
+
       if (isAdvance) {
         // Amount for advance payment
         finalTotal = finances.advance;
@@ -134,7 +143,7 @@ export const CheckoutService = {
         const { adminFirestore } = getFirebaseAdmin();
         if (adminFirestore) {
           const updateData: any = {
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
           };
 
           if (order.isAdvance) {
@@ -143,28 +152,36 @@ export const CheckoutService = {
               paid: true,
               paidAt: new Date().toISOString(),
               razorpayPaymentId,
-              amount: order.total
+              amount: order.total,
             };
-            logger.info({ event: 'Project status synced to in_production', projectId: order.projectId, orderId });
+            logger.info({
+              event: 'Project status synced to in_production',
+              projectId: order.projectId,
+              orderId,
+            });
           } else if (order.isBalance) {
             updateData.status = 'delivered';
             updateData['paymentStatus.completion'] = {
               paid: true,
               paidAt: new Date().toISOString(),
               razorpayPaymentId,
-              amount: order.total
+              amount: order.total,
             };
-            logger.info({ event: 'Project status synced to delivered', projectId: order.projectId, orderId });
+            logger.info({
+              event: 'Project status synced to delivered',
+              projectId: order.projectId,
+              orderId,
+            });
           }
 
           await adminFirestore.collection('projectRFQs').doc(order.projectId).update(updateData);
         }
       }
-      
+
       return ok(undefined);
     } catch (e) {
       logger.error({ event: 'Failed to mark order as paid', error: e, orderId });
       return err(internalError('Failed to update payment status'));
     }
-  }
+  },
 };

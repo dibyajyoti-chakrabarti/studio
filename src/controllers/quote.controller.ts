@@ -17,43 +17,49 @@ export const QuoteController = {
 
     try {
       const body = await request.json();
-      
+
       // 1. Validate Input
       const validation = quoteRequestSchema.safeParse(body);
       if (!validation.success) {
-        logger.warn({ 
+        logger.warn({
           event: 'API: Quote validation failed',
-          reqId, 
-          errors: validation.error.format() 
+          reqId,
+          errors: validation.error.format(),
         });
-        return NextResponse.json({ 
-          error: 'Invalid quote request', 
-          details: validation.error.format() 
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: 'Invalid quote request',
+            details: validation.error.format(),
+          },
+          { status: 400 }
+        );
       }
 
       // 2. Process Quote via Service
       const result = await QuotingService.processQuoteRequest(validation.data);
 
       if (result.success) {
-        logger.info({ 
+        logger.info({
           event: 'API: Quote generated successfully',
-          reqId, 
-          quoteRef: result.data.quoteRef 
+          reqId,
+          quoteRef: result.data.quoteRef,
         });
         return NextResponse.json(result.data);
       } else {
         const error = result.error;
-        logger.error({ 
+        logger.error({
           event: 'API: Quote generation failed',
-          reqId, 
-          code: error.code, 
-          message: error.message 
+          reqId,
+          code: error.code,
+          message: error.message,
         });
-        return NextResponse.json({ 
-          error: error.message, 
-          code: error.code 
-        }, { status: error.code === ErrorCode.VALIDATION_FAILED ? 400 : 500 });
+        return NextResponse.json(
+          {
+            error: error.message,
+            code: error.code,
+          },
+          { status: error.code === ErrorCode.VALIDATION_FAILED ? 400 : 500 }
+        );
       }
     } catch (e) {
       logger.error({ event: 'API: Unexpected error in QuoteController', reqId, error: e });
@@ -75,14 +81,17 @@ export const QuoteController = {
         return NextResponse.json(result.data);
       } else {
         logger.warn({ event: 'API: Shared quote not found', ref, error: result.error });
-        return NextResponse.json({ 
-          error: 'Quote not found or has expired', 
-          code: 'NOT_FOUND' 
-        }, { status: 404 });
+        return NextResponse.json(
+          {
+            error: 'Quote not found or has expired',
+            code: 'NOT_FOUND',
+          },
+          { status: 404 }
+        );
       }
     } catch (e) {
       logger.error({ event: 'API: Error retrieving shared quote', ref, error: e });
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-  }
+  },
 };

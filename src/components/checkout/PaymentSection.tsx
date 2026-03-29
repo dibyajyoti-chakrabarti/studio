@@ -15,7 +15,11 @@ interface PaymentSectionProps {
  * PaymentSection — Razorpay Standard Checkout bridge.
  * Handles Razorpay script loading and payment verification callback.
  */
-export function PaymentSection({ order, onSuccess, isLoading: externalLoading }: PaymentSectionProps) {
+export function PaymentSection({
+  order,
+  onSuccess,
+  isLoading: externalLoading,
+}: PaymentSectionProps) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [internalLoading, setInternalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +71,7 @@ export function PaymentSection({ order, onSuccess, isLoading: externalLoading }:
         logger.info({
           event: 'Razorpay payment capture successful',
           orderId: order.id,
-          razorpayOrderId: response.razorpay_order_id
+          razorpayOrderId: response.razorpay_order_id,
         });
         onSuccess(response); // Send full response (order_id, payment_id, signature)
       },
@@ -84,8 +88,8 @@ export function PaymentSection({ order, onSuccess, isLoading: externalLoading }:
       modal: {
         ondismiss: function () {
           setInternalLoading(false);
-        }
-      }
+        },
+      },
     };
 
     const rzp1 = new (window as any).Razorpay(options);
@@ -106,11 +110,17 @@ export function PaymentSection({ order, onSuccess, isLoading: externalLoading }:
           <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2F5FA7] flex items-center gap-2 mb-1">
             <CreditCard size={14} /> Total Payment
           </h3>
-          <p className="text-2xl font-bold text-slate-900">₹{order.total.toLocaleString('en-IN')}</p>
+          <p className="text-2xl font-bold text-slate-900">
+            ₹{order.total.toLocaleString('en-IN')}
+          </p>
         </div>
         <div className="text-right">
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Including GST (18%)</span>
-          <span className="text-[11px] font-bold text-slate-500">₹{order.gst.toLocaleString('en-IN')}</span>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
+            Including GST (18%)
+          </span>
+          <span className="text-[11px] font-bold text-slate-500">
+            ₹{order.gst.toLocaleString('en-IN')}
+          </span>
         </div>
       </div>
 
@@ -139,9 +149,15 @@ export function PaymentSection({ order, onSuccess, isLoading: externalLoading }:
       </button>
 
       <div className="pt-4 flex items-center justify-center gap-6 opacity-40">
-        <img src="https://razorpay.com/assets/razorpay-logo-white.svg" alt="Razorpay" className="h-4 grayscale invert" />
+        <img
+          src="https://razorpay.com/assets/razorpay-logo-white.svg"
+          alt="Razorpay"
+          className="h-4 grayscale invert"
+        />
         <div className="h-4 w-px bg-slate-300" />
-        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">PCI-DSS Secure</span>
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+          PCI-DSS Secure
+        </span>
       </div>
     </div>
   );

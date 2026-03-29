@@ -11,7 +11,7 @@ import {
   Maximize2,
   Layers,
   Component,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
@@ -35,8 +35,8 @@ export default function BendingPage() {
         operationalStatus="CNC Press Brake Online"
         statusLabel="Operational Status"
         stats={[
-          { label: "Precision", value: "± 0.5° Angle", icon: Target },
-          { label: "Max Length", value: "Up to 3000mm", icon: Maximize2 }
+          { label: 'Precision', value: '± 0.5° Angle', icon: Target },
+          { label: 'Max Length', value: 'Up to 3000mm', icon: Maximize2 },
         ]}
       />
 
@@ -45,20 +45,36 @@ export default function BendingPage() {
         <div className="container mx-auto px-4 md:px-10 lg:px-20 py-10 md:py-16">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">± 0.5°</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Angle Tolerance</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                ± 0.5°
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Angle Tolerance
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">30T - 150T</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Press Capacity</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                30T - 150T
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Press Capacity
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">0.8 - 5mm</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Material Range</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                0.8 - 5mm
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Material Range
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">3 Meter</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Max Flange</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                3 Meter
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Max Flange
+              </div>
             </div>
           </div>
         </div>
@@ -72,17 +88,39 @@ export default function BendingPage() {
               Precision Forming
             </h2>
             <p className="text-lg text-slate-600 font-medium">
-              Our automated bending cells utilize advanced K-Factor calculation and hydraulic compensation for perfect results.
+              Our automated bending cells utilize advanced K-Factor calculation and hydraulic
+              compensation for perfect results.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: "Hydraulic Accuracy", desc: "Digital angle tracking ensuring ±0.5° precision across full-length bends.", icon: ShieldCheck, img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80", color: "bg-blue-600" },
-              { title: "Complex Sequences", desc: "Multi-stage tooling setups for advanced box geometries and internal offsets.", icon: Settings, img: "https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80", color: "bg-blue-400" },
-              { title: "Springback Control", desc: "Automated compensation algorithms for high-strength alloys and spring steels.", icon: Zap, img: "https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80", color: "bg-[#2F5FA7]" },
+              {
+                title: 'Hydraulic Accuracy',
+                desc: 'Digital angle tracking ensuring ±0.5° precision across full-length bends.',
+                icon: ShieldCheck,
+                img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80',
+                color: 'bg-blue-600',
+              },
+              {
+                title: 'Complex Sequences',
+                desc: 'Multi-stage tooling setups for advanced box geometries and internal offsets.',
+                icon: Settings,
+                img: 'https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80',
+                color: 'bg-blue-400',
+              },
+              {
+                title: 'Springback Control',
+                desc: 'Automated compensation algorithms for high-strength alloys and spring steels.',
+                icon: Zap,
+                img: 'https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80',
+                color: 'bg-[#2F5FA7]',
+              },
             ].map((item, index) => (
-              <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <div
+                key={index}
+                className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+              >
                 <div className="relative aspect-[4/3] mb-8 rounded-2xl overflow-hidden shadow-lg bg-white/80 group-hover:shadow-2xl transition-all duration-500 border border-slate-100 flex items-center justify-center p-8">
                   <img
                     src={item.img}
@@ -90,19 +128,23 @@ export default function BendingPage() {
                     className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
-                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-xl z-20`}>
+                  <div
+                    className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-xl z-20`}
+                  >
                     <item.icon className="w-5 h-5" />
                   </div>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{item.desc}</p>
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">
+                  {item.title}
+                </h3>
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
 
-          <ExpertCTA
-            description="Need custom bend radii, air bending for sensitive surfaces, or complex offsetting? Our precision forming experts are ready to assist with your geometry."
-          />
+          <ExpertCTA description="Need custom bend radii, air bending for sensitive surfaces, or complex offsetting? Our precision forming experts are ready to assist with your geometry." />
         </div>
       </section>
 
@@ -118,17 +160,36 @@ export default function BendingPage() {
                   <span className="text-cyan-400">CNC Bending</span>
                 </h2>
                 <p className="text-xl text-slate-400 leading-relaxed font-medium">
-                  Optimizing your design for press brake operations prevents cracking and ensures accurate assemblies.
+                  Optimizing your design for press brake operations prevents cracking and ensures
+                  accurate assemblies.
                 </p>
               </div>
 
               <div className="space-y-8">
                 {[
-                  { id: "B1", title: "Minimum Flange", desc: "Ensure your flange length is at least 4x material thickness plus the bend radius to prevent 'pull-in'.", icon: <Maximize2 className="w-5 h-5" /> },
-                  { id: "B2", title: "Bend Reliefs", desc: "Add relief cuts to prevent tearing at the corners where a bend meets an edge.", icon: <Zap className="w-5 h-5" /> },
-                  { id: "B3", title: "Internal Radii", desc: "Maintain an internal bend radius equal to at least 1x material thickness (R=T) to avoid stress fractures.", icon: <Layers className="w-5 h-5" /> },
+                  {
+                    id: 'B1',
+                    title: 'Minimum Flange',
+                    desc: "Ensure your flange length is at least 4x material thickness plus the bend radius to prevent 'pull-in'.",
+                    icon: <Maximize2 className="w-5 h-5" />,
+                  },
+                  {
+                    id: 'B2',
+                    title: 'Bend Reliefs',
+                    desc: 'Add relief cuts to prevent tearing at the corners where a bend meets an edge.',
+                    icon: <Zap className="w-5 h-5" />,
+                  },
+                  {
+                    id: 'B3',
+                    title: 'Internal Radii',
+                    desc: 'Maintain an internal bend radius equal to at least 1x material thickness (R=T) to avoid stress fractures.',
+                    icon: <Layers className="w-5 h-5" />,
+                  },
                 ].map((item) => (
-                  <div key={item.id} className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                  <div
+                    key={item.id}
+                    className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+                  >
                     <div className="w-14 h-14 rounded-2xl bg-cyan-400/20 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-400/30 font-black text-xl group-hover:scale-110 transition-transform">
                       {item.id}
                     </div>
@@ -154,8 +215,12 @@ export default function BendingPage() {
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
                     <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Forming Check</p>
-                      <p className="text-sm font-bold text-slate-900 text-nowrap">K-Factor Compensation: Active</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        Forming Check
+                      </p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">
+                        K-Factor Compensation: Active
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -179,11 +244,17 @@ export default function BendingPage() {
                 <span className="text-blue-600">Forming Path</span>
               </h2>
               <p className="text-slate-600 font-medium mb-12">
-                Our automated press brake cells ensure high repeatability for institutional sheet metal batches.
+                Our automated press brake cells ensure high repeatability for institutional sheet
+                metal batches.
               </p>
               <div className="block mt-12">
                 <div className="w-full aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-2xl">
-                  <Image src="https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&q=80" alt="Process Visualization" fill className="object-cover" />
+                  <Image
+                    src="https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&q=80"
+                    alt="Process Visualization"
+                    fill
+                    className="object-cover"
+                  />
                   <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
                 </div>
               </div>
@@ -192,35 +263,45 @@ export default function BendingPage() {
             <div className="lg:w-2/3 space-y-12">
               {[
                 {
-                  step: "01",
-                  title: "CAD Analysis",
-                  description: "Upload your STEP or native sheet metal files. Our engine automatically calculates the flat pattern and identifies bend lines."
+                  step: '01',
+                  title: 'CAD Analysis',
+                  description:
+                    'Upload your STEP or native sheet metal files. Our engine automatically calculates the flat pattern and identifies bend lines.',
                 },
                 {
-                  step: "02",
-                  title: "Tooling Assignment",
-                  description: "The system assigns the correct V-die and punch based on material thickness and radius requirements."
+                  step: '02',
+                  title: 'Tooling Assignment',
+                  description:
+                    'The system assigns the correct V-die and punch based on material thickness and radius requirements.',
                 },
                 {
-                  step: "03",
-                  title: "CNC Execution",
-                  description: "High-precision press brakes execute the sequence using back-gauging to ensure flange length consistency."
-                }
+                  step: '03',
+                  title: 'CNC Execution',
+                  description:
+                    'High-precision press brakes execute the sequence using back-gauging to ensure flange length consistency.',
+                },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
                   <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
                     {item.step}
                   </div>
                   <div className="pt-2">
-                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                    <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">{item.description}</p>
+                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">
+                      {item.title}
+                    </h3>
+                    <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
               ))}
 
               <div className="pt-10">
                 <Link href="/login?redirect=/dashboard">
-                  <Button size="lg" className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]">
+                  <Button
+                    size="lg"
+                    className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]"
+                  >
                     Start Your Project <ArrowRight className="w-6 h-6" />
                   </Button>
                 </Link>
@@ -233,18 +314,24 @@ export default function BendingPage() {
       {/* Footer CTA */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">Fabrication Excellence</p>
+          <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">
+            Fabrication Excellence
+          </p>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-10 max-w-2xl mx-auto tracking-tighter uppercase leading-tight">
             Institutional-grade formed parts.
           </h2>
           <div className="flex flex-wrap justify-center gap-6">
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-6 h-6 text-green-500" />
-              <span className="font-bold text-slate-700 uppercase leading-none">Verified Bend Angles</span>
+              <span className="font-bold text-slate-700 uppercase leading-none">
+                Verified Bend Angles
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-6 h-6 text-green-500" />
-              <span className="font-bold text-slate-700 uppercase leading-none">Batch Consistency</span>
+              <span className="font-bold text-slate-700 uppercase leading-none">
+                Batch Consistency
+              </span>
             </div>
           </div>
         </div>

@@ -1,17 +1,30 @@
-"use client";
+'use client';
 
 import { useState, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import {
+  useUser,
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+} from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ManufacturingService, SecondaryProcess, ColorOption, MechanicalPart } from '@/types/project';
+import {
+  ManufacturingService,
+  SecondaryProcess,
+  ColorOption,
+  MechanicalPart,
+} from '@/types/project';
 import { ServiceSelection } from '@/components/part-creation/ServiceSelection';
 import { FileUploadStep } from '@/components/part-creation/FileUploadStep';
 import { MaterialSelection } from '@/components/part-creation/MaterialSelection';
-import { SecondaryProcessSelection, SECONDARY_PROCESSES } from '@/components/part-creation/SecondaryProcessSelection';
+import {
+  SecondaryProcessSelection,
+  SECONDARY_PROCESSES,
+} from '@/components/part-creation/SecondaryProcessSelection';
 import { QuantityStep } from '@/components/part-creation/QuantityStep';
 import { WizardSidebar } from '@/components/part-creation/WizardSidebar';
 import { InsightsPanel } from '@/components/part-creation/InsightsPanel';
@@ -28,7 +41,7 @@ import {
   CheckCircle2,
   Lock,
   Zap,
-  ShieldCheck
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/utils';
@@ -56,8 +69,18 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   // Form state
   const [partName, setPartName] = useState('');
   const [selectedService, setSelectedService] = useState<ManufacturingService | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<{ fileName: string; fileUrl: string; fileSize: number } | null>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; name: string; grade: string; thickness?: number; thicknesses?: number[] } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{
+    fileName: string;
+    fileUrl: string;
+    fileSize: number;
+  } | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<{
+    id: string;
+    name: string;
+    grade: string;
+    thickness?: number;
+    thicknesses?: number[];
+  } | null>(null);
   const [secondaryProcesses, setSecondaryProcesses] = useState<SecondaryProcess[]>([]);
   const [coatingColor, setCoatingColor] = useState<ColorOption | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -65,17 +88,26 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
 
   // ── CENTRALIZED PRICING LOGIC ──
   const calculatePricing = () => {
-    const basePrice = selectedService === 'cnc_machining' ? 4500 : selectedService === 'sheet_metal_cutting' ? 1200 : 800;
-    const materialMultiplier = selectedMaterial?.name.toLowerCase().includes('titanium') ? 2.5 : selectedMaterial?.name.toLowerCase().includes('aluminium') ? 1.2 : 1;
+    const basePrice =
+      selectedService === 'cnc_machining'
+        ? 4500
+        : selectedService === 'sheet_metal_cutting'
+          ? 1200
+          : 800;
+    const materialMultiplier = selectedMaterial?.name.toLowerCase().includes('titanium')
+      ? 2.5
+      : selectedMaterial?.name.toLowerCase().includes('aluminium')
+        ? 1.2
+        : 1;
     const processCost = secondaryProcesses.length * 800;
-    const unitPrice = (basePrice * (materialMultiplier || 1)) + (processCost / Math.max(1, quantity));
+    const unitPrice = basePrice * (materialMultiplier || 1) + processCost / Math.max(1, quantity);
     const totalPrice = unitPrice * quantity;
     return { unitPrice, totalPrice };
   };
 
   const { unitPrice, totalPrice } = calculatePricing();
 
-  const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
+  const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   const canProceed = () => {
     switch (currentStep) {
@@ -90,8 +122,8 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
         }
         return true;
       case 'secondary':
-        const needsColor = secondaryProcesses.some(pid =>
-          (SECONDARY_PROCESSES as any[]).find(p => p.id === pid)?.requiresColor
+        const needsColor = secondaryProcesses.some(
+          (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
         );
         if (needsColor) return coatingColor !== null;
         return true;
@@ -105,7 +137,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   const handleNext = () => {
     let nextIndex = currentStepIndex + 1;
     if (STEPS[nextIndex]?.id === 'secondary' && selectedService) {
-      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter(p =>
+      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter((p) =>
         p.applicableServices.includes(selectedService)
       );
       if (applicableProcesses.length === 0) nextIndex++;
@@ -116,7 +148,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   const handleBack = () => {
     let prevIndex = currentStepIndex - 1;
     if (STEPS[prevIndex]?.id === 'secondary' && selectedService) {
-      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter(p =>
+      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter((p) =>
         p.applicableServices.includes(selectedService)
       );
       if (applicableProcesses.length === 0) prevIndex--;
@@ -125,11 +157,11 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   };
 
   const handleSecondaryProcessToggle = (process: SecondaryProcess) => {
-    setSecondaryProcesses(prev => {
+    setSecondaryProcesses((prev) => {
       if (prev.includes(process)) {
-        const updated = prev.filter(p => p !== process);
-        const remainingNeedsColor = updated.some(pid =>
-          (SECONDARY_PROCESSES as any[]).find(p => p.id === pid)?.requiresColor
+        const updated = prev.filter((p) => p !== process);
+        const remainingNeedsColor = updated.some(
+          (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
         );
         if (!remainingNeedsColor) setCoatingColor(null);
         return updated;
@@ -141,7 +173,11 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
 
   const handleSubmit = async () => {
     if (!user || !db || !selectedService || !uploadedFile || !selectedMaterial) {
-      toast({ title: 'Error', description: 'Please complete all required fields', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Please complete all required fields',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -169,13 +205,22 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
       };
 
       await addDocumentNonBlocking(collection(db, 'projectParts'), partData);
-      await updateDocumentNonBlocking(doc(db, 'projectRFQs', projectId), { updatedAt: new Date().toISOString() });
+      await updateDocumentNonBlocking(doc(db, 'projectRFQs', projectId), {
+        updatedAt: new Date().toISOString(),
+      });
 
-      toast({ title: 'Part Added Successfully', description: `Added ${quantity} unit(s) to your project` });
+      toast({
+        title: 'Part Added Successfully',
+        description: `Added ${quantity} unit(s) to your project`,
+      });
       router.push(`/projects/${projectId}`);
     } catch (error) {
       console.error('Error creating part:', error);
-      toast({ title: 'Error', description: 'Failed to add part. Please try again.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to add part. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -188,24 +233,54 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
           {(() => {
             switch (currentStep) {
               case 'service':
-                return <ServiceSelection partName={partName} onPartNameChange={setPartName} selectedService={selectedService} onSelect={setSelectedService} />;
+                return (
+                  <ServiceSelection
+                    partName={partName}
+                    onPartNameChange={setPartName}
+                    selectedService={selectedService}
+                    onSelect={setSelectedService}
+                  />
+                );
               case 'file':
-                return <FileUploadStep
-                  partName={partName}
-                  onPartNameChange={setPartName}
-                  uploadedFile={uploadedFile}
-                  onFileUpload={setUploadedFile}
-                  onClearFile={() => {
-                    setUploadedFile(null);
-                  }}
-                  selectedService={selectedService}
-                />;
+                return (
+                  <FileUploadStep
+                    partName={partName}
+                    onPartNameChange={setPartName}
+                    uploadedFile={uploadedFile}
+                    onFileUpload={setUploadedFile}
+                    onClearFile={() => {
+                      setUploadedFile(null);
+                    }}
+                    selectedService={selectedService}
+                  />
+                );
               case 'material':
-                return selectedService ? <MaterialSelection selectedService={selectedService} selectedMaterial={selectedMaterial} onSelect={setSelectedMaterial} /> : null;
+                return selectedService ? (
+                  <MaterialSelection
+                    selectedService={selectedService}
+                    selectedMaterial={selectedMaterial}
+                    onSelect={setSelectedMaterial}
+                  />
+                ) : null;
               case 'secondary':
-                return selectedService ? <SecondaryProcessSelection selectedService={selectedService} selectedMaterial={selectedMaterial} selectedProcesses={secondaryProcesses} coatingColor={coatingColor} onProcessToggle={handleSecondaryProcessToggle} onColorSelect={setCoatingColor} /> : null;
+                return selectedService ? (
+                  <SecondaryProcessSelection
+                    selectedService={selectedService}
+                    selectedMaterial={selectedMaterial}
+                    selectedProcesses={secondaryProcesses}
+                    coatingColor={coatingColor}
+                    onProcessToggle={handleSecondaryProcessToggle}
+                    onColorSelect={setCoatingColor}
+                  />
+                ) : null;
               case 'quantity':
-                return <QuantityStep quantity={quantity} onQuantityChange={setQuantity} onDiscountTierChange={setDiscountTier} />;
+                return (
+                  <QuantityStep
+                    quantity={quantity}
+                    onQuantityChange={setQuantity}
+                    onDiscountTierChange={setDiscountTier}
+                  />
+                );
               default:
                 return null;
             }
@@ -224,7 +299,6 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
           </Button>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-
             {currentStepIndex === STEPS.length - 1 ? (
               <Button
                 onClick={handleSubmit}
@@ -263,7 +337,10 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
       {/* ── STREAMLINED TOP HUD ── */}
       <header className="h-16 md:h-20 border-b border-slate-200 bg-white flex items-center justify-between px-4 md:px-10 shrink-0 z-40 shadow-sm">
         <div className="flex items-center gap-4 md:gap-8 flex-1">
-          <Link href={`/projects/${projectId}`} className="p-2 md:p-2.5 rounded-xl hover:bg-slate-100 transition-all group border border-transparent hover:border-slate-200">
+          <Link
+            href={`/projects/${projectId}`}
+            className="p-2 md:p-2.5 rounded-xl hover:bg-slate-100 transition-all group border border-transparent hover:border-slate-200"
+          >
             <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-[#2F5FA7] transition-colors" />
           </Link>
 
@@ -272,22 +349,33 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
           {/* Horizontal Progress Tracker - Responsive */}
           <div className="flex items-center gap-3 md:gap-6 overflow-x-auto no-scrollbar py-2">
             {STEPS.map((step, idx) => (
-              <div key={step.id} className={cn(
-                "flex items-center gap-2 md:gap-3 group shrink-0",
-                idx !== currentStepIndex && "hidden lg:flex"
-              )}>
-                <div className={cn(
-                  "w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center text-[9px] md:text-[10px] font-black transition-all border",
-                  idx <= currentStepIndex
-                    ? "bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-lg shadow-blue-500/20"
-                    : "bg-white text-slate-300 border-slate-200"
-                )}>
-                  {idx < currentStepIndex ? <CheckCircle2 className="w-3 md:w-3.5 h-3 md:h-3.5" /> : `0${idx + 1}`}
+              <div
+                key={step.id}
+                className={cn(
+                  'flex items-center gap-2 md:gap-3 group shrink-0',
+                  idx !== currentStepIndex && 'hidden lg:flex'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center text-[9px] md:text-[10px] font-black transition-all border',
+                    idx <= currentStepIndex
+                      ? 'bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-lg shadow-blue-500/20'
+                      : 'bg-white text-slate-300 border-slate-200'
+                  )}
+                >
+                  {idx < currentStepIndex ? (
+                    <CheckCircle2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                  ) : (
+                    `0${idx + 1}`
+                  )}
                 </div>
-                <span className={cn(
-                  "text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-colors",
-                  idx === currentStepIndex ? "text-slate-900" : "text-slate-400"
-                )}>
+                <span
+                  className={cn(
+                    'text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-colors',
+                    idx === currentStepIndex ? 'text-slate-900' : 'text-slate-400'
+                  )}
+                >
                   {step.label}
                 </span>
                 {idx < STEPS.length - 1 && (
@@ -313,9 +401,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
             <X className="w-4 h-4 mr-2" /> Exit
           </Button>
 
-          <Button
-            className="h-10 md:h-11 px-4 md:px-6 tracking-[0.2em] uppercase text-[8px] md:text-[9px] font-black bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 shadow-sm transition-all rounded-xl"
-          >
+          <Button className="h-10 md:h-11 px-4 md:px-6 tracking-[0.2em] uppercase text-[8px] md:text-[9px] font-black bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 shadow-sm transition-all rounded-xl">
             <Save className="w-4 h-4 mr-2" /> Save Draft
           </Button>
         </div>
@@ -334,7 +420,8 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
                 {STEPS[currentStepIndex].label}
               </h2>
               <p className="text-xs md:text-sm font-medium text-slate-500 max-w-lg mx-auto leading-relaxed lowercase first-letter:uppercase px-4">
-                Technical parameters for your mechanical design. All inputs are validated in real-time for production readiness.
+                Technical parameters for your mechanical design. All inputs are validated in
+                real-time for production readiness.
               </p>
             </div>
 
@@ -342,7 +429,6 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
             <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-200 p-6 md:p-16 shadow-2xl shadow-blue-900/5 min-h-0 md:min-h-[600px] relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/0 via-[#2F5FA7]/20 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
               {renderStepContent()}
-
             </div>
 
             {/* Emotional Confidence Footer (Integrated) */}

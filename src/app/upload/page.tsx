@@ -1,5 +1,4 @@
-
-"use client"
+'use client';
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,11 +6,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  Upload, FileText, ChevronRight, Loader2, X, Check,
-  CloudUpload, Layers, Cog, ArrowRight, Paperclip, Trash2, Shield
+  Upload,
+  FileText,
+  ChevronRight,
+  Loader2,
+  X,
+  Check,
+  CloudUpload,
+  Layers,
+  Cog,
+  ArrowRight,
+  Paperclip,
+  Trash2,
+  Shield,
 } from 'lucide-react';
 import { MANUFACTURING_PROCESSES, MATERIALS, FINISHES, TOLERANCES } from '../lib/mock-data';
 import { LandingNav } from '@/components/LandingNav';
@@ -35,34 +51,43 @@ export default function UploadPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedProcesses, setSelectedProcesses] = useState<string[]>([]);
 
-  const processFiles = useCallback((fileList: FileList | File[]) => {
-    const remaining = MAX_FILES - files.length;
-    const toProcess = Array.from(fileList).slice(0, remaining);
+  const processFiles = useCallback(
+    (fileList: FileList | File[]) => {
+      const remaining = MAX_FILES - files.length;
+      const toProcess = Array.from(fileList).slice(0, remaining);
 
-    toProcess.forEach((file) => {
-      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFiles((prev) => {
-          if (prev.some((f) => f.name === file.name)) return prev;
-          if (prev.length >= MAX_FILES) return prev;
-          return [...prev, { name: file.name, size: file.size, dataUrl: event.target?.result as string }];
-        });
-      };
-      reader.readAsDataURL(file);
-    });
-  }, [files.length]);
+      toProcess.forEach((file) => {
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setFiles((prev) => {
+            if (prev.some((f) => f.name === file.name)) return prev;
+            if (prev.length >= MAX_FILES) return prev;
+            return [
+              ...prev,
+              { name: file.name, size: file.size, dataUrl: event.target?.result as string },
+            ];
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    [files.length]
+  );
 
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) processFiles(e.target.files);
     e.target.value = '';
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files.length > 0) processFiles(e.dataTransfer.files);
-  }, [processFiles]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files.length > 0) processFiles(e.dataTransfer.files);
+    },
+    [processFiles]
+  );
 
   const removeFile = (name: string) => {
     setFiles((prev) => prev.filter((f) => f.name !== name));
@@ -116,7 +141,6 @@ export default function UploadPage() {
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
       <LandingNav />
       <div className="container mx-auto px-4 max-w-5xl relative z-10">
-
         {/* ── Step indicator ── */}
         <div className="flex items-center justify-center gap-2 mb-14">
           {[
@@ -125,16 +149,22 @@ export default function UploadPage() {
           ].map((s, i) => (
             <div key={s.num} className="flex items-center gap-2">
               {i > 0 && (
-                <div className={`h-px w-12 sm:w-20 transition-colors duration-500 ${step >= s.num ? 'bg-cyan-500' : 'bg-white/10'}`} />
+                <div
+                  className={`h-px w-12 sm:w-20 transition-colors duration-500 ${step >= s.num ? 'bg-cyan-500' : 'bg-white/10'}`}
+                />
               )}
               <div className="flex items-center gap-2.5">
-                <div className={`
+                <div
+                  className={`
                   w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500
                   ${step > s.num ? 'bg-cyan-500 text-[#020617]' : step === s.num ? 'bg-cyan-500 text-[#020617] shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'bg-white/5 text-zinc-500 border border-white/10'}
-                `}>
+                `}
+                >
                   {step > s.num ? <Check className="w-4 h-4" /> : s.num}
                 </div>
-                <span className={`text-sm  tracking-widest uppercase hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-zinc-500'}`}>
+                <span
+                  className={`text-sm  tracking-widest uppercase hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-zinc-500'}`}
+                >
                   {s.label}
                 </span>
               </div>
@@ -158,14 +188,21 @@ export default function UploadPage() {
             <div
               className={`
                 relative rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-md shadow-[0_0_40px_rgba(34,211,238,0.03)]
-                ${isDragging
-                  ? 'border-cyan-400 bg-cyan-500/10 scale-[1.02] shadow-[0_0_50px_rgba(34,211,238,0.1)]'
-                  : files.length > 0
-                    ? 'border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/50'
-                    : 'border-white/10 hover:border-cyan-500/40 bg-[#040f25]/40'}
+                ${
+                  isDragging
+                    ? 'border-cyan-400 bg-cyan-500/10 scale-[1.02] shadow-[0_0_50px_rgba(34,211,238,0.1)]'
+                    : files.length > 0
+                      ? 'border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/50'
+                      : 'border-white/10 hover:border-cyan-500/40 bg-[#040f25]/40'
+                }
               `}
-              onClick={() => files.length < MAX_FILES && document.getElementById('fileInput')?.click()}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onClick={() =>
+                files.length < MAX_FILES && document.getElementById('fileInput')?.click()
+              }
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
             >
@@ -179,24 +216,38 @@ export default function UploadPage() {
               />
 
               <div className="py-20 px-8 flex flex-col items-center text-center relative z-10">
-                <div className={`
+                <div
+                  className={`
                   w-24 h-24 rounded-3xl flex items-center justify-center mb-6 transition-all duration-500
                   ${isDragging ? 'bg-cyan-500/20 shadow-[0_0_30px_rgba(34,211,238,0.3)]' : 'bg-cyan-950/40 border border-cyan-500/10'}
-                `}>
-                  <CloudUpload className={`w-12 h-12 transition-all duration-500 ${isDragging ? 'text-cyan-400 scale-110' : 'text-cyan-500/50'}`} />
+                `}
+                >
+                  <CloudUpload
+                    className={`w-12 h-12 transition-all duration-500 ${isDragging ? 'text-cyan-400 scale-110' : 'text-cyan-500/50'}`}
+                  />
                 </div>
 
                 <p className="text-xl  tracking-wider text-white mb-2">
-                  {isDragging ? 'Release to upload' : files.length === 0 ? 'Drag & drop files here' : 'Add more files'}
+                  {isDragging
+                    ? 'Release to upload'
+                    : files.length === 0
+                      ? 'Drag & drop files here'
+                      : 'Add more files'}
                 </p>
                 <p className="text-sm font-consolas text-zinc-400 mb-6">
-                  or <span className="text-cyan-400 font-bold underline underline-offset-4 hover:text-cyan-300 transition-colors">browse from device</span>
+                  or{' '}
+                  <span className="text-cyan-400 font-bold underline underline-offset-4 hover:text-cyan-300 transition-colors">
+                    browse from device
+                  </span>
                 </p>
 
                 {/* Accepted formats */}
                 <div className="flex flex-wrap justify-center gap-1.5">
                   {FORMAT_LABELS.map((fmt) => (
-                    <span key={fmt} className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
+                    <span
+                      key={fmt}
+                      className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-white/5 px-2.5 py-1 rounded-full border border-white/5"
+                    >
                       {fmt}
                     </span>
                   ))}
@@ -210,8 +261,12 @@ export default function UploadPage() {
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Layers className="w-4 h-4 text-secondary" />
-                    <span className="text-sm font-bold text-white">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
-                    <span className="text-xs text-muted-foreground">• {(totalSize / 1024 / 1024).toFixed(1)} MB total</span>
+                    <span className="text-sm font-bold text-white">
+                      {files.length} {files.length === 1 ? 'file' : 'files'}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      • {(totalSize / 1024 / 1024).toFixed(1)} MB total
+                    </span>
                   </div>
                   {files.length < MAX_FILES && (
                     <Button
@@ -240,15 +295,22 @@ export default function UploadPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-zinc-100 truncate group-hover:text-cyan-50 transition-colors">{f.name}</p>
-                        <p className="text-[11px] text-zinc-500 font-consolas">{(f.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-medium text-zinc-100 truncate group-hover:text-cyan-50 transition-colors">
+                          {f.name}
+                        </p>
+                        <p className="text-[11px] text-zinc-500 font-consolas">
+                          {(f.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
 
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-all rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); removeFile(f.name); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFile(f.name);
+                        }}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -295,15 +357,21 @@ export default function UploadPage() {
               {/* Header with gradient accent */}
               <div className="h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500" />
               <CardHeader className="pb-4 pt-8 px-8">
-                <CardTitle className=" text-2xl font-bold text-white tracking-wide">Manufacturing Specifications</CardTitle>
-                <CardDescription className="text-zinc-400">Configure tolerances, materials, and delivery for precision matching.</CardDescription>
+                <CardTitle className=" text-2xl font-bold text-white tracking-wide">
+                  Manufacturing Specifications
+                </CardTitle>
+                <CardDescription className="text-zinc-400">
+                  Configure tolerances, materials, and delivery for precision matching.
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="px-8 pb-8">
                 <form onSubmit={handleDetailsSubmit} className="space-y-8">
                   {/* Project Name — full width, prominent */}
                   <div className="space-y-3">
-                    <Label className="text-[11px] font-bold tracking-[0.2em] text-cyan-400 uppercase">Project Name</Label>
+                    <Label className="text-[11px] font-bold tracking-[0.2em] text-cyan-400 uppercase">
+                      Project Name
+                    </Label>
                     <Input
                       name="projectName"
                       placeholder="e.g. Robot Arm Rev 2"
@@ -317,21 +385,27 @@ export default function UploadPage() {
                   {/* Technical specs grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div className="md:col-span-2 space-y-3">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Manufacturing Processes <span className="text-cyan-400">(Select Multiple)</span></Label>
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Manufacturing Processes{' '}
+                        <span className="text-cyan-400">(Select Multiple)</span>
+                      </Label>
                       <div className="flex flex-wrap gap-2.5">
-                        {MANUFACTURING_PROCESSES.map(p => {
+                        {MANUFACTURING_PROCESSES.map((p) => {
                           const isSelected = selectedProcesses.includes(p);
                           return (
                             <button
                               key={p}
                               type="button"
-                              onClick={() => setSelectedProcesses(prev =>
-                                isSelected ? prev.filter(x => x !== p) : [...prev, p]
-                              )}
-                              className={`px-4 py-2.5 rounded-xl text-[11px] font-bold tracking-wide transition-all border ${isSelected
-                                ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:bg-cyan-500/30 hover:border-cyan-400'
-                                : 'bg-[#020617]/50 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
-                                }`}
+                              onClick={() =>
+                                setSelectedProcesses((prev) =>
+                                  isSelected ? prev.filter((x) => x !== p) : [...prev, p]
+                                )
+                              }
+                              className={`px-4 py-2.5 rounded-xl text-[11px] font-bold tracking-wide transition-all border ${
+                                isSelected
+                                  ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:bg-cyan-500/30 hover:border-cyan-400'
+                                  : 'bg-[#020617]/50 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
+                              }`}
                             >
                               {p}
                             </button>
@@ -339,91 +413,170 @@ export default function UploadPage() {
                         })}
                       </div>
                       {selectedProcesses.length === 0 && (
-                        <input type="text" name="process_validation" required className="opacity-0 absolute h-0 w-0 pointer-events-none" />
+                        <input
+                          type="text"
+                          name="process_validation"
+                          required
+                          className="opacity-0 absolute h-0 w-0 pointer-events-none"
+                        />
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Material Requirements</Label>
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Material Requirements
+                      </Label>
                       <Select name="material" required>
                         <SelectTrigger className="bg-[#020617] border-white/10 h-12 text-zinc-300 rounded-xl focus:ring-cyan-500/20 hover:border-white/20 transition-colors">
                           <SelectValue placeholder="e.g. Aluminum 6061-T6" />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
-                          {MATERIALS.map(m => (
-                            <SelectItem key={m} value={m} className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer">{m}</SelectItem>
+                          {MATERIALS.map((m) => (
+                            <SelectItem
+                              key={m}
+                              value={m}
+                              className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer"
+                            >
+                              {m}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Material Thickness</Label>
-                      <Input name="thickness" placeholder="e.g. 5mm, 0.25 inch" required className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Quantity</Label>
-                      <Input name="quantity" type="number" min={1} placeholder="Number of units" required className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20" />
-                    </div>
-
-                    <div className="space-y-2">
                       <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
-                        Estimated Weight <span className="text-zinc-600 font-normal normal-case tracking-normal">(optional)</span>
+                        Material Thickness
                       </Label>
-                      <Input name="weight" placeholder="e.g. 2.5 kg" className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20" />
+                      <Input
+                        name="thickness"
+                        placeholder="e.g. 5mm, 0.25 inch"
+                        required
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
-                        Surface Finish <span className="text-zinc-600 font-normal normal-case tracking-normal">(optional)</span>
+                        Quantity
+                      </Label>
+                      <Input
+                        name="quantity"
+                        type="number"
+                        min={1}
+                        placeholder="Number of units"
+                        required
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Estimated Weight{' '}
+                        <span className="text-zinc-600 font-normal normal-case tracking-normal">
+                          (optional)
+                        </span>
+                      </Label>
+                      <Input
+                        name="weight"
+                        placeholder="e.g. 2.5 kg"
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Surface Finish{' '}
+                        <span className="text-zinc-600 font-normal normal-case tracking-normal">
+                          (optional)
+                        </span>
                       </Label>
                       <Select name="surfaceFinish">
                         <SelectTrigger className="bg-[#020617] border-white/10 h-12 text-zinc-300 rounded-xl focus:ring-cyan-500/20 hover:border-white/20 transition-colors">
                           <SelectValue placeholder="Select finish" />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
-                          {FINISHES.map(f => (
-                            <SelectItem key={f} value={f} className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer">{f}</SelectItem>
+                          {FINISHES.map((f) => (
+                            <SelectItem
+                              key={f}
+                              value={f}
+                              className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer"
+                            >
+                              {f}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Tolerance Requirement</Label>
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Tolerance Requirement
+                      </Label>
                       <Select name="tolerance" required>
                         <SelectTrigger className="bg-[#020617] border-white/10 h-12 text-zinc-300 rounded-xl focus:ring-cyan-500/20 hover:border-white/20 transition-colors">
                           <SelectValue placeholder="Select tolerance" />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
-                          {TOLERANCES.map(t => (
-                            <SelectItem key={t} value={t} className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer">{t}</SelectItem>
+                          {TOLERANCES.map((t) => (
+                            <SelectItem
+                              key={t}
+                              value={t}
+                              className="focus:bg-cyan-950/50 focus:text-cyan-100 cursor-pointer"
+                            >
+                              {t}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Required Delivery Date</Label>
-                      <Input name="deliveryDate" type="date" required className="bg-[#020617] border-white/10 h-12 rounded-xl text-white focus:border-cyan-500/50 focus:ring-cyan-500/20 [color-scheme:dark]" />
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Required Delivery Date
+                      </Label>
+                      <Input
+                        name="deliveryDate"
+                        type="date"
+                        required
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white focus:border-cyan-500/50 focus:ring-cyan-500/20 [color-scheme:dark]"
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
-                        Budget Range <span className="text-zinc-600 font-normal normal-case tracking-normal">(optional)</span>
+                        Budget Range{' '}
+                        <span className="text-zinc-600 font-normal normal-case tracking-normal">
+                          (optional)
+                        </span>
                       </Label>
-                      <Input name="budget" placeholder="e.g. ₹10,000 – ₹50,000" className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20" />
+                      <Input
+                        name="budget"
+                        placeholder="e.g. ₹10,000 – ₹50,000"
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                      />
                     </div>
 
                     <div className="space-y-2 md:col-span-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Delivery Location</Label>
-                      <Input name="location" placeholder="City, Pincode" required className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20" />
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Delivery Location
+                      </Label>
+                      <Input
+                        name="location"
+                        placeholder="City, Pincode"
+                        required
+                        className="bg-[#020617] border-white/10 h-12 rounded-xl text-white placeholder:text-zinc-600 focus:border-cyan-500/50 focus:ring-cyan-500/20"
+                      />
                     </div>
 
                     {/* Extra Requirements */}
                     <div className="space-y-3 md:col-span-2">
-                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">Extra Requirements & Notes <span className="text-zinc-600 font-normal normal-case tracking-normal">(optional)</span></Label>
+                      <Label className="text-[11px] font-bold tracking-[0.1em] text-zinc-400 uppercase">
+                        Extra Requirements & Notes{' '}
+                        <span className="text-zinc-600 font-normal normal-case tracking-normal">
+                          (optional)
+                        </span>
+                      </Label>
                       <textarea
                         name="extraRequirements"
                         placeholder="Explain any specific instructions, post-processing notes, or assembly requirements here..."
@@ -444,19 +597,33 @@ export default function UploadPage() {
                     </div>
                     <div className="flex flex-wrap gap-2.5">
                       {files.map((f) => (
-                        <div key={f.name} className="flex items-center gap-2 bg-zinc-950/80 border border-white/10 px-3 py-2 rounded-lg shadow-sm">
+                        <div
+                          key={f.name}
+                          className="flex items-center gap-2 bg-zinc-950/80 border border-white/10 px-3 py-2 rounded-lg shadow-sm"
+                        >
                           <div className="w-6 h-6 rounded bg-cyan-950/50 border border-cyan-500/20 flex items-center justify-center">
-                            <span className="text-[8px] font-bold text-cyan-400 uppercase">{getFileExtension(f.name)}</span>
+                            <span className="text-[8px] font-bold text-cyan-400 uppercase">
+                              {getFileExtension(f.name)}
+                            </span>
                           </div>
-                          <span className="text-xs text-zinc-200 font-medium truncate max-w-[150px]">{f.name}</span>
-                          <span className="text-[10px] text-zinc-500 font-consolas">{(f.size / 1024 / 1024).toFixed(1)}MB</span>
+                          <span className="text-xs text-zinc-200 font-medium truncate max-w-[150px]">
+                            {f.name}
+                          </span>
+                          <span className="text-[10px] text-zinc-500 font-consolas">
+                            {(f.size / 1024 / 1024).toFixed(1)}MB
+                          </span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Submit */}
-                  <Button type="submit" size="lg" className="w-full h-14 text-base font-bold gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all mt-4" suppressHydrationWarning>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full h-14 text-base font-bold gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all mt-4"
+                    suppressHydrationWarning
+                  >
                     Find Best-Fit MechMasters
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>

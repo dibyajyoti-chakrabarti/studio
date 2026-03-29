@@ -6,15 +6,15 @@
 import type { QuantityTier } from '@/types/quoting';
 
 const QTY_TIERS: readonly [number, number][] = [
-  [1,    1.000],
-  [5,    0.920],
-  [10,   0.855],
-  [25,   0.790],
-  [50,   0.740],
-  [100,  0.695],
-  [250,  0.650],
-  [500,  0.615],
-  [1000, 0.580],
+  [1, 1.0],
+  [5, 0.92],
+  [10, 0.855],
+  [25, 0.79],
+  [50, 0.74],
+  [100, 0.695],
+  [250, 0.65],
+  [500, 0.615],
+  [1000, 0.58],
 ];
 
 /**
@@ -38,7 +38,7 @@ export function calcQuantityMultiplier(quantity: number): number {
   }
 
   // Beyond 1000: logarithmic decay, floor at 55%
-  return Math.max(0.550, 0.580 - 0.03 * Math.log10(quantity / 1000));
+  return Math.max(0.55, 0.58 - 0.03 * Math.log10(quantity / 1000));
 }
 
 /**

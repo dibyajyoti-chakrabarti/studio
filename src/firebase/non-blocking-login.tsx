@@ -38,7 +38,9 @@ export function initiateGoogleSignIn(authInstance: Auth): void {
   // CRITICAL: Call signInWithPopup directly. Do NOT use 'await signInWithPopup(...)'.
   signInWithPopup(authInstance, provider).catch((error) => {
     if (error.code === 'auth/popup-blocked') {
-      alert('The sign-in popup was blocked by your browser. Please allow popups for this site and try again.');
+      alert(
+        'The sign-in popup was blocked by your browser. Please allow popups for this site and try again.'
+      );
     } else {
       console.error('Google sign-in failed:', error);
     }

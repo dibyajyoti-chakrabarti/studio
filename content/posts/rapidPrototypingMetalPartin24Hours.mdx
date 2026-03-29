@@ -1,5 +1,5 @@
 ---
-title: "Rapid Prototyping in India: How to Get Your First Metal Part in 24 Hours"
+title: 'Rapid Prototyping in India: How to Get Your First Metal Part in 24 Hours'
 date: 2024-03-20
 summary: From design file to physical metal prototype in 24–72 hours — a practical guide to rapid prototyping services in India, including process selection, DFM tips, and how to avoid the most common delays.
 image: https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop
@@ -38,6 +38,7 @@ Not every prototype needs the same process. The right choice depends on the geom
 CNC machining is the gold standard for metal prototypes that need to function like the final production part. Material properties are identical to production — because it is the same material, machined to the same geometry. Tolerances achieved in prototyping are achievable in production.
 
 **Use CNC machining when:**
+
 - The prototype will be functionally tested under load, pressure, or temperature
 - Tolerances tighter than ±0.1mm are required
 - The part has complex 3D geometry (pockets, contours, undercuts)
@@ -50,6 +51,7 @@ CNC machining is the gold standard for metal prototypes that need to function li
 For enclosures, brackets, frames, and panels, laser cutting followed by press brake bending is the fastest route to a functional sheet metal prototype. DXF files cut within hours; bending and any fastener insertion adds a few hours more.
 
 **Use laser + bending when:**
+
 - The part is a sheet metal component (enclosure, panel, bracket, clip)
 - You need to test fit and form before committing to tooling
 - Multiple flat configurations need to be tested quickly
@@ -86,12 +88,12 @@ Specify the required surface finish for each surface: as-machined (Ra 3.2µm), b
 ```typescript
 // Checklist object — use this as a pre-submission review
 const prototypeSubmissionChecklist = {
-  cadFile:         { format: 'STEP', version: 'AP214 or AP242', complete: true },
-  drawing:         { format: 'PDF', includes: ['tolerances', 'threads', 'finish', 'material'] },
-  material:        { specified: true, grade: 'Aluminium 6061-T6', standard: 'ASTM B209' },
-  quantity:        { prototype: 1, preProduction: 5 },
-  deliveryDate:    '2024-04-01',
-  surfaceFinish:   { primary: 'Anodised clear Type II', secondary: 'As-machined Ra 3.2' },
+  cadFile: { format: 'STEP', version: 'AP214 or AP242', complete: true },
+  drawing: { format: 'PDF', includes: ['tolerances', 'threads', 'finish', 'material'] },
+  material: { specified: true, grade: 'Aluminium 6061-T6', standard: 'ASTM B209' },
+  quantity: { prototype: 1, preProduction: 5 },
+  deliveryDate: '2024-04-01',
+  surfaceFinish: { primary: 'Anodised clear Type II', secondary: 'As-machined Ra 3.2' },
 };
 ```
 
@@ -166,16 +168,16 @@ Document the answers to these questions formally before signing off on the desig
 
 Prototype pricing varies significantly by process, material, and complexity. Rough benchmarks for single-unit prototypes through MechHub:
 
-| Part Type | Material | Typical Price Range | Lead Time |
-|-----------|----------|---------------------|-----------|
-| Simple bracket (laser + bend) | CRCA 2mm | ₹800–₹2,500 | 24 hours |
-| Enclosure (laser + bend, 4 sides) | CRCA 1.5mm | ₹3,000–₹8,000 | 48 hours |
-| Machined block (simple) | Aluminium 6061 | ₹2,000–₹6,000 | 48 hours |
-| Machined part (complex) | Aluminium 6061 | ₹8,000–₹25,000 | 72 hours |
-| Machined part (stainless) | SS304 | ₹12,000–₹40,000 | 3–5 days |
-| Turned shaft | EN8 Steel | ₹500–₹2,000 | 24 hours |
+| Part Type                         | Material       | Typical Price Range | Lead Time |
+| --------------------------------- | -------------- | ------------------- | --------- |
+| Simple bracket (laser + bend)     | CRCA 2mm       | ₹800–₹2,500         | 24 hours  |
+| Enclosure (laser + bend, 4 sides) | CRCA 1.5mm     | ₹3,000–₹8,000       | 48 hours  |
+| Machined block (simple)           | Aluminium 6061 | ₹2,000–₹6,000       | 48 hours  |
+| Machined part (complex)           | Aluminium 6061 | ₹8,000–₹25,000      | 72 hours  |
+| Machined part (stainless)         | SS304          | ₹12,000–₹40,000     | 3–5 days  |
+| Turned shaft                      | EN8 Steel      | ₹500–₹2,000         | 24 hours  |
 
-*Prices are indicative and vary with complexity, tolerances, finish, and supplier. Get an exact quote by uploading your files to MechHub.*
+_Prices are indicative and vary with complexity, tolerances, finish, and supplier. Get an exact quote by uploading your files to MechHub._
 
 ---
 

@@ -9,11 +9,11 @@ export interface Material {
   readonly alloy: string;
   readonly process: ProcessType;
   readonly densityGCm3: number;
-  readonly pricePerKg: number;       // INR
-  readonly pricePerSheet: number;    // INR
+  readonly pricePerKg: number; // INR
+  readonly pricePerSheet: number; // INR
   readonly sheetWidthMm: number;
   readonly sheetHeightMm: number;
-  readonly availableThicknesses: readonly number[];  // mm
+  readonly availableThicknesses: readonly number[]; // mm
   readonly kerfWidthMm: number;
   readonly availableFinishes: readonly FinishType[];
   readonly hardnessFactor: number;
@@ -50,16 +50,11 @@ export interface FinishRate {
   readonly type: FinishType;
   readonly label: string;
   readonly costPerMm2: number;
-  readonly minCost: number;       // INR
+  readonly minCost: number; // INR
 }
 
 /** Turnaround options */
-export type TurnaroundType =
-  | 'economy_7d'
-  | 'standard_3d'
-  | 'express_2d'
-  | 'rush_1d'
-  | 'same_day';
+export type TurnaroundType = 'economy_7d' | 'standard_3d' | 'express_2d' | 'rush_1d' | 'same_day';
 
 export interface TurnaroundOption {
   readonly type: TurnaroundType;
@@ -75,7 +70,7 @@ export interface ParsedGeometry {
   readonly areaMm2: number;
   readonly boundingBox: BoundingBox;
   readonly holeCount: number;
-  readonly complexityScore: number;   // 0–10
+  readonly complexityScore: number; // 0–10
   readonly nodeCount: number;
   readonly minFeatureSizeMm: number;
   readonly minSlotWidthMm: number;
@@ -107,7 +102,7 @@ export interface Machine {
   readonly process: ProcessType;
   readonly maxSpeedMmS: number;
   readonly pierceTimeS: number;
-  readonly hourlyRate: number;      // INR
+  readonly hourlyRate: number; // INR
   readonly bedWidthMm: number;
   readonly bedHeightMm: number;
 }
@@ -131,7 +126,7 @@ export interface QuoteResult {
   readonly breakdown: QuoteBreakdown;
   readonly dfmIssues: readonly DFMIssue[];
   readonly hasBlockingIssues: boolean;
-  readonly expiresAt: number;       // Unix timestamp
+  readonly expiresAt: number; // Unix timestamp
   readonly quoteRef: string;
   readonly parameters: Omit<QuoteRequest, 'geometry'>;
   readonly geometry: ParsedGeometry;

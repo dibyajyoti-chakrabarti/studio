@@ -11,7 +11,7 @@ import {
   Maximize2,
   Layers,
   ChevronRight,
-  CircleDot
+  CircleDot,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LandingNav } from '@/components/LandingNav';
@@ -35,8 +35,8 @@ export default function DimpleFormingPage() {
         operationalStatus="Hydraulic Forming Line Active"
         statusLabel="Operational Status"
         stats={[
-          { label: "Strength", value: "Stiffness +40%", icon: Zap },
-          { label: "Depth", value: "± 0.2mm Control", icon: Target }
+          { label: 'Strength', value: 'Stiffness +40%', icon: Zap },
+          { label: 'Depth', value: '± 0.2mm Control', icon: Target },
         ]}
       />
 
@@ -45,20 +45,36 @@ export default function DimpleFormingPage() {
         <div className="container mx-auto px-4 md:px-10 lg:px-20 py-10 md:py-16">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">30° - 45°</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Standard Angles</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                30° - 45°
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Standard Angles
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">0.8 - 3mm</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Sheet Range</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                0.8 - 3mm
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Sheet Range
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">2.5x T</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Minimum Spacing</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                2.5x T
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Minimum Spacing
+              </div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Verified</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">Material Flow</div>
+              <div className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">
+                Verified
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-[#2F5FA7]">
+                Material Flow
+              </div>
             </div>
           </div>
         </div>
@@ -72,17 +88,39 @@ export default function DimpleFormingPage() {
               Sheet Reinforcement
             </h2>
             <p className="text-lg text-slate-600 font-medium">
-              We provide clean, flared and formed depressions that increase the structural rigidity of lightweight sheet metal components.
+              We provide clean, flared and formed depressions that increase the structural rigidity
+              of lightweight sheet metal components.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: "Structural Strength", desc: "Engineered dimple patterns that increase sheet stiffness by up to 40% with minimal weight addition.", icon: ShieldCheck, img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80", color: "bg-blue-600" },
-              { title: "Surface Uniformity", desc: "Strict depth control centers ensuring consistent aesthetic appeal across large-format industrial surfaces.", icon: Target, img: "https://images.unsplash.com/photo-1581093458791-9f3c3250bb8b?auto=format&fit=crop&q=80", color: "bg-blue-400" },
-              { title: "Secondary Processing", desc: "Optimized for downstream welding and coating with zero edge deformation around the formed area.", icon: Zap, img: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80", color: "bg-[#2F5FA7]" },
+              {
+                title: 'Structural Strength',
+                desc: 'Engineered dimple patterns that increase sheet stiffness by up to 40% with minimal weight addition.',
+                icon: ShieldCheck,
+                img: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80',
+                color: 'bg-blue-600',
+              },
+              {
+                title: 'Surface Uniformity',
+                desc: 'Strict depth control centers ensuring consistent aesthetic appeal across large-format industrial surfaces.',
+                icon: Target,
+                img: 'https://images.unsplash.com/photo-1581093458791-9f3c3250bb8b?auto=format&fit=crop&q=80',
+                color: 'bg-blue-400',
+              },
+              {
+                title: 'Secondary Processing',
+                desc: 'Optimized for downstream welding and coating with zero edge deformation around the formed area.',
+                icon: Zap,
+                img: 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80',
+                color: 'bg-[#2F5FA7]',
+              },
             ].map((item, index) => (
-              <div key={index} className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+              <div
+                key={index}
+                className="group relative bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-slate-100 hover:border-[#2F5FA7]/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+              >
                 <div className="relative aspect-[4/3] mb-8 rounded-2xl overflow-hidden shadow-lg bg-white/80 group-hover:shadow-2xl transition-all duration-500 border border-slate-100 flex items-center justify-center p-8">
                   <img
                     src={item.img}
@@ -90,19 +128,23 @@ export default function DimpleFormingPage() {
                     className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
-                  <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-xl z-20`}>
+                  <div
+                    className={`absolute top-4 left-4 w-10 h-10 rounded-xl ${item.color} flex items-center justify-center text-white shadow-xl z-20`}
+                  >
                     <item.icon className="w-5 h-5" />
                   </div>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">{item.desc}</p>
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">
+                  {item.title}
+                </h3>
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
 
-          <ExpertCTA
-            description="Need custom dimple geometries, anti-slip patterns, or reinforcement for lightweight structures? Our forming experts can optimize your panel designs."
-          />
+          <ExpertCTA description="Need custom dimple geometries, anti-slip patterns, or reinforcement for lightweight structures? Our forming experts can optimize your panel designs." />
         </div>
       </section>
 
@@ -118,17 +160,36 @@ export default function DimpleFormingPage() {
                   <span className="text-cyan-400">Metal Forming</span>
                 </h2>
                 <p className="text-xl text-slate-400 leading-relaxed font-medium">
-                  Proper spacing and depth prevent material thinning and cracking during the hydraulic forming process.
+                  Proper spacing and depth prevent material thinning and cracking during the
+                  hydraulic forming process.
                 </p>
               </div>
 
               <div className="space-y-8">
                 {[
-                  { id: "D1", title: "Minimum Spacing", desc: "Maintain a distance of at least 3x the material thickness between the edges of adjacent dimples to prevent sheet warping.", icon: <Maximize2 className="w-5 h-5" /> },
-                  { id: "D2", title: "Forming Depth", desc: "Maximum dimple depth should not exceed 50% of the dimple diameter to avoid localized material failure.", icon: <Zap className="w-5 h-5" /> },
-                  { id: "D3", title: "Edge Clearance", desc: "Keep dimples at least 1.5x their diameter away from any cut edge to prevent deformation of the outer geometry.", icon: <Layers className="w-5 h-5" /> },
+                  {
+                    id: 'D1',
+                    title: 'Minimum Spacing',
+                    desc: 'Maintain a distance of at least 3x the material thickness between the edges of adjacent dimples to prevent sheet warping.',
+                    icon: <Maximize2 className="w-5 h-5" />,
+                  },
+                  {
+                    id: 'D2',
+                    title: 'Forming Depth',
+                    desc: 'Maximum dimple depth should not exceed 50% of the dimple diameter to avoid localized material failure.',
+                    icon: <Zap className="w-5 h-5" />,
+                  },
+                  {
+                    id: 'D3',
+                    title: 'Edge Clearance',
+                    desc: 'Keep dimples at least 1.5x their diameter away from any cut edge to prevent deformation of the outer geometry.',
+                    icon: <Layers className="w-5 h-5" />,
+                  },
                 ].map((item) => (
-                  <div key={item.id} className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                  <div
+                    key={item.id}
+                    className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+                  >
                     <div className="w-14 h-14 rounded-2xl bg-cyan-400/20 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-400/30 font-black text-xl group-hover:scale-110 transition-transform">
                       {item.id}
                     </div>
@@ -154,8 +215,12 @@ export default function DimpleFormingPage() {
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">
                     <div className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Flow Analysis</p>
-                      <p className="text-sm font-bold text-slate-900 text-nowrap">Uniform Material Distribution: 98%</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        Flow Analysis
+                      </p>
+                      <p className="text-sm font-bold text-slate-900 text-nowrap">
+                        Uniform Material Distribution: 98%
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -179,11 +244,17 @@ export default function DimpleFormingPage() {
                 <span className="text-blue-600">Forming Path</span>
               </h2>
               <p className="text-slate-600 font-medium mb-12">
-                Our automated hydraulic forming cells ensure batch-to-batch consistency for institutional reinforced components.
+                Our automated hydraulic forming cells ensure batch-to-batch consistency for
+                institutional reinforced components.
               </p>
               <div className="block mt-12">
                 <div className="w-full aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-2xl">
-                  <Image src="https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80" alt="Process Visualization" fill className="object-cover" />
+                  <Image
+                    src="https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80"
+                    alt="Process Visualization"
+                    fill
+                    className="object-cover"
+                  />
                   <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
                 </div>
               </div>
@@ -192,35 +263,45 @@ export default function DimpleFormingPage() {
             <div className="lg:w-2/3 space-y-12">
               {[
                 {
-                  step: "01",
-                  title: "CAD Identification",
-                  description: "Upload your CAD. Our system identifies concentric circles or depressions and prompts you to select dimple standards."
+                  step: '01',
+                  title: 'CAD Identification',
+                  description:
+                    'Upload your CAD. Our system identifies concentric circles or depressions and prompts you to select dimple standards.',
                 },
                 {
-                  step: "02",
-                  title: "Pattern Optimization",
-                  description: "The engine suggests pattern optimizations to maximize stiffness while minimizing material stress."
+                  step: '02',
+                  title: 'Pattern Optimization',
+                  description:
+                    'The engine suggests pattern optimizations to maximize stiffness while minimizing material stress.',
                 },
                 {
-                  step: "03",
-                  title: "Hydraulic Pressing",
-                  description: "Once confirmed, parts are loaded into our automated presses where precision dies execute the forming sequence."
-                }
+                  step: '03',
+                  title: 'Hydraulic Pressing',
+                  description:
+                    'Once confirmed, parts are loaded into our automated presses where precision dies execute the forming sequence.',
+                },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row gap-6 md:gap-10 group">
                   <div className="text-5xl md:text-6xl font-black text-slate-200 group-hover:text-[#2F5FA7]/20 transition-colors leading-none">
                     {item.step}
                   </div>
                   <div className="pt-2">
-                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">{item.title}</h3>
-                    <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">{item.description}</p>
+                    <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tighter">
+                      {item.title}
+                    </h3>
+                    <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
               ))}
 
               <div className="pt-10">
                 <Link href="/login?redirect=/dashboard">
-                  <Button size="lg" className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]">
+                  <Button
+                    size="lg"
+                    className="w-full md:w-auto px-16 h-20 bg-[#2F5FA7] hover:bg-blue-700 text-white rounded-[2rem] font-black text-xl gap-4 shadow-[0_20px_50px_rgba(47,95,167,0.3)]"
+                  >
                     Start Your Project <ArrowRight className="w-6 h-6" />
                   </Button>
                 </Link>
@@ -233,18 +314,24 @@ export default function DimpleFormingPage() {
       {/* Footer CTA */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">Structural Engineering</p>
+          <p className="text-sm font-black text-[#2F5FA7] uppercase tracking-[0.3em] mb-4">
+            Structural Engineering
+          </p>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-10 max-w-2xl mx-auto tracking-tighter uppercase leading-tight">
             Institutional-grade metal reinforcement.
           </h2>
           <div className="flex flex-wrap justify-center gap-6">
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-6 h-6 text-green-500" />
-              <span className="font-bold text-slate-700 uppercase leading-none">Certified Depth Control</span>
+              <span className="font-bold text-slate-700 uppercase leading-none">
+                Certified Depth Control
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-6 h-6 text-green-500" />
-              <span className="font-bold text-slate-700 uppercase leading-none">Industrial Rigidity</span>
+              <span className="font-bold text-slate-700 uppercase leading-none">
+                Industrial Rigidity
+              </span>
             </div>
           </div>
         </div>

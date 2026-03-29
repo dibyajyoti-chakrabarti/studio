@@ -1,13 +1,5 @@
 import { db } from '@/firebase/config';
-import { 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  collection,
-  query,
-  where,
-  getDocs
-} from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { updateDocumentNonBlocking } from '@/firebase';
 
 /**
@@ -20,9 +12,9 @@ export const AdminService = {
    */
   async updateProjectRfqStatus(id: string, status: string) {
     const ref = doc(db, 'projectRFQs', id);
-    return updateDoc(ref, { 
-      status, 
-      updatedAt: new Date().toISOString() 
+    return updateDoc(ref, {
+      status,
+      updatedAt: new Date().toISOString(),
     });
   },
 
@@ -31,9 +23,9 @@ export const AdminService = {
    */
   async updateOrderStatus(id: string, status: string) {
     const ref = doc(db, 'orders', id);
-    return updateDoc(ref, { 
-      status, 
-      updatedAt: new Date().toISOString() 
+    return updateDoc(ref, {
+      status,
+      updatedAt: new Date().toISOString(),
     });
   },
 
@@ -42,9 +34,9 @@ export const AdminService = {
    */
   async updateContactQueryStatus(id: string, status: string) {
     const ref = doc(db, 'contactQueries', id);
-    return updateDoc(ref, { 
-      status, 
-      updatedAt: new Date().toISOString() 
+    return updateDoc(ref, {
+      status,
+      updatedAt: new Date().toISOString(),
     });
   },
 
@@ -53,9 +45,9 @@ export const AdminService = {
    */
   updateStatusNonBlocking(collectionName: string, id: string, status: string) {
     const ref = doc(db, collectionName, id);
-    return updateDocumentNonBlocking(ref, { 
-      status, 
-      updatedAt: new Date().toISOString() 
+    return updateDocumentNonBlocking(ref, {
+      status,
+      updatedAt: new Date().toISOString(),
     });
   },
 
@@ -64,9 +56,9 @@ export const AdminService = {
    */
   async deactivateProduct(id: string) {
     const ref = doc(db, 'products', id);
-    return updateDoc(ref, { 
-      isActive: false, 
-      updatedAt: new Date().toISOString() 
+    return updateDoc(ref, {
+      isActive: false,
+      updatedAt: new Date().toISOString(),
     });
-  }
+  },
 };

@@ -12,11 +12,11 @@ export type ManufacturingService =
 
 /** Display names for manufacturing services */
 export const SERVICE_DISPLAY_NAMES: Record<ManufacturingService, string> = {
-  'cnc_machining': 'CNC Milling/Turning',
-  'sheet_metal_cutting': 'Sheet Metal Cutting',
+  cnc_machining: 'CNC Milling/Turning',
+  sheet_metal_cutting: 'Sheet Metal Cutting',
   '3d_printing': '3D Printing',
-  'wire_edm': 'Wire EDM',
-  'cnc_turning': 'CNC Turning',
+  wire_edm: 'Wire EDM',
+  cnc_turning: 'CNC Turning',
 };
 
 /** Secondary manufacturing processes */
@@ -45,9 +45,7 @@ export type ColorOption =
   | 'bronze';
 
 /** Part status in the workflow */
-export type PartStatus =
-  | 'draft'
-  | 'ready_for_quote';
+export type PartStatus = 'draft' | 'ready_for_quote';
 
 /** Project RFQ status */
 export type ProjectRFQStatus =
@@ -119,8 +117,16 @@ export interface ProjectRFQ {
   readonly assignedVendorId?: string;
   readonly negotiationHistory?: NegotiationMessage[];
   readonly paymentStatus?: {
-    readonly advance?: { readonly paid: boolean; readonly paidAt?: string; readonly amount?: number };
-    readonly completion?: { readonly paid: boolean; readonly paidAt?: string; readonly amount?: number };
+    readonly advance?: {
+      readonly paid: boolean;
+      readonly paidAt?: string;
+      readonly amount?: number;
+    };
+    readonly completion?: {
+      readonly paid: boolean;
+      readonly paidAt?: string;
+      readonly amount?: number;
+    };
   };
   readonly finalPrice?: number;
 }

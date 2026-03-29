@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +13,10 @@ interface MaterialSelectionProps {
   onSelect: (material: { id: string; name: string; grade: string; thickness?: number }) => void;
 }
 
-export function MaterialSelection({ 
-  selectedService, 
-  selectedMaterial, 
-  onSelect 
+export function MaterialSelection({
+  selectedService,
+  selectedMaterial,
+  onSelect,
 }: MaterialSelectionProps) {
   const serviceData = MATERIAL_CATALOG[selectedService];
 
@@ -53,7 +53,7 @@ export function MaterialSelection({
             <div className="grid grid-cols-1 gap-4">
               {category.materials.map((material: MaterialOption) => {
                 const isSelected = selectedMaterial?.id === material.id;
-                
+
                 return (
                   <div key={material.id} className="space-y-3">
                     <Card
@@ -62,18 +62,22 @@ export function MaterialSelection({
                           ? 'bg-blue-50 border-[#2F5FA7] shadow-[0_8px_20px_rgba(47,95,167,0.12)] ring-1 ring-[#2F5FA7]/20'
                           : 'bg-white border-slate-200 hover:border-blue-200 hover:bg-slate-50'
                       }`}
-                      onClick={() => onSelect({ id: material.id, name: material.name, grade: material.grade })}
+                      onClick={() =>
+                        onSelect({ id: material.id, name: material.name, grade: material.grade })
+                      }
                     >
                       <div className="p-4">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm shrink-0 transition-colors ${
-                            isSelected
-                              ? 'bg-[#2F5FA7] text-white border-[#2F5FA7]'
-                              : 'bg-slate-50 text-[#2F5FA7] border-slate-100 group-hover:bg-white'
-                          }`}>
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm shrink-0 transition-colors ${
+                              isSelected
+                                ? 'bg-[#2F5FA7] text-white border-[#2F5FA7]'
+                                : 'bg-slate-50 text-[#2F5FA7] border-slate-100 group-hover:bg-white'
+                            }`}
+                          >
                             <Layers3 className="w-5 h-5" />
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
                               <div>
@@ -102,16 +106,24 @@ export function MaterialSelection({
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2F5FA7] flex items-center gap-2">
                           <CheckCircle className="w-3 h-3" /> Select Available Thickness (MM)
                         </p>
-                        
-                        {(material.canBend === false || material.canPowderCoat === false || material.maxThicknessForBending) && (
+
+                        {(material.canBend === false ||
+                          material.canPowderCoat === false ||
+                          material.maxThicknessForBending) && (
                           <div className="flex flex-wrap gap-2 mb-1">
                             {material.canBend === false && (
-                              <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-red-100 text-red-600 bg-red-50/50">
+                              <Badge
+                                variant="outline"
+                                className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-red-100 text-red-600 bg-red-50/50"
+                              >
                                 No Bending
                               </Badge>
                             )}
                             {material.canPowderCoat === false && (
-                              <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-slate-200 text-slate-500 bg-slate-50">
+                              <Badge
+                                variant="outline"
+                                className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0 border-slate-200 text-slate-500 bg-slate-50"
+                              >
                                 No Powder Coating
                               </Badge>
                             )}
@@ -121,13 +133,15 @@ export function MaterialSelection({
                           {material.thicknesses.map((thickness) => (
                             <button
                               key={thickness}
-                              onClick={() => onSelect({ 
-                                id: material.id, 
-                                name: material.name, 
-                                grade: material.grade, 
-                                thickness,
-                                ...(material as any) // Pass capabilities down
-                              })}
+                              onClick={() =>
+                                onSelect({
+                                  id: material.id,
+                                  name: material.name,
+                                  grade: material.grade,
+                                  thickness,
+                                  ...(material as any), // Pass capabilities down
+                                })
+                              }
                               className={`h-10 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-all ${
                                 selectedMaterial.thickness === thickness
                                   ? 'bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-md shadow-blue-500/20'
@@ -135,9 +149,12 @@ export function MaterialSelection({
                               }`}
                             >
                               <span>{thickness}</span>
-                              {material.maxThicknessForBending && thickness > material.maxThicknessForBending && (
-                                <span className="text-[6px] opacity-70 uppercase tracking-tighter -mt-1 font-black">No Bend</span>
-                              )}
+                              {material.maxThicknessForBending &&
+                                thickness > material.maxThicknessForBending && (
+                                  <span className="text-[6px] opacity-70 uppercase tracking-tighter -mt-1 font-black">
+                                    No Bend
+                                  </span>
+                                )}
                             </button>
                           ))}
                         </div>
@@ -151,7 +168,7 @@ export function MaterialSelection({
         ))}
       </div>
 
-      <ExpertCTA 
+      <ExpertCTA
         description="Looking for a specific material or thickness not listed above? Our procurement team can source custom materials for your project."
         buttonText="Inquire Material"
       />

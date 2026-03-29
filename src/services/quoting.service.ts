@@ -1,8 +1,4 @@
-import { 
-  QuoteRequest, 
-  QuoteResult, 
-  ParsedGeometry 
-} from '@/types/quoting';
+import { QuoteRequest, QuoteResult, ParsedGeometry } from '@/types/quoting';
 import { Result, ok, err } from '@/utils/result';
 import { AppError, ErrorCode, internalError } from '@/utils/errors';
 import { generateQuote } from '@/lib/quoting/pricing-engine';
@@ -22,14 +18,14 @@ export const QuotingService = {
    * 4. Returns the final QuoteResult
    */
   async processQuoteRequest(
-    request: QuoteRequest, 
+    request: QuoteRequest,
     userId?: string
   ): Promise<Result<QuoteResult, AppError>> {
-    logger.info({ 
+    logger.info({
       event: 'Processing quote request',
-      materialId: request.materialId, 
+      materialId: request.materialId,
       quantity: request.quantity,
-      userId 
+      userId,
     });
 
     try {
@@ -51,15 +47,15 @@ export const QuotingService = {
 
       // 2. Persist to Firestore for retrieval during checkout
       const saveResult = await QuotesRepository.saveQuote(resultData, userId);
-      
+
       if (!saveResult.success) {
         return err(saveResult.error);
       }
 
-      logger.info({ 
+      logger.info({
         event: 'Quote processed and saved successfully',
         quoteRef: resultData.quoteRef,
-        totalPrice: resultData.totalPrice 
+        totalPrice: resultData.totalPrice,
       });
 
       return ok(resultData);
@@ -75,9 +71,9 @@ export const QuotingService = {
   async getQuote(ref: string): Promise<Result<QuoteResult, AppError>> {
     const result = await QuotesRepository.getQuoteByRef(ref);
     if (!result.success) return err(result.error);
-    
-    // We strip the userId before returning if it's sensitive, 
+
+    // We strip the userId before returning if it's sensitive,
     // but for internal service use it's fine.
     return ok(result.data);
-  }
+  },
 };

@@ -19,5 +19,5 @@ export const SPECIALIZATIONS = [
   'Sheet Metal',
   'Prototype Manufacturing',
   '3D Printing',
-  'Small Batch Production'
+  'Small Batch Production',
 ];

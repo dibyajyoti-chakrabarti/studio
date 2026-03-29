@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { getFirebaseAdmin } from "@/lib/firebase-admin";
-import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { Resend } from "resend";
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { Resend } from 'resend';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
@@ -19,12 +19,12 @@ const NOTIFICATION_EMAILS = [
 ];
 
 const ContactSchema = z.object({
-  firstName: z.string().min(1, "First name is required").max(100),
-  lastName: z.string().min(1, "Last name is required").max(100),
-  email: z.string().email("Valid email is required"),
+  firstName: z.string().min(1, 'First name is required').max(100),
+  lastName: z.string().min(1, 'Last name is required').max(100),
+  email: z.string().email('Valid email is required'),
   phone: z.string().max(20).optional().default(''),
   company: z.string().max(200).optional().default(''),
-  message: z.string().min(10, "Message must be at least 10 characters").max(5000),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
 });
 
 export async function POST(request: Request) {
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: "Invalid form data", details: result.error.format() },
+        { error: 'Invalid form data', details: result.error.format() },
         { status: 400 }
       );
     }
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     // 3. Save to Firestore
     const { adminFirestore } = getFirebaseAdmin();
     if (!adminFirestore) {
-      throw new Error("Database connection failed");
+      throw new Error('Database connection failed');
     }
 
     const docRef = adminFirestore.collection('contactQueries').doc();
@@ -137,11 +137,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, queryId: docRef.id });
-
   } catch (error: any) {
-    console.error("Contact form submission error:", error);
+    console.error('Contact form submission error:', error);
     return NextResponse.json(
-      { error: "Failed to submit your query. Please try again later." },
+      { error: 'Failed to submit your query. Please try again later.' },
       { status: 500 }
     );
   }

@@ -6,7 +6,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 // ═══════════════════════════════════════════════════
 
 export const S3_REGION = process.env.AWS_REGION || 'eu-north-1';
-export const S3_BUCKET = process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
+export const S3_BUCKET =
+  process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
 
 export const s3Client = new S3Client({
   region: S3_REGION,
@@ -23,8 +24,8 @@ export const s3Client = new S3Client({
  * @param expiresIn Time in seconds until the URL expires (default: 3600 / 1 hour)
  */
 export async function getPresignedDownloadUrl(
-  key: string, 
-  bucket: string = S3_BUCKET, 
+  key: string,
+  bucket: string = S3_BUCKET,
   expiresIn: number = 3600
 ): Promise<string> {
   const command = new GetObjectCommand({

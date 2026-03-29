@@ -6,13 +6,25 @@
 import { z } from 'zod';
 
 export const finishTypeSchema = z.enum([
-  'none', 'deburr', 'anodize_clear', 'anodize_color',
-  'powder_coat', 'zinc_plate', 'chrome_plate',
-  'nickel_plate', 'black_oxide', 'mirror_polish', 'sand_blasting',
+  'none',
+  'deburr',
+  'anodize_clear',
+  'anodize_color',
+  'powder_coat',
+  'zinc_plate',
+  'chrome_plate',
+  'nickel_plate',
+  'black_oxide',
+  'mirror_polish',
+  'sand_blasting',
 ]);
 
 export const turnaroundSchema = z.enum([
-  'economy_7d', 'standard_3d', 'express_2d', 'rush_1d', 'same_day',
+  'economy_7d',
+  'standard_3d',
+  'express_2d',
+  'rush_1d',
+  'same_day',
 ]);
 
 export const boundingBoxSchema = z.object({

@@ -46,10 +46,11 @@ async function hashFile(file: File): Promise<string> {
 function generateSimulatedGeometry(fileName: string, fileSizeBytes: number): ParsedGeometry {
   // Deterministic "random" based on filename hash
   const seed = fileName.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const pseudoRandom = (offset: number): number => ((seed + offset) * 9301 + 49297) % 233280 / 233280;
+  const pseudoRandom = (offset: number): number =>
+    (((seed + offset) * 9301 + 49297) % 233280) / 233280;
 
-  const width = 50 + pseudoRandom(1) * 400;    // 50–450mm
-  const height = 50 + pseudoRandom(2) * 400;   // 50–450mm
+  const width = 50 + pseudoRandom(1) * 400; // 50–450mm
+  const height = 50 + pseudoRandom(2) * 400; // 50–450mm
   const cutLength = (width + height) * 2 + pseudoRandom(3) * 500;
   const area = width * height * (0.3 + pseudoRandom(4) * 0.5);
   const holeCount = Math.floor(pseudoRandom(5) * 12);
@@ -81,79 +82,91 @@ export function useFileUpload(): UseFileUploadReturn {
 
   const fileIdCounter = useRef(0);
 
-  const processFiles = useCallback(async (fileList: FileList | File[]) => {
-    const remaining = MAX_FILES - files.length;
-    const toProcess = Array.from(fileList).slice(0, remaining);
+  const processFiles = useCallback(
+    async (fileList: FileList | File[]) => {
+      const remaining = MAX_FILES - files.length;
+      const toProcess = Array.from(fileList).slice(0, remaining);
 
-    for (const file of toProcess) {
-      // Validate size
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        continue;
+      for (const file of toProcess) {
+        // Validate size
+        if (file.size > MAX_FILE_SIZE_BYTES) {
+          continue;
+        }
+
+        // Validate extension
+        const ext = '.' + (file.name.split('.').pop()?.toLowerCase() ?? '');
+        if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+          continue;
+        }
+
+        // Generate hash for deduplication
+        const hash = await hashFile(file);
+
+        // Check for duplicates
+        if (files.some((f) => f.sha256Hash === hash)) {
+          continue;
+        }
+
+        const id = `file_${++fileIdCounter.current}_${Date.now()}`;
+        const geometry = generateSimulatedGeometry(file.name, file.size);
+
+        const uploadedFile: UploadedFile = {
+          id,
+          fileName: file.name,
+          fileSizeBytes: file.size,
+          sha256Hash: hash,
+          status: 'ready' as FileStatus,
+          geometry,
+          dfmIssues: [],
+          uploadProgress: 100,
+        };
+
+        setFiles((prev) => {
+          const updated = [...prev, uploadedFile];
+          return updated;
+        });
+
+        // Auto-select first file
+        setActiveFileId((prev) => prev ?? id);
       }
+    },
+    [files]
+  );
 
-      // Validate extension
-      const ext = '.' + (file.name.split('.').pop()?.toLowerCase() ?? '');
-      if (!ACCEPTED_EXTENSIONS.includes(ext)) {
-        continue;
+  const handleFileDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files.length > 0) {
+        processFiles(e.dataTransfer.files);
       }
+    },
+    [processFiles]
+  );
 
-      // Generate hash for deduplication
-      const hash = await hashFile(file);
-
-      // Check for duplicates
-      if (files.some((f) => f.sha256Hash === hash)) {
-        continue;
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        processFiles(e.target.files);
       }
+      e.target.value = '';
+    },
+    [processFiles]
+  );
 
-      const id = `file_${++fileIdCounter.current}_${Date.now()}`;
-      const geometry = generateSimulatedGeometry(file.name, file.size);
-
-      const uploadedFile: UploadedFile = {
-        id,
-        fileName: file.name,
-        fileSizeBytes: file.size,
-        sha256Hash: hash,
-        status: 'ready' as FileStatus,
-        geometry,
-        dfmIssues: [],
-        uploadProgress: 100,
-      };
-
-      setFiles((prev) => {
-        const updated = [...prev, uploadedFile];
-        return updated;
+  const removeFile = useCallback(
+    (id: string) => {
+      setFiles((prev) => prev.filter((f) => f.id !== id));
+      setActiveFileId((prev) => {
+        if (prev === id) {
+          const remaining = files.filter((f) => f.id !== id);
+          return remaining.length > 0 ? remaining[0].id : null;
+        }
+        return prev;
       });
-
-      // Auto-select first file
-      setActiveFileId((prev) => prev ?? id);
-    }
-  }, [files]);
-
-  const handleFileDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files.length > 0) {
-      processFiles(e.dataTransfer.files);
-    }
-  }, [processFiles]);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      processFiles(e.target.files);
-    }
-    e.target.value = '';
-  }, [processFiles]);
-
-  const removeFile = useCallback((id: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
-    setActiveFileId((prev) => {
-      if (prev === id) {
-        const remaining = files.filter((f) => f.id !== id);
-        return remaining.length > 0 ? remaining[0].id : null;
-      }
-      return prev;
-    });
-  }, [files]);
+    },
+    [files]
+  );
 
   const setActiveFile = useCallback((id: string) => {
     setActiveFileId(id);

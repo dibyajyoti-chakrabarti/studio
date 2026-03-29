@@ -1,7 +1,14 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface UserDirectoryProps {
   users: any[];
@@ -10,7 +17,9 @@ interface UserDirectoryProps {
 export const UserDirectory: React.FC<UserDirectoryProps> = ({ users }) => {
   return (
     <div className="space-y-6">
-      <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">Innovator Directory</h1>
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-headline font-bold text-[#1E3A66]">
+        Innovator Directory
+      </h1>
       <Card className="bg-card border-slate-200 overflow-x-auto">
         <Table className="min-w-[600px]">
           <TableHeader>

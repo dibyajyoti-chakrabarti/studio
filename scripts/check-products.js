@@ -3,7 +3,7 @@ const serviceAccount = require('./serviceAccountKey.json'); // I need to find if
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
@@ -12,7 +12,7 @@ const db = admin.firestore();
 async function checkProducts() {
   const snapshot = await db.collection('products').get();
   console.log('Total products:', snapshot.size);
-  snapshot.forEach(doc => {
+  snapshot.forEach((doc) => {
     console.log(doc.id, '=>', doc.data());
   });
 }

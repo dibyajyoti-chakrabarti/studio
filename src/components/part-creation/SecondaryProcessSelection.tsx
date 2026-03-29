@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
   Wind,
   CheckCircle,
   Flame,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { ExpertCTA } from './ExpertCTA';
 
@@ -82,11 +82,31 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
   },
 ];
 
-const COLOR_OPTIONS: { id: ColorOption; name: string; color: string; applicableProcesses: SecondaryProcess[] }[] = [
-  { id: 'black', name: 'Black', color: '#1a1a1a', applicableProcesses: ['powder_coating', 'anodizing'] },
+const COLOR_OPTIONS: {
+  id: ColorOption;
+  name: string;
+  color: string;
+  applicableProcesses: SecondaryProcess[];
+}[] = [
+  {
+    id: 'black',
+    name: 'Black',
+    color: '#1a1a1a',
+    applicableProcesses: ['powder_coating', 'anodizing'],
+  },
   { id: 'white', name: 'White', color: '#f5f5f5', applicableProcesses: ['powder_coating'] },
-  { id: 'red', name: 'Red', color: '#dc2626', applicableProcesses: ['powder_coating', 'anodizing'] },
-  { id: 'blue', name: 'Blue', color: '#2563eb', applicableProcesses: ['powder_coating', 'anodizing'] },
+  {
+    id: 'red',
+    name: 'Red',
+    color: '#dc2626',
+    applicableProcesses: ['powder_coating', 'anodizing'],
+  },
+  {
+    id: 'blue',
+    name: 'Blue',
+    color: '#2563eb',
+    applicableProcesses: ['powder_coating', 'anodizing'],
+  },
   { id: 'green', name: 'Green', color: '#16a34a', applicableProcesses: ['powder_coating'] },
   { id: 'yellow', name: 'Yellow', color: '#ca8a04', applicableProcesses: ['powder_coating'] },
   { id: 'grey', name: 'Grey', color: '#6b7280', applicableProcesses: ['powder_coating'] },
@@ -98,7 +118,16 @@ const COLOR_OPTIONS: { id: ColorOption; name: string; color: string; applicableP
 
 interface SecondaryProcessSelectionProps {
   selectedService: ManufacturingService;
-  selectedMaterial: { id: string; name: string; grade?: string; thickness?: number; canBend?: boolean; canPowderCoat?: boolean; canAnodize?: boolean; maxThicknessForBending?: number } | null;
+  selectedMaterial: {
+    id: string;
+    name: string;
+    grade?: string;
+    thickness?: number;
+    canBend?: boolean;
+    canPowderCoat?: boolean;
+    canAnodize?: boolean;
+    maxThicknessForBending?: number;
+  } | null;
   selectedProcesses: SecondaryProcess[];
   coatingColor: ColorOption | null;
   onProcessToggle: (process: SecondaryProcess) => void;
@@ -113,7 +142,7 @@ export function SecondaryProcessSelection({
   onProcessToggle,
   onColorSelect,
 }: SecondaryProcessSelectionProps) {
-  const filteredProcesses = SECONDARY_PROCESSES.filter(p => {
+  const filteredProcesses = SECONDARY_PROCESSES.filter((p) => {
     // Basic service check
     if (!p.applicableServices.includes(selectedService)) return false;
 
@@ -121,7 +150,11 @@ export function SecondaryProcessSelection({
     if (selectedMaterial) {
       if (p.id === 'bending') {
         if (selectedMaterial.canBend === false) return false;
-        if (selectedMaterial.maxThicknessForBending && selectedMaterial.thickness && selectedMaterial.thickness > selectedMaterial.maxThicknessForBending) {
+        if (
+          selectedMaterial.maxThicknessForBending &&
+          selectedMaterial.thickness &&
+          selectedMaterial.thickness > selectedMaterial.maxThicknessForBending
+        ) {
           return false;
         }
       }
@@ -132,16 +165,16 @@ export function SecondaryProcessSelection({
     return true;
   });
 
-  const needsColor = selectedProcesses.some(pid =>
-    SECONDARY_PROCESSES.find(p => p.id === pid)?.requiresColor
+  const needsColor = selectedProcesses.some(
+    (pid) => SECONDARY_PROCESSES.find((p) => p.id === pid)?.requiresColor
   );
 
-  const activeColorProcesses = selectedProcesses.filter(pid =>
-    SECONDARY_PROCESSES.find(p => p.id === pid)?.requiresColor
+  const activeColorProcesses = selectedProcesses.filter(
+    (pid) => SECONDARY_PROCESSES.find((p) => p.id === pid)?.requiresColor
   );
 
-  const availableColors = COLOR_OPTIONS.filter(color =>
-    color.applicableProcesses.some(ap => activeColorProcesses.includes(ap))
+  const availableColors = COLOR_OPTIONS.filter((color) =>
+    color.applicableProcesses.some((ap) => activeColorProcesses.includes(ap))
   );
 
   return (
@@ -162,10 +195,11 @@ export function SecondaryProcessSelection({
           return (
             <Card
               key={process.id}
-              className={`cursor-pointer transition-all duration-300 overflow-hidden ${isSelected
+              className={`cursor-pointer transition-all duration-300 overflow-hidden ${
+                isSelected
                   ? 'bg-blue-50 border-[#2F5FA7] ring-1 ring-[#2F5FA7]/20'
                   : 'bg-white border-slate-200 hover:border-blue-200 hover:bg-slate-50'
-                }`}
+              }`}
               onClick={() => onProcessToggle(process.id)}
             >
               <div className="p-4">
@@ -175,10 +209,11 @@ export function SecondaryProcessSelection({
                     onCheckedChange={() => onProcessToggle(process.id)}
                     className="mt-1 data-[state=checked]:bg-[#2F5FA7] data-[state=checked]:border-[#2F5FA7]"
                   />
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isSelected
-                      ? 'bg-[#2F5FA7] text-white'
-                      : 'bg-slate-100 text-slate-500'
-                    }`}>
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                      isSelected ? 'bg-[#2F5FA7] text-white' : 'bg-slate-100 text-slate-500'
+                    }`}
+                  >
                     {process.icon}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -207,7 +242,7 @@ export function SecondaryProcessSelection({
 
           <div>
             <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest mb-3 block">
-              Selection ({activeColorProcesses.map(p => p.replace('_', ' ')).join(' & ')})
+              Selection ({activeColorProcesses.map((p) => p.replace('_', ' ')).join(' & ')})
             </Label>
             <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
               {availableColors.map((colorOption) => (
@@ -215,10 +250,11 @@ export function SecondaryProcessSelection({
                   key={colorOption.id}
                   type="button"
                   onClick={() => onColorSelect(colorOption.id)}
-                  className={`group relative w-full aspect-square rounded-xl border-2 transition-all duration-200 ${coatingColor === colorOption.id
+                  className={`group relative w-full aspect-square rounded-xl border-2 transition-all duration-200 ${
+                    coatingColor === colorOption.id
                       ? 'border-[#2F5FA7] ring-2 ring-[#2F5FA7]/20 scale-105'
                       : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                  }`}
                   style={{ backgroundColor: colorOption.color }}
                 >
                   {coatingColor === colorOption.id && (
@@ -232,7 +268,7 @@ export function SecondaryProcessSelection({
 
             {coatingColor && (
               <p className="mt-4 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
-                Selected: {COLOR_OPTIONS.find(c => c.id === coatingColor)?.name}
+                Selected: {COLOR_OPTIONS.find((c) => c.id === coatingColor)?.name}
               </p>
             )}
           </div>
@@ -247,7 +283,7 @@ export function SecondaryProcessSelection({
         </div>
       )}
 
-      <ExpertCTA 
+      <ExpertCTA
         description="Need a specialized surface treatment or plating not listed? Our engineering experts handle complex custom finishing requirements."
         buttonText="Consult Finishing"
       />

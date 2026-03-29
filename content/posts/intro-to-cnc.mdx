@@ -1,5 +1,5 @@
 ---
-title: "The Ultimate Guide to Custom CNC Machining"
+title: 'The Ultimate Guide to Custom CNC Machining'
 date: 2024-03-04
 summary: Discover how custom CNC machining is revolutionizing mechanical parts production with unmatched precision and speed.
 image: https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=2070&auto=format&fit=crop
@@ -27,6 +27,7 @@ CNC machining offers several advantages over manual machining:
 3. **Complexity**: Some geometries are impossible to achieve via manual machining but trivial for a 5-axis CNC mill, including undercuts, compound curves, and internal pockets.
 4. **Speed**: Automated toolpaths eliminate manual setup between cuts, significantly reducing cycle times on complex parts.
 5. **Material Flexibility**: CNC machines work across aluminium, stainless steel, titanium, copper, brass, engineering plastics, and composites — often with the same machine and different tooling.
+
 ```typescript
 // Sample pseudo-code for a CNC path generator
 function generatePath(geometry: Mesh): GCode {
@@ -84,14 +85,14 @@ Grinding uses an abrasive wheel to achieve surface finishes and tolerances beyon
 
 The material you choose affects machinability, tool life, cycle time, and ultimately, cost. Here is a practical breakdown of the most common materials processed at MechHub:
 
-| Material | Machinability | Typical Use | Surface Finish |
-|----------|--------------|-------------|----------------|
-| Aluminium 6061 | Excellent | Enclosures, brackets, structural frames | Ra 0.8–3.2µm |
-| Stainless Steel 304 | Moderate | Food-grade parts, marine hardware | Ra 0.8–1.6µm |
-| Mild Steel EN8 | Good | Shafts, gears, structural components | Ra 1.6–3.2µm |
-| Titanium Grade 5 | Difficult | Aerospace, medical implants | Ra 0.4–1.6µm |
-| Brass C360 | Excellent | Fittings, electrical terminals | Ra 0.4–0.8µm |
-| Delrin (POM) | Excellent | Bearings, gears, low-friction parts | Ra 0.8–1.6µm |
+| Material            | Machinability | Typical Use                             | Surface Finish |
+| ------------------- | ------------- | --------------------------------------- | -------------- |
+| Aluminium 6061      | Excellent     | Enclosures, brackets, structural frames | Ra 0.8–3.2µm   |
+| Stainless Steel 304 | Moderate      | Food-grade parts, marine hardware       | Ra 0.8–1.6µm   |
+| Mild Steel EN8      | Good          | Shafts, gears, structural components    | Ra 1.6–3.2µm   |
+| Titanium Grade 5    | Difficult     | Aerospace, medical implants             | Ra 0.4–1.6µm   |
+| Brass C360          | Excellent     | Fittings, electrical terminals          | Ra 0.4–0.8µm   |
+| Delrin (POM)        | Excellent     | Bearings, gears, low-friction parts     | Ra 0.8–1.6µm   |
 
 ---
 
@@ -114,20 +115,27 @@ Wherever possible, design holes to standard drill sizes (e.g. 3mm, 4mm, 5mm, 6mm
 ### Minimise setups
 
 Every time a part is repositioned on the machine, there is a risk of accumulated error and additional cost. Design your part so that all critical features can be machined in as few setups as possible — ideally one or two.
+
 ```typescript
 // DFM checker pseudo-code — flags common issues before quoting
 function runDFMCheck(model: CADModel): DFMReport {
   const issues: Issue[] = [];
 
-  model.internalCorners.forEach(corner => {
+  model.internalCorners.forEach((corner) => {
     if (corner.radius < 0.5) {
-      issues.push({ severity: 'warning', message: `Corner radius ${corner.radius}mm is below minimum recommended 0.5mm` });
+      issues.push({
+        severity: 'warning',
+        message: `Corner radius ${corner.radius}mm is below minimum recommended 0.5mm`,
+      });
     }
   });
 
-  model.tolerances.forEach(tol => {
+  model.tolerances.forEach((tol) => {
     if (tol.value < 0.01) {
-      issues.push({ severity: 'info', message: `Tolerance ±${tol.value}mm on feature ${tol.featureId} — confirm this is functionally required` });
+      issues.push({
+        severity: 'info',
+        message: `Tolerance ±${tol.value}mm on feature ${tol.featureId} — confirm this is functionally required`,
+      });
     }
   });
 

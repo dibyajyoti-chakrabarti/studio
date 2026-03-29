@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
   Tag,
   Info,
   ShieldCheck,
-  Lock
+  Lock,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
@@ -33,7 +33,10 @@ interface FileUploadStepProps {
 
 const STEP_EXTENSIONS = ['.step', '.stp'];
 const MESH_EXTENSIONS = ['.stl', '.obj'];
-const ALLOWED_EXTENSIONS = [...STEP_EXTENSIONS, ...MESH_EXTENSIONS].flatMap(e => [e, e.toUpperCase()]);
+const ALLOWED_EXTENSIONS = [...STEP_EXTENSIONS, ...MESH_EXTENSIONS].flatMap((e) => [
+  e,
+  e.toUpperCase(),
+]);
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export function FileUploadStep({
@@ -63,9 +66,7 @@ export function FileUploadStep({
 
   const validateFile = (file: File): boolean => {
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-    const hasAllowedExtension = ALLOWED_EXTENSIONS.some(ext =>
-      ext.toLowerCase() === extension
-    );
+    const hasAllowedExtension = ALLOWED_EXTENSIONS.some((ext) => ext.toLowerCase() === extension);
 
     if (!hasAllowedExtension) {
       toast({
@@ -111,9 +112,15 @@ export function FileUploadStep({
       };
 
       xhr.onerror = () => {
-        console.error('S3 Upload Network Error. This is usually caused by missing CORS configuration on the S3 bucket.');
+        console.error(
+          'S3 Upload Network Error. This is usually caused by missing CORS configuration on the S3 bucket.'
+        );
         console.error('Target URL:', uploadUrl.split('?')[0]); // Log the base URL for debugging
-        reject(new Error('S3 upload failed due to network error. Please ensure CORS is configured on your S3 bucket.'));
+        reject(
+          new Error(
+            'S3 upload failed due to network error. Please ensure CORS is configured on your S3 bucket.'
+          )
+        );
       };
       xhr.send(file);
     });
@@ -150,7 +157,7 @@ export function FileUploadStep({
       setIsValidating(true);
 
       // Step 3: Minimal validation delay (placeholder for real server-side processing start)
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 800));
 
       onFileUpload({
         fileName: file.name,
@@ -162,13 +169,14 @@ export function FileUploadStep({
         title: 'File Uploaded Successfully',
         description: 'Your file has been securely uploaded and is ready for production.',
       });
-
-
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: 'Upload Failed',
-        description: error instanceof Error ? error.message : 'There was an error uploading your file. Please try again.',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'There was an error uploading your file. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -194,13 +202,16 @@ export function FileUploadStep({
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
-  }, [handleFile]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -249,10 +260,11 @@ export function FileUploadStep({
           {!uploadedFile ? (
             <div className="space-y-4">
               <Card
-                className={`border-2 border-dashed transition-all duration-300 relative overflow-hidden cursor-pointer ${dragActive
-                  ? 'border-[#2F5FA7] bg-blue-50'
-                  : 'border-slate-200 hover:border-blue-200 hover:bg-slate-50'
-                  }`}
+                className={`border-2 border-dashed transition-all duration-300 relative overflow-hidden cursor-pointer ${
+                  dragActive
+                    ? 'border-[#2F5FA7] bg-blue-50'
+                    : 'border-slate-200 hover:border-blue-200 hover:bg-slate-50'
+                }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -260,8 +272,13 @@ export function FileUploadStep({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <div className="p-8 text-center flex flex-col items-center gap-4">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border shadow-sm ${dragActive ? 'bg-[#2F5FA7] text-white border-[#2F5FA7]' : 'bg-blue-50 text-[#2F5FA7] border-blue-100'
-                    }`}>
+                  <div
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center border shadow-sm ${
+                      dragActive
+                        ? 'bg-[#2F5FA7] text-white border-[#2F5FA7]'
+                        : 'bg-blue-50 text-[#2F5FA7] border-blue-100'
+                    }`}
+                  >
                     {isUploading ? (
                       <Loader2 className="w-8 h-8 animate-spin" />
                     ) : isValidating ? (
@@ -281,7 +298,9 @@ export function FileUploadStep({
                       {isUploading ? 'Uploading Design...' : 'Drop your design file here'}
                     </p>
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">
-                      {isUploading ? `${Math.round(uploadProgress)}% completed` : 'or click to browse from files'}
+                      {isUploading
+                        ? `${Math.round(uploadProgress)}% completed`
+                        : 'or click to browse from files'}
                     </p>
                   </div>
 
@@ -296,8 +315,18 @@ export function FileUploadStep({
 
                   {!isUploading && !isValidating && (
                     <div className="flex gap-2 mt-2">
-                      <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">STEP</Badge>
-                      <Badge variant="outline" className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0">STP</Badge>
+                      <Badge
+                        variant="outline"
+                        className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0"
+                      >
+                        STEP
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className="text-[8px] uppercase font-bold tracking-tighter px-1.5 py-0"
+                      >
+                        STP
+                      </Badge>
                     </div>
                   )}
                 </div>
@@ -343,8 +372,6 @@ export function FileUploadStep({
                   </Button>
                 </div>
               </Card>
-
-
             </div>
           )}
         </div>
@@ -353,7 +380,8 @@ export function FileUploadStep({
       <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
         <AlertCircle className="w-4 h-4 text-[#2F5FA7] mt-0.5" />
         <p className="text-[9px] text-slate-500 uppercase tracking-wider font-bold leading-relaxed">
-          Technical design files are handled securely. Our manufacturing experts will review your files to ensure production readiness.
+          Technical design files are handled securely. Our manufacturing experts will review your
+          files to ensure production readiness.
         </p>
       </div>
     </div>

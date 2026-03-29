@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import {
   Loader2,
   ShieldCheck,
   Lock,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react';
 
 interface WizardFooterProps {
@@ -31,7 +31,7 @@ export function WizardFooter({
   isLastStep,
   canProceed,
   isSubmitting,
-  totalPrice = 0
+  totalPrice = 0,
 }: WizardFooterProps) {
   return (
     <div className="fixed bottom-0 left-80 right-0 h-24 bg-white/80 backdrop-blur-xl border-t border-slate-200 z-50 flex items-center justify-between px-12 shadow-2xl shadow-blue-500/5 animate-in slide-in-from-bottom duration-500">
@@ -40,15 +40,20 @@ export function WizardFooter({
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           <p className="text-[9px] font-black uppercase tracking-widest text-emerald-800">
-            Precision: <span className="text-emerald-600 font-bold tracking-tighter">Validated</span>
+            Precision:{' '}
+            <span className="text-emerald-600 font-bold tracking-tighter">Validated</span>
           </p>
         </div>
 
         <div className="h-8 w-px bg-slate-200" />
 
         <div className="flex flex-col">
-          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Live Configuration Est.</span>
-          <span className="text-xl font-black text-slate-900 tracking-tighter leading-none">₹{totalPrice.toLocaleString()}</span>
+          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+            Live Configuration Est.
+          </span>
+          <span className="text-xl font-black text-slate-900 tracking-tighter leading-none">
+            ₹{totalPrice.toLocaleString()}
+          </span>
         </div>
       </div>
 

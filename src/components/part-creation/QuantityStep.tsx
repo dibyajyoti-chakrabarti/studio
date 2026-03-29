@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
@@ -22,13 +22,17 @@ const QUANTITY_BREAKS = [
   { qty: 100, discount: '25% Off' },
 ];
 
-export function QuantityStep({ quantity, onQuantityChange, onDiscountTierChange }: QuantityStepProps) {
+export function QuantityStep({
+  quantity,
+  onQuantityChange,
+  onDiscountTierChange,
+}: QuantityStepProps) {
   const [inputValue, setInputValue] = useState(quantity.toString());
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    
+
     const numValue = parseInt(value, 10);
     if (!isNaN(numValue) && numValue >= 1) {
       onQuantityChange(numValue);
@@ -75,8 +79,8 @@ export function QuantityStep({ quantity, onQuantityChange, onDiscountTierChange 
               <Hash className="w-5 h-5 text-white" />
             </div>
             <div>
-              <Label 
-                htmlFor="quantity" 
+              <Label
+                htmlFor="quantity"
                 className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest"
               >
                 Required Quantity
@@ -128,10 +132,14 @@ export function QuantityStep({ quantity, onQuantityChange, onDiscountTierChange 
                   : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}
             >
-              <p className={`text-xs font-bold ${quantity >= breakPoint.qty ? 'text-white' : 'text-slate-900'}`}>
+              <p
+                className={`text-xs font-bold ${quantity >= breakPoint.qty ? 'text-white' : 'text-slate-900'}`}
+              >
                 {breakPoint.qty}+
               </p>
-              <p className={`text-[9px] uppercase tracking-wider font-bold ${quantity >= breakPoint.qty ? 'text-blue-100' : 'text-slate-400'}`}>
+              <p
+                className={`text-[9px] uppercase tracking-wider font-bold ${quantity >= breakPoint.qty ? 'text-blue-100' : 'text-slate-400'}`}
+              >
                 {breakPoint.discount}
               </p>
             </div>
@@ -143,9 +151,7 @@ export function QuantityStep({ quantity, onQuantityChange, onDiscountTierChange 
       <Card className="bg-slate-900 border-slate-800 p-5">
         <div className="flex items-center gap-3 mb-3">
           <Calculator className="w-5 h-5 text-[#2F5FA7]" />
-          <p className="text-xs text-white uppercase tracking-wider font-bold">
-            Order Summary
-          </p>
+          <p className="text-xs text-white uppercase tracking-wider font-bold">Order Summary</p>
         </div>
         <div className="space-y-2">
           <div className="flex justify-between text-[10px]">
@@ -153,7 +159,9 @@ export function QuantityStep({ quantity, onQuantityChange, onDiscountTierChange 
             <span className="text-white font-bold font-mono">{quantity} PCS</span>
           </div>
           <div className="flex justify-between text-[10px]">
-            <span className="text-slate-400 uppercase tracking-wider font-bold">Est. Per Part:</span>
+            <span className="text-slate-400 uppercase tracking-wider font-bold">
+              Est. Per Part:
+            </span>
             <span className="text-white font-bold font-mono">To be quoted</span>
           </div>
           <div className="border-t border-slate-700 pt-2 mt-2">

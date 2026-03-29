@@ -1,7 +1,14 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +31,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
-  
+
   const [projectName, setProjectName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,9 +44,13 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user || !db) {
-      toast({ title: 'Error', description: 'Please sign in to create a project', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Please sign in to create a project',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -63,10 +74,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       };
 
       const projectRef = await addDocumentNonBlocking(collection(db, 'projectRFQs'), projectData);
-      
-      toast({ 
-        title: 'Project Created!', 
-        description: `${projectName} has been created successfully.` 
+
+      toast({
+        title: 'Project Created!',
+        description: `${projectName} has been created successfully.`,
       });
 
       // Reset and close
@@ -80,10 +91,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       }
     } catch (error) {
       console.error('Error creating project:', error);
-      toast({ 
-        title: 'Error', 
-        description: 'Failed to create project. Please try again.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Error',
+        description: 'Failed to create project. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -118,8 +129,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           <div className="space-y-2">
-            <Label 
-              htmlFor="projectName" 
+            <Label
+              htmlFor="projectName"
               className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest"
             >
               Project Name

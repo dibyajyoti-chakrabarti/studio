@@ -21,7 +21,7 @@ export interface ShippingOption {
   readonly id: string;
   readonly label: string;
   readonly estimatedDays: number;
-  readonly price: number;  // INR
+  readonly price: number; // INR
   readonly carrier: string;
 }
 

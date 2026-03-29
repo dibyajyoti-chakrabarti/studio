@@ -2,7 +2,10 @@
 
 @font-face {
   font-family: 'BankGothic Md BT';
-  src: local('BankGothic Md BT'), local('BankGothicMdBT-Medium'), url('/fonts/BankGothicMdBT.ttf') format('truetype');
+  src:
+    local('BankGothic Md BT'),
+    local('BankGothicMdBT-Medium'),
+    url('/fonts/BankGothicMdBT.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -10,188 +13,190 @@
 
 @font-face {
   font-family: 'Bank Gothic Light';
-  src: local('Bank Gothic Light'), local('BankGothicLight'), url('/fonts/BankGothicLight.ttf') format('truetype');
+  src:
+    local('Bank Gothic Light'),
+    local('BankGothicLight'),
+    url('/fonts/BankGothicLight.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 .instrument-serif-regular {
-  font-family: "Instrument Serif", serif;
+  font-family: 'Instrument Serif', serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .instrument-serif-regular-italic {
-  font-family: "Instrument Serif", serif;
+  font-family: 'Instrument Serif', serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .lora-regular {
-  font-family: "Lora", serif;
+  font-family: 'Lora', serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
 }
 
 .lora-italic {
-  font-family: "Lora", serif;
+  font-family: 'Lora', serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: italic;
 }
 
 .cormorant-garamond-regular {
-  font-family: "Cormorant Garamond", serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .libre-baskerville-regular {
-  font-family: "Libre Baskerville", serif;
+  font-family: 'Libre Baskerville', serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .libre-baskerville-italic {
-  font-family: "Libre Baskerville", serif;
+  font-family: 'Libre Baskerville', serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .lobster-two-regular {
-  font-family: "Lobster Two", sans-serif;
+  font-family: 'Lobster Two', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .lobster-two-bold {
-  font-family: "Lobster Two", sans-serif;
+  font-family: 'Lobster Two', sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
 .lobster-two-regular-italic {
-  font-family: "Lobster Two", sans-serif;
+  font-family: 'Lobster Two', sans-serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .lobster-two-bold-italic {
-  font-family: "Lobster Two", sans-serif;
+  font-family: 'Lobster Two', sans-serif;
   font-weight: 700;
   font-style: italic;
 }
 
 .poppins-thin {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 100;
   font-style: normal;
 }
 
 .poppins-extralight {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 200;
   font-style: normal;
 }
 
 .poppins-light {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 300;
   font-style: normal;
 }
 
 .poppins-regular {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .poppins-medium {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 500;
   font-style: normal;
 }
 
 .poppins-semibold {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-style: normal;
 }
 
 .poppins-bold {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
 .poppins-extrabold {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 800;
   font-style: normal;
 }
 
 .poppins-black {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   font-style: normal;
 }
 
 .poppins-thin-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 100;
   font-style: italic;
 }
 
 .poppins-extralight-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 200;
   font-style: italic;
 }
 
 .poppins-light-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 300;
   font-style: italic;
 }
 
 .poppins-regular-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .poppins-medium-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 500;
   font-style: italic;
 }
 
 .poppins-semibold-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   font-style: italic;
 }
 
 .poppins-bold-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-style: italic;
 }
 
 .poppins-extrabold-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 800;
   font-style: italic;
 }
 
 .poppins-black-italic {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   font-style: italic;
 }
-
 
 @tailwind base;
 @tailwind components;
@@ -251,7 +256,7 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
-    background-image: 
+    background-image:
       linear-gradient(rgba(47, 95, 167, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(47, 95, 167, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -327,8 +332,13 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(1deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+  }
 }
 
 .animate-float {
@@ -336,8 +346,13 @@
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.2; }
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 
 .animate-pulse-soft {
@@ -345,8 +360,12 @@
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .animate-shimmer {

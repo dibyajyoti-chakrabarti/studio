@@ -51,7 +51,9 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              Full Name
+            </label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
               <input
@@ -60,12 +62,18 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
               />
             </div>
-            {errors.fullName && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.fullName.message}</p>}
+            {errors.fullName && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.fullName.message}
+              </p>
+            )}
           </div>
 
           {/* Phone */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              Phone Number
+            </label>
             <div className="relative">
               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
               <input
@@ -74,12 +82,18 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
               />
             </div>
-            {errors.phone && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.phone.message}</p>}
+            {errors.phone && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
           {/* Address Line 1 */}
           <div className="space-y-2 md:col-span-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Address Line 1</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              Address Line 1
+            </label>
             <div className="relative">
               <Home className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
               <input
@@ -88,40 +102,62 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
               />
             </div>
-            {errors.addressLine1 && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.addressLine1.message}</p>}
+            {errors.addressLine1 && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.addressLine1.message}
+              </p>
+            )}
           </div>
 
           {/* City */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">City</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              City
+            </label>
             <input
               {...register('city')}
               placeholder="e.g. Bengaluru"
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
             />
-            {errors.city && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.city.message}</p>}
+            {errors.city && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.city.message}
+              </p>
+            )}
           </div>
 
           {/* State */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">State</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              State
+            </label>
             <input
               {...register('state')}
               placeholder="e.g. Karnataka"
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
             />
-            {errors.state && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.state.message}</p>}
+            {errors.state && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.state.message}
+              </p>
+            )}
           </div>
 
           {/* Pincode */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Pincode</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+              Pincode
+            </label>
             <input
               {...register('pincode')}
               placeholder="6-digit PIN"
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-bold tracking-widest"
             />
-            {errors.pincode && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.pincode.message}</p>}
+            {errors.pincode && (
+              <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                {errors.pincode.message}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -134,14 +170,18 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
             {...register('isGstInvoicing')}
             className="w-5 h-5 rounded-lg border-slate-200 text-[#2F5FA7] focus:ring-[#2F5FA7] transition-all cursor-pointer"
           />
-          <span className="text-sm font-bold text-slate-700 uppercase tracking-tight group-hover:text-[#2F5FA7] transition-colors">Business Order (GST Invoicing)</span>
+          <span className="text-sm font-bold text-slate-700 uppercase tracking-tight group-hover:text-[#2F5FA7] transition-colors">
+            Business Order (GST Invoicing)
+          </span>
         </label>
 
         {isGstSelected && (
           <div className="space-y-4 pt-4 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">GST Number</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  GST Number
+                </label>
                 <div className="relative">
                   <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
                   <input
@@ -150,11 +190,17 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-bold uppercase"
                   />
                 </div>
-                {errors.gstNumber && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.gstNumber.message}</p>}
+                {errors.gstNumber && (
+                  <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                    {errors.gstNumber.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Company Name</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Company Name
+                </label>
                 <div className="relative">
                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
                   <input
@@ -163,7 +209,11 @@ export function ShippingForm({ onSubmit, defaultValues, isLoading }: ShippingFor
                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-5 py-4 text-slate-900 focus:outline-none focus:border-[#2F5FA7] focus:ring-4 focus:ring-blue-500/5 transition-all text-sm font-medium"
                   />
                 </div>
-                {errors.companyName && <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">{errors.companyName.message}</p>}
+                {errors.companyName && (
+                  <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 uppercase">
+                    {errors.companyName.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>

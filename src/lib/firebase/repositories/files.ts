@@ -1,10 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc,
-  serverTimestamp
-} from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { Result, ok, err } from '@/utils/result';
 import { AppError, internalError, notFoundError } from '@/utils/errors';
@@ -24,7 +18,7 @@ export const FilesRepository = {
   async saveFileMetadata(file: UploadedFile, userId?: string): Promise<Result<string, AppError>> {
     try {
       const fileRef = doc(collection(db, COLLECTION_NAME), file.id);
-      
+
       const data = {
         ...file,
         userId: userId || null,
@@ -32,8 +26,13 @@ export const FilesRepository = {
       };
 
       await setDoc(fileRef, data);
-      
-      logger.info({ event: 'File metadata saved to Firestore', fileId: file.id, fileName: file.fileName, userId });
+
+      logger.info({
+        event: 'File metadata saved to Firestore',
+        fileId: file.id,
+        fileName: file.fileName,
+        userId,
+      });
       return ok(file.id);
     } catch (e) {
       logger.error({ event: 'Failed to save file metadata', error: e, fileId: file.id });
@@ -44,10 +43,12 @@ export const FilesRepository = {
   /**
    * Retrieves file metadata by its ID.
    */
-  async getFileMetadata(id: string): Promise<Result<UploadedFile & { userId: string | null }, AppError>> {
+  async getFileMetadata(
+    id: string
+  ): Promise<Result<UploadedFile & { userId: string | null }, AppError>> {
     try {
       const fileDoc = await getDoc(doc(db, COLLECTION_NAME, id));
-      
+
       if (!fileDoc.exists()) {
         return err(notFoundError('File', id));
       }
@@ -57,5 +58,5 @@ export const FilesRepository = {
       logger.error({ event: 'Failed to fetch file metadata', error: e, fileId: id });
       return err(internalError('Failed to fetch file metadata from database'));
     }
-  }
+  },
 };

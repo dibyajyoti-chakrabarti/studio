@@ -1,8 +1,7 @@
-
 'use client';
 
 import Link from 'next/link';
-import Image from "next/image";
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import {
@@ -17,7 +16,7 @@ import {
   Package2,
   Layers,
   Settings,
-  MessageSquare
+  MessageSquare,
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect, useRef } from 'react';
@@ -30,7 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { doc } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
@@ -41,15 +40,12 @@ const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
 ];
 
-
-
-
 const MATERIAL_CATEGORIES = [
-  { name: "METAL", items: ["2024 T3 Aluminum", "AR400", "AR500", "Brass", "Copper", "Mild Steel"] },
-  { name: "COMPOSITE", items: ["Carbon Fiber", "G10"] },
-  { name: "PLASTIC", items: ["ABS", "Acrylic", "Delrin", "HDPE"] },
-  { name: "RUBBER/GASKET", items: ["Neoprene", "Viton"] },
-  { name: "WOOD/BOARD", items: ["Birch Plywood", "MDF"] }
+  { name: 'METAL', items: ['2024 T3 Aluminum', 'AR400', 'AR500', 'Brass', 'Copper', 'Mild Steel'] },
+  { name: 'COMPOSITE', items: ['Carbon Fiber', 'G10'] },
+  { name: 'PLASTIC', items: ['ABS', 'Acrylic', 'Delrin', 'HDPE'] },
+  { name: 'RUBBER/GASKET', items: ['Neoprene', 'Viton'] },
+  { name: 'WOOD/BOARD', items: ['Birch Plywood', 'MDF'] },
 ];
 
 export function LandingNav() {
@@ -122,22 +118,22 @@ export function LandingNav() {
 
   const handleMouseLeave = () => {
     setActiveIndex(null);
-    setHoverStyle(prev => ({ ...prev, opacity: 0 }));
+    setHoverStyle((prev) => ({ ...prev, opacity: 0 }));
   };
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out overflow-x-hidden ${isNavFloated
-          ? 'mx-0 top-0'
-          : 'mx-0 top-0'
-          }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out overflow-x-hidden ${
+          isNavFloated ? 'mx-0 top-0' : 'mx-0 top-0'
+        }`}
       >
         <div
-          className={`relative flex items-center justify-between px-4 md:px-6 h-[68px] transition-all duration-500 ease-in-out ${isNavFloated
-            ? 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
-            : 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
-            }`}
+          className={`relative flex items-center justify-between px-4 md:px-6 h-[68px] transition-all duration-500 ease-in-out ${
+            isNavFloated
+              ? 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
+              : 'bg-white/80 backdrop-blur-xl border-b border-slate-100 mx-auto'
+          }`}
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 z-10 shrink-0">
@@ -150,9 +146,7 @@ export function LandingNav() {
                 className="object-contain rounded-sm"
               />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-[#1E3A66] mt-1">
-              MechHub
-            </span>
+            <span className="text-2xl font-bold tracking-tight text-[#1E3A66] mt-1">MechHub</span>
           </Link>
 
           {/* Nav Links + Categories - Right Side (shifted) */}
@@ -174,21 +168,24 @@ export function LandingNav() {
             <Link
               href="/#services"
               onMouseEnter={() => handleMouseEnter(-2)}
-              className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${activeIndex === -2 ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
-                }`}
+              className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${
+                activeIndex === -2 ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
+              }`}
             >
               Services
             </Link>
-
 
             {NAV_LINKS.map((link, i) => (
               <Link
                 key={link.href}
                 href={link.href}
-                ref={el => { navRefs.current[i] = el; }}
+                ref={(el) => {
+                  navRefs.current[i] = el;
+                }}
                 onMouseEnter={() => handleMouseEnter(i)}
-                className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${activeIndex === i ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
-                  }`}
+                className={`relative px-4 py-2 text-sm font-semibold rounded-full transition-colors duration-200 ${
+                  activeIndex === i ? 'text-[#2F5FA7]' : 'text-[#64748B] hover:text-[#2F5FA7]'
+                }`}
               >
                 {link.label}
               </Link>
@@ -275,7 +272,7 @@ export function LandingNav() {
             {/* Mobile Hamburger */}
             <button
               className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 transition-colors text-[#64748B] hover:text-[#2F5FA7]"
-              onClick={() => setMobileOpen(v => !v)}
+              onClick={() => setMobileOpen((v) => !v)}
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -284,12 +281,16 @@ export function LandingNav() {
         </div>
 
         <div
-          className={`md:hidden overflow-y-auto transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[90vh] opacity-100' : 'max-h-0 opacity-0'
-            }`}
+          className={`md:hidden overflow-y-auto transition-all duration-300 ease-in-out ${
+            mobileOpen ? 'max-h-[90vh] opacity-100' : 'max-h-0 opacity-0'
+          }`}
         >
-          <div className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-4 flex flex-col gap-1`}>
-
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 mb-3">Navigation</div>
+          <div
+            className={`mx-2 mt-1 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-100 shadow-[0_8px_32px_rgba(0,0,0,0.1)] p-4 flex flex-col gap-1`}
+          >
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-4 mb-3">
+              Navigation
+            </div>
             <div className="flex flex-col gap-1 px-1">
               {[
                 { label: 'Services', href: '/#services', icon: Settings },
@@ -311,20 +312,28 @@ export function LandingNav() {
               ))}
             </div>
 
-
             <div className="border-t border-slate-100 mt-4 pt-3 flex flex-col gap-2">
               {!user ? (
                 <>
                   <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
-                    <Button variant="ghost" className="w-full justify-start font-bold text-[#64748B] text-sm h-12 rounded-2xl hover:bg-slate-50">Sign In</Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start font-bold text-[#64748B] text-sm h-12 rounded-2xl hover:bg-slate-50"
+                    >
+                      Sign In
+                    </Button>
                   </Link>
                   <Link href="/login" onClick={() => setMobileOpen(false)} className="px-1">
-                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-2xl h-12 text-sm shadow-none">Get Started</Button>
+                    <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-2xl h-12 text-sm shadow-none">
+                      Get Started
+                    </Button>
                   </Link>
                 </>
               ) : (
                 <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-xl h-11 text-sm shadow-none">Go to Dashboard</Button>
+                  <Button className="w-full bg-[#2F5FA7] hover:bg-[#1E3A66] font-bold rounded-xl h-11 text-sm shadow-none">
+                    Go to Dashboard
+                  </Button>
                 </Link>
               )}
             </div>
@@ -344,11 +353,16 @@ export function LandingNav() {
                     </button>
                     {/* Professional Dropdown */}
                     <div className="absolute top-[calc(100%+0px)] left-0 w-64 bg-white border border-slate-100 p-5 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all z-50 shadow-[0_30px_60px_-15px_rgba(47,95,167,0.15)] rounded-2xl">
-                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Select {cat.name}</div>
+                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                        Select {cat.name}
+                      </div>
                       <ul className="space-y-2.5">
                         {cat.items.map((item) => (
                           <li key={item}>
-                            <Link href={`/materials/${item.toLowerCase().replace(/ /g, '-')}`} className="text-[11px] font-bold text-slate-700 hover:text-[#2F5FA7] transition-all block py-1 border-l-2 border-transparent hover:border-[#2F5FA7] hover:pl-3">
+                            <Link
+                              href={`/materials/${item.toLowerCase().replace(/ /g, '-')}`}
+                              className="text-[11px] font-bold text-slate-700 hover:text-[#2F5FA7] transition-all block py-1 border-l-2 border-transparent hover:border-[#2F5FA7] hover:pl-3"
+                            >
                               {item}
                             </Link>
                           </li>
@@ -373,7 +387,9 @@ export function LandingNav() {
       </nav>
 
       {/* Spacer to ensure content starts below the nav */}
-      <div className={`transition-all duration-300 ${pathname.includes('/materials') ? 'h-[118px]' : 'h-[68px]'}`} />
+      <div
+        className={`transition-all duration-300 ${pathname.includes('/materials') ? 'h-[118px]' : 'h-[68px]'}`}
+      />
 
       <CartSidebar />
     </>

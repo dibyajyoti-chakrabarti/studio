@@ -1,5 +1,5 @@
 ---
-title: "Sheet Metal Fabrication in India: Processes, Design Rules & Cost Guide"
+title: 'Sheet Metal Fabrication in India: Processes, Design Rules & Cost Guide'
 date: 2024-03-15
 summary: A comprehensive guide to sheet metal fabrication processes in India — from bending and punching to welding and finishing — with design rules and cost-saving tips for engineers and product teams.
 image: https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2070&auto=format&fit=crop
@@ -87,12 +87,12 @@ Every bend has a minimum inside radius determined by the material's ductility an
 
 **Rule of thumb:** Minimum inside bend radius = **material thickness × K-factor**
 
-| Material | Recommended Min. Inside Radius |
-|----------|-------------------------------|
-| Mild Steel (CRCA) | 0.5× thickness |
-| Stainless Steel 304 | 1.0× thickness |
-| Aluminium 5052-H32 | 0.5× thickness |
-| Aluminium 6061-T6 | 3.0× thickness |
+| Material            | Recommended Min. Inside Radius |
+| ------------------- | ------------------------------ |
+| Mild Steel (CRCA)   | 0.5× thickness                 |
+| Stainless Steel 304 | 1.0× thickness                 |
+| Aluminium 5052-H32  | 0.5× thickness                 |
+| Aluminium 6061-T6   | 3.0× thickness                 |
 
 For a 2mm mild steel sheet, the minimum inside bend radius is 1mm. Always specify your bend radii on the drawing — if left unspecified, the shop applies a default that may not match your CAD model.
 
@@ -135,10 +135,10 @@ When sheet metal is bent, the outer surface stretches and the inner surface comp
 ```typescript
 // Bend allowance calculation
 function bendAllowance(
-  thickness: number,  // mm
-  radius: number,     // inside radius, mm
-  angle: number,      // bend angle in degrees
-  kFactor: number     // typically 0.33–0.50
+  thickness: number, // mm
+  radius: number, // inside radius, mm
+  angle: number, // bend angle in degrees
+  kFactor: number // typically 0.33–0.50
 ): number {
   const radians = (angle * Math.PI) / 180;
   return radians * (radius + kFactor * thickness);
@@ -179,15 +179,15 @@ A hem folds the sheet edge back on itself to create a smooth, rounded edge witho
 
 ## Surface Finishes for Sheet Metal Parts
 
-| Finish | Material | Protection | Appearance | Typical Cost |
-|--------|----------|-----------|------------|-------------|
-| Powder Coating | Steel, Aluminium | Excellent | Matt/gloss, any RAL colour | Low–Medium |
-| Anodising (Type II) | Aluminium only | Good | Satin, clear or coloured | Medium |
-| Anodising (Type III / Hard) | Aluminium only | Excellent | Dark grey, very hard surface | Medium–High |
-| Zinc Plating | Steel | Good | Bright silver or yellow chromate | Low |
-| Hot-Dip Galvanising | Steel | Excellent | Spangle grey | Low (high volume) |
-| Passivation | Stainless | Good | No visual change | Low |
-| Electropolishing | Stainless | Excellent | Mirror bright | High |
+| Finish                      | Material         | Protection | Appearance                       | Typical Cost      |
+| --------------------------- | ---------------- | ---------- | -------------------------------- | ----------------- |
+| Powder Coating              | Steel, Aluminium | Excellent  | Matt/gloss, any RAL colour       | Low–Medium        |
+| Anodising (Type II)         | Aluminium only   | Good       | Satin, clear or coloured         | Medium            |
+| Anodising (Type III / Hard) | Aluminium only   | Excellent  | Dark grey, very hard surface     | Medium–High       |
+| Zinc Plating                | Steel            | Good       | Bright silver or yellow chromate | Low               |
+| Hot-Dip Galvanising         | Steel            | Excellent  | Spangle grey                     | Low (high volume) |
+| Passivation                 | Stainless        | Good       | No visual change                 | Low               |
+| Electropolishing            | Stainless        | Excellent  | Mirror bright                    | High              |
 
 **For most enclosures and panels in India:** Powder coating on CRCA mild steel is the optimal balance of protection, appearance, and cost. Specify RAL colour, gloss level (matt 30%, semi-gloss 50%, gloss 70%), and minimum dry film thickness (typically 60–80µm for indoor use, 80–120µm for outdoor).
 

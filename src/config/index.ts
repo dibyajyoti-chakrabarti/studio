@@ -36,11 +36,11 @@ export const config = {
   },
 
   quoting: {
-    cacheQuoteTtlSeconds: 900,       // 15 minutes
-    cacheMaterialsTtlSeconds: 3600,  // 1 hour
-    minOrderPriceInr: 2900,          // ₹29 in paise
-    targetMargin: 0.42,              // 42% gross margin
-    maxFileSize: 10 * 1024 * 1024,   // 10MB
+    cacheQuoteTtlSeconds: 900, // 15 minutes
+    cacheMaterialsTtlSeconds: 3600, // 1 hour
+    minOrderPriceInr: 2900, // ₹29 in paise
+    targetMargin: 0.42, // 42% gross margin
+    maxFileSize: 10 * 1024 * 1024, // 10MB
     maxUploadFilesPerSession: 10,
     quoteLockMinutes: 30,
   },

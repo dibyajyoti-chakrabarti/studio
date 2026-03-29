@@ -3,7 +3,14 @@
 // Pure data. Zero framework dependencies.
 // ═══════════════════════════════════════════════════
 
-import type { Material, FinishRate, FinishType, TurnaroundOption, TurnaroundType, Machine } from '@/types/quoting';
+import type {
+  Material,
+  FinishRate,
+  FinishType,
+  TurnaroundOption,
+  TurnaroundType,
+  Machine,
+} from '@/types/quoting';
 
 /** Complete material catalog with Indian pricing */
 export const MATERIAL_CATALOG: readonly Material[] = [
@@ -19,7 +26,14 @@ export const MATERIAL_CATALOG: readonly Material[] = [
     sheetHeightMm: 2500,
     availableThicknesses: [0.8, 1.0, 1.2, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0],
     kerfWidthMm: 0.15,
-    availableFinishes: ['none', 'deburr', 'powder_coat', 'zinc_plate', 'black_oxide', 'sand_blasting'],
+    availableFinishes: [
+      'none',
+      'deburr',
+      'powder_coat',
+      'zinc_plate',
+      'black_oxide',
+      'sand_blasting',
+    ],
     hardnessFactor: 1.0,
     isActive: true,
   },
@@ -66,8 +80,15 @@ export const MATERIAL_CATALOG: readonly Material[] = [
     sheetWidthMm: 1220,
     sheetHeightMm: 2440,
     availableThicknesses: [0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0],
-    kerfWidthMm: 0.10,
-    availableFinishes: ['none', 'deburr', 'anodize_clear', 'anodize_color', 'powder_coat', 'sand_blasting'],
+    kerfWidthMm: 0.1,
+    availableFinishes: [
+      'none',
+      'deburr',
+      'anodize_clear',
+      'anodize_color',
+      'powder_coat',
+      'sand_blasting',
+    ],
     hardnessFactor: 0.7,
     isActive: true,
   },
@@ -82,8 +103,15 @@ export const MATERIAL_CATALOG: readonly Material[] = [
     sheetWidthMm: 1220,
     sheetHeightMm: 2440,
     availableThicknesses: [0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0],
-    kerfWidthMm: 0.10,
-    availableFinishes: ['none', 'deburr', 'anodize_clear', 'anodize_color', 'powder_coat', 'sand_blasting'],
+    kerfWidthMm: 0.1,
+    availableFinishes: [
+      'none',
+      'deburr',
+      'anodize_clear',
+      'anodize_color',
+      'powder_coat',
+      'sand_blasting',
+    ],
     hardnessFactor: 0.65,
     isActive: true,
   },
@@ -146,7 +174,7 @@ export const MATERIAL_CATALOG: readonly Material[] = [
     sheetWidthMm: 1250,
     sheetHeightMm: 2500,
     availableThicknesses: [3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0],
-    kerfWidthMm: 0.20,
+    kerfWidthMm: 0.2,
     availableFinishes: ['none', 'deburr', 'zinc_plate', 'black_oxide', 'chrome_plate'],
     hardnessFactor: 1.6,
     isActive: true,
@@ -155,26 +183,81 @@ export const MATERIAL_CATALOG: readonly Material[] = [
 
 /** Finish rate card */
 export const FINISH_RATES: Record<FinishType, FinishRate> = {
-  none:           { type: 'none',           label: 'Raw / As Cut',      costPerMm2: 0,        minCost: 0 },
-  deburr:         { type: 'deburr',         label: 'Deburr',            costPerMm2: 0.0006,   minCost: 150 },
-  anodize_clear:  { type: 'anodize_clear',  label: 'Anodize (Clear)',   costPerMm2: 0.0035,   minCost: 500 },
-  anodize_color:  { type: 'anodize_color',  label: 'Anodize (Color)',   costPerMm2: 0.0048,   minCost: 750 },
-  powder_coat:    { type: 'powder_coat',    label: 'Powder Coating',    costPerMm2: 0.0030,   minCost: 800 },
-  zinc_plate:     { type: 'zinc_plate',     label: 'Zinc Plating',      costPerMm2: 0.0022,   minCost: 400 },
-  chrome_plate:   { type: 'chrome_plate',   label: 'Chrome Plating',    costPerMm2: 0.0065,   minCost: 1200 },
-  nickel_plate:   { type: 'nickel_plate',   label: 'Nickel Plating',    costPerMm2: 0.0055,   minCost: 1000 },
-  black_oxide:    { type: 'black_oxide',    label: 'Black Oxide',       costPerMm2: 0.0018,   minCost: 300 },
-  mirror_polish:  { type: 'mirror_polish',  label: 'Mirror Polish',     costPerMm2: 0.0070,   minCost: 600 },
-  sand_blasting:  { type: 'sand_blasting',  label: 'Sand Blasting',     costPerMm2: 0.0012,   minCost: 200 },
+  none: { type: 'none', label: 'Raw / As Cut', costPerMm2: 0, minCost: 0 },
+  deburr: { type: 'deburr', label: 'Deburr', costPerMm2: 0.0006, minCost: 150 },
+  anodize_clear: {
+    type: 'anodize_clear',
+    label: 'Anodize (Clear)',
+    costPerMm2: 0.0035,
+    minCost: 500,
+  },
+  anodize_color: {
+    type: 'anodize_color',
+    label: 'Anodize (Color)',
+    costPerMm2: 0.0048,
+    minCost: 750,
+  },
+  powder_coat: { type: 'powder_coat', label: 'Powder Coating', costPerMm2: 0.003, minCost: 800 },
+  zinc_plate: { type: 'zinc_plate', label: 'Zinc Plating', costPerMm2: 0.0022, minCost: 400 },
+  chrome_plate: {
+    type: 'chrome_plate',
+    label: 'Chrome Plating',
+    costPerMm2: 0.0065,
+    minCost: 1200,
+  },
+  nickel_plate: {
+    type: 'nickel_plate',
+    label: 'Nickel Plating',
+    costPerMm2: 0.0055,
+    minCost: 1000,
+  },
+  black_oxide: { type: 'black_oxide', label: 'Black Oxide', costPerMm2: 0.0018, minCost: 300 },
+  mirror_polish: { type: 'mirror_polish', label: 'Mirror Polish', costPerMm2: 0.007, minCost: 600 },
+  sand_blasting: {
+    type: 'sand_blasting',
+    label: 'Sand Blasting',
+    costPerMm2: 0.0012,
+    minCost: 200,
+  },
 };
 
 /** Turnaround options */
 export const TURNAROUND_OPTIONS: readonly TurnaroundOption[] = [
-  { type: 'economy_7d',  label: 'Economy (7 days)',  days: 7, multiplier: 0.82, description: '18% discount — frees up capacity' },
-  { type: 'standard_3d', label: 'Standard (3 days)', days: 3, multiplier: 1.00, description: 'Baseline turnaround' },
-  { type: 'express_2d',  label: 'Express (2 days)',  days: 2, multiplier: 1.35, description: '+35% rush fee' },
-  { type: 'rush_1d',     label: 'Rush (1 day)',      days: 1, multiplier: 1.75, description: '+75% rush fee' },
-  { type: 'same_day',    label: 'Same Day',          days: 0, multiplier: 2.40, description: '+140% — subject to capacity' },
+  {
+    type: 'economy_7d',
+    label: 'Economy (7 days)',
+    days: 7,
+    multiplier: 0.82,
+    description: '18% discount — frees up capacity',
+  },
+  {
+    type: 'standard_3d',
+    label: 'Standard (3 days)',
+    days: 3,
+    multiplier: 1.0,
+    description: 'Baseline turnaround',
+  },
+  {
+    type: 'express_2d',
+    label: 'Express (2 days)',
+    days: 2,
+    multiplier: 1.35,
+    description: '+35% rush fee',
+  },
+  {
+    type: 'rush_1d',
+    label: 'Rush (1 day)',
+    days: 1,
+    multiplier: 1.75,
+    description: '+75% rush fee',
+  },
+  {
+    type: 'same_day',
+    label: 'Same Day',
+    days: 0,
+    multiplier: 2.4,
+    description: '+140% — subject to capacity',
+  },
 ];
 
 /** Default machine (fiber laser) */

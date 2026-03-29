@@ -24,20 +24,14 @@ const DesignRequirementExtractorInputSchema = z.object({
     .describe('Any additional notes or specifications provided by the user.')
     .optional(),
 });
-export type DesignRequirementExtractorInput = z.infer<
-  typeof DesignRequirementExtractorInputSchema
->;
+export type DesignRequirementExtractorInput = z.infer<typeof DesignRequirementExtractorInputSchema>;
 
 const DesignRequirementExtractorOutputSchema = z.object({
-  materialGrades: z
-    .array(z.string())
-    .describe('A list of identified material grades.'),
+  materialGrades: z.array(z.string()).describe('A list of identified material grades.'),
   tolerances: z
     .array(z.string())
     .describe('A list of identified specific tolerances (e.g., +/- 0.05mm, ISO 2768-mK).'),
-  specialInstructions: z
-    .string()
-    .describe('Any special instructions for manufacturing.'),
+  specialInstructions: z.string().describe('Any special instructions for manufacturing.'),
   identifiedRequirements: z
     .string()
     .describe('A general summary of all key manufacturing requirements identified.'),

@@ -26,7 +26,7 @@ export function ServiceHero({
   operationalStatus,
   statusLabel,
   icon: Icon,
-  badge
+  badge,
 }: ServiceHeroProps) {
   return (
     <section className="relative min-h-[60vh] lg:h-[90vh] flex items-center py-10 lg:py-0 overflow-hidden bg-slate-950">
@@ -34,8 +34,9 @@ export function ServiceHero({
       <div
         className="absolute inset-0 z-0 opacity-20"
         style={{
-          backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px), linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
-          backgroundSize: '20px 20px, 100px 100px, 100px 100px'
+          backgroundImage:
+            'radial-gradient(#ffffff 1px, transparent 1px), linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
+          backgroundSize: '20px 20px, 100px 100px, 100px 100px',
         }}
       />
 
@@ -68,7 +69,10 @@ export function ServiceHero({
 
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <Link href="/login?redirect=/dashboard">
-                <Button size="lg" className="w-full sm:w-auto px-8 h-14 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-base gap-2 shadow-2xl transition-all hover:scale-105 active:scale-95">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto px-8 h-14 bg-white hover:bg-slate-100 text-[#2F5FA7] rounded-full font-black text-base gap-2 shadow-2xl transition-all hover:scale-105 active:scale-95"
+                >
                   Get a Quote <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -88,8 +92,12 @@ export function ServiceHero({
                 <div className="bg-white/95 backdrop-blur-md px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-4">
                   <div className="w-3 h-3 rounded-full bg-blue-600 animate-pulse" />
                   <div>
-                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#2F5FA7] leading-none mb-1">{statusLabel}</p>
-                    <p className="text-sm md:text-base font-bold text-slate-900 leading-none">{operationalStatus}</p>
+                    <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#2F5FA7] leading-none mb-1">
+                      {statusLabel}
+                    </p>
+                    <p className="text-sm md:text-base font-bold text-slate-900 leading-none">
+                      {operationalStatus}
+                    </p>
                   </div>
                 </div>
               </div>

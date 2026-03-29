@@ -1,15 +1,31 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import {
+  useUser,
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+} from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ManufacturingService, SecondaryProcess, ColorOption, MechanicalPart } from '@/types/project';
+import {
+  ManufacturingService,
+  SecondaryProcess,
+  ColorOption,
+  MechanicalPart,
+} from '@/types/project';
 import { ServiceSelection } from './ServiceSelection';
 import { FileUploadStep } from './FileUploadStep';
 import { MaterialSelection } from './MaterialSelection';
@@ -26,7 +42,7 @@ import {
   Hash,
   X,
   Plus,
-  Loader2
+  Loader2,
 } from 'lucide-react';
 
 type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
@@ -50,7 +66,7 @@ export function PartCreationWizard({
   isOpen,
   onClose,
   projectId,
-  onPartCreated
+  onPartCreated,
 }: PartCreationWizardProps) {
   const { user } = useUser();
   const db = useFirestore();
@@ -62,14 +78,23 @@ export function PartCreationWizard({
   // Form state
   const [partName, setPartName] = useState('');
   const [selectedService, setSelectedService] = useState<ManufacturingService | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<{ fileName: string; fileUrl: string; fileSize: number } | null>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState<{ id: string; name: string; grade: string; thickness?: number } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{
+    fileName: string;
+    fileUrl: string;
+    fileSize: number;
+  } | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<{
+    id: string;
+    name: string;
+    grade: string;
+    thickness?: number;
+  } | null>(null);
   const [secondaryProcesses, setSecondaryProcesses] = useState<SecondaryProcess[]>([]);
   const [coatingColor, setCoatingColor] = useState<ColorOption | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [discountTier, setDiscountTier] = useState<string | null>(null);
 
-  const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
+  const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   const canProceed = () => {
     switch (currentStep) {
@@ -82,8 +107,8 @@ export function PartCreationWizard({
       case 'secondary':
         // Secondary processes are optional
         // But if any selected process requires color, a color must be chosen
-        const needsColor = secondaryProcesses.some(pid =>
-          (SECONDARY_PROCESSES as any[]).find(p => p.id === pid)?.requiresColor
+        const needsColor = secondaryProcesses.some(
+          (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
         );
         if (needsColor) {
           return coatingColor !== null;
@@ -101,7 +126,7 @@ export function PartCreationWizard({
 
     // Skip secondary process step if no processes are applicable for the service
     if (STEPS[nextIndex]?.id === 'secondary' && selectedService) {
-      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter(p =>
+      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter((p) =>
         p.applicableServices.includes(selectedService)
       );
       if (applicableProcesses.length === 0) {
@@ -119,7 +144,7 @@ export function PartCreationWizard({
 
     // Skip secondary process step if it was skipped during 'Next'
     if (STEPS[prevIndex]?.id === 'secondary' && selectedService) {
-      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter(p =>
+      const applicableProcesses = (SECONDARY_PROCESSES as any[]).filter((p) =>
         p.applicableServices.includes(selectedService)
       );
       if (applicableProcesses.length === 0) {
@@ -133,13 +158,13 @@ export function PartCreationWizard({
   };
 
   const handleSecondaryProcessToggle = (process: SecondaryProcess) => {
-    setSecondaryProcesses(prev => {
+    setSecondaryProcesses((prev) => {
       if (prev.includes(process)) {
         // Remove process
-        const updated = prev.filter(p => p !== process);
+        const updated = prev.filter((p) => p !== process);
         // If removing a color-requiring process, and no other color-requiring process remains, clear color
-        const remainingNeedsColor = updated.some(pid =>
-          (SECONDARY_PROCESSES as any[]).find(p => p.id === pid)?.requiresColor
+        const remainingNeedsColor = updated.some(
+          (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
         );
         if (!remainingNeedsColor) {
           setCoatingColor(null);
@@ -186,22 +211,16 @@ export function PartCreationWizard({
         updatedAt: new Date().toISOString(),
       };
 
-      const partRef = await addDocumentNonBlocking(
-        collection(db, 'projectParts'),
-        partData
-      );
+      const partRef = await addDocumentNonBlocking(collection(db, 'projectParts'), partData);
 
       if (!partRef) {
         throw new Error('No part reference returned from database');
       }
 
       // Update project with the new part
-      await updateDocumentNonBlocking(
-        doc(db, 'projectRFQs', projectId),
-        {
-          updatedAt: new Date().toISOString(),
-        }
-      );
+      await updateDocumentNonBlocking(doc(db, 'projectRFQs', projectId), {
+        updatedAt: new Date().toISOString(),
+      });
 
       const newPart: MechanicalPart = {
         id: partRef.id,
@@ -332,23 +351,21 @@ export function PartCreationWizard({
           {STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center gap-2 flex-1">
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold transition-all ${index < currentStepIndex
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                  : index === currentStepIndex
-                    ? 'bg-[#2F5FA7] text-white'
-                    : 'bg-slate-100 text-slate-400'
-                  }`}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold transition-all ${
+                  index < currentStepIndex
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                    : index === currentStepIndex
+                      ? 'bg-[#2F5FA7] text-white'
+                      : 'bg-slate-100 text-slate-400'
+                }`}
               >
-                {index < currentStepIndex ? (
-                  <CheckCircle className="w-4 h-4" />
-                ) : (
-                  step.icon
-                )}
+                {index < currentStepIndex ? <CheckCircle className="w-4 h-4" /> : step.icon}
               </div>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`h-1 flex-1 rounded-full transition-all ${index < currentStepIndex ? 'bg-emerald-200' : 'bg-slate-100'
-                    }`}
+                  className={`h-1 flex-1 rounded-full transition-all ${
+                    index < currentStepIndex ? 'bg-emerald-200' : 'bg-slate-100'
+                  }`}
                 />
               )}
             </div>
@@ -356,9 +373,7 @@ export function PartCreationWizard({
         </div>
 
         {/* Step Content */}
-        <div className="py-4 overflow-y-auto max-h-[calc(90vh-280px)]">
-          {renderStepContent()}
-        </div>
+        <div className="py-4 overflow-y-auto max-h-[calc(90vh-280px)]">{renderStepContent()}</div>
 
         {/* Navigation */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-100">

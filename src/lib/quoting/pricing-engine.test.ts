@@ -26,10 +26,10 @@ const mockGeometry: ParsedGeometry = {
 describe('Pricing Engine', () => {
   it('should calculate a valid quote for standard aluminum', () => {
     const result = generateQuote(
-      'al_6061',  // Material ID
-      2.0,         // Thickness
-      'none',      // Finish
-      1,           // Quantity
+      'al_6061', // Material ID
+      2.0, // Thickness
+      'none', // Finish
+      1, // Quantity
       'standard_3d', // Turnaround
       mockGeometry
     );
@@ -73,14 +73,14 @@ describe('Pricing Engine', () => {
   it('should flag blocking DFM issues for oversized parts', () => {
     const hugeGeometry = {
       ...mockGeometry,
-      boundingBox: { widthMm: 5000, heightMm: 5000, aspectRatio: 1 }
+      boundingBox: { widthMm: 5000, heightMm: 5000, aspectRatio: 1 },
     };
 
     const result = generateQuote('al_6061', 2.0, 'none', 1, 'standard_3d', hugeGeometry);
 
     if (result.success) {
       expect(result.data.hasBlockingIssues).toBe(true);
-      expect(result.data.dfmIssues.some(i => i.blocking)).toBe(true);
+      expect(result.data.dfmIssues.some((i) => i.blocking)).toBe(true);
     } else {
       throw new Error('Quote generation failed');
     }

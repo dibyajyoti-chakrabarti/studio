@@ -5,8 +5,13 @@
 // ═══════════════════════════════════════════════════
 
 import type {
-  Material, Machine, ParsedGeometry, FinishType,
-  TurnaroundType, QuoteResult, QuoteBreakdown,
+  Material,
+  Machine,
+  ParsedGeometry,
+  FinishType,
+  TurnaroundType,
+  QuoteResult,
+  QuoteBreakdown,
 } from '@/types/quoting';
 import { type Result, ok, err } from '@/utils/result';
 import { AppError, ErrorCode } from '@/utils/errors';
@@ -100,10 +105,7 @@ export function calcCutCost(
 /**
  * Setup cost per part. Fixed per job, amortized by quantity.
  */
-export function calcSetupCost(
-  quantity: number,
-  complexityScore: number
-): number {
+export function calcSetupCost(quantity: number, complexityScore: number): number {
   let setupTotal = BASE_SETUP_COST_INR;
 
   if (complexityScore > 5) {
@@ -134,7 +136,7 @@ export function calcFinishCost(
 
   // Batch discounts for finishing
   if (quantity >= 50) {
-    costPerPart *= 0.70;
+    costPerPart *= 0.7;
   } else if (quantity >= 10) {
     costPerPart *= 0.82;
   }
@@ -183,32 +185,38 @@ export function generateQuote(
   // ── Validate material exists ──
   const material = getMaterialById(materialId);
   if (!material) {
-    return err(new AppError({
-      code: ErrorCode.INVALID_MATERIAL,
-      message: `Material not found: ${materialId}`,
-      statusCode: 400,
-      context: { materialId },
-    }));
+    return err(
+      new AppError({
+        code: ErrorCode.INVALID_MATERIAL,
+        message: `Material not found: ${materialId}`,
+        statusCode: 400,
+        context: { materialId },
+      })
+    );
   }
 
   // ── Validate thickness ──
   if (!material.availableThicknesses.includes(thicknessMm)) {
-    return err(new AppError({
-      code: ErrorCode.INVALID_THICKNESS,
-      message: `Thickness ${thicknessMm}mm not available for ${material.name}`,
-      statusCode: 400,
-      context: { materialId, thicknessMm, available: material.availableThicknesses },
-    }));
+    return err(
+      new AppError({
+        code: ErrorCode.INVALID_THICKNESS,
+        message: `Thickness ${thicknessMm}mm not available for ${material.name}`,
+        statusCode: 400,
+        context: { materialId, thicknessMm, available: material.availableThicknesses },
+      })
+    );
   }
 
   // ── Validate finish ──
   if (!material.availableFinishes.includes(finishType)) {
-    return err(new AppError({
-      code: ErrorCode.INVALID_FINISH,
-      message: `Finish "${finishType}" not available for ${material.name}`,
-      statusCode: 400,
-      context: { materialId, finishType, available: material.availableFinishes },
-    }));
+    return err(
+      new AppError({
+        code: ErrorCode.INVALID_FINISH,
+        message: `Finish "${finishType}" not available for ${material.name}`,
+        statusCode: 400,
+        context: { materialId, finishType, available: material.availableFinishes },
+      })
+    );
   }
 
   // ── Run DFM checks ──

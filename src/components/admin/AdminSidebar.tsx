@@ -8,7 +8,7 @@ import {
   User as UserIcon,
   Factory,
   MessageCircleQuestion,
-  MessageSquare
+  MessageSquare,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -36,23 +36,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   setActiveTab,
 }) => {
   return (
-    <aside className={`
+    <aside
+      className={`
       border-r border-slate-200 bg-card flex flex-col p-3 space-y-1.5 transition-all duration-200 ease-in-out shrink-0 z-40
       fixed md:relative top-16 md:top-0 bottom-0 left-0
       ${sidebarOpen ? 'w-56 translate-x-0' : 'w-[60px] -translate-x-full md:translate-x-0'}
-    `}>
-      {sidebarItems.map(item => (
+    `}
+    >
+      {sidebarItems.map((item) => (
         <Button
           key={item.key}
           variant={activeTab === item.key ? 'secondary' : 'ghost'}
           className={`gap-3 transition-all duration-200 ${
-            activeTab === item.key 
-              ? 'text-[#1E3A66] bg-slate-100' 
+            activeTab === item.key
+              ? 'text-[#1E3A66] bg-slate-100'
               : 'text-slate-600 hover:text-[#1E3A66] hover:bg-slate-50'
           } ${sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'}`}
-          onClick={() => { 
-            setActiveTab(item.key); 
-            if (window.innerWidth < 768) setSidebarOpen(false); 
+          onClick={() => {
+            setActiveTab(item.key);
+            if (window.innerWidth < 768) setSidebarOpen(false);
           }}
           title={item.label}
         >

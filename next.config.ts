@@ -25,10 +25,10 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "instasize.com",
-        port: "",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'instasize.com',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',

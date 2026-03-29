@@ -27,34 +27,38 @@ const testMachine = LASER_MACHINE;
 describe('DFM Check Engine', () => {
   it('should pass for a simple 100x100mm square', () => {
     const issues = runDFMChecks(baseGeometry, testMaterial, 2.0, testMachine);
-    expect(issues.some(i => i.blocking)).toBe(false);
+    expect(issues.some((i) => i.blocking)).toBe(false);
   });
 
   it('should fail for extremely small features (e.g. 0.1mm)', () => {
     const badGeometry = { ...baseGeometry, minFeatureSizeMm: 0.1 };
     const issues = runDFMChecks(badGeometry, testMaterial, 2.0, testMachine);
-    expect(issues.some(i => i.message.includes('feature size') || i.message.includes('Feature size'))).toBe(true);
+    expect(
+      issues.some((i) => i.message.includes('feature size') || i.message.includes('Feature size'))
+    ).toBe(true);
   });
 
   it('should fail for parts larger than sheet size (e.g. >3000mm)', () => {
     const hugeGeometry = {
       ...baseGeometry,
-      boundingBox: { widthMm: 4000, heightMm: 1000, aspectRatio: 4 }
+      boundingBox: { widthMm: 4000, heightMm: 1000, aspectRatio: 4 },
     };
     const issues = runDFMChecks(hugeGeometry, testMaterial, 2.0, testMachine);
-    expect(issues.some(i => i.message.includes('exceeds'))).toBe(true);
+    expect(issues.some((i) => i.message.includes('exceeds'))).toBe(true);
   });
 
   it('should warn for open paths in DXF/STEP', () => {
     const openGeometry = { ...baseGeometry, hasOpenPaths: true };
     const issues = runDFMChecks(openGeometry, testMaterial, 2.0, testMachine);
-    expect(issues.some(i => i.message.includes('geometry') || i.message.includes('paths'))).toBe(true);
-    expect(issues.find(i => i.blocking)?.blocking).toBe(true);
+    expect(issues.some((i) => i.message.includes('geometry') || i.message.includes('paths'))).toBe(
+      true
+    );
+    expect(issues.find((i) => i.blocking)?.blocking).toBe(true);
   });
 
   it('should flag issues for thin slots', () => {
     const thinSlotGeometry = { ...baseGeometry, minSlotWidthMm: 0.4 };
     const issues = runDFMChecks(thinSlotGeometry, testMaterial, 2.0, testMachine);
-    expect(issues.some(i => i.message.includes('Slot width'))).toBe(true);
+    expect(issues.some((i) => i.message.includes('Slot width'))).toBe(true);
   });
 });

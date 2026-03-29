@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       token,
       expiresAt: expiresAt.toISOString(),
       createdAt: new Date().toISOString(),
-      used: false
+      used: false,
     });
 
     // 3. Send email using Resend
@@ -110,25 +110,24 @@ export async function POST(req: Request) {
           </div>
         </body>
         </html>
-      `
+      `,
     });
 
     if (error) {
       logger.error({
         event: 'email_send_failed',
         error: error.message,
-        email
+        email,
       });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Verification email sent' });
-
   } catch (error: any) {
     logger.error({
       event: 'verification_email_process_failed',
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

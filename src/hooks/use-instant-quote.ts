@@ -7,13 +7,20 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type {
-  FinishType, TurnaroundType, ParsedGeometry,
-  QuoteResult, QuantityTier, DFMIssue,
+  FinishType,
+  TurnaroundType,
+  ParsedGeometry,
+  QuoteResult,
+  QuantityTier,
+  DFMIssue,
 } from '@/types/quoting';
 import { generateQuote } from '@/lib/quoting/pricing-engine';
 import {
-  getActiveMaterials, getAvailableThicknesses,
-  getAvailableFinishes, getFinishRate, TURNAROUND_OPTIONS,
+  getActiveMaterials,
+  getAvailableThicknesses,
+  getAvailableFinishes,
+  getFinishRate,
+  TURNAROUND_OPTIONS,
 } from '@/lib/quoting/materials';
 import { getVisualTierTable, getSavingsPercent } from '@/lib/quoting/quantity-tiers';
 import { isOk } from '@/utils/result';
@@ -77,10 +84,11 @@ export function useInstantQuote(geometry: ParsedGeometry | null): UseInstantQuot
   );
 
   const availableFinishes = useMemo(
-    () => getAvailableFinishes(state.materialId).map((f) => ({
-      type: f,
-      label: getFinishRate(f).label,
-    })),
+    () =>
+      getAvailableFinishes(state.materialId).map((f) => ({
+        type: f,
+        label: getFinishRate(f).label,
+      })),
     [state.materialId]
   );
 
@@ -157,14 +165,12 @@ export function useInstantQuote(geometry: ParsedGeometry | null): UseInstantQuot
   const tierPricing = useMemo(() => {
     if (!quoteResult) return [];
     // Base price = single unit price without quantity discount
-    const singleUnitPrice = quoteResult.pricePerPart / (quoteResult.breakdown.quantityMultiplier || 1);
+    const singleUnitPrice =
+      quoteResult.pricePerPart / (quoteResult.breakdown.quantityMultiplier || 1);
     return getVisualTierTable(singleUnitPrice);
   }, [quoteResult]);
 
-  const savingsPercent = useMemo(
-    () => getSavingsPercent(state.quantity),
-    [state.quantity]
-  );
+  const savingsPercent = useMemo(() => getSavingsPercent(state.quantity), [state.quantity]);
 
   return {
     state,

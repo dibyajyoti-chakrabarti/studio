@@ -78,10 +78,7 @@ export class AppError extends Error {
 }
 
 /** Factory for common errors */
-export function validationError(
-  message: string,
-  context?: Record<string, unknown>
-): AppError {
+export function validationError(message: string, context?: Record<string, unknown>): AppError {
   return new AppError({
     code: ErrorCode.VALIDATION_FAILED,
     message,
@@ -90,10 +87,7 @@ export function validationError(
   });
 }
 
-export function notFoundError(
-  resource: string,
-  id: string
-): AppError {
+export function notFoundError(resource: string, id: string): AppError {
   return new AppError({
     code: ErrorCode.NOT_FOUND,
     message: `${resource} not found: ${id}`,
@@ -102,10 +96,7 @@ export function notFoundError(
   });
 }
 
-export function internalError(
-  message: string,
-  cause?: Error
-): AppError {
+export function internalError(message: string, cause?: Error): AppError {
   return new AppError({
     code: ErrorCode.INTERNAL_ERROR,
     message,

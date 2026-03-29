@@ -12,7 +12,7 @@ export const AdminController = {
    */
   async authorizeAdmin(req: NextRequest) {
     const { adminAuth, adminFirestore } = getFirebaseAdmin();
-    
+
     if (!adminAuth || !adminFirestore) {
       throw new Error('Firebase services not initialized');
     }
@@ -25,7 +25,7 @@ export const AdminController = {
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const userDoc = await adminFirestore.collection('users').doc(decodedToken.uid).get();
-    
+
     if (userDoc.data()?.role !== 'admin') {
       return { authorized: false, status: 403, message: 'Forbidden' };
     }
@@ -37,7 +37,7 @@ export const AdminController = {
    * Purges a product and all its associated cloud assets.
    */
   async deleteProduct(req: NextRequest) {
-    let currentProductId = "unknown";
+    let currentProductId = 'unknown';
     try {
       const auth = await this.authorizeAdmin(req);
       if (!auth.authorized) {
@@ -56,17 +56,20 @@ export const AdminController = {
 
       return NextResponse.json({
         success: true,
-        message: 'Product and assets purged successfully'
+        message: 'Product and assets purged successfully',
       });
     } catch (error: any) {
       logger.error({
         event: 'API: Product purge failed',
         error: error.message,
-        productId: currentProductId
+        productId: currentProductId,
       });
-      return NextResponse.json({ 
-        error: error.message || 'Internal Server Error' 
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: error.message || 'Internal Server Error',
+        },
+        { status: 500 }
+      );
     }
   },
 
@@ -85,7 +88,7 @@ export const AdminController = {
       const productId = formData.get('productId') as string;
       const productName = formData.get('productName') as string;
       const sku = formData.get('sku') as string;
-      const type = formData.get('type') as string || 'main';
+      const type = (formData.get('type') as string) || 'main';
 
       if (!file || !productId || !productName || !sku) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -93,21 +96,24 @@ export const AdminController = {
 
       const buffer = Buffer.from(await file.arrayBuffer());
       const mediaService = new MediaService(auth.adminFirestore!);
-      
+
       const result = await mediaService.processAndUploadProductImage(buffer, {
         productId,
         productName,
         sku,
-        type
+        type,
       });
 
       return NextResponse.json({
         success: true,
-        image: result
+        image: result,
       });
     } catch (error: any) {
       logger.error({ event: 'API: Product image upload failed', error: error.message });
-      return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message || 'Internal Server Error' },
+        { status: 500 }
+      );
     }
   },
 
@@ -133,7 +139,10 @@ export const AdminController = {
       return NextResponse.json({ success: true });
     } catch (error: any) {
       logger.error({ event: 'API: Product image deletion failed', error: error.message });
-      return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message || 'Internal Server Error' },
+        { status: 500 }
+      );
     }
-  }
+  },
 };

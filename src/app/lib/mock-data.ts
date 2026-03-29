@@ -18,7 +18,7 @@ export const MOCK_VENDORS: Vendor[] = [
     location: 'Pune, Maharashtra',
     description: 'Specialists in high-precision aerospace components with ISO 9001 certification.',
     active: true,
-    image: 'https://picsum.photos/seed/pune-mech/400/300'
+    image: 'https://picsum.photos/seed/pune-mech/400/300',
   },
   {
     id: 'v2',
@@ -26,9 +26,10 @@ export const MOCK_VENDORS: Vendor[] = [
     rating: 4.5,
     services: ['Welding & Fabrication', 'Sheet Metal'],
     location: 'Chennai, Tamil Nadu',
-    description: 'Expert sheet metal works and heavy industrial fabrication for automotive sectors.',
+    description:
+      'Expert sheet metal works and heavy industrial fabrication for automotive sectors.',
     active: true,
-    image: 'https://picsum.photos/seed/bharat-fab/400/300'
+    image: 'https://picsum.photos/seed/bharat-fab/400/300',
   },
   {
     id: 'v3',
@@ -36,9 +37,10 @@ export const MOCK_VENDORS: Vendor[] = [
     rating: 4.9,
     services: ['Prototype Manufacturing', '3D Printing'],
     location: 'Gurugram, Haryana',
-    description: 'Fast-track prototyping for startups and R&D divisions using multi-material options.',
+    description:
+      'Fast-track prototyping for startups and R&D divisions using multi-material options.',
     active: true,
-    image: 'https://picsum.photos/seed/delhi-proto/400/300'
+    image: 'https://picsum.photos/seed/delhi-proto/400/300',
   },
   {
     id: 'v4',
@@ -46,9 +48,10 @@ export const MOCK_VENDORS: Vendor[] = [
     rating: 4.2,
     services: ['CNC Milling/Turning', 'Small Batch Production'],
     location: 'Bengaluru, Karnataka',
-    description: 'Quality small batch manufacturing with rapid turnaround times for engineering tools.',
+    description:
+      'Quality small batch manufacturing with rapid turnaround times for engineering tools.',
     active: true,
-    image: 'https://picsum.photos/seed/royal-hub/400/300'
+    image: 'https://picsum.photos/seed/royal-hub/400/300',
   },
   {
     id: 'v5',
@@ -58,7 +61,7 @@ export const MOCK_VENDORS: Vendor[] = [
     location: 'Ahmedabad, Gujarat',
     description: 'High-speed fiber laser cutting for complex architectural and industrial parts.',
     active: true,
-    image: 'https://picsum.photos/seed/gj-laser/400/300'
+    image: 'https://picsum.photos/seed/gj-laser/400/300',
   },
   {
     id: 'v6',
@@ -68,8 +71,8 @@ export const MOCK_VENDORS: Vendor[] = [
     location: 'Hyderabad, Telangana',
     description: 'End-to-end mechanical solutions from design review to final surface treatment.',
     active: true,
-    image: 'https://picsum.photos/seed/elite-mech/400/300'
-  }
+    image: 'https://picsum.photos/seed/elite-mech/400/300',
+  },
 ];
 
 export const MANUFACTURING_PROCESSES = [
@@ -79,7 +82,7 @@ export const MANUFACTURING_PROCESSES = [
   'Sheet Metal',
   'Prototype Manufacturing',
   'Small Batch Production',
-  '3D Printing'
+  '3D Printing',
 ];
 
 export const MATERIALS = [
@@ -91,7 +94,7 @@ export const MATERIALS = [
   'Copper',
   'Brass',
   'EN8 Steel',
-  'EN24 Steel'
+  'EN24 Steel',
 ];
 
 export const FINISHES = [
@@ -103,7 +106,7 @@ export const FINISHES = [
   'Nickel Plating',
   'Sand Blasting',
   'Mirror Polish',
-  'Black Oxide'
+  'Black Oxide',
 ];
 
 export const TOLERANCES = [
@@ -111,5 +114,5 @@ export const TOLERANCES = [
   'Medium ±0.2mm',
   'Fine ±0.1mm',
   'Precision ±0.05mm',
-  'Ultra ±0.02mm'
+  'Ultra ±0.02mm',
 ];

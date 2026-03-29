@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
@@ -39,9 +39,7 @@ export default function Home() {
   const user = useUser();
 
   // Rotating Hero Text State
-  const heroPhrases = [
-    "Custom Manufacturing \n Made Fast & Affordable"
-  ];
+  const heroPhrases = ['Custom Manufacturing \n Made Fast & Affordable'];
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [fade, setFade] = useState(true);
   const [showFAB, setShowFAB] = useState(false);
@@ -84,7 +82,7 @@ export default function Home() {
   const handleWIPClick = (e: React.MouseEvent, feature: string) => {
     e.preventDefault();
     toast({
-      title: "Coming Soon!",
+      title: 'Coming Soon!',
       description: `We're currently working on the ${feature}. Check back soon for updates!`,
     });
   };
@@ -99,7 +97,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A66] via-[#2F5FA7] to-[#1E3A66] opacity-90" />
 
         {/* Cinematic glow effects */}
-        <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full bg-blue-300/10 blur-[150px] pointer-events-none" aria-hidden="true" />
+        <div
+          className="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full bg-blue-300/10 blur-[150px] pointer-events-none"
+          aria-hidden="true"
+        />
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#1E3A66] to-transparent pointer-events-none z-10" />
 
         <div className="container mx-auto px-4 md:px-10 lg:px-30 relative z-24">
@@ -110,7 +111,8 @@ export default function Home() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
-                Built in India for Builders <img
+                Built in India for Builders{' '}
+                <img
                   src="https://flagcdn.com/in.svg"
                   alt="India Flag"
                   className="w-6 h-4 object-cover shadow-sm"
@@ -131,11 +133,16 @@ export default function Home() {
               </div>
 
               <p className="text-base md:text-lg text-white/80 max-w-xl leading-relaxed mb-10 font-medium">
-                <span className="text-cyan-300 font-bold">Upload a design</span> and get precision engineered parts delivered with transparency. Built for students, startups, and hobbyists.
+                <span className="text-cyan-300 font-bold">Upload a design</span> and get precision
+                engineered parts delivered with transparency. Built for students, startups, and
+                hobbyists.
               </p>
 
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-12 md:mb-20 w-full lg:justify-start">
-                <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto">
+                <Link
+                  href={user ? '/login' : '/login?tab=register&redirect=/dashboard'}
+                  className="w-full md:w-auto"
+                >
                   <Button
                     size="lg"
                     className="w-full md:w-auto h-16 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold bg-white hover:bg-white/90 text-[#2F5FA7] rounded-xl md:rounded-full shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
@@ -145,15 +152,12 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-
-
-
-
             </div>
-
             <div className="lg:col-span-1" /> {/* Spacer */}
-
-            <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center animate-in fade-in slide-in-from-right-12 duration-1000 fill-mode-both" style={{ animationDelay: '400ms' }}>
+            <div
+              className="hidden lg:flex lg:col-span-6 relative items-center justify-center animate-in fade-in slide-in-from-right-12 duration-1000 fill-mode-both"
+              style={{ animationDelay: '400ms' }}
+            >
               <div className="relative w-full  max-w-[1000px] h-[500px] group">
                 {/* Cinematic Card with Large Rounding */}
                 <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] transition-all duration-700 group-hover:shadow-[0_60px_120px_rgba(0,0,0,0.7)]">
@@ -171,7 +175,9 @@ export default function Home() {
                   <div className="absolute bottom-12 left-10 right-10 space-y-8">
                     <div className="space-y-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-700 delay-100">
                       <h2 className="text-white text-4xl font-black tracking-tight leading-[0.9] drop-shadow-2xl bottom-20">
-                        AUTOMATED<br />MANUFACTURING
+                        AUTOMATED
+                        <br />
+                        MANUFACTURING
                       </h2>
                       <p className="text-white/60 text-[10px] font-bold uppercase tracking-[0.4em] ml-1">
                         Precision Engineered Parts Delivered with Transparency
@@ -190,7 +196,10 @@ export default function Home() {
 
         <div className="marquee-container mt-auto relative z-20">
           <div className="flex animate-marquee gap-3 md:gap-6 items-center py-4 md:py-6">
-            {[1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2, 1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2].map((i, idx) => (
+            {[
+              1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 4, 2, 1, 2, 3, 4, 5, 2, 3, 4, 5, 1, 2, 3, 4,
+              5, 4, 2,
+            ].map((i, idx) => (
               <div
                 key={`part-1-${idx}`}
                 className="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl md:rounded-[24px] border border-white/10 flex items-center justify-center group duration-500 relative overflow-hidden bg-white shadow-lg"
@@ -215,8 +224,12 @@ export default function Home() {
             animation: marquee 40s linear infinite;
           }
           @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
           }
           .animate-marquee:hover {
             animation-play-state: paused;
@@ -230,7 +243,11 @@ export default function Home() {
           Explore Operations
         </span>
         <div className="relative z-10 animate-bounce">
-          <LaserArrow size={32} color="#0d7cbcff" className="drop-shadow-[0_0_15px_rgba(13,124,188,0.5)]" />
+          <LaserArrow
+            size={32}
+            color="#0d7cbcff"
+            className="drop-shadow-[0_0_15px_rgba(13,124,188,0.5)]"
+          />
         </div>
       </div>
 
@@ -241,12 +258,15 @@ export default function Home() {
         <div className="absolute inset-0 blueprint-grid opacity-[0.03]" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#2F5FA7] mb-4">THE PROCESS</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#2F5FA7] mb-4">
+              THE PROCESS
+            </p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-6">
               How It Works
             </h2>
             <p className="text-[#64748B] max-w-xl mx-auto text-sm md:text-base font-medium px-4 text-balance">
-              From design file to finished part. A streamlined process built for speed, quality, and full transparency.
+              From design file to finished part. A streamlined process built for speed, quality, and
+              full transparency.
             </p>
           </div>
 
@@ -256,19 +276,27 @@ export default function Home() {
             <div className="flex flex-col lg:grid lg:grid-cols-4 gap-12 lg:gap-8 relative z-10">
               {[
                 {
-                  num: '01', icon: Settings, title: 'Choose options',
-                  desc: 'Select manufacturing process, material additional manufacturing option.'
+                  num: '01',
+                  icon: Settings,
+                  title: 'Choose options',
+                  desc: 'Select manufacturing process, material additional manufacturing option.',
                 },
                 {
-                  num: '02', icon: Upload, title: 'Upload your design',
+                  num: '02',
+                  icon: Upload,
+                  title: 'Upload your design',
                   desc: 'Upload your STEP files through our secure portal.',
                 },
                 {
-                  num: '03', icon: Zap, title: 'Get quotation',
+                  num: '03',
+                  icon: Zap,
+                  title: 'Get quotation',
                   desc: 'Receive an instant or rapid quote based on your specifications.',
                 },
                 {
-                  num: '04', icon: Package, title: 'Receive your parts',
+                  num: '04',
+                  icon: Package,
+                  title: 'Receive your parts',
                   desc: 'We manufacture and deliver your parts directly to your door.',
                 },
               ].map((step, i) => (
@@ -282,7 +310,9 @@ export default function Home() {
                       <step.icon className="w-6 h-6 md:w-7 md:h-7 text-[#2F5FA7]" />
                     </div>
                     <div className="absolute -top-2 -right-2 w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#1E3A66] flex items-center justify-center shadow-md">
-                      <span className="text-[9px] md:text-[10px] font-bold text-white font-mono">{step.num}</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-white font-mono">
+                        {step.num}
+                      </span>
                     </div>
                   </div>
                   <div className="flex-1 pt-2 lg:pt-0">
@@ -301,9 +331,14 @@ export default function Home() {
           <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6 p-6 md:p-8 rounded-3xl border border-blue-50 bg-[#E8F1FF]/50 max-w-3xl mx-auto shadow-sm">
             <div className="flex-1 text-center md:text-left">
               <p className="text-[#1E3A66] font-bold text-lg mb-1">Ready to get your parts made?</p>
-              <p className="text-[#64748B] text-sm font-medium">Upload your design and get a quote in minutes.</p>
+              <p className="text-[#64748B] text-sm font-medium">
+                Upload your design and get a quote in minutes.
+              </p>
             </div>
-            <Link href={user ? "/login" : "/login?tab=register&redirect=/dashboard"} className="w-full md:w-auto shrink-0">
+            <Link
+              href={user ? '/login' : '/login?tab=register&redirect=/dashboard'}
+              className="w-full md:w-auto shrink-0"
+            >
               <Button className="w-full md:w-auto h-12 px-8 text-sm font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-lg transition-all">
                 Upload Your Design <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -324,7 +359,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-50/40 via-transparent to-transparent opacity-70" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h2 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-slate-500 mb-3">Designed For</h2>
+            <h2 className="text-[11px] md:text-[13px] font-black uppercase tracking-[0.5em] text-slate-500 mb-3">
+              Designed For
+            </h2>
             <div className="h-0.5 w-10 bg-blue-600/30 mx-auto rounded-full" />
           </div>
 
@@ -344,8 +381,12 @@ export default function Home() {
                   <item.icon className="w-6 h-6 md:w-8 md:h-8 text-[#2F5FA7] transition-all duration-500" />
                 </div>
                 <div className="text-center">
-                  <h3 className="block text-sm md:text-xl font-bold text-slate-900 mb-2">{item.label}</h3>
-                  <p className="block text-[9px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">{item.desc}</p>
+                  <h3 className="block text-sm md:text-xl font-bold text-slate-900 mb-2">
+                    {item.label}
+                  </h3>
+                  <p className="block text-[9px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -360,12 +401,15 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2F5FA7]/5 rounded-full blur-3xl -z-10" />
             <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               <div className="order-1 lg:order-1 text-center lg:text-left">
-                <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em] text-[#2F5FA7] mb-6">EXPERT SUPPORT</p>
+                <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em] text-[#2F5FA7] mb-6">
+                  EXPERT SUPPORT
+                </p>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#0F172A] mb-6 lg:mb-8 leading-tight lg:leading-[1.15]">
                   Need Expert <br className="hidden md:block" /> Manufacturing Guidance?
                 </h2>
                 <p className="text-[#64748B] text-sm md:text-lg leading-relaxed mb-8 md:mb-10 font-medium max-w-lg mx-auto lg:mx-0">
-                  Get your design reviewed, value-engineered, or fully optimised by our in-house experts, before a single chip is cut.
+                  Get your design reviewed, value-engineered, or fully optimised by our in-house
+                  experts, before a single chip is cut.
                 </p>
 
                 <div className="lg:hidden w-full mb-10 order-2">
@@ -379,7 +423,9 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/40 via-transparent to-transparent" />
                     <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] animate-pulse" />
-                      <span className="text-[10px] font-bold text-[#1E3A66] uppercase tracking-wide">Expert Available</span>
+                      <span className="text-[10px] font-bold text-[#1E3A66] uppercase tracking-wide">
+                        Expert Available
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -391,11 +437,16 @@ export default function Home() {
                     { icon: ClipboardCheck, label: 'DFM Analysis' },
                     { icon: MessageSquare, label: 'Full Design Support' },
                   ].map((item) => (
-                    <div key={item.label} className="flex flex-col md:flex-row items-center md:items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md cursor-default">
+                    <div
+                      key={item.label}
+                      className="flex flex-col md:flex-row items-center md:items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md cursor-default"
+                    >
                       <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                         <item.icon className="w-4 h-4 md:w-5 md:h-5 text-[#2F5FA7]" />
                       </div>
-                      <p className="text-[10px] md:text-sm font-bold text-[#1E3A66] text-center md:text-left">{item.label}</p>
+                      <p className="text-[10px] md:text-sm font-bold text-[#1E3A66] text-center md:text-left">
+                        {item.label}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -403,7 +454,11 @@ export default function Home() {
                 <div className="order-4 lg:order-3">
                   <Button
                     size="lg"
-                    onClick={() => router.push(user ? '/consultation' : '/login?tab=register&redirect=/consultation')}
+                    onClick={() =>
+                      router.push(
+                        user ? '/consultation' : '/login?tab=register&redirect=/consultation'
+                      )
+                    }
                     className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-sm md:text-base font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white rounded-full shadow-xl transition-all"
                   >
                     Book a Free Consultation <ArrowRight className="ml-2 w-4 h-4" />
@@ -424,7 +479,9 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/60 via-transparent to-transparent" />
                 <div className="absolute bottom-8 left-8 flex items-center gap-3 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#2F5FA7] animate-pulse" />
-                  <span className="text-xs font-bold text-[#1E3A66] uppercase tracking-wide">Expert Sessions Available</span>
+                  <span className="text-xs font-bold text-[#1E3A66] uppercase tracking-wide">
+                    Expert Sessions Available
+                  </span>
                 </div>
               </div>
             </div>

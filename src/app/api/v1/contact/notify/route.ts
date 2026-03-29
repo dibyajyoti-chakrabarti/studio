@@ -1,55 +1,55 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { Resend } from "resend";
-import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { Resend } from 'resend';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
-    if (!resendInstance) {
-        resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
-    }
-    return resendInstance;
+  if (!resendInstance) {
+    resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
+  }
+  return resendInstance;
 };
 
 const NOTIFICATION_EMAILS = [
-    'outreach@mechhub.in',
-    'divyanshu.work914124@gmail.com',
-    'ujjwal.roverx@gmail.com',
+  'outreach@mechhub.in',
+  'divyanshu.work914124@gmail.com',
+  'ujjwal.roverx@gmail.com',
 ];
 
 const NotifySchema = z.object({
-    firstName: z.string().min(1).max(100),
-    lastName: z.string().min(1).max(100),
-    email: z.string().email(),
-    phone: z.string().max(20).optional().default(''),
-    company: z.string().max(200).optional().default(''),
-    message: z.string().min(1).max(5000),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  email: z.string().email(),
+  phone: z.string().max(20).optional().default(''),
+  company: z.string().max(200).optional().default(''),
+  message: z.string().min(1).max(5000),
 });
 
 export async function POST(request: Request) {
-    try {
-        const ip = request.headers.get('x-forwarded-for') || 'anonymous';
-        const limiter = await rateLimit(`contact-notify:${ip}`, 5, 60000);
-        if (!limiter.success) {
-            return rateLimitResponse(limiter.reset);
-        }
+  try {
+    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`contact-notify:${ip}`, 5, 60000);
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
 
-        const body = await request.json();
-        const result = NotifySchema.safeParse(body);
+    const body = await request.json();
+    const result = NotifySchema.safeParse(body);
 
-        if (!result.success) {
-            return NextResponse.json({ error: "Invalid data" }, { status: 400 });
-        }
+    if (!result.success) {
+      return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+    }
 
-        const data = result.data;
-        const resend = getResend();
-        const fullName = `${data.firstName} ${data.lastName}`;
+    const data = result.data;
+    const resend = getResend();
+    const fullName = `${data.firstName} ${data.lastName}`;
 
-        const { error } = await resend.emails.send({
-            from: 'MechHub <outreach@mechhub.in>',
-            to: NOTIFICATION_EMAILS,
-            subject: `New Contact Query from ${fullName}`,
-            html: `
+    const { error } = await resend.emails.send({
+      from: 'MechHub <outreach@mechhub.in>',
+      to: NOTIFICATION_EMAILS,
+      subject: `New Contact Query from ${fullName}`,
+      html: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -99,17 +99,16 @@ export async function POST(request: Request) {
 </body>
 </html>
             `,
-        });
+    });
 
-        if (error) {
-            console.error('Resend email error:', error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true });
-
-    } catch (error: any) {
-        console.error("Contact notification error:", error);
-        return NextResponse.json({ error: "Email notification failed" }, { status: 500 });
+    if (error) {
+      console.error('Resend email error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Contact notification error:', error);
+    return NextResponse.json({ error: 'Email notification failed' }, { status: 500 });
+  }
 }
