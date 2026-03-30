@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 // --- DATA & RATE CARDS ---
 const MATERIALS = {
@@ -127,6 +128,7 @@ const LOADING_MESSAGES = [
 
 // --- MAIN COMPONENT ---
 export default function QuoteEngine() {
+  const { toast } = useToast();
   const [step, setStep] = useState<1 | 2 | 3 | 'loading'>(1);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
@@ -290,15 +292,27 @@ export default function QuoteEngine() {
     const hasWeight = wt > 0;
 
     if (!hasDimensions && !hasWeight) {
-      alert('Please provide either Bounding Box Dimensions or a Weight estimate.');
+      toast({
+        title: 'Missing dimensions',
+        description: 'Please provide either Bounding Box dimensions or a weight estimate.',
+        variant: 'destructive',
+      });
       return;
     }
     if (l > 3000 || w > 3000 || h > 3000) {
-      alert('Maximum dimension is 3000mm. Contact us for larger parts.');
+      toast({
+        title: 'Dimension too large',
+        description: 'Maximum dimension is 3000mm. Contact us for larger parts.',
+        variant: 'destructive',
+      });
       return;
     }
     if (quantity < 1 || quantity > 10000) {
-      alert('Quantity must be between 1 and 10,000 pieces.');
+      toast({
+        title: 'Invalid quantity',
+        description: 'Quantity must be between 1 and 10,000 pieces.',
+        variant: 'destructive',
+      });
       return;
     }
 

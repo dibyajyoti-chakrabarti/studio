@@ -18,6 +18,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   useUser,
   useFirestore,
   useCollection,
@@ -156,6 +166,8 @@ function UserDashboardContent() {
   const [negPrice, setNegPrice] = useState('');
   const [negLeadTime, setNegLeadTime] = useState('');
   const [negMessage, setNegMessage] = useState('');
+  const [pendingRejectQuote, setPendingRejectQuote] = useState<any>(null);
+  const [pendingDeleteProject, setPendingDeleteProject] = useState<ProjectRFQ | null>(null);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('projects');
 
@@ -432,8 +444,7 @@ function UserDashboardContent() {
   };
 
   const handleRejectQuotation = (quotation: any) => {
-    if (!db || !selectedOrder || !confirm('Are you sure you want to reject this quotation?'))
-      return;
+    if (!db || !selectedOrder) return;
 
     updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), {
       status: 'rejected',
@@ -484,14 +495,6 @@ function UserDashboardContent() {
         description: 'Projects with requested quotations cannot be removed.',
         variant: 'destructive',
       });
-      return;
-    }
-
-    if (
-      !confirm(
-        `Are you sure you want to delete "${rfq.projectName}"? This will also remove all associated parts and design files. This action cannot be undone.`
-      )
-    ) {
       return;
     }
 
@@ -968,7 +971,7 @@ function UserDashboardContent() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                            onClick={() => handleDeleteProject(selectedOrder)}
+                            onClick={() => setPendingDeleteProject(selectedOrder)}
                             title="Delete Project"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1136,7 +1139,7 @@ function UserDashboardContent() {
                                           <Button
                                             variant="destructive"
                                             className="flex-1 tracking-widest h-11 text-[10px] uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all shadow-sm"
-                                            onClick={() => handleRejectQuotation(quote)}
+                                            onClick={() => setPendingRejectQuote(quote)}
                                           >
                                             <AlertCircle className="w-3 h-3 mr-1" /> Reject
                                           </Button>
@@ -1681,6 +1684,64 @@ function UserDashboardContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!pendingRejectQuote}
+        onOpenChange={(open) => {
+          if (!open) setPendingRejectQuote(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject Quotation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This offer will be declined and the project status will be updated.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!pendingRejectQuote) return;
+                handleRejectQuotation(pendingRejectQuote);
+                setPendingRejectQuote(null);
+              }}
+            >
+              Reject Quote
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!pendingDeleteProject}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteProject(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{pendingDeleteProject?.projectName}" and all associated
+              parts and files.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingDeleteProject) return;
+                await handleDeleteProject(pendingDeleteProject);
+                setPendingDeleteProject(null);
+              }}
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <CreateProjectModal
         isOpen={isCreateProjectOpen}
         onClose={() => setIsCreateProjectOpen(false)}
@@ -1700,4 +1761,3 @@ export default function UserDashboardPage() {
     </Suspense>
   );
 }
-

@@ -32,6 +32,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   ClipboardList,
   Send,
   Eye,
@@ -155,6 +165,12 @@ export default function AdminPanel() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [pendingAssignVendor, setPendingAssignVendor] = useState<{
+    rfqId: string;
+    vendorId: string;
+  } | null>(null);
+  const [pendingImageDelete, setPendingImageDelete] = useState<any>(null);
+  const [pendingProductDeleteId, setPendingProductDeleteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const productImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -441,7 +457,7 @@ export default function AdminPanel() {
   };
 
   const handleAssignVendor = (rfqId: string, vendorId: string) => {
-    if (!db || !confirm('Assign this project to this vendor and finalize negotiations?')) return;
+    if (!db) return;
     updateDocumentNonBlocking(doc(db, 'projectRFQs', rfqId), {
       assignedVendorId: vendorId,
       status: 'assigned',
@@ -771,7 +787,7 @@ export default function AdminPanel() {
   };
 
   const handleProductImageDelete = async (image: any) => {
-    if (!selectedProduct || !confirm('Erase this asset from cloud storage and repository?')) return;
+    if (!selectedProduct) return;
 
     try {
       const idToken = await auth.currentUser?.getIdToken();
@@ -811,13 +827,6 @@ export default function AdminPanel() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (
-      !confirm(
-        'Permanently archive this product from the marketplace? This will also purge all cloud assets.'
-      )
-    )
-      return;
-
     setIsDeletingProduct(productId);
     try {
       const idToken = await auth.currentUser?.getIdToken();
@@ -961,7 +970,7 @@ export default function AdminPanel() {
                 setSelectedProduct(prod);
                 setShowProductModal(true);
               }}
-              onDeleteProduct={handleDeleteProduct}
+              onDeleteProduct={(id) => setPendingProductDeleteId(id)}
             />
           )}
 
@@ -1581,7 +1590,12 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 className="flex-1 font-semibold gap-1.5 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
-                                onClick={() => handleAssignVendor(selectedRfq.id, quote.vendorId)}
+                                onClick={() =>
+                                  setPendingAssignVendor({
+                                    rfqId: selectedRfq.id,
+                                    vendorId: quote.vendorId,
+                                  })
+                                }
                               >
                                 <UserCheck className="w-3.5 h-3.5" /> Assign
                               </Button>
@@ -2256,7 +2270,7 @@ export default function AdminPanel() {
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7 text-white hover:text-red-400"
-                              onClick={() => handleProductImageDelete(img)}
+                              onClick={() => setPendingImageDelete(img)}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -2316,6 +2330,90 @@ export default function AdminPanel() {
           </Card>
         </div>
       )}
+
+      <AlertDialog
+        open={!!pendingAssignVendor}
+        onOpenChange={(open) => {
+          if (!open) setPendingAssignVendor(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Assign Vendor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will assign the project to the selected vendor and finalize negotiation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!pendingAssignVendor) return;
+                handleAssignVendor(pendingAssignVendor.rfqId, pendingAssignVendor.vendorId);
+                setPendingAssignVendor(null);
+              }}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!pendingImageDelete}
+        onOpenChange={(open) => {
+          if (!open) setPendingImageDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Asset?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the image from cloud storage and product metadata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingImageDelete) return;
+                await handleProductImageDelete(pendingImageDelete);
+                setPendingImageDelete(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!pendingProductDeleteId}
+        onOpenChange={(open) => {
+          if (!open) setPendingProductDeleteId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently archives the product and purges all linked cloud assets.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingProductDeleteId) return;
+                await handleDeleteProduct(pendingProductDeleteId);
+                setPendingProductDeleteId(null);
+              }}
+            >
+              Delete Product
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
