@@ -4,13 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import {
   Check,
   Loader2,
-  ChevronLeft,
   Mail,
   Phone,
   MapPin,
@@ -82,20 +82,10 @@ export default function ContactPage() {
 
       <div className="relative z-10">
         <LandingNav />
-
-        {/* Back link */}
-        <div className="container mx-auto px-4 pt-24 pb-0">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-[#2F5FA7] transition-colors group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-        </div>
+        <BackToHomeBar className="pb-0" />
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 pt-10 pb-24">
+        <div className="container mx-auto px-4 pt-8 pb-20">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-12 md:mb-16">

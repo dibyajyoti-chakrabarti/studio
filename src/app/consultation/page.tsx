@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, Suspense, useEffect } from 'react';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LandingNav } from '@/components/LandingNav';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useFirestore, setDocumentNonBlocking, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Check, Loader2, FileText, ArrowRight, ChevronLeft } from 'lucide-react';
+import { Check, Loader2, FileText, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function ConsultationPageContent() {
@@ -88,7 +88,7 @@ function ConsultationPageContent() {
   }
 
   return (
-    <div className="pt-32 pb-20 px-4 container mx-auto">
+    <div className="pb-20 pt-8 px-4 container mx-auto">
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-bold text-[#1E3A66] mb-2 tracking-tight">
           Talk to a Manufacturing Expert
@@ -235,16 +235,7 @@ export default function ConsultationPage() {
 
       <div className="relative z-10">
         <LandingNav />
-
-        <div className="container mx-auto px-4 pt-24 pb-0">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-[#2F5FA7] transition-colors group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-        </div>
+        <BackToHomeBar className="pb-0" />
 
         <Suspense
           fallback={

@@ -6,17 +6,16 @@ import {
   FileType,
   CheckCircle,
   ChevronRight,
-  ChevronLeft,
   X,
   Loader2,
   Info,
   Copy,
   Check,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 
 // --- DATA & RATE CARDS ---
 const MATERIALS = {
@@ -331,7 +330,7 @@ export default function QuoteEngine() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-600 py-12 px-4 sm:px-6 lg:px-8 font-sans selection:bg-blue-500/10 selection:text-blue-600 relative">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-600 px-4 sm:px-6 lg:px-8 font-sans selection:bg-blue-500/10 selection:text-blue-600 relative">
       {/* Background Decor */}
       <div
         className="absolute inset-0 bg-white/50"
@@ -340,18 +339,10 @@ export default function QuoteEngine() {
           backgroundSize: '40px 40px',
         }}
       />
-      <div className="max-w-5xl mx-auto relative z-10">
+      <BackToHomeBar className="max-w-5xl relative z-10 pt-24 pb-2 px-0" />
+      <div className="max-w-5xl mx-auto relative z-10 pb-12">
         {/* Header & Stepper */}
         <div className="mb-12">
-          <div className="mb-8">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#2F5FA7] hover:text-[#1E3A66] transition-all group"
-            >
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              Back to Home
-            </Link>
-          </div>
           <h1 className="text-3xl md:text-5xl uppercase tracking-tight font-bold text-slate-900 mb-4">
             Budget Estimator
           </h1>

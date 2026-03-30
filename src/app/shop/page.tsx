@@ -7,7 +7,7 @@ import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
 import Fuse from 'fuse.js';
 import { useCart } from '@/context/CartContext';
-import Link from 'next/link';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 import {
   Search,
   ChevronRight,
@@ -29,7 +29,6 @@ import {
   Scale,
   X,
   History,
-  ChevronLeft,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -128,16 +127,9 @@ export default function ShopPage() {
         {/* Visual Elements: Blueprint Grid & Background Glow */}
         <div className="blueprint-grid opacity-[0.03] pointer-events-none" />
         <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-500/5 via-transparent to-transparent pointer-events-none" />
+        <BackToHomeBar className="relative z-10 pb-4 md:pb-6" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* LEFT: Messaging & Industrial Search */}
             <div className="lg:col-span-7 max-w-2xl">
