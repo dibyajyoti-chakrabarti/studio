@@ -246,10 +246,10 @@ function LoginPageContent() {
       return;
     }
 
-    const nameTrim = (fullName || '').trim();
+    const trimmedName = (fullName || '').trim();
     // Require a non-empty name that contains at least one alphabetic character
-    const hasAlphabetic = /^[A-Za-z\s]*$/.test(nameTrim);
-    if (!nameTrim || !hasAlphabetic) {
+    const validName = /^[A-Za-z\s]+$/.test(trimmedName);
+    if (!validName) {
       setLoading(false);
       toast({
         variant: 'destructive',
@@ -261,15 +261,15 @@ function LoginPageContent() {
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCred.user, { displayName: fullName });
+      await updateProfile(userCred.user, { displayName: trimmedName });
 
       await fetch('/api/v1/auth/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name: fullName, uid: userCred.user.uid }),
+        body: JSON.stringify({ email, name: trimmedName, uid: userCred.user.uid }),
       });
 
-      setVerificationState({ email, uid: userCred.user.uid, name: fullName });
+      setVerificationState({ email, uid: userCred.user.uid, name: trimmedName });
       setResendCooldown(60);
       await signOut(auth);
       setLoading(false);
