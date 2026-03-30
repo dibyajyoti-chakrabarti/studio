@@ -731,6 +731,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       toast({
         title: 'Part Deleted',
         description: 'The part has been removed from your project.',
+        variant: 'destructive'
       });
     } catch (error: any) {
       console.error('Error deleting part:', error);
