@@ -119,7 +119,19 @@ export async function POST(req: NextRequest) {
 
     // ── Step 6: Calculate the payment amount ─────────────────────────────
     // finalPrice is the agreed-upon manufacturing cost set by the admin
-    const finalPrice: number = rfq.finalPrice || 0;
+    let finalPrice: number = rfq.finalPrice || rfq.quotedPrice || 0;
+
+    if (finalPrice <= 0) {
+      // Fallback: calculate subtotal from associated parts if neither finalPrice nor quotedPrice exist
+      const partsSnap = await db.collection('projectParts').where('projectId', '==', rfqId).get();
+      let partsSubtotal = 0;
+      partsSnap.forEach(doc => {
+        const p = doc.data();
+        partsSubtotal += (p.unitCost || 0) * (p.quantity || 0);
+      });
+      finalPrice = partsSubtotal;
+    }
+
     if (finalPrice <= 0) {
       return NextResponse.json({ error: 'Invalid order amount' }, { status: 400 });
     }
