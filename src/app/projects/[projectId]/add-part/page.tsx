@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/utils';
+import { isPartNameValid } from '@/lib/validation/part-name';
 
 type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
 
@@ -112,7 +113,7 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
   const canProceed = () => {
     switch (currentStep) {
       case 'service':
-        return selectedService !== null && partName.trim() !== '';
+        return selectedService !== null && isPartNameValid(partName);
       case 'file':
         return uploadedFile !== null;
       case 'material':
@@ -176,6 +177,14 @@ export default function AddPartPage({ params }: { params: Promise<{ projectId: s
       toast({
         title: 'Error',
         description: 'Please complete all required fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!isPartNameValid(partName)) {
+      toast({
+        title: 'Invalid part name',
+        description: 'Part name must include at least one letter and cannot be only numbers.',
         variant: 'destructive',
       });
       return;

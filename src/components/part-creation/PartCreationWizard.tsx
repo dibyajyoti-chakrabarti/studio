@@ -31,6 +31,7 @@ import { FileUploadStep } from './FileUploadStep';
 import { MaterialSelection } from './MaterialSelection';
 import { SecondaryProcessSelection, SECONDARY_PROCESSES } from './SecondaryProcessSelection';
 import { QuantityStep } from './QuantityStep';
+import { isPartNameValid } from '@/lib/validation/part-name';
 
 import {
   ChevronLeft,
@@ -99,7 +100,7 @@ export function PartCreationWizard({
   const canProceed = () => {
     switch (currentStep) {
       case 'service':
-        return selectedService !== null && partName.trim() !== '';
+        return selectedService !== null && isPartNameValid(partName);
       case 'file':
         return uploadedFile !== null;
       case 'material':
@@ -182,6 +183,14 @@ export function PartCreationWizard({
       toast({
         title: 'Error',
         description: 'Please complete all required fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!isPartNameValid(partName)) {
+      toast({
+        title: 'Invalid part name',
+        description: 'Part name must include at least one letter and cannot be only numbers.',
         variant: 'destructive',
       });
       return;
