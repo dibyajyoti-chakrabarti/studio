@@ -91,7 +91,10 @@ export function useQuoteCheckout(
           throw new Error(result.error?.message || 'Failed to create order');
         }
 
-        setOrder(result.data);
+        setOrder({
+          ...result.data,
+          _serverRazorpayKey: result.razorpayKey // attaching dynamic key
+        });
         logger.info({
           event: 'Order initiated via API',
           orderId: result.data.id,

@@ -44,7 +44,10 @@ export interface ProjectFinances {
  *                    If undefined or empty, defaults to 0.
  * @returns A ProjectFinances object with all amounts calculated.
  */
-export function calculateProjectFinances(basePrice: number | string | undefined): ProjectFinances {
+export function calculateProjectFinances(
+  basePrice: number | string | undefined,
+  customShippingCost?: number
+): ProjectFinances {
   // Convert to a number safely — if basePrice is undefined, "", or NaN, default to 0
   const subtotal = Number(basePrice || 0);
 
@@ -52,7 +55,7 @@ export function calculateProjectFinances(basePrice: number | string | undefined)
   const gst = Math.round(subtotal * GST_RATE);
 
   // Step 2: Add flat shipping cost
-  const shipping = DEFAULT_SHIPPING_COST;
+  const shipping = customShippingCost !== undefined ? customShippingCost : DEFAULT_SHIPPING_COST;
 
   // Step 3: Calculate grand total (base + tax + shipping)
   const total = subtotal + gst + shipping;

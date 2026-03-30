@@ -63,7 +63,7 @@ export const CheckoutService = {
       const isAdvance = !!(projectId && advancePercentage && !isBalance);
 
       // Use unified finance logic for project-based orders
-      const finances = calculateProjectFinances(subtotal);
+      const finances = calculateProjectFinances(subtotal, shippingOption.price);
 
       const gst = finances.gst;
       const shippingCost = finances.shipping;

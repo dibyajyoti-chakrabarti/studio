@@ -636,14 +636,14 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         }),
       });
 
-      const { data: order, success, error } = await orderRes.json();
+      const { data: order, success, error, razorpayKey } = await orderRes.json();
       if (!success) {
         throw new Error(error?.message || 'Failed to create order');
       }
 
       // 2. Open Razorpay
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_5W444444444444',
+        key: razorpayKey || process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_5W444444444444',
         amount: order.total * 100,
         currency: 'INR',
         name: 'MechHub',

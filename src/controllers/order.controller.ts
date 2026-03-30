@@ -8,6 +8,7 @@ import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import { calculateProjectFinances } from '@/utils/finance';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -108,10 +109,15 @@ export const OrderController = {
       );
       const subtotal = quoteSubtotal + shopSubtotal;
 
-      const gst = Math.round(subtotal * 0.18);
-      let finalTotal = subtotal + gst + shippingOption.price;
+      const finances = calculateProjectFinances(subtotal, shippingOption.price);
+      let finalTotal = finances.total;
 
-      if (projectId && advancePercentage) {
+      if (isAdvance) {
+        finalTotal = finances.advance;
+      } else if (isBalance) {
+        finalTotal = finances.balance;
+      } else if (projectId && advancePercentage) {
+        // Fallback for custom advance percentages
         finalTotal = Math.round(finalTotal * advancePercentage);
       }
 
@@ -152,7 +158,11 @@ export const OrderController = {
 
       logger.info({ event: 'API: Order successfully created', requestId, orderId: result.data.id });
 
-      return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+      return NextResponse.json({ 
+        success: true, 
+        data: result.data,
+        razorpayKey: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY 
+      }, { status: 201 });
     } catch (e) {
       logger.error({
         event: 'API: Fatal error in OrderController.createOrder',
