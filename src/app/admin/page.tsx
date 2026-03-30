@@ -92,7 +92,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
 import { logger } from '@/utils/logger';
-import { checkIsAdmin } from '@/lib/auth-utils';
+import { checkIsAdmin, isAdmin } from '@/lib/auth-utils';
 import { getIdTokenResult } from 'firebase/auth';
 import { STATUS_OPTIONS, SPECIALIZATIONS } from '@/config/constants';
 
@@ -179,8 +179,9 @@ export default function AdminPanel() {
         const tokenResult = await getIdTokenResult(user);
         const hasAdminClaim = checkIsAdmin(tokenResult.claims);
         const profileIsAdmin = profile?.role === 'admin';
+        const emailIsAdmin = isAdmin(user?.email);
 
-        if (hasAdminClaim) {
+        if (hasAdminClaim || profileIsAdmin || emailIsAdmin) {
           setIsAdminConfirmed(true);
           // Sync profile if needed
           if (profile && profile.role !== 'admin') {
@@ -189,10 +190,6 @@ export default function AdminPanel() {
               updatedAt: new Date().toISOString(),
             });
           }
-        } else if (profileIsAdmin) {
-          // Fallback to profile but warn/handle
-          setIsAdminConfirmed(true);
-          logger.warn({ event: 'admin_fallback_to_profile', uid: user.uid });
         } else {
           setIsAdminConfirmed(false);
           toast({

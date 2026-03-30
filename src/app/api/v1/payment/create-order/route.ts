@@ -19,6 +19,7 @@ import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { calculateProjectFinances } from '@/utils/finance';
+import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
 
 // ── Initialize the Razorpay SDK with your API credentials ───────────────────
 // These keys come from your Razorpay Dashboard → Settings → API Keys
@@ -37,22 +38,29 @@ const razorpay = new Razorpay({
  *   - userId: The Firebase Auth UID of the customer making the payment
  */
 export async function POST(req: NextRequest) {
-  // Track the RFQ ID for error logging — starts as 'unknown' until we parse the body
   let currentRfqId = 'unknown';
 
   try {
-    // ── Step 1: Parse and validate the request body ─────────────────────
-    const { rfqId, paymentType, userId } = (await req.json()) as {
+    // ── Step 1: Authenticate the request ─────────────────────────────────
+    const auth = await authenticateRequest(req);
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    // ── Step 2: Parse and validate the request body ─────────────────────
+    const { rfqId, paymentType } = (await req.json()) as {
       rfqId: string;
       paymentType: 'advance' | 'completion';
-      userId: string;
     };
     currentRfqId = rfqId;
 
     // Make sure all required fields are present
-    if (!rfqId || !paymentType || !userId) {
+    if (!rfqId || !paymentType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Use authenticated userId instead of trusting request body
+    const userId = auth.uid;
 
     // ── Step 2: Fetch the project (RFQ) from Firestore ──────────────────
     // We use Firebase Admin SDK here because this runs on the server,
@@ -73,7 +81,8 @@ export async function POST(req: NextRequest) {
     // ── Step 3: Security check — make sure this user owns the project ───
     // Prevents someone from paying for (or tampering with) another user's project
     if (rfq.userId !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      logger.warn({ event: 'API: Unauthorized payment attempt', rfqId, authUid: userId, rfqOwner: rfq.userId });
+      return forbiddenResponse('You do not own this project');
     }
 
     // ── Step 4: Validate the project is in the correct status ────────────

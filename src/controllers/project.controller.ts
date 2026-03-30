@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ProjectService } from '@/services/project.service';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { logger } from '@/utils/logger';
+import { authenticateRequest } from '@/lib/auth-middleware';
 
 const DesignFileSchema = z.object({
   name: z.string().min(1).max(255),
@@ -15,7 +16,6 @@ const DesignFileSchema = z.object({
 });
 
 const RfqSchema = z.object({
-  userId: z.string().nullable(),
   userName: z.string().min(1).max(100),
   userEmail: z.string().email(),
   userPhone: z.string().max(20).optional(),
@@ -52,7 +52,10 @@ export const ProjectController = {
         return rateLimitResponse(limiter.reset);
       }
 
-      // 2. Auth & Validation
+      // 2. Authenticate the request (optional - allows anonymous submissions)
+      const auth = await authenticateRequest(request as any);
+      
+      // 3. Auth & Validation
       const body = await request.json();
       const result = RfqSchema.safeParse(body);
 
@@ -67,9 +70,18 @@ export const ProjectController = {
         );
       }
 
-      const data = result.data;
+      const data = result.data as any;
 
-      // 3. Security Checks for Files
+      // 4. Security: Set userId based on authentication status
+      // If authenticated, use the verified uid; otherwise allow anonymous (null)
+      if (auth.success) {
+        data.userId = auth.uid;
+      } else {
+        // For anonymous submissions, set userId to null
+        data.userId = null;
+      }
+
+      // 5. Security Checks for Files
       const allowedExtensions = [
         '.step',
         '.stp',
@@ -88,7 +100,7 @@ export const ProjectController = {
         }
       }
 
-      // 4. Execution via Service
+      // 6. Execution via Service
       const rfqId = await ProjectService.submitProjectRfq(data);
 
       return NextResponse.json({ success: true, rfqId });
