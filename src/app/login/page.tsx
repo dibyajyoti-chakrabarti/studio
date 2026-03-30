@@ -246,6 +246,19 @@ function LoginPageContent() {
       return;
     }
 
+    const nameTrim = (fullName || '').trim();
+    // Require a non-empty name that contains at least one alphabetic character
+    const hasAlphabetic = /^[A-Za-z\s]*$/.test(nameTrim);
+    if (!nameTrim || !hasAlphabetic) {
+      setLoading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Name',
+        description: 'Please enter your full name (must be letters).',
+      });
+      return;
+    }
+
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCred.user, { displayName: fullName });
