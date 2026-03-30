@@ -88,7 +88,7 @@ function ConsultationPageContent() {
   }
 
   return (
-    <div className="pb-20 pt-8 px-4 container mx-auto">
+    <div className="pb-20 pt-3 px-4 container mx-auto">
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-bold text-[#1E3A66] mb-2 tracking-tight">
           Talk to a Manufacturing Expert
@@ -235,7 +235,7 @@ export default function ConsultationPage() {
 
       <div className="relative z-10">
         <LandingNav />
-        <BackToHomeBar className="pb-0" />
+        <BackToHomeBar className="pt-8 pb-0" />
 
         <Suspense
           fallback={
