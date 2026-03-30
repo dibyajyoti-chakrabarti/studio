@@ -3,6 +3,7 @@ import Razorpay from 'razorpay';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { z } from 'zod';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { authenticateRequest } from '@/lib/auth-middleware';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -30,7 +31,6 @@ const CheckoutSchema = z.object({
     )
     .min(1),
   shippingAddress: AddressSchema,
-  userId: z.string().min(1),
 });
 
 export async function POST(req: NextRequest) {
@@ -42,7 +42,13 @@ export async function POST(req: NextRequest) {
       return rateLimitResponse(limiter.reset);
     }
 
-    // 2. Data Validation
+    // 2. Authenticate the request
+    const auth = await authenticateRequest(req);
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    // 3. Data Validation
     const body = await req.json();
     const result = CheckoutSchema.safeParse(body);
     if (!result.success) {
@@ -52,7 +58,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { items, shippingAddress, userId } = result.data;
+    const { items, shippingAddress } = result.data;
+
+    // Use authenticated userId instead of trusting request body
+    const userId = auth.uid;
 
     const { adminFirestore: db } = getFirebaseAdmin();
     if (!db) throw new Error('Firebase Admin not initialized');

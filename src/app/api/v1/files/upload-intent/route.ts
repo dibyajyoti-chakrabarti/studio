@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { s3Client } from '@/lib/s3-client';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { authenticateRequest } from '@/lib/auth-middleware';
 
 // ═══════════════════════════════════════════════════
 // POST /api/v1/files/upload-intent — Real S3 Presigned URL
@@ -14,13 +15,19 @@ export async function POST(request: Request) {
   logger.info({ event: 'API: POST /api/v1/files/upload-intent started', reqId });
 
   try {
+    // 1. Authenticate the request
+    const auth = await authenticateRequest(request as any);
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     const { fileName, fileSize, contentType } = await request.json();
 
     if (!fileName || !fileSize) {
       return NextResponse.json({ error: 'Missing file metadata' }, { status: 400 });
     }
 
-    // 1. Validate file extension (Security Check)
+    // 2. Validate file extension (Security Check)
     const allowedExtensions = ['.dxf', '.step', '.stp', '.stl'];
     const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
 
@@ -29,14 +36,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `File type ${ext} not allowed` }, { status: 400 });
     }
 
-    // 2. Generate unique S3 key
+    // 3. Generate unique S3 key
     const fileId = `file_${nanoid(12)}`;
     const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const key = `cad-files/${nanoid(8)}/${sanitizedName}`;
     const bucket =
       process.env.AWS_S3_CAD_BUCKET || process.env.AWS_S3_BUCKET || 'mechhub-cad-files';
 
-    // 3. Create Presigned PUT URL
+    // 4. Create Presigned PUT URL
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: key,

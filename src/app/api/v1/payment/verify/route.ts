@@ -25,6 +25,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto'; // Node.js built-in module for cryptographic operations
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
+import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
 
 /**
  * Handles POST requests to verify a completed Razorpay payment.
@@ -38,25 +39,28 @@ import { logger } from '@/utils/logger';
  *   - userId: The Firebase Auth UID of the paying customer
  */
 export async function POST(req: NextRequest) {
-  // Track the order ID for error logging
   let razorpayOrderId = 'unknown';
 
   try {
-    // ── Step 1: Parse the request body ───────────────────────────────────
+    // ── Step 1: Authenticate the request ─────────────────────────────────
+    const auth = await authenticateRequest(req);
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    // ── Step 2: Parse the request body ───────────────────────────────────
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
       rfqId,
       paymentType,
-      userId,
     } = (await req.json()) as {
       razorpay_order_id: string;
       razorpay_payment_id: string;
       razorpay_signature: string;
       rfqId: string;
       paymentType: 'advance' | 'completion';
-      userId: string;
     };
     razorpayOrderId = razorpay_order_id;
 
@@ -66,11 +70,13 @@ export async function POST(req: NextRequest) {
       !razorpay_payment_id ||
       !razorpay_signature ||
       !rfqId ||
-      !paymentType ||
-      !userId
+      !paymentType
     ) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
+
+    // Use authenticated userId instead of trusting request body
+    const userId = auth.uid;
 
     // ── Step 2: Verify the HMAC-SHA256 signature ─────────────────────────
     // HOW THIS WORKS:
@@ -85,7 +91,6 @@ export async function POST(req: NextRequest) {
 
     // Compare our calculated signature with what Razorpay sent
     if (expectedSignature !== razorpay_signature) {
-      // Signature mismatch = potential fraud or data tampering
       logger.warn({
         event: 'payment_signature_mismatch',
         orderId: razorpay_order_id,
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 });
     }
 
-    // ── Step 3: Verify that this user actually owns the project ──────────
+    // ── Step 4: Verify that this user actually owns the project ──────────
     const { adminFirestore: db } = getFirebaseAdmin();
     if (!db) throw new Error('Firebase Admin not initialized');
 
@@ -108,13 +113,14 @@ export async function POST(req: NextRequest) {
 
     // Security: make sure the person verifying the payment is the project owner
     if (rfq.userId !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      logger.warn({ event: 'API: Unauthorized payment verification', rfqId, authUid: userId, rfqOwner: rfq.userId });
+      return forbiddenResponse('You do not own this project');
     }
 
     // Record the exact time of payment for receipts and audit trail
     const paidAt = new Date().toISOString();
 
-    // ── Step 4: Update the project in Firestore ──────────────────────────
+    // ── Step 5: Update the project in Firestore ──────────────────────────
     // Build a dynamic update object based on whether this is advance or completion
     const updates: Record<string, any> = {
       // Mark this payment milestone as paid and store Razorpay references
@@ -137,7 +143,7 @@ export async function POST(req: NextRequest) {
     // Apply all updates to the project document in one batch
     await db.collection('projectRFQs').doc(rfqId).update(updates);
 
-    // ── Step 5: Create an audit record in the "payments" collection ──────
+    // ── Step 6: Create an audit record in the "payments" collection ──────
     // This is a separate record for accounting and debugging purposes.
     // Even if the project document gets modified later, this payment
     // record stays as proof of what was paid and when.
@@ -153,7 +159,7 @@ export async function POST(req: NextRequest) {
       createdAt: paidAt,
     });
 
-    // ── Step 6: Return success ───────────────────────────────────────────
+    // ── Step 7: Return success ───────────────────────────────────────────
     return NextResponse.json({ success: true, paymentType, paidAt });
   } catch (err: any) {
     // ── Error handling ───────────────────────────────────────────────────

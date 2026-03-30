@@ -67,8 +67,8 @@ service cloud.firestore {
         ))
       );
 
-      // Any authenticated user can submit an RFQ
-      allow create: if isAuthenticated();
+      // Any authenticated user can submit an RFQ, but must set their own userId
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
 
       allow update: if isAuthenticated() && (
         // Owner can update their own RFQ (e.g. edit before submission)
@@ -90,7 +90,8 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid ||
         isAdmin()
       );
-      allow create: if isAuthenticated();
+      // User must set their own userId when creating
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
         isAdmin()
@@ -106,7 +107,8 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid ||
         isAdmin()
       );
-      allow create: if isAuthenticated();
+      // User must set their own userId when creating
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
         isAdmin()
@@ -202,9 +204,8 @@ service cloud.firestore {
       // User can read and mark-as-read their own notifications
       allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid;
 
-      // Notifications are created by Cloud Functions / admin context
-      // Allow authenticated create so server actions (Next.js server side) can write
-      allow create: if isAuthenticated();
+      // Only admin can create notifications (cloud functions handle this)
+      allow create: if isAdmin();
 
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
@@ -303,8 +304,8 @@ service cloud.firestore {
       // Users can read their own orders; admin reads all
       allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
 
-      // Any authenticated user can place an order
-      allow create: if isAuthenticated();
+      // User must set their own userId when creating
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
 
       // Only admin can update order status or delete
       allow update, delete: if isAdmin();
