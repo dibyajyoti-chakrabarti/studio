@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ManufacturingService } from '@/types/project';
@@ -18,7 +19,33 @@ export function MaterialSelection({
   selectedMaterial,
   onSelect,
 }: MaterialSelectionProps) {
+  const [expandedInfoId, setExpandedInfoId] = useState<string | null>(null);
   const serviceData = MATERIAL_CATALOG[selectedService];
+
+  const MATERIAL_INFO: Record<string, string> = {
+    'al-5052':
+      'Good formability and corrosion resistance. Preferred for enclosures and bent sheet parts.',
+    'al-6061': 'Strong and lightweight. Ideal when stiffness matters more than bendability.',
+    'ms-crca': 'Cost-effective and rigid. Common for brackets, cabinets, and structural panels.',
+    'ss-304': 'Excellent corrosion resistance and clean finish. Great for industrial environments.',
+    'cf-plate': 'Very high stiffness-to-weight ratio. Used for lightweight performance components.',
+    acrylic: 'Clear, clean, and easy to laser-cut. Great for display, covers, and visual panels.',
+    mdf: 'Easy to machine for prototypes and jigs. Best for indoor non-structural use.',
+    plywood: 'Stronger than MDF for many fixtures. Good for workshop-ready mockups and panels.',
+    balsa: 'Ultra-light material for model-making and quick concept builds.',
+    pla: 'Best for fast visual prototypes. Easy to print with clean dimensional results.',
+    tpu: 'Flexible and impact-friendly. Suitable for grips, seals, and soft-contact components.',
+    abs: 'Tough engineering plastic with better heat resistance than PLA.',
+    petg: 'Balanced strength and chemical resistance, good for practical functional parts.',
+    asa: 'UV and weather resistant, suitable for outdoor 3D printed components.',
+    'al-6061-cnc':
+      'A machining-grade aluminum that balances strength, weight, and excellent machinability.',
+  };
+
+  const getMaterialInfo = (material: MaterialOption) =>
+    MATERIAL_INFO[material.id] ||
+    material.notes ||
+    `${material.name} (${material.grade}) is commonly used for industrial prototyping and production parts.`;
 
   if (!serviceData) {
     return (
@@ -53,6 +80,7 @@ export function MaterialSelection({
             <div className="grid grid-cols-1 gap-4">
               {category.materials.map((material: MaterialOption) => {
                 const isSelected = selectedMaterial?.id === material.id;
+                const isInfoOpen = expandedInfoId === material.id;
 
                 return (
                   <div key={material.id} className="space-y-3">
@@ -88,13 +116,41 @@ export function MaterialSelection({
                                   Grade: {material.grade}
                                 </p>
                               </div>
-                              {isSelected && !material.thicknesses && (
-                                <Badge className="bg-[#2F5FA7] text-white text-[8px] uppercase tracking-wider font-bold px-1.5 py-0 h-4 border-none">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Selected
-                                </Badge>
-                              )}
+                              <div className="flex items-center gap-2">
+                                {isSelected && !material.thicknesses && (
+                                  <Badge className="bg-[#2F5FA7] text-white text-[8px] uppercase tracking-wider font-bold px-1.5 py-0 h-4 border-none">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Selected
+                                  </Badge>
+                                )}
+                                <button
+                                  type="button"
+                                  aria-label={`More info about ${material.name}`}
+                                  className={`h-7 w-7 rounded-md border flex items-center justify-center transition-colors ${
+                                    isInfoOpen
+                                      ? 'bg-blue-50 border-blue-200 text-[#2F5FA7]'
+                                      : 'bg-white border-slate-200 text-slate-500 hover:border-blue-200 hover:text-[#2F5FA7]'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setExpandedInfoId((prev) =>
+                                      prev === material.id ? null : material.id
+                                    );
+                                  }}
+                                >
+                                  <Info className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
+
+                            {isInfoOpen && (
+                              <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2.5">
+                                <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
+                                  {getMaterialInfo(material)}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
