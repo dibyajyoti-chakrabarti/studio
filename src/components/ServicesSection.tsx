@@ -87,7 +87,7 @@ export function ServicesSection() {
               Production-ready services for prototypes and scale.
             </h2>
             <Link
-              href="/materials"
+              href="/#materials"
               className="inline-flex items-center gap-2 text-sm font-bold text-sky-200 hover:text-white transition-colors"
             >
               Explore Materials

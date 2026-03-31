@@ -35,7 +35,7 @@ import { doc } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 
 const NAV_LINKS = [
-  { href: '/materials', label: 'Materials' },
+  { href: '/#materials', label: 'Materials' },
   { href: '/shop', label: 'Shop' },
   { href: '/dashboard', label: 'Dashboard' },
 ];
@@ -306,7 +306,7 @@ export function LandingNav() {
             <div className="flex flex-col gap-1 px-1">
               {[
                 { label: 'Services', href: '/#services', icon: Settings },
-                { label: 'Materials', href: '/materials', icon: Layers },
+                { label: 'Materials', href: '/#materials', icon: Layers },
                 { label: 'Shop', href: '/shop', icon: ShoppingCart },
               ].map((link) => (
                 <Link
