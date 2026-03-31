@@ -146,6 +146,9 @@ const SERVICE_ICONS: Record<ManufacturingService, any> = {
   cnc_turning: RotateCcw,
 };
 
+const DASHBOARD_TABS = ['projects', 'designs', 'shop_orders'] as const;
+type DashboardTab = (typeof DASHBOARD_TABS)[number];
+
 function UserDashboardContent() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState(false);
@@ -169,14 +172,31 @@ function UserDashboardContent() {
   const [pendingRejectQuote, setPendingRejectQuote] = useState<any>(null);
   const [pendingDeleteProject, setPendingDeleteProject] = useState<ProjectRFQ | null>(null);
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState('projects');
+  const [activeTab, setActiveTab] = useState<DashboardTab>('projects');
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['projects', 'designs', 'shop_orders', 'profile'].includes(tab)) {
-      setActiveTab(tab);
+    if (tab === 'profile') {
+      router.replace('/profile');
+      return;
     }
-  }, [searchParams]);
+    if (tab && DASHBOARD_TABS.includes(tab as DashboardTab)) {
+      setActiveTab(tab as DashboardTab);
+    }
+  }, [searchParams, router]);
+
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (currentTab === activeTab) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', activeTab);
+    router.replace(`/dashboard?${params.toString()}`, { scroll: false });
+  }, [activeTab, router, searchParams]);
+
+  const handleDashboardTabChange = (value: string) => {
+    if (!DASHBOARD_TABS.includes(value as DashboardTab)) return;
+    setActiveTab(value as DashboardTab);
+  };
 
   const userProfileRef = useMemoFirebase(
     () => (user && db ? doc(db, 'users', user.uid) : null),
@@ -597,7 +617,11 @@ function UserDashboardContent() {
             className="lg:col-span-7 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
             style={{ animationDelay: '200ms' }}
           >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs
+              value={activeTab}
+              onValueChange={handleDashboardTabChange}
+              className="space-y-6"
+            >
               <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
                 <TabsTrigger
                   value="projects"
@@ -616,12 +640,6 @@ function UserDashboardContent() {
                   className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0"
                 >
                   Shop Orders
-                </TabsTrigger>
-                <TabsTrigger
-                  value="profile"
-                  className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0"
-                >
-                  Settings
                 </TabsTrigger>
               </TabsList>
 
@@ -896,54 +914,6 @@ function UserDashboardContent() {
                   ))}
               </TabsContent>
 
-              <TabsContent value="profile" className="space-y-6">
-                <Card className="bg-white border-slate-200 shadow-xl overflow-hidden">
-                  <CardHeader className="border-b border-slate-50 pb-5">
-                    <CardTitle className="text-xl uppercase tracking-wide text-slate-900">
-                      Profile Details
-                    </CardTitle>
-                    <CardDescription className="text-xs uppercase tracking-widest font-bold text-slate-500 mt-1">
-                      Information used for your RFQ submissions
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6 pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">
-                          Full Name
-                        </Label>
-                        <p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">
-                          {profile?.fullName}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">
-                          Email Address
-                        </Label>
-                        <p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">
-                          {profile?.email || user.email}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">
-                          Phone Number
-                        </Label>
-                        <p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm font-consolas">
-                          {profile?.phone}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] uppercase text-[#2F5FA7] font-bold tracking-widest">
-                          Organization
-                        </Label>
-                        <p className="font-bold text-sm uppercase tracking-wider text-slate-900 bg-slate-50 border border-slate-100 rounded-lg p-3 shadow-sm">
-                          {profile?.teamName}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
             </Tabs>
           </div>
 
