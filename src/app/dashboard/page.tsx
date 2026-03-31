@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -148,6 +148,26 @@ const SERVICE_ICONS: Record<ManufacturingService, any> = {
 
 const DASHBOARD_TABS = ['projects', 'designs', 'shop_orders'] as const;
 type DashboardTab = (typeof DASHBOARD_TABS)[number];
+const BADGE_BASE_CLASS =
+  'rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm';
+
+function getStatusBadgeTone(status: string | undefined) {
+  if (!status) return 'border-slate-200 bg-slate-50 text-slate-600';
+  if (status === 'draft') return 'border-slate-200 bg-slate-50 text-slate-600';
+  if (status === 'quotation_sent' || status === 'accepted' || status === 'completed') {
+    return 'border-emerald-100 bg-emerald-50 text-emerald-700';
+  }
+  if (status === 'quote_requested' || status === 'in_production' || status === 'assigned') {
+    return 'border-blue-100 bg-blue-50 text-[#2F5FA7]';
+  }
+  if (status === 'negotiation' || status === 'deposit_pending') {
+    return 'border-amber-100 bg-amber-50 text-amber-700';
+  }
+  if (status === 'shipping' || status === 'shipped' || status === 'delivered') {
+    return 'border-indigo-100 bg-indigo-50 text-indigo-700';
+  }
+  return 'border-slate-200 bg-slate-50 text-slate-600';
+}
 
 function UserDashboardContent() {
   const { user, isUserLoading } = useUser();
@@ -173,6 +193,8 @@ function UserDashboardContent() {
   const [pendingDeleteProject, setPendingDeleteProject] = useState<ProjectRFQ | null>(null);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<DashboardTab>('projects');
+  const hasResolvedInitialTab = useRef(false);
+  const syncingFromUrl = useRef(false);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -181,11 +203,20 @@ function UserDashboardContent() {
       return;
     }
     if (tab && DASHBOARD_TABS.includes(tab as DashboardTab)) {
-      setActiveTab(tab as DashboardTab);
+      if (tab !== activeTab) {
+        syncingFromUrl.current = true;
+        setActiveTab(tab as DashboardTab);
+      }
     }
+    hasResolvedInitialTab.current = true;
   }, [searchParams, router]);
 
   useEffect(() => {
+    if (!hasResolvedInitialTab.current) return;
+    if (syncingFromUrl.current) {
+      syncingFromUrl.current = false;
+      return;
+    }
     const currentTab = searchParams.get('tab');
     if (currentTab === activeTab) return;
     const params = new URLSearchParams(searchParams.toString());
@@ -552,17 +583,9 @@ function UserDashboardContent() {
     );
 
   return (
-    <div className="min-h-screen pt-24 pb-12 bg-[#F8FAFC] font-sans text-slate-600 relative selection:bg-blue-500/10 selection:text-blue-600">
-      {/* Background Decor */}
-      <div
-        className="absolute inset-0 bg-white/50"
-        style={{
-          backgroundImage: 'radial-gradient(#2F5FA710 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
+    <div className="min-h-screen pt-2 pb-12 bg-[#F6F8FC] font-sans text-slate-600 selection:bg-blue-500/10 selection:text-blue-600">
       <LandingNav />
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4">
         {isAdminConfirmed && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-700 gap-4">
             <div className="flex items-center gap-3">
@@ -584,12 +607,12 @@ function UserDashboardContent() {
             </Button>
           </div>
         )}
-        <div className="flex flex-col md:flex-row md:items-start justify-between mb-10 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h1 className="text-3xl font-bold tracking-tight uppercase text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
               Project Hub
             </h1>
-            <p className="text-slate-500 mt-2 text-xs font-bold uppercase tracking-widest">
+            <p className="text-slate-500 mt-2 text-sm tracking-[0.04em]">
               Manage your manufacturing pipeline
             </p>
           </div>
@@ -598,13 +621,13 @@ function UserDashboardContent() {
             style={{ animationDelay: '100ms' }}
           >
             <Button
-              className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm transition-all"
+              className="h-11 px-6 text-sm font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm transition-all rounded-xl"
               onClick={() => router.push('/consultation')}
             >
               <PhoneCall className="w-4 h-4 mr-2 text-[#2F5FA7]" /> Book Free Consultation
             </Button>
             <Button
-              className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
+              className="h-11 px-6 text-sm font-semibold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-sm transition-all border-none rounded-xl"
               onClick={() => setIsCreateProjectOpen(true)}
             >
               <Plus className="w-4 h-4 mr-2" /> Start New Design
@@ -622,22 +645,22 @@ function UserDashboardContent() {
               onValueChange={handleDashboardTabChange}
               className="space-y-6"
             >
-              <TabsList className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
+              <TabsList className="bg-white border border-slate-200 p-2 rounded-2xl shadow-sm min-h-[64px] w-full flex overflow-x-auto no-scrollbar justify-start md:justify-center">
                 <TabsTrigger
                   value="projects"
-                  className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0"
+                  className="px-5 py-3 rounded-xl transition-all border border-transparent text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:border-[#2F5FA7] data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] shrink-0"
                 >
                   Project RFQs
                 </TabsTrigger>
                 <TabsTrigger
                   value="designs"
-                  className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0"
+                  className="px-5 py-3 rounded-xl transition-all border border-transparent text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:border-[#2F5FA7] data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] shrink-0"
                 >
                   Designs
                 </TabsTrigger>
                 <TabsTrigger
                   value="shop_orders"
-                  className="px-6 data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] data-[state=active]:shadow-sm rounded-lg transition-all font-bold tracking-widest uppercase text-[10px] shrink-0"
+                  className="px-5 py-3 rounded-xl transition-all border border-transparent text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 data-[state=active]:border-[#2F5FA7] data-[state=active]:bg-blue-50 data-[state=active]:text-[#2F5FA7] shrink-0"
                 >
                   Shop Orders
                 </TabsTrigger>
@@ -681,10 +704,10 @@ function UserDashboardContent() {
                     return (
                       <Card
                         key={order.id}
-                        className={`cursor-pointer transition-all duration-300 ${selectedOrderId === order.id ? 'bg-white border-[#2F5FA7] shadow-[0_10px_30px_rgba(47,95,167,0.15)] ring-1 ring-[#2F5FA7]/20 scale-[1.02] -translate-y-1' : 'bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50'} overflow-hidden relative group`}
+                        className={`cursor-pointer transition-all duration-200 ${selectedOrderId === order.id ? 'bg-white border-[#2F5FA7]/40 shadow-[0_14px_32px_rgba(47,95,167,0.14)] ring-1 ring-[#2F5FA7]/20 -translate-y-0.5' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-white hover:shadow-md hover:-translate-y-0.5'} overflow-hidden relative group`}
                         onClick={() => router.push(`/projects/${order.id}`)}
                       >
-                        <CardContent className="p-5 flex items-center justify-between">
+                        <CardContent className="p-6 flex items-center justify-between">
                           <div className="flex items-center gap-5">
                             <div
                               className={`w-12 h-12 rounded-xl flex items-center justify-center ${statusInfo.color.split(' ')[0]} bg-opacity-10 border ${statusInfo.color.split(' ').slice(-1)[0]} shadow-sm`}
@@ -692,10 +715,10 @@ function UserDashboardContent() {
                               <StatusIcon className="w-5 h-5" />
                             </div>
                             <div>
-                              <p className="font-bold text-slate-900 uppercase tracking-wide text-sm group-hover:text-[#2F5FA7] transition-colors">
+                              <p className="font-bold text-slate-900 tracking-tight text-base group-hover:text-[#2F5FA7] transition-colors">
                                 {order.projectName || 'Untitled Design'}
                               </p>
-                              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-3 mt-1.5 border-t border-slate-50 pt-1.5">
+                              <div className="text-[11px] text-slate-500 flex items-center gap-3 mt-2">
                                 <span className="flex items-center gap-1.5">
                                   <Clock className="w-3 h-3 text-[#2F5FA7]/70" />{' '}
                                   <span className="font-consolas pt-0.5">
@@ -704,7 +727,7 @@ function UserDashboardContent() {
                                 </span>
                                 <Badge
                                   variant="outline"
-                                  className={`border ${statusInfo.color} font-bold text-[8px] uppercase tracking-widest px-2 py-0 h-5 shadow-sm`}
+                                  className={`${BADGE_BASE_CLASS} ${getStatusBadgeTone(order.status)}`}
                                 >
                                   {statusInfo.label}
                                 </Badge>
@@ -712,15 +735,15 @@ function UserDashboardContent() {
                             </div>
                           </div>
                           <div className="text-right hidden sm:block">
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+                            <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 leading-none mb-1.5">
                               Status Summary
                             </p>
-                            <p className="text-[10px] font-bold text-slate-700 uppercase">
+                            <p className="text-xs font-semibold text-slate-700">
                               {mainMaterial} • {totalQty} PCS
                             </p>
                           </div>
                           <ChevronRight
-                            className={`w-5 h-5 transition-transform duration-300 ${selectedOrderId === order.id ? 'text-[#2F5FA7] translate-x-1' : 'text-slate-300 group-hover:text-[#2F5FA7]/50'}`}
+                            className={`w-4 h-4 transition-transform duration-200 ${selectedOrderId === order.id ? 'text-[#2F5FA7] translate-x-0.5' : 'text-slate-400 group-hover:text-[#2F5FA7]'}`}
                           />
                         </CardContent>
                       </Card>
@@ -865,23 +888,23 @@ function UserDashboardContent() {
                   (completedShopOrders as any[]).map((order: any) => (
                     <Card
                       key={order.id}
-                      className="bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50 transition-all overflow-hidden relative group cursor-pointer shadow-sm"
+                      className="bg-white border-slate-200 hover:border-slate-300 hover:bg-white transition-all duration-200 overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
                       onClick={() => router.push(`/orders/${order.id}`)}
                     >
-                      <CardContent className="p-5 flex items-center justify-between">
+                      <CardContent className="p-6 flex items-center justify-between">
                         <div className="flex items-center gap-5">
                           <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 border border-blue-100 shadow-sm">
                             <Package className="w-5 h-5 text-[#2F5FA7]" />
                           </div>
                           <div>
-                            <p className="font-bold text-slate-900 uppercase tracking-wide text-sm truncate max-w-[200px]">
+                            <p className="font-bold text-slate-900 tracking-tight text-base truncate max-w-[240px]">
                               {(order.items?.length || 0) + (order.shopItems?.length || 0)}{' '}
                               {(order.items?.length || 0) + (order.shopItems?.length || 0) === 1
                                 ? 'Component'
                                 : 'Components'}{' '}
                               Procured
                             </p>
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-3 mt-1.5 border-t border-slate-50 pt-1.5">
+                            <div className="text-[11px] text-slate-500 flex items-center gap-3 mt-2">
                               <span className="flex items-center gap-1.5">
                                 <Clock className="w-3 h-3 text-[#2F5FA7]/70" />{' '}
                                 <span className="font-consolas">
@@ -892,7 +915,7 @@ function UserDashboardContent() {
                               </span>
                               <Badge
                                 variant="outline"
-                                className={`border-none ${order.status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-orange-700'} font-bold text-[8px] uppercase tracking-widest px-2 py-0 h-5 shadow-sm`}
+                                className={`${BADGE_BASE_CLASS} ${order.status === 'paid' ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-amber-100 bg-amber-50 text-amber-700'}`}
                               >
                                 {order.status === 'paid'
                                   ? 'TXN SECURED'
@@ -907,7 +930,7 @@ function UserDashboardContent() {
                               ₹{(order.pricing?.total || 0).toLocaleString()}
                             </p>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-[#2F5FA7]/50 transition-transform group-hover:translate-x-1" />
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#2F5FA7] transition-transform group-hover:translate-x-0.5" />
                         </div>
                       </CardContent>
                     </Card>
@@ -923,16 +946,16 @@ function UserDashboardContent() {
                 className="space-y-6 sticky top-28 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                 style={{ animationDelay: '300ms' }}
               >
-                <Card className="bg-white border-slate-200 shadow-2xl overflow-hidden">
-                  <CardHeader className="border-b border-slate-50 pb-5">
+                <Card className="bg-white border-slate-200 shadow-sm overflow-hidden rounded-2xl">
+                  <CardHeader className="border-b border-slate-100 px-6 pt-6 pb-5">
                     <div className="flex justify-between items-start mb-3">
-                      <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold px-2.5 py-1 shadow-sm">
+                      <Badge className={`${BADGE_BASE_CLASS} border-blue-100 bg-blue-50 text-[#2F5FA7]`}>
                         {SERVICE_DISPLAY_NAMES[selectedOrderParts[0]?.service] || 'PROJECT'}
                       </Badge>
                       <div className="flex items-center gap-2">
                         <Badge
                           variant="outline"
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-slate-200"
+                          className={`${BADGE_BASE_CLASS} ${getStatusBadgeTone(selectedOrder.status)}`}
                         >
                           {STATUS_MAP[selectedOrder.status as ProjectRFQStatus]?.label}
                         </Badge>
@@ -949,31 +972,31 @@ function UserDashboardContent() {
                         )}
                       </div>
                     </div>
-                    <CardTitle className="text-xl text-slate-900 tracking-tight uppercase">
+                    <CardTitle className="text-2xl text-slate-900 tracking-tight">
                       {selectedOrder.projectName}
                     </CardTitle>
-                    <CardDescription className="text-xs uppercase tracking-widest text-slate-500 font-bold mt-2 max-w-[80%] leading-relaxed border-l-2 border-[#2F5FA7]/30 pl-3">
+                    <CardDescription className="text-sm tracking-[0.04em] text-slate-500 mt-2 max-w-[80%] leading-relaxed border-l-2 border-[#2F5FA7]/30 pl-3">
                       <MapPin className="w-3.5 h-3.5 inline-block mr-1 text-[#2F5FA7]" />
                       {selectedOrder.deliveryLocation}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6">
+                  <CardContent className="p-6">
                     <div className="grid grid-cols-2 gap-4 text-xs mb-8">
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.15em] mb-1.5 flex items-center gap-1.5">
                           <Layers className="w-3 h-3 text-[#2F5FA7]/70" /> Material
                         </p>
-                        <p className="font-bold text-slate-900 uppercase text-xs font-consolas">
+                        <p className="font-bold text-slate-900 text-sm font-consolas">
                           {selectedOrderParts.length > 0
                             ? selectedOrderParts[0].material.name
                             : 'No Parts'}
                         </p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.15em] mb-1.5 flex items-center gap-1.5">
                           <Hash className="w-3 h-3 text-[#2F5FA7]/70" /> Quantity
                         </p>
-                        <p className="font-bold text-slate-900 text-xs font-consolas">
+                        <p className="font-bold text-slate-900 text-sm font-consolas">
                           {selectedOrderParts.reduce((sum, p) => sum + (p.quantity || 0), 0)} PCS
                         </p>
                       </div>
@@ -985,10 +1008,10 @@ function UserDashboardContent() {
                       selectedOrder.status === 'negotiation') && (
                         <div className="space-y-4">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <h3 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
                               <TrendingUp className="w-4 h-4 text-[#2F5FA7]" /> Received Quotations
                             </h3>
-                            <Badge className="bg-blue-50 text-[#2F5FA7] border border-blue-100 uppercase tracking-widest text-[10px] font-bold">
+                            <Badge className={`${BADGE_BASE_CLASS} border-blue-100 bg-blue-50 text-[#2F5FA7]`}>
                               {quotations?.length || 0} Offers
                             </Badge>
                           </div>
@@ -1424,11 +1447,11 @@ function UserDashboardContent() {
                 </Card>
               </div>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center bg-white/50 shadow-inner">
-                <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+              <div className="h-full flex flex-col items-center justify-center text-slate-500 border border-slate-200 rounded-3xl p-12 text-center bg-white shadow-sm">
+                <div className="w-16 h-16 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                   <Package className="w-8 h-8 text-slate-300" />
                 </div>
-                <p className="max-w-xs text-xs font-bold uppercase tracking-widest leading-relaxed">
+                <p className="max-w-xs text-sm leading-relaxed">
                   Select a project from the hub to manage bids, negotiate with vendors, and track
                   production.
                 </p>
