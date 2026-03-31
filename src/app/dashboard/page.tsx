@@ -705,7 +705,7 @@ function UserDashboardContent() {
                       <Card
                         key={order.id}
                         className={`cursor-pointer transition-all duration-200 ${selectedOrderId === order.id ? 'bg-white border-[#2F5FA7]/40 shadow-[0_14px_32px_rgba(47,95,167,0.14)] ring-1 ring-[#2F5FA7]/20 -translate-y-0.5' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-white hover:shadow-md hover:-translate-y-0.5'} overflow-hidden relative group`}
-                        onClick={() => router.push(`/projects/${order.id}`)}
+                        onClick={() => setSelectedOrderId(order.id)}
                       >
                         <CardContent className="p-6 flex items-center justify-between">
                           <div className="flex items-center gap-5">
@@ -742,9 +742,22 @@ function UserDashboardContent() {
                               {mainMaterial} • {totalQty} PCS
                             </p>
                           </div>
-                          <ChevronRight
-                            className={`w-4 h-4 transition-transform duration-200 ${selectedOrderId === order.id ? 'text-[#2F5FA7] translate-x-0.5' : 'text-slate-400 group-hover:text-[#2F5FA7]'}`}
-                          />
+                          <div className="flex items-center gap-3">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 rounded-lg border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/projects/${order.id}`);
+                              }}
+                            >
+                              Open
+                            </Button>
+                            <ChevronRight
+                              className={`w-4 h-4 transition-transform duration-200 ${selectedOrderId === order.id ? 'text-[#2F5FA7] translate-x-0.5' : 'text-slate-400 group-hover:text-[#2F5FA7]'}`}
+                            />
+                          </div>
                         </CardContent>
                       </Card>
                     );
