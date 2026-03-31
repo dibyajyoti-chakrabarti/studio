@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { LandingNav } from '@/components/LandingNav';
 import { RotatingGears } from '@/components/Gears';
 import { ServicesSection } from '@/components/ServicesSection';
-import { MaterialsSection } from '@/components/MaterialsSection';
 import { Footer } from '@/components/Footer';
 import { LaserArrow } from '@/components/LaserArrow';
 import { Button } from '@/components/ui/button';
@@ -252,7 +251,6 @@ export default function Home() {
       </div>
 
       <ServicesSection />
-      <MaterialsSection />
 
       <section id="how-it-works" className="py-24 relative overflow-hidden bg-white">
         <div className="absolute inset-0 blueprint-grid opacity-[0.03]" />
