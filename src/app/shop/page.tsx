@@ -243,8 +243,8 @@ export default function ShopPage() {
     <div className="min-h-screen bg-[#F6F8FC] text-slate-900 selection:bg-blue-500/20">
       <LandingNav />
 
-      <section className="border-b border-slate-200 bg-white pt-24 md:pt-28">
-        <BackToHomeBar className="pb-4" />
+      <section className="border-b border-slate-200 bg-white pt-0">
+        <BackToHomeBar className="pt-1 md:pt-2 pb-2" />
         <div className="container mx-auto px-4 pb-6 md:pb-8">
           <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
             <div className="space-y-4">
