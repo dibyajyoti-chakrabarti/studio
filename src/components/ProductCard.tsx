@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Scale, History, Package, Maximize2, Star } from 'lucide-react';
+import { Scale, Star, Truck, BadgePercent } from 'lucide-react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
@@ -19,32 +18,30 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, isComparing, toggleCompare, addItem }: ProductCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
-
-  // Handle images logic
   const productImages =
     product.images?.length > 0
       ? product.images.map((img: any) => (typeof img === 'string' ? img : img.urls.product))
       : ['/images/placeholder-part.svg'];
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    if (productImages.length > 1) {
-      setCurrentImgIdx(1);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setCurrentImgIdx(0);
-  };
-
-  const avgRating = product.avgRating || 4.5;
-  const reviewCount = product.reviewCount || 128;
-
-  const { toast } = useToast();
+  const avgRating =
+    typeof product.avgRating === 'number'
+      ? product.avgRating
+      : product.reviews?.length
+        ? Math.round(
+            (product.reviews.reduce((sum: number, review: any) => sum + review.rating, 0) /
+              product.reviews.length) *
+              10
+          ) / 10
+        : 4.5;
+  const reviewCount = product.reviewCount || product.reviews?.length || 0;
+  const basePrice = product.basePrice || product.salePrice;
+  const discount =
+    basePrice > product.salePrice
+      ? Math.round(((basePrice - product.salePrice) / basePrice) * 100)
+      : 0;
   const isOutOfStock = product.inventory <= 0;
+  const { toast } = useToast();
   const { user } = useUser();
   const db = useFirestore();
   const [isRequesting, setIsRequesting] = useState(false);
@@ -68,8 +65,8 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
       });
       setHasRequested(true);
       toast({
-        title: 'Restock Flag Sent',
-        description: 'Admins have been notified of your interest.',
+        title: 'Restock request sent',
+        description: 'We flagged this component for the procurement team.',
       });
     } catch (err) {
       console.error('Restock request failed:', err);
@@ -79,174 +76,183 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
   };
 
   return (
-    <div
-      className="group relative h-full flex flex-col"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <Card
-        className={`flex-1 bg-[#0B1120] border-white/[0.06] overflow-hidden hover:border-cyan-500/30 transition-all duration-300 rounded-xl md:rounded-2xl flex flex-col shadow-lg ${isOutOfStock ? 'opacity-90 grayscale-[0.3]' : ''}`}
-      >
-        {/* Image Section */}
-        <Link href={`/shop/${product.id}`} className="block">
-          <div className="relative aspect-square sm:aspect-[4/3] md:aspect-square bg-[#0F172A] flex items-center justify-center p-3 sm:p-6 overflow-hidden border-b border-white/[0.04]">
-            <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="group h-full">
+      <div className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]">
+        <div className="relative border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white p-4">
+          <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
+            <Badge className="rounded-full border border-blue-200 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2F5FA7] shadow-sm">
+              {product.categoryId?.replace('-', ' ')}
+            </Badge>
+            {discount > 0 && (
+              <Badge className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700">
+                <BadgePercent className="mr-1 h-3 w-3" />
+                {discount}% off
+              </Badge>
+            )}
+          </div>
 
-            <div
-              className={`relative w-full h-full transform group-hover:scale-105 transition-transform duration-700 ease-out ${isOutOfStock ? 'opacity-50' : ''}`}
-            >
-              <Image
-                src={productImages[currentImgIdx]}
-                alt={product.name}
-                fill
-                className="object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] md:drop-shadow-[0_12px_15px_rgba(0,0,0,0.4)]"
-                sizes="(max-width: 768px) 50vw, 33vw"
-                onError={(e: any) => {
-                  e.target.src = '/mechhub.png';
-                }}
-              />
-            </div>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleCompare(product);
+            }}
+            className={`absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border transition ${
+              isComparing
+                ? 'border-[#2F5FA7] bg-[#2F5FA7] text-white'
+                : 'border-slate-200 bg-white text-slate-500 hover:border-[#2F5FA7] hover:text-[#2F5FA7]'
+            }`}
+            aria-label="Compare component"
+          >
+            <Scale className="h-4 w-4" />
+          </button>
 
-            {/* Out of Stock Overlay */}
+          <Link
+            href={`/shop/${product.id}`}
+            className="relative mt-12 block aspect-[4/3] overflow-hidden rounded-2xl bg-white"
+            onMouseEnter={() => {
+              if (productImages.length > 1) setCurrentImgIdx(1);
+            }}
+            onMouseLeave={() => setCurrentImgIdx(0)}
+          >
+            <Image
+              src={productImages[currentImgIdx] || productImages[0]}
+              alt={product.name}
+              fill
+              className={`object-contain p-4 transition duration-500 group-hover:scale-105 ${
+                isOutOfStock ? 'opacity-55 grayscale' : ''
+              }`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 25vw"
+              onError={(e: any) => {
+                e.target.src = '/mechhub.png';
+              }}
+            />
             {isOutOfStock && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                <Badge className="bg-red-500/80 text-white border-none text-[10px] md:text-xs font-black px-3 py-1 animate-pulse">
-                  OUT OF STOCK
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-950/35">
+                <Badge className="rounded-full border-none bg-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
+                  Out of stock
                 </Badge>
               </div>
             )}
+          </Link>
+        </div>
 
-            {/* Compare Toggle */}
-            {!isOutOfStock && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleCompare(product);
-                }}
-                className={`absolute top-2 right-2 p-1.5 rounded-lg border transition-all z-30 ${
-                  isComparing
-                    ? 'bg-cyan-500 border-cyan-400 text-white scale-110'
-                    : 'bg-black/40 border-white/10 text-white/50 hover:text-white hover:bg-black/60'
-                } ${isHovered ? 'opacity-100' : 'opacity-100 sm:opacity-0 md:opacity-0'}`}
-              >
-                <Scale className="w-3 h-3 md:w-3.5 md:h-3.5" />
-              </button>
-            )}
-
-            {/* Category Badge (Mini) */}
-            <div className="absolute top-2 left-2 flex flex-col gap-1 z-30">
-              <Badge className="bg-cyan-950/60 text-cyan-400 border border-cyan-500/20 text-[7px] font-bold tracking-widest px-1.5 py-0 backdrop-blur-md">
-                {product.categoryId?.split('-')[0].toUpperCase()}
-              </Badge>
+        <div className="flex flex-1 flex-col p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+              {product.sku}
+            </p>
+            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span>{avgRating}</span>
+              <span className="text-slate-400">({reviewCount})</span>
             </div>
           </div>
-        </Link>
 
-        <div className="p-3 md:p-5 flex flex-col flex-1 gap-1.5 md:gap-3">
-          {/* Header: SKU & Title */}
-          <Link href={`/shop/${product.id}`} className="block space-y-1 md:space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[7px] md:text-[9px] font-mono text-cyan-500 bg-cyan-500/10 border border-cyan-500/20 px-1 py-0.5 rounded uppercase font-bold tracking-tighter">
-                {product.sku}
-              </span>
-              {!isOutOfStock && product.inventory < 20 && (
-                <Badge className="bg-orange-500/10 text-orange-400 border-none text-[7px] font-bold px-1 py-0">
-                  Limited
-                </Badge>
-              )}
-            </div>
-            <h3 className="text-xs md:text-sm font-semibold text-zinc-100 line-clamp-2 min-h-[32px] md:min-h-[40px] leading-snug group-hover:text-cyan-400 transition-colors">
+          <Link href={`/shop/${product.id}`} className="block">
+            <h3 className="line-clamp-2 min-h-[52px] text-base font-bold leading-6 text-slate-900 transition-colors group-hover:text-[#2F5FA7]">
               {product.name}
             </h3>
+            <p className="mt-2 line-clamp-2 min-h-[40px] text-sm leading-5 text-slate-600">
+              {product.specs || 'Industrial-grade component with verified procurement support.'}
+            </p>
           </Link>
 
-          {/* Ratings Section */}
-          <div className="flex items-center gap-1">
-            <div className="flex text-yellow-500">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-2.5 h-2.5 md:w-3.5 md:h-3.5 ${i < Math.floor(avgRating) ? 'fill-current' : 'text-zinc-700'}`}
-                />
-              ))}
+          <div className="mt-4 flex items-end justify-between gap-3">
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black tracking-tight text-slate-950">
+                  ₹{product.salePrice?.toLocaleString('en-IN')}
+                </span>
+                {basePrice > product.salePrice && (
+                  <span className="text-sm font-semibold text-slate-400 line-through">
+                    ₹{basePrice.toLocaleString('en-IN')}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-xs font-semibold text-emerald-700">
+                {discount > 0 ? `You save ₹${(basePrice - product.salePrice).toLocaleString('en-IN')}` : 'Best listed price'}
+              </p>
             </div>
-            <span className="text-[8px] md:text-[10px] text-zinc-500 font-bold">
-              ({reviewCount})
-            </span>
-          </div>
-
-          {/* Price Section */}
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 md:gap-2">
-              <span
-                className={`text-lg md:text-2xl font-black font-mono ${isOutOfStock ? 'text-zinc-500' : 'text-white'}`}
+            <div className="text-right">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                Stock
+              </p>
+              <p
+                className={`mt-1 text-sm font-bold ${
+                  isOutOfStock
+                    ? 'text-red-600'
+                    : product.inventory < 20
+                      ? 'text-amber-600'
+                      : 'text-emerald-700'
+                }`}
               >
-                ₹{product.salePrice?.toLocaleString()}
-              </span>
-              <span className="text-[9px] md:text-[11px] text-zinc-600 line-through">
-                ₹{product.basePrice || product.salePrice + 100}
+                {isOutOfStock
+                  ? 'Unavailable'
+                  : product.inventory < 20
+                    ? `${product.inventory} left`
+                    : `${product.inventory}+ ready`}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2 text-slate-700">
+                <Truck className="h-4 w-4 text-[#2F5FA7]" />
+                <span className="font-semibold">Delivery</span>
+              </div>
+              <span className="text-right text-sm font-bold text-slate-900">
+                {isOutOfStock ? 'Restock in progress' : 'Dispatch in 24-48 hrs'}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge
-                className={`${isOutOfStock ? 'bg-zinc-500/10 text-zinc-500' : 'bg-emerald-500/10 text-emerald-400'} border-none px-1 py-0 text-[8px] md:text-[10px] font-black`}
+          </div>
+
+          <div className="mt-4 flex gap-3">
+            <Link href={`/shop/${product.id}`} className="flex-1">
+              <Button
+                variant="outline"
+                className="h-11 w-full rounded-2xl border-slate-200 bg-white text-xs font-black uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-50"
               >
-                {Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100) ||
-                  15}
-                % OFF
-              </Badge>
-            </div>
-          </div>
+                View details
+              </Button>
+            </Link>
 
-          {/* Delivery Info */}
-          <div className="text-[8px] md:text-[10px] text-zinc-500 font-medium">
-            {isOutOfStock ? (
-              'Currently unavailable'
-            ) : (
-              <>
-                FREE Delivery <span className="text-zinc-400 font-bold">Tomorrow</span>
-              </>
-            )}
-          </div>
-
-          {/* Direct Add Button */}
-          <div className="mt-2 md:mt-auto">
             {isOutOfStock ? (
               <Button
-                className={`w-full ${hasRequested ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-zinc-800 hover:bg-zinc-700'} text-white rounded-lg md:rounded-xl h-9 md:h-11 text-[9px] md:text-[11px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all`}
+                className="h-11 flex-1 rounded-2xl bg-slate-900 text-xs font-black uppercase tracking-[0.18em] text-white hover:bg-slate-800"
                 onClick={handleRestockRequest}
                 disabled={isRequesting || hasRequested}
               >
-                {isRequesting
-                  ? 'Requesting...'
-                  : hasRequested
-                    ? 'Request Sent ✓'
-                    : 'Notify Me (Priority)'}
+                {isRequesting ? 'Sending...' : hasRequested ? 'Requested' : 'Notify me'}
               </Button>
             ) : (
               <Button
-                className="w-full bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg md:rounded-xl h-9 md:h-11 text-[9px] md:text-[11px] font-black uppercase tracking-widest shadow-lg active:scale-[0.98] transition-all"
+                className="h-11 flex-1 rounded-2xl bg-[#FFD814] text-xs font-black uppercase tracking-[0.18em] text-slate-900 hover:bg-[#f7ca00]"
                 onClick={(e) => {
                   e.preventDefault();
                   addItem({
                     id: product.id,
                     name: product.name,
                     salePrice: product.salePrice,
-                    basePrice: product.basePrice,
+                    basePrice,
                     sku: product.sku,
                     image: productImages[0],
                     inventory: product.inventory,
                     quantity: 1,
                   });
+                  toast({
+                    title: 'Added to cart',
+                    description: `${product.name} is ready in your procurement list.`,
+                  });
                 }}
               >
-                Add to Cart
+                Add to cart
               </Button>
             )}
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
