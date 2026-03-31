@@ -16,7 +16,6 @@ import {
   Package2,
   Layers,
   Settings,
-  MessageSquare,
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect, useRef } from 'react';
@@ -37,7 +36,6 @@ import { Input } from '@/components/ui/input';
 const NAV_LINKS = [
   { href: '/#materials', label: 'Materials' },
   { href: '/shop', label: 'Shop' },
-  { href: '/blog', label: 'Blog' },
 ];
 
 const MATERIAL_CATEGORIES = [
@@ -298,7 +296,6 @@ export function LandingNav() {
                 { label: 'Services', href: '/#services', icon: Settings },
                 { label: 'Materials', href: '/#materials', icon: Layers },
                 { label: 'Shop', href: '/shop', icon: ShoppingCart },
-                { label: 'Blog', href: '/blog', icon: MessageSquare },
               ].map((link) => (
                 <Link
                   key={link.href}
