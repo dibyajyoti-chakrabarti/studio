@@ -126,6 +126,9 @@ export function Footer() {
                 <li key={l.label}>
                   <Link
                     href={l.href}
+                    onClick={(e) => {
+                      if (l.href === '#') handleWIPClick(e, l.label);
+                    }}
                     className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
                   >
                     {l.label}
