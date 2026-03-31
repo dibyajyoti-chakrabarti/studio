@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Scale, Star, Truck, BadgePercent } from 'lucide-react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: any;
@@ -44,6 +45,7 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
   const { toast } = useToast();
   const { user } = useUser();
   const db = useFirestore();
+  const router = useRouter();
   const [isRequesting, setIsRequesting] = useState(false);
   const [hasRequested, setHasRequested] = useState(false);
 
@@ -52,14 +54,23 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
     e.stopPropagation();
     if (!db) return;
 
+    if (!user) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to submit a restock request.',
+      });
+      router.push('/login?redirect=/shop');
+      return;
+    }
+
     setIsRequesting(true);
     try {
       await addDocumentNonBlocking(collection(db, 'restockRequests'), {
         productId: product.id,
         productName: product.name,
         sku: product.sku,
-        userId: user?.uid || 'anonymous',
-        userEmail: user?.email || 'interested_customer',
+        userId: user.uid,
+        userEmail: user.email || '',
         requestedAt: new Date().toISOString(),
         status: 'pending',
       });

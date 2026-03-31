@@ -313,8 +313,10 @@ service cloud.firestore {
     // restockRequests/{requestId}
     // ─────────────────────────────────────────
     match /restockRequests/{requestId} {
-      // Anyone can signal interest (customer-friendly)
-      allow create: if request.resource.data.productId != null;
+      // Only authenticated users can create a request for themselves
+      allow create: if isAuthenticated()
+                    && request.resource.data.productId != null
+                    && request.resource.data.userId == request.auth.uid;
       
       // Only admin can read and manage demand index
       allow read, update, delete: if isAdmin();
