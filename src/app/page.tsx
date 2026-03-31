@@ -88,7 +88,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden" suppressHydrationWarning>
+    <div className="min-h-screen relative overflow-x-hidden bg-white" suppressHydrationWarning>
       <LandingNav />
 
       <section className="relative pt-24 pb-16 overflow-hidden bg-[#2F5FA7]">
@@ -355,7 +355,7 @@ export default function Home() {
       </section>
 
       {/* Built For Section - Premium Upgrade */}
-      <section className="py-20 bg-slate-50/30 relative">
+      <section className="py-20 bg-white relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-50/40 via-transparent to-transparent opacity-70" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">

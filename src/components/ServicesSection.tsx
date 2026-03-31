@@ -72,23 +72,23 @@ const SERVICES = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="relative py-20 md:py-28 bg-slate-950 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(14,165,233,0.2),transparent_35%),radial-gradient(circle_at_90%_90%,rgba(37,99,235,0.2),transparent_35%)]" />
-      <div className="absolute inset-0 blueprint-grid opacity-[0.08]" />
+    <section id="services" className="relative py-20 md:py-28 bg-white overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(14,165,233,0.08),transparent_35%),radial-gradient(circle_at_90%_90%,rgba(37,99,235,0.08),transparent_35%)]" />
+      <div className="absolute inset-0 blueprint-grid opacity-[0.03]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2F5FA7]">
             <Sparkles className="h-3.5 w-3.5" />
             Manufacturing Services
           </div>
           <div className="mt-6 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-            <h2 className="max-w-3xl text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+            <h2 className="max-w-3xl text-3xl md:text-5xl font-black tracking-tight text-[#0F172A] leading-tight">
               Production-ready services for prototypes and scale.
             </h2>
             <Link
               href="/#materials"
-              className="inline-flex items-center gap-2 text-sm font-bold text-sky-200 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#2F5FA7] hover:text-[#1E3A66] transition-colors"
             >
               Explore Materials
               <ArrowRight className="w-4 h-4" />
