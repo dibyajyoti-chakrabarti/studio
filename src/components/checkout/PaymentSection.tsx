@@ -60,7 +60,7 @@ export function PaymentSection({
     setError(null);
 
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_dummy',
+      key: (order as any)._serverRazorpayKey || process.env.NEXT_PUBLIC_RAZORPAY_KEY || 'rzp_test_dummy',
       amount: order.total * 100, // Amount in paise
       currency: 'INR',
       name: 'MechHub',

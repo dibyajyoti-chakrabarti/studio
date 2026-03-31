@@ -4,8 +4,11 @@ import { checkoutSchema } from '@/lib/validation/checkout';
 import { logger } from '@/utils/logger';
 import { ErrorCode } from '@/utils/errors';
 import { SHIPPING_OPTIONS } from '@/types/checkout';
+import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import { calculateProjectFinances } from '@/utils/finance';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -23,10 +26,16 @@ export const OrderController = {
     const requestId = req.headers.get('x-request-id') || 'req_internal';
 
     try {
-      const body = await req.json();
-      logger.info({ event: 'API: Order creation request', requestId });
+      // 1. Authenticate the request
+      const auth = await authenticateRequest(req);
+      if (!auth.success) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
 
-      // 1. Validation
+      const body = await req.json();
+      logger.info({ event: 'API: Order creation request', requestId, uid: auth.uid });
+
+      // 2. Validation
       const validation = checkoutSchema.safeParse(body);
       if (!validation.success) {
         logger.warn({
@@ -53,12 +62,29 @@ export const OrderController = {
         shopItems,
         shippingAddress,
         shippingOptionId,
-        userId,
         projectId,
         isAdvance,
         isBalance,
         advancePercentage,
       } = validation.data;
+
+      // 3. Security: Use authenticated userId, reject body userId tampering
+      const userId = auth.uid;
+
+      // 4. If projectId is provided, verify ownership
+      if (projectId) {
+        const { adminFirestore } = getFirebaseAdmin();
+        if (adminFirestore) {
+          const projectSnap = await adminFirestore.collection('projectRFQs').doc(projectId).get();
+          if (projectSnap.exists) {
+            const projectData = projectSnap.data()!;
+            if (projectData.userId !== userId) {
+              logger.warn({ event: 'API: Unauthorized project access attempt', requestId, projectId, authUid: userId, projectOwner: projectData.userId });
+              return forbiddenResponse('You do not own this project');
+            }
+          }
+        }
+      }
 
       // 2. Resolve shipping option
       const shippingOption = SHIPPING_OPTIONS.find((o) => o.id === shippingOptionId);
@@ -83,10 +109,15 @@ export const OrderController = {
       );
       const subtotal = quoteSubtotal + shopSubtotal;
 
-      const gst = Math.round(subtotal * 0.18);
-      let finalTotal = subtotal + gst + shippingOption.price;
+      const finances = calculateProjectFinances(subtotal, shippingOption.price);
+      let finalTotal = finances.total;
 
-      if (projectId && advancePercentage) {
+      if (isAdvance) {
+        finalTotal = finances.advance;
+      } else if (isBalance) {
+        finalTotal = finances.balance;
+      } else if (projectId && advancePercentage) {
+        // Fallback for custom advance percentages
         finalTotal = Math.round(finalTotal * advancePercentage);
       }
 
@@ -127,7 +158,11 @@ export const OrderController = {
 
       logger.info({ event: 'API: Order successfully created', requestId, orderId: result.data.id });
 
-      return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+      return NextResponse.json({ 
+        success: true, 
+        data: result.data,
+        razorpayKey: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY 
+      }, { status: 201 });
     } catch (e) {
       logger.error({
         event: 'API: Fatal error in OrderController.createOrder',
@@ -151,21 +186,25 @@ export const OrderController = {
     const requestId = req.headers.get('x-request-id') || 'req_verify';
 
     try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId, userId } =
+      // 1. Authenticate the request
+      const auth = await authenticateRequest(req);
+      if (!auth.success) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
+
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } =
         (await req.json()) as {
           razorpay_order_id: string;
           razorpay_payment_id: string;
           razorpay_signature: string;
           orderId: string;
-          userId: string;
         };
 
       if (
         !razorpay_order_id ||
         !razorpay_payment_id ||
         !razorpay_signature ||
-        !orderId ||
-        !userId
+        !orderId
       ) {
         return NextResponse.json(
           {
@@ -176,7 +215,24 @@ export const OrderController = {
         );
       }
 
-      // 1. Signature Verification
+      // 2. Verify the order belongs to the authenticated user
+      const { adminFirestore } = getFirebaseAdmin();
+      if (adminFirestore) {
+        const orderSnap = await adminFirestore.collection('orders').doc(orderId).get();
+        if (!orderSnap.exists) {
+          return NextResponse.json(
+            { success: false, error: { code: ErrorCode.NOT_FOUND, message: 'Order not found' } },
+            { status: 404 }
+          );
+        }
+        const orderData = orderSnap.data()!;
+        if (orderData.userId !== auth.uid) {
+          logger.warn({ event: 'API: Unauthorized order verification', requestId, orderId, authUid: auth.uid, orderOwner: orderData.userId });
+          return forbiddenResponse('You do not own this order');
+        }
+      }
+
+      // 3. Signature Verification
       const body = `${razorpay_order_id}|${razorpay_payment_id}`;
       const expectedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
@@ -194,7 +250,7 @@ export const OrderController = {
         );
       }
 
-      // 2. Business Logic Execution
+      // 4. Business Logic Execution
       const result = await CheckoutService.markAsPaid(orderId, razorpay_payment_id);
 
       if (!result.success) {
