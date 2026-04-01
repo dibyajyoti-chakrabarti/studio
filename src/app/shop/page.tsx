@@ -1,40 +1,31 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { Fragment, useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
 import { Footer } from '@/components/Footer';
 import Fuse from 'fuse.js';
 import { useCart } from '@/context/CartContext';
-import Link from 'next/link';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 import {
   Search,
-  ChevronRight,
   Package,
-  ShoppingCart,
-  ArrowRight,
+  Filter,
+  SlidersHorizontal,
   ShieldCheck,
   Truck,
-  RotateCcw,
-  Zap,
-  AlertCircle,
-  CheckCircle2,
-  Settings,
-  Maximize2,
-  Boxes,
   BarChart3,
-  ArrowUpRight,
   Store,
   Scale,
   X,
-  History,
-  ChevronLeft,
+  Sparkles,
+  CheckCircle2,
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -43,8 +34,27 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { ShopHeroCanvas } from '@/components/ShopHeroCanvas';
 import { ProductCard } from '@/components/ProductCard';
+
+type PriceBand = 'all' | 'under-200' | '200-500' | '500-1000' | '1000-plus';
+type StockFilter = 'all' | 'in-stock' | 'low-stock';
+
+type ShopProduct = {
+  id: string;
+  name: string;
+  sku: string;
+  specs?: string;
+  categoryId: string;
+  salePrice: number;
+  basePrice?: number;
+  inventory: number;
+  isActive?: boolean;
+  images?: Array<string | { urls?: { product?: string; thumb?: string } }>;
+  avgRating?: number;
+  reviewCount?: number;
+  reviews?: Array<{ rating: number }>;
+  createdAt?: string | { seconds?: number };
+};
 
 const CATEGORIES = [
   { id: 'all', label: 'All Components' },
@@ -55,21 +65,75 @@ const CATEGORIES = [
   { id: 'fasteners', label: 'Fasteners' },
 ];
 
-const FILTERS = {
-  sort: ['Popular', 'Price: Low to High', 'Price: High to Low', 'New Arrivals'],
-  material: ['Chrome Steel', 'Aluminum', 'Stainless Steel', 'Mild Steel'],
-  diameter: ['8mm', '12mm', '15mm', '20mm'],
-};
+const SORT_OPTIONS = [
+  'Popular',
+  'Price: Low to High',
+  'Price: High to Low',
+  'Newest',
+  'Inventory',
+] as const;
+
+const PRICE_BANDS: Array<{ id: PriceBand; label: string }> = [
+  { id: 'all', label: 'All Prices' },
+  { id: 'under-200', label: 'Under ₹200' },
+  { id: '200-500', label: '₹200 to ₹500' },
+  { id: '500-1000', label: '₹500 to ₹1,000' },
+  { id: '1000-plus', label: 'Above ₹1,000' },
+];
+
+const STOCK_FILTERS: Array<{ id: StockFilter; label: string }> = [
+  { id: 'all', label: 'All Stock' },
+  { id: 'in-stock', label: 'Ready to Dispatch' },
+  { id: 'low-stock', label: 'Low Stock' },
+];
+
+function getDiscount(product: ShopProduct) {
+  if (!product.basePrice || product.basePrice <= product.salePrice) return 0;
+  return Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100);
+}
+
+function getRating(product: ShopProduct): number | null {
+  if (typeof product.avgRating === 'number') return product.avgRating;
+  if (product.reviews?.length) {
+    const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+    return Math.round((total / product.reviews.length) * 10) / 10;
+  }
+  return null;
+}
+
+function getReviewCount(product: ShopProduct) {
+  if (typeof product.reviewCount === 'number') return product.reviewCount;
+  return product.reviews?.length || 0;
+}
+
+function toSeconds(createdAt: string | { seconds?: number } | undefined): number {
+  if (!createdAt) return 0;
+  if (typeof createdAt === 'string') {
+    const parsed = new Date(createdAt).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed / 1000;
+  }
+  return createdAt.seconds ?? 0;
+}
+
+function matchesPriceBand(price: number, band: PriceBand) {
+  if (band === 'under-200') return price < 200;
+  if (band === '200-500') return price >= 200 && price <= 500;
+  if (band === '500-1000') return price > 500 && price <= 1000;
+  if (band === '1000-plus') return price > 1000;
+  return true;
+}
 
 export default function ShopPage() {
   const db = useFirestore();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('Popular');
-  const { addItem, totalItems } = useCart();
-  const [compareList, setCompareList] = useState<any[]>([]);
+  const [sortBy, setSortBy] = useState<(typeof SORT_OPTIONS)[number]>('Popular');
+  const [priceBand, setPriceBand] = useState<PriceBand>('all');
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [compareList, setCompareList] = useState<ShopProduct[]>([]);
+  const { addItem } = useCart();
 
   const productsRef = useMemoFirebase(() => {
     if (!db) return null;
@@ -79,351 +143,575 @@ export default function ShopPage() {
   const { data: products, isLoading, error } = useCollection(productsRef);
 
   useEffect(() => {
-    setIsSearching(true);
-    const timer = setTimeout(() => {
+    const categoryFromParams = searchParams.get('category');
+    if (categoryFromParams && CATEGORIES.some((category) => category.id === categoryFromParams)) {
+      setSelectedCategory(categoryFromParams);
+    } else {
+      setSelectedCategory('all');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setIsSearching(false);
-    }, 300);
-    return () => clearTimeout(timer);
+    }, 250);
+    return () => window.clearTimeout(timer);
   }, [searchQuery]);
 
+  const allProducts = useMemo(() => {
+    return ((products as ShopProduct[] | undefined) || []).filter((product) => product.isActive !== false);
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
-    if (!products) return [];
-    let result = products.filter((p) => {
-      const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
-      return matchesCategory && p.isActive !== false;
+    let result = allProducts.filter((product) => {
+      const matchesCategory = selectedCategory === 'all' || product.categoryId === selectedCategory;
+      const matchesStock =
+        stockFilter === 'all' ||
+        (stockFilter === 'in-stock' && product.inventory > 0) ||
+        (stockFilter === 'low-stock' && product.inventory > 0 && product.inventory < 20);
+      const matchesPrice = matchesPriceBand(product.salePrice, priceBand);
+      return matchesCategory && matchesStock && matchesPrice;
     });
 
-    if (debouncedSearchQuery) {
+    if (debouncedSearchQuery.trim()) {
       const fuse = new Fuse(result, {
-        keys: ['name', 'sku', 'specs'],
-        threshold: 0.35,
+        keys: ['name', 'sku', 'specs', 'categoryId'],
+        threshold: 0.32,
       });
-      result = fuse.search(debouncedSearchQuery).map((r) => r.item);
+      result = fuse.search(debouncedSearchQuery.trim()).map((entry) => entry.item);
     }
 
-    // Basic sorting
-    const sortedResult = [...result];
-    if (sortBy === 'Price: Low to High') sortedResult.sort((a, b) => a.salePrice - b.salePrice);
-    if (sortBy === 'Price: High to Low') sortedResult.sort((a, b) => b.salePrice - a.salePrice);
+    const sorted = [...result];
+    if (sortBy === 'Price: Low to High') sorted.sort((a, b) => a.salePrice - b.salePrice);
+    if (sortBy === 'Price: High to Low') sorted.sort((a, b) => b.salePrice - a.salePrice);
+    if (sortBy === 'Inventory') sorted.sort((a, b) => b.inventory - a.inventory);
+    if (sortBy === 'Newest') {
+      sorted.sort((a, b) => {
+        return toSeconds(b.createdAt) - toSeconds(a.createdAt);
+      });
+    }
+    if (sortBy === 'Popular') {
+      sorted.sort((a, b) => {
+        const aRating = getRating(a);
+        const bRating = getRating(b);
+        if (aRating === null && bRating === null) return 0;
+        if (aRating === null) return 1;
+        if (bRating === null) return -1;
+        const aScore = aRating * Math.max(getReviewCount(a), 1);
+        const bScore = bRating * Math.max(getReviewCount(b), 1);
+        return bScore - aScore;
+      });
+    }
 
-    return sortedResult;
-  }, [products, debouncedSearchQuery, selectedCategory, sortBy]);
+    return sorted;
+  }, [allProducts, selectedCategory, stockFilter, priceBand, debouncedSearchQuery, sortBy]);
 
-  const toggleCompare = (product: any) => {
+  const categoryCounts = useMemo(() => {
+    return CATEGORIES.reduce<Record<string, number>>((acc, category) => {
+      if (category.id === 'all') {
+        acc[category.id] = allProducts.length;
+        return acc;
+      }
+      acc[category.id] = allProducts.filter((product) => product.categoryId === category.id).length;
+      return acc;
+    }, {});
+  }, [allProducts]);
+
+  const pricingSummary = useMemo(() => {
+    if (filteredProducts.length === 0) return { min: 0, max: 0, avg: 0 };
+    const prices = filteredProducts.map((product) => product.salePrice);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const avg = Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length);
+    return { min, max, avg };
+  }, [filteredProducts]);
+
+  const activeFilterCount = [
+    selectedCategory !== 'all',
+    priceBand !== 'all',
+    stockFilter !== 'all',
+    debouncedSearchQuery.trim().length > 0,
+  ].filter(Boolean).length;
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setDebouncedSearchQuery('');
+    setSelectedCategory('all');
+    setPriceBand('all');
+    setStockFilter('all');
+    setSortBy('Popular');
+  };
+
+  const toggleCompare = (product: ShopProduct) => {
     setCompareList((prev) => {
-      const exists = prev.find((p) => p.id === product.id);
-      if (exists) return prev.filter((p) => p.id !== product.id);
+      const exists = prev.find((item) => item.id === product.id);
+      if (exists) return prev.filter((item) => item.id !== product.id);
       if (prev.length >= 3) return prev;
       return [...prev, product];
     });
   };
 
+  const featuredProducts = filteredProducts.slice(0, 3);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#F6F8FC] text-slate-900 selection:bg-blue-500/20">
       <LandingNav />
 
-      {/* 1. Hero Section (Industrial-Grade Redesign) */}
-      <div className="relative pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden bg-[#F8FAFC]">
-        {/* Visual Elements: Blueprint Grid & Background Glow */}
-        <div className="blueprint-grid opacity-[0.03] pointer-events-none" />
-        <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-500/5 via-transparent to-transparent pointer-events-none" />
-
-        <div className="container mx-auto px-4 relative z-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* LEFT: Messaging & Industrial Search */}
-            <div className="lg:col-span-7 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 border border-blue-100 mb-8 animate-in fade-in slide-in-from-left-4 duration-500">
-                <Settings className="w-3 h-3 text-[#2F5FA7]" />
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#2F5FA7]">
-                  Industrial Grade Components
-                </span>
+      <section className="border-b border-slate-200 bg-white pt-0">
+        <BackToHomeBar className="pt-1 md:pt-2 pb-2" />
+        <div className="container mx-auto px-4 pb-6 md:pb-8">
+          <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2F5FA7]">
+                  <Store className="mr-1.5 h-3 w-3" />
+                  MechHub Registry
+                </Badge>
+                <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
+                  <CheckCircle2 className="mr-1.5 h-3 w-3" />
+                  Verified Supply
+                </Badge>
               </div>
+              <div className="max-w-3xl space-y-3">
+                <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                  Shop parts like a fast industrial marketplace, not a brochure.
+                </h1>
+                <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+                  Search by SKU, compare options, filter by stock and price, and add verified
+                  mechanical components to cart in a few clicks while keeping the MechHub product
+                  trust layer intact.
+                </p>
+              </div>
+            </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-[80px] font-bold mb-8 tracking-tighter leading-[1] text-slate-900 animate-in fade-in slide-in-from-left-6 duration-700">
-                Reliable <span className="text-[#2F5FA7]">Mechanical</span> <br />
-                Parts Registry.
-              </h1>
-
-              <p className="text-slate-500 text-base md:text-xl font-medium mb-10 md:mb-12 leading-relaxed max-w-lg animate-in fade-in slide-in-from-left-8 duration-1000">
-                Precision hardware for engineering scale. Verified tolerances, transparent bulk
-                pricing, and rapid global procurement.
-              </p>
-
-              {/* Integrated Industrial Search - Premium Pill */}
-              <div className="relative group max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-1000 mb-10">
-                <div className="relative bg-white border border-slate-200 rounded-[28px] flex flex-col md:flex-row items-stretch md:items-center p-1.5 shadow-[0_15px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all">
-                  <div className="flex items-center flex-1">
-                    <div className="pl-5 pr-3">
-                      <Search className="w-5 h-5 text-slate-300 group-focus-within:text-[#2F5FA7] transition-colors" />
-                    </div>
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search parts (SKU, Name)..."
-                      className="bg-transparent border-none h-14 md:h-16 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 text-sm md:text-base flex-1 font-medium"
-                    />
-                  </div>
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              {[
+                {
+                  icon: ShieldCheck,
+                  label: 'Supplier Verified',
+                  value: `${allProducts.length || 0}+ SKUs`,
+                },
+                { icon: Truck, label: 'Dispatch Window', value: '24-48 Hours' },
+                { icon: BarChart3, label: 'Bulk Price View', value: 'Transparent' },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm"
+                >
+                  <item.icon className="mb-3 h-5 w-5 text-[#2F5FA7]" />
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 text-lg font-black tracking-tight text-slate-900">
+                    {item.value}
+                  </p>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Category Quick-Filters */}
-              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0 hidden sm:block">
-                  Top Groups:
-                </span>
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2">
-                  {CATEGORIES.slice(1, 6).map((cat) => (
+      <main className="container mx-auto px-4 py-6 md:py-8">
+        <div className="sticky top-[72px] z-30 mb-6 rounded-[28px] border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search by SKU, part name, spec or category"
+                className="h-12 rounded-2xl border-slate-200 bg-slate-50 pl-11 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-[#2F5FA7]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row xl:w-auto xl:items-center">
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as (typeof SORT_OPTIONS)[number])}
+                className="h-12 min-w-[190px] rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#2F5FA7]"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    Sort: {option}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {CATEGORIES.slice(0, 4).map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`rounded-full border px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] transition ${
+                      selectedCategory === category.id
+                        ? 'border-[#2F5FA7] bg-[#2F5FA7] text-white shadow-lg shadow-blue-900/15'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-[#2F5FA7] hover:text-[#2F5FA7]'
+                    }`}
+                  >
+                    {category.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="h-fit rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-[168px]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-400">
+                  Browse Filters
+                </p>
+                <h2 className="mt-1 text-lg font-black tracking-tight text-slate-900">
+                  Narrow your search
+                </h2>
+              </div>
+              <div className="rounded-xl bg-blue-50 p-2 text-[#2F5FA7]">
+                <Filter className="h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="space-y-6 py-5">
+              <section>
+                <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                  Category
+                </h3>
+                <div className="space-y-2">
+                  {CATEGORIES.map((category) => (
                     <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border shrink-0 ${
-                        selectedCategory === cat.id
-                          ? 'bg-[#2F5FA7] text-white border-[#2F5FA7] shadow-lg shadow-blue-500/20'
-                          : 'bg-white border-slate-200 text-slate-500 hover:border-[#2F5FA7] hover:text-[#2F5FA7]'
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition ${
+                        selectedCategory === category.id
+                          ? 'border-[#2F5FA7] bg-blue-50'
+                          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                       }`}
                     >
-                      {cat.label}
+                      <span className="text-sm font-semibold text-slate-800">{category.label}</span>
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-500 shadow-sm">
+                        {categoryCounts[category.id] || 0}
+                      </span>
                     </button>
                   ))}
                 </div>
-              </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                  Price
+                </h3>
+                <div className="space-y-2">
+                  {PRICE_BANDS.map((band) => (
+                    <button
+                      key={band.id}
+                      onClick={() => setPriceBand(band.id)}
+                      className={`w-full rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                        priceBand === band.id
+                          ? 'border-[#2F5FA7] bg-blue-50 text-[#2F5FA7]'
+                          : 'border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {band.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                  Availability
+                </h3>
+                <div className="space-y-2">
+                  {STOCK_FILTERS.map((stock) => (
+                    <button
+                      key={stock.id}
+                      onClick={() => setStockFilter(stock.id)}
+                      className={`w-full rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                        stockFilter === stock.id
+                          ? 'border-[#2F5FA7] bg-blue-50 text-[#2F5FA7]'
+                          : 'border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      {stock.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
             </div>
 
-            {/* RIGHT: Circular Visualization & Stats overlay */}
-            <div className="hidden lg:flex lg:col-span-5 relative items-center justify-center animate-in fade-in zoom-in duration-1000">
-              <div className="relative w-full aspect-square max-w-[480px]">
-                {/* The Technical Circle */}
-                <div className="absolute inset-0 rounded-full border border-blue-500/10 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border-[0.5px] border-dashed border-blue-500/20 scale-90" />
-                  <div className="absolute inset-x-0 h-px bg-blue-500/10 top-1/2 -translate-y-1/2" />
-                  <div className="absolute inset-y-0 w-px bg-blue-500/10 left-1/2 -translate-x-1/2" />
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                Result Snapshot
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-xs font-semibold text-slate-500">Min price</p>
+                  <p className="mt-1 text-lg font-black text-slate-900">₹{pricingSummary.min}</p>
+                </div>
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-xs font-semibold text-slate-500">Average</p>
+                  <p className="mt-1 text-lg font-black text-slate-900">₹{pricingSummary.avg}</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                onClick={clearAllFilters}
+                className="mt-4 h-11 w-full rounded-2xl text-xs font-black uppercase tracking-[0.18em] text-slate-600 hover:bg-white"
+              >
+                Clear filters
+              </Button>
+            </div>
+          </aside>
 
-                  {/* Crosshair Dots */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
-                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
-                  <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500/40" />
+          <section className="space-y-6">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+                      {filteredProducts.length} results
+                    </Badge>
+                    {activeFilterCount > 0 && (
+                      <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2F5FA7]">
+                        {activeFilterCount} active filters
+                      </Badge>
+                    )}
+                    {selectedCategory !== 'all' && (
+                      <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">
+                        {CATEGORIES.find((item) => item.id === selectedCategory)?.label}
+                      </Badge>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tight text-slate-950">
+                      Browse industrial components faster
+                    </h2>
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                      Amazon-like scanning, MechHub-grade trust: compact cards, transparent pricing,
+                      stock visibility, and quick cart actions for engineering buyers.
+                    </p>
+                  </div>
+                </div>
 
-                  {/* 3D Illustration Container */}
-                  <div className="relative w-[340px] h-[340px] rounded-full bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden border border-slate-100 p-4">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent" />
-                    <img
-                      src="/hero-industrial.png"
-                      alt="Mechanical Components"
-                      className="w-full h-full object-contain scale-125 opacity-90 drop-shadow-2xl hover:scale-150 transition-transform duration-1000 ease-out"
-                    />
+                <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                      Price range
+                    </p>
+                    <p className="mt-1 text-base font-black text-slate-900">
+                      ₹{pricingSummary.min} - ₹{pricingSummary.max}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                      Ready stock
+                    </p>
+                    <p className="mt-1 text-base font-black text-slate-900">
+                      {filteredProducts.filter((product) => product.inventory > 0).length}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                      Sort mode
+                    </p>
+                    <p className="mt-1 text-base font-black text-slate-900">{sortBy}</p>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* 3. Product Grid */}
-      <section className="py-12 min-h-[600px]">
-        <div className="container mx-auto px-4">
-          {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-[28px]">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-[2/3] rounded-2xl bg-white/5 animate-pulse border border-white/5"
-                />
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-[28px]">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isComparing={!!compareList.find((p) => p.id === product.id)}
-                  toggleCompare={toggleCompare}
-                  addItem={addItem}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-32 border border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
-              <Package className="w-12 h-12 text-zinc-700 mx-auto mb-6 opacity-30" />
-              <h3 className="text-xl font-bold mb-2">No components found</h3>
-              <p className="text-zinc-500 text-sm max-w-xs mx-auto">
-                Try adjusting your filters or search query to find the parts you need.
-              </p>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('all');
-                }}
-                className="mt-8 text-cyan-400 hover:text-cyan-300"
-              >
-                Clear all filters
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 5. Engineer Trust Section */}
-      <section className="py-20 bg-blue-50/30 border-y border-blue-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-slate-400 uppercase tracking-widest font-mono">
-              Why Engineers Choose MechHub
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {[
-              {
-                icon: Settings,
-                title: 'Precision Manufacturing',
-                desc: 'ABEC-5 or higher tolerances',
-              },
-              { icon: Truck, title: 'Express Dispatch', desc: '24-48 Hours guaranteed' },
-              { icon: BarChart3, title: 'Bulk Discounts', desc: 'Pricing scales with volume' },
-              { icon: ShieldCheck, title: 'Verified Suppliers', desc: 'Full traceability reports' },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="p-6 rounded-2xl bg-white border border-blue-50 hover:border-blue-200 transition-all group hover:-translate-y-1 shadow-sm hover:shadow-md"
-              >
-                <item.icon className="w-8 h-8 text-[#2F5FA7] mb-4 group-hover:scale-110 transition-transform" />
-                <h4 className="font-bold text-sm text-slate-800 mb-1">{item.title}</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed uppercase font-bold tracking-tighter">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Floating Comparison & Cart Bar */}
-      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
-        {/* Comparison Bar */}
-        {compareList.length > 0 && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="h-14 px-6 bg-[#0B1120] border border-cyan-500/30 text-white rounded-2xl shadow-2xl gap-3 animate-in fade-in slide-in-from-right-10">
-                <Scale className="w-5 h-5 text-cyan-400" />
-                <span className="font-bold">Compare ({compareList.length})</span>
-                <div className="flex -space-x-2">
-                  {compareList.map((p, i) => (
-                    <div
-                      key={i}
-                      className="w-6 h-6 rounded-full bg-white border border-[#0B1120] flex items-center justify-center overflow-hidden"
-                    >
-                      <Package className="w-3 h-3 text-[#0B1120]" />
+            {featuredProducts.length > 0 && !debouncedSearchQuery.trim() && (
+              <div className="rounded-[28px] border border-slate-200 bg-gradient-to-r from-[#16325F] via-[#21457D] to-[#2F5FA7] p-5 text-white shadow-[0_24px_60px_rgba(47,95,167,0.28)]">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="max-w-xl">
+                    <div className="mb-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-blue-100">
+                      <Sparkles className="h-4 w-4" />
+                      Fast-moving picks
                     </div>
-                  ))}
-                </div>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl bg-[#0B1120] border-white/10 text-white p-0 overflow-hidden">
-              <DialogHeader className="p-6 border-b border-white/5">
-                <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-cyan-400" /> Component Comparison
-                </DialogTitle>
-              </DialogHeader>
-              <div className="p-0 sm:p-8 space-y-0 overflow-x-auto no-scrollbar">
-                {/* Header Row */}
-                <div className="grid grid-cols-[120px_repeat(3,240px)] sm:grid-cols-4 gap-4 sm:gap-8 pb-10 border-b border-white/10 items-end min-w-max sm:min-w-0 px-6 sm:px-0 pt-6 sm:pt-0">
-                  <div /> {/* Empty space for labels column */}
-                  {compareList.map((p) => (
-                    <div key={p.id} className="text-center group">
-                      <div className="w-20 h-20 mx-auto rounded-2xl bg-white mb-5 flex items-center justify-center text-[#0B1120] shadow-xl group-hover:scale-110 transition-transform relative overflow-hidden p-2">
-                        <Image
-                          src={
-                            p.images?.length > 0
-                              ? typeof p.images[0] === 'string'
-                                ? p.images[0]
-                                : p.images[0].urls.thumb
-                              : '/images/placeholder-part.svg'
-                          }
-                          alt={p.name}
-                          fill
-                          className="object-contain p-1"
-                          onError={(e: any) => {
-                            e.target.src = '/mechhub.png';
-                          }}
-                        />
-                      </div>
-                      <div className="text-[12px] font-bold line-clamp-2 h-10 flex items-center justify-center px-2 text-white">
-                        {p.name}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleCompare(p)}
-                        className="text-[10px] text-red-500 hover:text-red-400 hover:bg-red-500/10 mt-2 h-7 px-2 font-bold uppercase tracking-tight"
-                      >
-                        <X className="w-3 h-3 mr-1" /> Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Comparison Rows */}
-                {[
-                  { label: 'SKU Code', value: (p: any) => p.sku, style: 'font-mono text-zinc-400' },
-                  {
-                    label: 'Technical Specs',
-                    value: (p: any) => p.specs,
-                    style: 'text-zinc-300 leading-tight',
-                  },
-                  {
-                    label: 'Stock Status',
-                    value: (p: any) => p.inventory,
-                    suffix: ' UNITS',
-                    style: 'text-emerald-500 font-bold',
-                  },
-                  {
-                    label: 'Category',
-                    value: (p: any) => p.categoryId,
-                    style: 'text-zinc-500 uppercase tracking-tighter',
-                  },
-                  {
-                    label: 'Unit Price',
-                    value: (p: any) => `₹${p.salePrice.toLocaleString()}`,
-                    style: 'text-xl font-bold text-cyan-400 font-mono',
-                  },
-                ].map((row, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-[120px_repeat(3,240px)] sm:grid-cols-4 gap-4 sm:gap-8 py-6 border-b border-white/[0.04] items-center hover:bg-white/[0.01] transition-colors min-w-max sm:min-w-0 px-6 sm:px-0"
-                  >
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
-                      {row.label}
-                    </div>
-                    {compareList.map((p) => (
-                      <div
-                        key={p.id}
-                        className={`text-center text-[13px] font-medium ${row.style}`}
-                      >
-                        {row.value(p)}
-                        {row.suffix}
+                    <h3 className="text-2xl font-black tracking-tight">
+                      High-trust components engineers are viewing right now
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-blue-50/90">
+                      Use this strip like an Amazon bestseller lane, but tuned for mechanical parts
+                      and MechHub’s verified procurement workflow.
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {featuredProducts.map((product) => (
+                      <div key={product.id} className="rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
+                          {product.sku}
+                        </p>
+                        <p className="mt-2 line-clamp-2 text-sm font-bold text-white">
+                          {product.name}
+                        </p>
+                        <p className="mt-2 text-lg font-black">₹{product.salePrice.toLocaleString('en-IN')}</p>
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-[420px] rounded-[28px] border border-slate-200 bg-white animate-pulse"
+                  />
                 ))}
+              </div>
+            ) : error ? (
+              <div className="rounded-[28px] border border-red-200 bg-red-50 px-6 py-10 text-center">
+                <p className="text-lg font-bold text-red-700">Unable to load products right now.</p>
+                <p className="mt-2 text-sm text-red-600">
+                  Please try again shortly. The catalogue connection returned an error.
+                </p>
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isComparing={!!compareList.find((item) => item.id === product.id)}
+                    toggleCompare={toggleCompare}
+                    addItem={addItem}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[28px] border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
+                <Package className="mx-auto h-12 w-12 text-slate-300" />
+                <h3 className="mt-6 text-2xl font-black tracking-tight text-slate-900">
+                  No components match these filters
+                </h3>
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-600">
+                  Try a wider price band, reset your category, or search with a SKU fragment like
+                  `LM8UU`, `6204`, or `GT2`.
+                </p>
+                <Button
+                  onClick={clearAllFilters}
+                  className="mt-6 rounded-2xl bg-[#2F5FA7] px-6 text-sm font-bold hover:bg-[#1F447D]"
+                >
+                  Reset filters
+                </Button>
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
+
+      {compareList.length > 0 && (
+        <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="h-14 rounded-2xl bg-slate-950 px-6 text-white shadow-2xl hover:bg-slate-900">
+                <Scale className="mr-2 h-5 w-5 text-cyan-300" />
+                Compare ({compareList.length})
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-5xl overflow-hidden border border-slate-200 bg-white p-0">
+              <DialogHeader className="border-b border-slate-100 px-6 py-5">
+                <DialogTitle className="flex items-center gap-2 text-xl font-black tracking-tight text-slate-950">
+                  <SlidersHorizontal className="h-5 w-5 text-[#2F5FA7]" />
+                  Component Comparison
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="overflow-x-auto px-6 py-6">
+                <div className="grid min-w-[760px] grid-cols-[140px_repeat(3,1fr)] gap-4">
+                  <div />
+                  {compareList.map((product) => {
+                    const image =
+                      product.images?.length && typeof product.images[0] !== 'string'
+                        ? product.images[0]?.urls?.thumb || product.images[0]?.urls?.product
+                        : (product.images?.[0] as string | undefined);
+
+                    return (
+                      <div key={product.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4 text-center">
+                        <div className="relative mx-auto h-24 w-24 overflow-hidden rounded-2xl bg-white shadow-sm">
+                          <Image
+                            src={image || '/images/placeholder-part.svg'}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-2"
+                          />
+                        </div>
+                        <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-[#2F5FA7]">
+                          {product.sku}
+                        </p>
+                        <p className="mt-2 line-clamp-2 min-h-[40px] text-sm font-bold text-slate-900">
+                          {product.name}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleCompare(product)}
+                          className="mt-3 h-8 rounded-full text-xs font-bold uppercase tracking-[0.18em] text-red-600 hover:bg-red-50 hover:text-red-700"
+                        >
+                          <X className="mr-1 h-3 w-3" />
+                          Remove
+                        </Button>
+                      </div>
+                    );
+                  })}
+
+                  {[
+                    {
+                      label: 'Specs',
+                      value: (product: ShopProduct) =>
+                        product.specs || 'Standard industrial component',
+                    },
+                    {
+                      label: 'Category',
+                      value: (product: ShopProduct) => product.categoryId.replace('-', ' '),
+                    },
+                    {
+                      label: 'Stock',
+                      value: (product: ShopProduct) => `${product.inventory} units`,
+                    },
+                    {
+                      label: 'Rating',
+                      value: (product: ShopProduct) => {
+                        const rating = getRating(product);
+                        return rating === null ? 'No reviews yet' : `${rating} / 5`;
+                      },
+                    },
+                    {
+                      label: 'Price',
+                      value: (product: ShopProduct) =>
+                        `₹${product.salePrice.toLocaleString('en-IN')}`,
+                    },
+                    {
+                      label: 'Discount',
+                      value: (product: ShopProduct) => `${getDiscount(product)}%`,
+                    },
+                  ].map((row) => (
+                    <Fragment key={row.label}>
+                      <div key={`${row.label}-label`} className="rounded-2xl bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                        {row.label}
+                      </div>
+                      {compareList.map((product) => (
+                        <div
+                          key={`${row.label}-${product.id}`}
+                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800"
+                        >
+                          {row.value(product)}
+                        </div>
+                      ))}
+                    </Fragment>
+                  ))}
+                </div>
               </div>
             </DialogContent>
           </Dialog>
-        )}
+        </div>
+      )}
 
-        {/* Floating Cart Indicator */}
-      </div>
       <Footer />
     </div>
   );

@@ -54,7 +54,7 @@ export function Footer() {
               </Link>
               <Button
                 variant="ghost"
-                onClick={() => router.push('#services')}
+                onClick={() => router.push('/#services')}
                 className="w-full sm:w-auto h-11 px-6 text-sm border border-white/20 text-white hover:bg-white/10 rounded-full font-bold"
                 suppressHydrationWarning
               >
@@ -97,11 +97,10 @@ export function Footer() {
             <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-5">
               Company
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-3 mb-6">
               {[
                 { label: 'About Us', href: '/about' },
                 { label: 'How It Works', href: '#how-it-works' },
-                { label: 'Blog', href: '/blog' },
                 { label: 'Contact', href: '/contact' },
               ].map((l) => (
                 <li key={l.label}>
@@ -111,6 +110,36 @@ export function Footer() {
                   >
                     {l.label}
                   </Link>
+                </li>
+              ))}
+            </ul>
+
+            <h5 className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-200 mb-3">
+              Resources
+            </h5>
+            <ul className="space-y-3">
+              {[
+                { label: 'Blog', href: '/blog' },
+                { label: 'Guides', href: null },
+                { label: 'Documentation', href: null },
+              ].map((l) => (
+                <li key={l.label}>
+                  {l.href ? (
+                    <Link
+                      href={l.href}
+                      className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
+                    >
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleWIPClick(e, l.label)}
+                      className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
+                    >
+                      {l.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

@@ -3,14 +3,14 @@
 import { useState, useMemo } from 'react';
 import { allPosts } from 'contentlayer/generated';
 import { compareDesc } from 'date-fns';
-import { Search, SlidersHorizontal, ArrowRight, X, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Search, SlidersHorizontal, ArrowRight, X } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { BlogLayout } from '@/components/BlogLayout';
 import { BlogCard } from '@/components/BlogCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,15 +46,7 @@ export default function BlogPage() {
   return (
     <BlogLayout>
       <div className="space-y-12">
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#64748B] hover:text-[#2F5FA7] transition-colors group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-        </div>
+        <BackToHomeBar className="pt-0 pb-0 px-0" />
         {/* Blog Hero */}
         <div className="text-center max-w-3xl mx-auto space-y-6 mb-16">
           <Badge className="bg-[#E8F1FF] text-[#2F5FA7] border-[#2F5FA7]/20 px-3 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">

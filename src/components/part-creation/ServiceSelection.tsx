@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Cog, Flame, Hammer, Box, Move3d, CircleDot } from 'lucide-react';
 import { ExpertCTA } from './ExpertCTA';
+import { isPartNameValid } from '@/lib/validation/part-name';
 
 interface ServiceOption {
   id: ManufacturingService;
@@ -46,6 +47,8 @@ export function ServiceSelection({
   selectedService,
   onSelect,
 }: ServiceSelectionProps) {
+  const showPartNameError = partName.trim().length > 0 && !isPartNameValid(partName);
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -70,8 +73,14 @@ export function ServiceSelection({
           onChange={(e) => onPartNameChange(e.target.value)}
           placeholder="e.g., Support Bracket - V2"
           className="h-11 border-slate-200 bg-white text-sm uppercase tracking-wider font-bold text-slate-900 placeholder:font-normal placeholder:normal-case"
+          aria-invalid={showPartNameError}
           autoFocus
         />
+        {showPartNameError && (
+          <p className="text-[10px] text-red-600 font-bold tracking-wide">
+            Part name must include at least one letter (not only numbers).
+          </p>
+        )}
         <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">
           Give this component a descriptive name for your quote
         </p>

@@ -73,6 +73,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { calculateProjectFinances } from '@/utils/finance';
@@ -428,6 +438,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const [isRequestingQuote, setIsRequestingQuote] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [optimisticParts, setOptimisticParts] = useState<MechanicalPart[]>([]);
+  const [pendingPartDeleteId, setPendingPartDeleteId] = useState<string | null>(null);
 
   // Read highlight param from URL on mount and load Razorpay
   useEffect(() => {
@@ -724,7 +735,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   };
 
   const handlePartDelete = async (partId: string) => {
-    if (!db || !confirm('Are you sure you want to delete this part?')) return;
+    if (!db) return;
 
     try {
       await deleteDoc(doc(db, 'projectParts', partId));
@@ -1010,7 +1021,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handlePartDelete(part.id);
+                                  setPendingPartDeleteId(part.id);
                                 }}
                                 className="text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
                                 title="Delete part"
@@ -1770,6 +1781,34 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
         </div>
       </div>
+
+      <AlertDialog
+        open={!!pendingPartDeleteId}
+        onOpenChange={(open) => {
+          if (!open) setPendingPartDeleteId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Part?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the part from your draft project.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingPartDeleteId) return;
+                await handlePartDelete(pendingPartDeleteId);
+                setPendingPartDeleteId(null);
+              }}
+            >
+              Delete Part
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

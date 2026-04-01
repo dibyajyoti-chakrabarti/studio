@@ -117,12 +117,12 @@ export function MaterialsSection() {
   return (
     <section
       id="materials"
-      className="py-16 md:py-24 bg-[#F8FAFC] relative overflow-hidden border-t border-slate-200"
+      className="py-16 md:py-24 bg-white relative overflow-hidden border-t border-slate-200"
     >
       {/* Layer 1: Subtle Background Visuals */}
       <div className="absolute inset-0 blueprint-grid opacity-[0.03] pointer-events-none" />
       <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-white to-transparent opacity-80 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#F1F5F9] to-transparent opacity-100 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-white to-transparent opacity-100 pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Layer 2: Hero Content */}
@@ -150,8 +150,8 @@ export function MaterialsSection() {
 
         <div className="relative max-w-7xl mx-auto px-2 mb-4 md:mb-8">
           {/* Subtle Masking gradients for overflow indication */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none md:hidden" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none md:hidden" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="flex overflow-x-auto pb-4 md:pb-6 gap-2 no-scrollbar-on-mobile custom-scrollbar-on-desktop">
             {CATEGORIES.map((cat) => {

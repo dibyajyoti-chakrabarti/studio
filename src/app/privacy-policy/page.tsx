@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { ChevronLeft } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | MechHub',
@@ -14,16 +14,8 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-100 selection:text-[#2F5FA7]">
       <LandingNav />
 
-      <article className="container mx-auto px-4 max-w-4xl pb-24 pt-20">
-        <div className="py-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Hub
-          </Link>
-        </div>
+      <BackToHomeBar className="pb-2" />
+      <article className="container mx-auto px-4 max-w-4xl pb-20 pt-6">
 
         <div className="space-y-4 mb-12 pt-8">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2F5FA7] border border-blue-100 px-4 py-1.5 rounded-full bg-blue-50/50 shadow-sm">

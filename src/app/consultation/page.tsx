@@ -1,21 +1,22 @@
 'use client';
 
 import { useState, Suspense, useEffect } from 'react';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LandingNav } from '@/components/LandingNav';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useFirestore, setDocumentNonBlocking, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Check, Loader2, FileText, ArrowRight, ChevronLeft } from 'lucide-react';
+import { Check, Loader2, FileText, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function ConsultationPageContent() {
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ phone?: string; message?: string }>({});
   const { toast } = useToast();
   const db = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -44,21 +45,51 @@ function ConsultationPageContent() {
     ? `I have a pending quote (Ref: ${prefilledRef}) for ${prefilledQty} pcs of ${prefilledMaterial} via ${prefilledProcess}.\nThe estimated cost is ${prefilledEstimate}.\n\nI would like to discuss next steps with an expert regarding:`
     : '';
 
+  const validatePhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 15) {
+      return 'Enter a valid phone number (10 to 15 digits).';
+    }
+    return '';
+  };
+
+  const validateMessage = (value: string) => {
+    const cleaned = value.replace(/\s+/g, ' ').trim();
+    if (cleaned.length < 20) {
+      return 'Please describe your issue in at least 20 characters.';
+    }
+    return '';
+  };
+
   async function handleConsultationSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!db) return;
 
-    setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
+    const phone = (formData.get('phone') as string) || '';
+    const message = (formData.get('message') as string) || '';
+    const phoneError = validatePhone(phone);
+    const messageError = validateMessage(message);
+
+    if (phoneError || messageError) {
+      setFieldErrors({
+        ...(phoneError ? { phone: phoneError } : {}),
+        ...(messageError ? { message: messageError } : {}),
+      });
+      return;
+    }
+
+    setFieldErrors({});
+    setIsSubmitting(true);
     const id = Math.random().toString(36).substring(2, 11);
 
     const requestData = {
       id,
       userId: user?.uid || null,
       name: formData.get('name') as string,
-      phone: formData.get('phone') as string,
+      phone,
       email: formData.get('email') as string,
-      message: formData.get('message') as string,
+      message: message.trim(),
       quoteRef: prefilledRef,
       material: prefilledMaterial,
       process: prefilledProcess,
@@ -88,7 +119,7 @@ function ConsultationPageContent() {
   }
 
   return (
-    <div className="pt-32 pb-20 px-4 container mx-auto">
+    <div className="pb-20 pt-3 px-4 container mx-auto">
       <div className="max-w-xl mx-auto">
         <h1 className="text-3xl font-bold text-[#1E3A66] mb-2 tracking-tight">
           Talk to a Manufacturing Expert
@@ -132,7 +163,8 @@ function ConsultationPageContent() {
                     name="name"
                     defaultValue={user?.displayName || ''}
                     required
-                    className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium"
+                    readOnly
+                    className="bg-slate-100 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 h-12 text-sm rounded-xl transition-all font-medium cursor-not-allowed opacity-90"
                   />
                 </div>
                 <div className="space-y-2">
@@ -147,8 +179,26 @@ function ConsultationPageContent() {
                     name="phone"
                     defaultValue={profile?.phone || ''}
                     required
-                    className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium"
+                    onChange={(e) => {
+                      if (!fieldErrors.phone) return;
+                      const nextError = validatePhone(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, phone: nextError || undefined }));
+                    }}
+                    onBlur={(e) => {
+                      const nextError = validatePhone(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, phone: nextError || undefined }));
+                    }}
+                    className={`bg-slate-50 text-[#1E3A66] placeholder:text-slate-400 h-12 text-sm rounded-xl transition-all font-medium ${
+                      fieldErrors.phone
+                        ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
+                        : 'border-slate-200 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20'
+                    }`}
                   />
+                  {fieldErrors.phone && (
+                    <p className="text-[10px] text-red-600 font-bold tracking-wide">
+                      {fieldErrors.phone}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -164,7 +214,8 @@ function ConsultationPageContent() {
                   type="email"
                   defaultValue={user?.email || ''}
                   required
-                  className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 h-12 text-sm rounded-xl transition-all font-medium"
+                  readOnly
+                  className="bg-slate-100 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 h-12 text-sm rounded-xl transition-all font-medium cursor-not-allowed opacity-90"
                 />
               </div>
 
@@ -195,9 +246,28 @@ function ConsultationPageContent() {
                   name="message"
                   defaultValue={defaultMessage}
                   required
+                  minLength={20}
+                  onChange={(e) => {
+                    if (!fieldErrors.message) return;
+                    const nextError = validateMessage(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, message: nextError || undefined }));
+                  }}
+                  onBlur={(e) => {
+                    const nextError = validateMessage(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, message: nextError || undefined }));
+                  }}
                   placeholder="Describe your design, material, quantity, and any technical questions..."
-                  className="bg-slate-50 border-slate-200 text-[#1E3A66] placeholder:text-slate-400 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20 min-h-[140px] text-sm rounded-xl resize-none transition-all font-medium"
+                  className={`bg-slate-50 text-[#1E3A66] placeholder:text-slate-400 min-h-[140px] text-sm rounded-xl resize-none transition-all font-medium ${
+                    fieldErrors.message
+                      ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
+                      : 'border-slate-200 focus:border-[#2F5FA7]/50 focus:ring-[#2F5FA7]/20'
+                  }`}
                 />
+                {fieldErrors.message && (
+                  <p className="text-[10px] text-red-600 font-bold tracking-wide">
+                    {fieldErrors.message}
+                  </p>
+                )}
               </div>
 
               <Button
@@ -235,16 +305,7 @@ export default function ConsultationPage() {
 
       <div className="relative z-10">
         <LandingNav />
-
-        <div className="container mx-auto px-4 pt-24 pb-0">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-[#2F5FA7] transition-colors group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-        </div>
+        <BackToHomeBar className="pt-8 pb-0" />
 
         <Suspense
           fallback={

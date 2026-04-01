@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { ChevronLeft, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { LandingNav } from '@/components/LandingNav';
+import { BackToHomeBar } from '@/components/BackToHomeBar';
 
 export const metadata: Metadata = {
   title: 'NDA Policy | MechHub',
@@ -15,16 +16,8 @@ export default function NdaPolicyPage() {
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] pointer-events-none" />
       <LandingNav />
 
-      <article className="container mx-auto px-4 max-w-4xl pb-24 pt-20 relative z-10">
-        <div className="py-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-[#2F5FA7] transition-all group"
-          >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Hub
-          </Link>
-        </div>
+      <BackToHomeBar className="relative z-10 pb-2" />
+      <article className="container mx-auto px-4 max-w-4xl pb-20 pt-6 relative z-10">
 
         <div className="space-y-4 mb-12 pt-8">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2F5FA7] border border-blue-100 px-4 py-1.5 rounded-full bg-blue-50/50 shadow-sm">
