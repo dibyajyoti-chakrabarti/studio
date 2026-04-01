@@ -92,18 +92,27 @@ function getDiscount(product: ShopProduct) {
   return Math.round(((product.basePrice - product.salePrice) / product.basePrice) * 100);
 }
 
-function getRating(product: ShopProduct) {
+function getRating(product: ShopProduct): number | null {
   if (typeof product.avgRating === 'number') return product.avgRating;
   if (product.reviews?.length) {
     const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
     return Math.round((total / product.reviews.length) * 10) / 10;
   }
-  return 4.5;
+  return null;
 }
 
 function getReviewCount(product: ShopProduct) {
   if (typeof product.reviewCount === 'number') return product.reviewCount;
   return product.reviews?.length || 0;
+}
+
+function toSeconds(createdAt: string | { seconds?: number } | undefined): number {
+  if (!createdAt) return 0;
+  if (typeof createdAt === 'string') {
+    const parsed = new Date(createdAt).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed / 1000;
+  }
+  return createdAt.seconds ?? 0;
 }
 
 function matchesPriceBand(price: number, band: PriceBand) {
@@ -137,6 +146,8 @@ export default function ShopPage() {
     const categoryFromParams = searchParams.get('category');
     if (categoryFromParams && CATEGORIES.some((category) => category.id === categoryFromParams)) {
       setSelectedCategory(categoryFromParams);
+    } else {
+      setSelectedCategory('all');
     }
   }, [searchParams]);
 
@@ -176,15 +187,18 @@ export default function ShopPage() {
     if (sortBy === 'Inventory') sorted.sort((a, b) => b.inventory - a.inventory);
     if (sortBy === 'Newest') {
       sorted.sort((a, b) => {
-        const aSeconds = typeof a.createdAt === 'object' ? a.createdAt?.seconds || 0 : 0;
-        const bSeconds = typeof b.createdAt === 'object' ? b.createdAt?.seconds || 0 : 0;
-        return bSeconds - aSeconds;
+        return toSeconds(b.createdAt) - toSeconds(a.createdAt);
       });
     }
     if (sortBy === 'Popular') {
       sorted.sort((a, b) => {
-        const aScore = getRating(a) * Math.max(getReviewCount(a), 1);
-        const bScore = getRating(b) * Math.max(getReviewCount(b), 1);
+        const aRating = getRating(a);
+        const bRating = getRating(b);
+        if (aRating === null && bRating === null) return 0;
+        if (aRating === null) return 1;
+        if (bRating === null) return -1;
+        const aScore = aRating * Math.max(getReviewCount(a), 1);
+        const bScore = bRating * Math.max(getReviewCount(b), 1);
         return bScore - aScore;
       });
     }
@@ -662,7 +676,10 @@ export default function ShopPage() {
                     },
                     {
                       label: 'Rating',
-                      value: (product: ShopProduct) => `${getRating(product)} / 5`,
+                      value: (product: ShopProduct) => {
+                        const rating = getRating(product);
+                        return rating === null ? 'No reviews yet' : `${rating} / 5`;
+                      },
                     },
                     {
                       label: 'Price',

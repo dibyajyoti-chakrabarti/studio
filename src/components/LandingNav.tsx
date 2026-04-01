@@ -37,7 +37,6 @@ import { Input } from '@/components/ui/input';
 const NAV_LINKS = [
   { href: '/#materials', label: 'Materials' },
   { href: '/shop', label: 'Shop' },
-  { href: '/dashboard', label: 'Dashboard' },
 ];
 
 const MATERIAL_CATEGORIES = [
@@ -83,6 +82,7 @@ export function LandingNav() {
   const displayName = profile?.fullName || user?.email?.split('@')[0] || 'Account';
   const role = profile?.role || 'customer';
   const dashboardHref = role === 'admin' ? '/admin' : role === 'vendor' ? '/vendor' : '/dashboard';
+  const navLinks = [...NAV_LINKS, { href: dashboardHref, label: 'Dashboard' }];
 
   const initials = displayName
     .split(' ')
@@ -181,9 +181,9 @@ export function LandingNav() {
               Services
             </Link>
 
-            {NAV_LINKS.map((link, i) => (
+            {navLinks.map((link, i) => (
               <Link
-                key={link.href}
+                key={`${link.label}-${link.href}`}
                 href={link.href}
                 ref={(el) => {
                   navRefs.current[i] = el;
@@ -242,18 +242,22 @@ export function LandingNav() {
                           <UserIcon className="w-4 h-4 text-zinc-400" /> My Profile
                         </DropdownMenuItem>
                       </Link>
-                      <div className="border-t border-white/10 my-1" />
-                      <Link href="/dashboard?tab=shop_orders">
-                        <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
-                          <Package className="w-4 h-4 text-zinc-400" /> My Orders
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/dashboard?tab=designs">
-                        <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
-                          <Pencil className="w-4 h-4 text-zinc-400" /> My Designs
-                        </DropdownMenuItem>
-                      </Link>
-                      <div className="border-t border-white/10 my-1" />
+                      {role === 'customer' && (
+                        <>
+                          <div className="border-t border-white/10 my-1" />
+                          <Link href="/dashboard?tab=shop_orders">
+                            <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
+                              <Package className="w-4 h-4 text-zinc-400" /> My Orders
+                            </DropdownMenuItem>
+                          </Link>
+                          <Link href="/dashboard?tab=designs">
+                            <DropdownMenuItem className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-zinc-300 hover:text-white focus:bg-white/5 focus:text-white">
+                              <Pencil className="w-4 h-4 text-zinc-400" /> My Designs
+                            </DropdownMenuItem>
+                          </Link>
+                          <div className="border-t border-white/10 my-1" />
+                        </>
+                      )}
                       <DropdownMenuItem
                         className="cursor-pointer gap-2.5 px-2 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 focus:bg-red-500/10 focus:text-red-300"
                         onClick={handleSignOut}
@@ -363,28 +367,32 @@ export function LandingNav() {
                     </div>
                     My Profile
                   </Link>
-                  <div className="border-t border-slate-100 my-1" />
-                  <Link
-                    href="/dashboard?tab=shop_orders"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-[#1E3A66] border border-transparent hover:border-slate-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-[#2F5FA7] transition-colors shrink-0">
-                      <Package className="w-5 h-5" />
-                    </div>
-                    My Orders
-                  </Link>
-                  <Link
-                    href="/dashboard?tab=designs"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-[#1E3A66] border border-transparent hover:border-slate-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-[#2F5FA7] transition-colors shrink-0">
-                      <Pencil className="w-5 h-5" />
-                    </div>
-                    My Designs
-                  </Link>
-                  <div className="border-t border-slate-100 my-1" />
+                  {role === 'customer' && (
+                    <>
+                      <div className="border-t border-slate-100 my-1" />
+                      <Link
+                        href="/dashboard?tab=shop_orders"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-[#1E3A66] border border-transparent hover:border-slate-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-[#2F5FA7] transition-colors shrink-0">
+                          <Package className="w-5 h-5" />
+                        </div>
+                        My Orders
+                      </Link>
+                      <Link
+                        href="/dashboard?tab=designs"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-4 px-4 py-3 text-sm font-bold text-[#1E3A66] border border-transparent hover:border-slate-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-[#2F5FA7] transition-colors shrink-0">
+                          <Pencil className="w-5 h-5" />
+                        </div>
+                        My Designs
+                      </Link>
+                      <div className="border-t border-slate-100 my-1" />
+                    </>
+                  )}
                   <button
                     onClick={() => {
                       setMobileOpen(false);

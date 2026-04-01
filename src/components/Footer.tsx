@@ -120,16 +120,26 @@ export function Footer() {
             <ul className="space-y-3">
               {[
                 { label: 'Blog', href: '/blog' },
-                { label: 'Guides', href: '#' },
-                { label: 'Documentation', href: '#' },
+                { label: 'Guides', href: null },
+                { label: 'Documentation', href: null },
               ].map((l) => (
                 <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
-                  >
-                    {l.label}
-                  </Link>
+                  {l.href ? (
+                    <Link
+                      href={l.href}
+                      className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
+                    >
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleWIPClick(e, l.label)}
+                      className="text-sm text-blue-100/60 hover:text-white transition-colors font-medium"
+                    >
+                      {l.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

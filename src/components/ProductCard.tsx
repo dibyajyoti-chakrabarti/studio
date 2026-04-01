@@ -34,7 +34,7 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
               product.reviews.length) *
               10
           ) / 10
-        : 4.5;
+        : null;
   const reviewCount = product.reviewCount || product.reviews?.length || 0;
   const basePrice = product.basePrice || product.salePrice;
   const discount =
@@ -81,6 +81,11 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
       });
     } catch (err) {
       console.error('Restock request failed:', err);
+      toast({
+        title: 'Request failed',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsRequesting(false);
     }
@@ -153,11 +158,15 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
             <p className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
               {product.sku}
             </p>
-            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span>{avgRating}</span>
-              <span className="text-slate-400">({reviewCount})</span>
-            </div>
+            {avgRating === null ? (
+              <p className="text-[11px] font-bold text-slate-500">No reviews yet</p>
+            ) : (
+              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <span>{avgRating}</span>
+                <span className="text-slate-400">({reviewCount})</span>
+              </div>
+            )}
           </div>
 
           <Link href={`/shop/${product.id}`} className="block">
@@ -220,14 +229,15 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
           </div>
 
           <div className="mt-4 flex gap-3">
-            <Link href={`/shop/${product.id}`} className="flex-1">
-              <Button
-                variant="outline"
-                className="h-11 w-full rounded-2xl border-slate-200 bg-white text-xs font-black uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-50"
-              >
+            <Button
+              asChild
+              variant="outline"
+              className="h-11 flex-1 rounded-2xl border-slate-200 bg-white text-xs font-black uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-50"
+            >
+              <Link href={`/shop/${product.id}`}>
                 View details
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
             {isOutOfStock ? (
               <Button

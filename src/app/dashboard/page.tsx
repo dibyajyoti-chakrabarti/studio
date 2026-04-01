@@ -502,10 +502,16 @@ function UserDashboardContent() {
       updatedAt: new Date().toISOString(),
     });
 
-    updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder.id), {
-      status: 'rejected',
-      updatedAt: new Date().toISOString(),
-    });
+    const remainingActionableQuotes =
+      (quotations as any[] | undefined)?.filter(
+        (q) => q.id !== quotation.id && q.status !== 'rejected'
+      ) || [];
+    if (remainingActionableQuotes.length === 0) {
+      updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder.id), {
+        status: 'rejected',
+        updatedAt: new Date().toISOString(),
+      });
+    }
 
     toast({ title: 'Quotation Rejected', description: 'The offer has been declined.' });
   };
@@ -704,8 +710,15 @@ function UserDashboardContent() {
                     return (
                       <Card
                         key={order.id}
+                        tabIndex={0}
                         className={`cursor-pointer transition-all duration-200 ${selectedOrderId === order.id ? 'bg-white border-[#2F5FA7]/40 shadow-[0_14px_32px_rgba(47,95,167,0.14)] ring-1 ring-[#2F5FA7]/20 -translate-y-0.5' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-white hover:shadow-md hover:-translate-y-0.5'} overflow-hidden relative group`}
                         onClick={() => setSelectedOrderId(order.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setSelectedOrderId(order.id);
+                          }
+                        }}
                       >
                         <CardContent className="p-6 flex items-center justify-between">
                           <div className="flex items-center gap-5">
@@ -901,8 +914,15 @@ function UserDashboardContent() {
                   (completedShopOrders as any[]).map((order: any) => (
                     <Card
                       key={order.id}
+                      tabIndex={0}
                       className="bg-white border-slate-200 hover:border-slate-300 hover:bg-white transition-all duration-200 overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5"
                       onClick={() => router.push(`/orders/${order.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          router.push(`/orders/${order.id}`);
+                        }
+                      }}
                     >
                       <CardContent className="p-6 flex items-center justify-between">
                         <div className="flex items-center gap-5">
@@ -1738,7 +1758,17 @@ function UserDashboardContent() {
             <AlertDialogAction
               onClick={async () => {
                 if (!pendingDeleteProject) return;
-                await handleDeleteProject(pendingDeleteProject);
+                const liveProject = sortedRfqs.find((order) => order.id === pendingDeleteProject.id);
+                if (!liveProject || liveProject.status !== 'draft') {
+                  toast({
+                    title: 'Cannot delete',
+                    description: 'This project is no longer in draft.',
+                    variant: 'destructive',
+                  });
+                  setPendingDeleteProject(null);
+                  return;
+                }
+                await handleDeleteProject(liveProject);
                 setPendingDeleteProject(null);
               }}
             >

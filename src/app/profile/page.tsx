@@ -112,6 +112,8 @@ export default function ProfilePage() {
       .slice(0, 2)
       .toUpperCase();
   }, [form.fullName, user?.email]);
+  const role = profile?.role || 'customer';
+  const dashboardHref = role === 'admin' ? '/admin' : role === 'vendor' ? '/vendor' : '/dashboard';
 
   const handleFieldChange = (key: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -432,7 +434,7 @@ export default function ProfilePage() {
                       type="button"
                       variant="outline"
                       className="flex-1 sm:flex-none border-slate-200"
-                      onClick={() => router.push('/dashboard')}
+                      onClick={() => router.push(dashboardHref)}
                     >
                       Back to Dashboard
                     </Button>
