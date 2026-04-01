@@ -158,9 +158,13 @@ function getStatusBadgeTone(status: string | undefined) {
     return 'border-emerald-100 bg-emerald-50 text-emerald-700';
   }
   if (status === 'quote_requested' || status === 'in_production' || status === 'assigned') {
-    return 'border-blue-100 bg-blue-50 text-[#2F5FA7]';
+    return 'border-blue-100 bg-blue-50 text-[`#2F5FA7`]';
   }
-  if (status === 'negotiation' || status === 'deposit_pending') {
+  if (
+    status === 'under_review' ||
+    status === 'negotiation' ||
+    status === 'deposit_pending'
+  ) {
     return 'border-amber-100 bg-amber-50 text-amber-700';
   }
   if (status === 'shipping' || status === 'shipped' || status === 'delivered') {
