@@ -306,8 +306,8 @@ export default function ShopPage() {
           </div>
 
           {heroCarouselItems.length > 0 ? (
-            <div className="relative overflow-hidden rounded-[30px] border border-emerald-300/60 bg-gradient-to-r from-[#1C7A42] via-[#2F8F4B] to-[#44A05F] shadow-[0_24px_60px_rgba(10,92,45,0.30)]">
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.18),transparent_55%)]" />
+            <div className="relative hidden overflow-hidden rounded-[30px] border border-blue-200/60 bg-gradient-to-r from-[#123A74] via-[#1E4B90] to-[#2F5FA7] shadow-[0_24px_60px_rgba(24,58,110,0.30)] md:block">
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.15),transparent_55%)]" />
               <Carousel
                 setApi={setHeroCarouselApi}
                 opts={{ align: 'start', loop: true }}
@@ -318,14 +318,15 @@ export default function ShopPage() {
                     <CarouselItem key={product.id} className="pl-0">
                       <div className="grid min-h-[240px] items-center gap-6 p-6 md:min-h-[290px] md:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-14">
                         <div className="space-y-3 text-white">
-                          <p className="inline-flex rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-emerald-50">
+                          <p className="inline-flex rounded-full border border-white/35 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-blue-50">
                             Random Pick In Shop
                           </p>
                           <h1 className="max-w-2xl text-3xl font-black leading-tight tracking-tight md:text-4xl">
                             {product.name}
                           </h1>
-                          <div className="max-w-xl rounded-2xl border border-white/25 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-100">
+                          <div className="max-w-xl rounded-2xl border border-blue-200/55 bg-[#0B2F63]/70 px-4 py-3 shadow-[0_10px_30px_rgba(5,20,45,0.35)] backdrop-blur-sm">
+                            <div className="mb-2 h-1.5 w-16 rounded-full bg-[#F4B400]" />
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100">
                               Specification
                             </p>
                             <p className="mt-1 text-lg font-black text-white">
@@ -339,12 +340,12 @@ export default function ShopPage() {
                           </Link>
                         </div>
 
-                        <div className="relative mx-auto h-[180px] w-full max-w-[380px] overflow-hidden rounded-3xl border border-white/25 bg-white/15 shadow-2xl backdrop-blur-sm md:h-[230px]">
+                        <div className="relative mx-auto h-[180px] w-full max-w-[380px] overflow-hidden md:h-[230px]">
                           <Image
                             src={getProductImage(product)}
                             alt={product.name}
                             fill
-                            className="object-contain p-4 md:p-6"
+                            className="object-contain p-2 md:p-4 drop-shadow-[0_18px_28px_rgba(0,0,0,0.25)]"
                             sizes="(max-width: 1024px) 80vw, 30vw"
                           />
                         </div>
@@ -354,8 +355,8 @@ export default function ShopPage() {
                 </CarouselContent>
                 {heroCarouselItems.length > 1 && (
                   <>
-                    <CarouselPrevious className="left-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/15 text-white hover:bg-white/25 disabled:opacity-35 md:left-5" />
-                    <CarouselNext className="right-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/15 text-white hover:bg-white/25 disabled:opacity-35 md:right-5" />
+                    <CarouselPrevious className="left-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/12 text-white hover:bg-white/20 disabled:opacity-35 md:left-5" />
+                    <CarouselNext className="right-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/12 text-white hover:bg-white/20 disabled:opacity-35 md:right-5" />
                   </>
                 )}
               </Carousel>
@@ -370,7 +371,7 @@ export default function ShopPage() {
                       className={`h-2.5 rounded-full transition-all ${
                         heroCarouselIndex === index
                           ? 'w-8 bg-white'
-                          : 'w-2.5 bg-white/45 hover:bg-white/70'
+                          : 'w-2.5 bg-blue-100/45 hover:bg-blue-100/70'
                       }`}
                     />
                   ))}
@@ -378,7 +379,7 @@ export default function ShopPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-[30px] border border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 p-6">
+            <div className="hidden rounded-[30px] border border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 p-6 md:block">
               <p className="text-sm font-semibold text-emerald-900">
                 Loading featured shop picks...
               </p>
