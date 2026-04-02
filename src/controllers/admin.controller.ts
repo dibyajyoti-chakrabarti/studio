@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { MediaService } from '@/services/media.service';
+import { authenticateRequest } from '@/lib/auth-middleware';
 
 /**
  * AdminController handles administrative API requests, primarily for product and asset management.
@@ -11,26 +12,23 @@ export const AdminController = {
    * Authorizes the request as an admin.
    */
   async authorizeAdmin(req: NextRequest) {
-    const { adminAuth, adminFirestore } = getFirebaseAdmin();
-
-    if (!adminAuth || !adminFirestore) {
-      throw new Error('Firebase services not initialized');
+    const authResult = await authenticateRequest(req);
+    if (!authResult.success) {
+      return { authorized: false as const, status: authResult.status, message: authResult.error };
     }
 
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return { authorized: false, status: 401, message: 'Unauthorized' };
+    const { adminFirestore } = getFirebaseAdmin();
+    if (!adminFirestore) {
+      throw new Error('Firebase Firestore not initialized');
     }
 
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    const userDoc = await adminFirestore.collection('users').doc(decodedToken.uid).get();
-
+    // Verify admin role server-side (supports both session-cookie and Bearer token flows)
+    const userDoc = await adminFirestore.collection('users').doc(authResult.uid).get();
     if (userDoc.data()?.role !== 'admin') {
-      return { authorized: false, status: 403, message: 'Forbidden' };
+      return { authorized: false as const, status: 403, message: 'Forbidden' };
     }
 
-    return { authorized: true, adminFirestore };
+    return { authorized: true as const, adminFirestore };
   },
 
   /**

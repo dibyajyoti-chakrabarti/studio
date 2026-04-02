@@ -2,11 +2,16 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { logger } from '@/utils/logger';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
   if (!resendInstance) {
-    resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
+    const key = process.env.RESEND_API_KEY;
+    if (!key) {
+      throw new Error('RESEND_API_KEY environment variable is not configured');
+    }
+    resendInstance = new Resend(key);
   }
   return resendInstance;
 };
@@ -102,13 +107,13 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error('Resend email error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      logger.error({ event: 'contact_notify_email_failed', error: error.message });
+      return NextResponse.json({ error: 'Email notification failed' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Contact notification error:', error);
+    logger.error({ event: 'contact_notify_unexpected_error', error: error.message });
     return NextResponse.json({ error: 'Email notification failed' }, { status: 500 });
   }
 }

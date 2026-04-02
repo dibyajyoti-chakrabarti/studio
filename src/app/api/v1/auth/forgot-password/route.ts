@@ -7,7 +7,11 @@ import { getClientIdentifier, normalizeEmail, escapeHtml } from '@/lib/auth-safe
 let resendInstance: Resend | null = null;
 const getResend = () => {
   if (!resendInstance) {
-    resendInstance = new Resend(process.env.RESEND_API_KEY || 'dummy_key_for_build');
+    const key = process.env.RESEND_API_KEY;
+    if (!key) {
+      throw new Error('RESEND_API_KEY environment variable is not configured');
+    }
+    resendInstance = new Resend(key);
   }
   return resendInstance;
 };

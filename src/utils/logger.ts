@@ -87,6 +87,7 @@ function createLogFn(level: LogLevel): (payload: LogPayload) => void {
       case 'error':
       case 'fatal':
         // eslint-disable-next-line no-console
+        console.error(formatted);
         break;
     }
   };
