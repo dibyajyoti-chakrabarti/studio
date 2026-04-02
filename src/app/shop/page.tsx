@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment, useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
@@ -13,9 +14,6 @@ import {
   Package,
   Filter,
   SlidersHorizontal,
-  ShieldCheck,
-  Truck,
-  BarChart3,
   Store,
   Scale,
   X,
@@ -34,6 +32,14 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { ProductCard } from '@/components/ProductCard';
+import {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 type PriceBand = 'all' | 'under-200' | '200-500' | '500-1000' | '1000-plus';
 type StockFilter = 'all' | 'in-stock' | 'low-stock';
@@ -132,6 +138,8 @@ export default function ShopPage() {
   const [priceBand, setPriceBand] = useState<PriceBand>('all');
   const [stockFilter, setStockFilter] = useState<StockFilter>('all');
   const [compareList, setCompareList] = useState<ShopProduct[]>([]);
+  const [heroCarouselApi, setHeroCarouselApi] = useState<CarouselApi>();
+  const [heroCarouselIndex, setHeroCarouselIndex] = useState(0);
   const { addItem } = useCart();
 
   const productsRef = useMemoFirebase(() => {
@@ -216,6 +224,12 @@ export default function ShopPage() {
     }, {});
   }, [allProducts]);
 
+  const heroCarouselItems = useMemo(() => {
+    if (allProducts.length === 0) return [];
+    const shuffled = [...allProducts].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(shuffled.length, 8));
+  }, [allProducts]);
+
   const pricingSummary = useMemo(() => {
     if (filteredProducts.length === 0) return { min: 0, max: 0, avg: 0 };
     const prices = filteredProducts.map((product) => product.salePrice);
@@ -243,6 +257,36 @@ export default function ShopPage() {
     });
   };
 
+  useEffect(() => {
+    if (!heroCarouselApi) return;
+    const onSelect = () => {
+      setHeroCarouselIndex(heroCarouselApi.selectedScrollSnap());
+    };
+    onSelect();
+    heroCarouselApi.on('select', onSelect);
+    heroCarouselApi.on('reInit', onSelect);
+    return () => {
+      heroCarouselApi.off('select', onSelect);
+      heroCarouselApi.off('reInit', onSelect);
+    };
+  }, [heroCarouselApi]);
+
+  useEffect(() => {
+    if (!heroCarouselApi || heroCarouselItems.length <= 1) return;
+    const autoplay = window.setInterval(() => {
+      heroCarouselApi.scrollNext();
+    }, 4200);
+    return () => window.clearInterval(autoplay);
+  }, [heroCarouselApi, heroCarouselItems.length]);
+
+  const getProductImage = (product: ShopProduct) => {
+    if (!product.images?.length) return '/images/placeholder-part.svg';
+    if (typeof product.images[0] === 'string') {
+      return product.images[0] || '/images/placeholder-part.svg';
+    }
+    return product.images[0]?.urls?.product || product.images[0]?.urls?.thumb || '/images/placeholder-part.svg';
+  };
+
   return (
     <div className="min-h-screen bg-[#F6F8FC] text-slate-900 selection:bg-blue-500/20">
       <LandingNav />
@@ -250,55 +294,96 @@ export default function ShopPage() {
       <section className="border-b border-slate-200 bg-white pt-0">
         <BackToHomeBar className="pt-1 md:pt-2 pb-2" />
         <div className="container mx-auto px-4 pb-6 md:pb-8">
-          <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2F5FA7]">
-                  <Store className="mr-1.5 h-3 w-3" />
-                  MechHub Registry
-                </Badge>
-                <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
-                  <CheckCircle2 className="mr-1.5 h-3 w-3" />
-                  Verified Supply
-                </Badge>
-              </div>
-              <div className="max-w-3xl space-y-3">
-                <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
-                  Shop parts like a fast industrial marketplace, not a brochure.
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                  Search by SKU, compare options, filter by stock and price, and add verified
-                  mechanical components to cart in a few clicks while keeping the MechHub product
-                  trust layer intact.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              {[
-                {
-                  icon: ShieldCheck,
-                  label: 'Supplier Verified',
-                  value: `${allProducts.length || 0}+ SKUs`,
-                },
-                { icon: Truck, label: 'Dispatch Window', value: '24-48 Hours' },
-                { icon: BarChart3, label: 'Bulk Price View', value: 'Transparent' },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm"
-                >
-                  <item.icon className="mb-3 h-5 w-5 text-[#2F5FA7]" />
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                    {item.label}
-                  </p>
-                  <p className="mt-1 text-lg font-black tracking-tight text-slate-900">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2F5FA7]">
+              <Store className="mr-1.5 h-3 w-3" />
+              MechHub Registry
+            </Badge>
+            <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
+              <CheckCircle2 className="mr-1.5 h-3 w-3" />
+              Verified Supply
+            </Badge>
           </div>
+
+          {heroCarouselItems.length > 0 ? (
+            <div className="relative overflow-hidden rounded-[30px] border border-emerald-300/60 bg-gradient-to-r from-[#1C7A42] via-[#2F8F4B] to-[#44A05F] shadow-[0_24px_60px_rgba(10,92,45,0.30)]">
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.18),transparent_55%)]" />
+              <Carousel
+                setApi={setHeroCarouselApi}
+                opts={{ align: 'start', loop: true }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-0">
+                  {heroCarouselItems.map((product) => (
+                    <CarouselItem key={product.id} className="pl-0">
+                      <div className="grid min-h-[240px] items-center gap-6 p-6 md:min-h-[290px] md:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-14">
+                        <div className="space-y-3 text-white">
+                          <p className="inline-flex rounded-full border border-white/30 bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-emerald-50">
+                            Random Pick In Shop
+                          </p>
+                          <h1 className="max-w-2xl text-3xl font-black leading-tight tracking-tight md:text-4xl">
+                            {product.name}
+                          </h1>
+                          <div className="max-w-xl rounded-2xl border border-white/25 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-100">
+                              Specification
+                            </p>
+                            <p className="mt-1 text-lg font-black text-white">
+                              {product.specs || product.sku}
+                            </p>
+                          </div>
+                          <Link href={`/shop/${product.id}`}>
+                            <Button className="mt-2 h-11 rounded-full bg-[#F4B400] px-6 text-sm font-black text-[#1A2B0F] hover:bg-[#F9C83A]">
+                              View Product
+                            </Button>
+                          </Link>
+                        </div>
+
+                        <div className="relative mx-auto h-[180px] w-full max-w-[380px] overflow-hidden rounded-3xl border border-white/25 bg-white/15 shadow-2xl backdrop-blur-sm md:h-[230px]">
+                          <Image
+                            src={getProductImage(product)}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-4 md:p-6"
+                            sizes="(max-width: 1024px) 80vw, 30vw"
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {heroCarouselItems.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/15 text-white hover:bg-white/25 disabled:opacity-35 md:left-5" />
+                    <CarouselNext className="right-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/15 text-white hover:bg-white/25 disabled:opacity-35 md:right-5" />
+                  </>
+                )}
+              </Carousel>
+
+              {heroCarouselItems.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5">
+                  {heroCarouselItems.map((item, index) => (
+                    <button
+                      key={`${item.id}-dot`}
+                      onClick={() => heroCarouselApi?.scrollTo(index)}
+                      aria-label={`Go to product ${index + 1}`}
+                      className={`h-2.5 rounded-full transition-all ${
+                        heroCarouselIndex === index
+                          ? 'w-8 bg-white'
+                          : 'w-2.5 bg-white/45 hover:bg-white/70'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-[30px] border border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 p-6">
+              <p className="text-sm font-semibold text-emerald-900">
+                Loading featured shop picks...
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
