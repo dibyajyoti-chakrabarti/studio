@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment, useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { LandingNav } from '@/components/LandingNav';
@@ -13,13 +14,9 @@ import {
   Package,
   Filter,
   SlidersHorizontal,
-  ShieldCheck,
-  Truck,
-  BarChart3,
   Store,
   Scale,
   X,
-  Sparkles,
   CheckCircle2,
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -35,6 +32,14 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { ProductCard } from '@/components/ProductCard';
+import {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 type PriceBand = 'all' | 'under-200' | '200-500' | '500-1000' | '1000-plus';
 type StockFilter = 'all' | 'in-stock' | 'low-stock';
@@ -133,6 +138,8 @@ export default function ShopPage() {
   const [priceBand, setPriceBand] = useState<PriceBand>('all');
   const [stockFilter, setStockFilter] = useState<StockFilter>('all');
   const [compareList, setCompareList] = useState<ShopProduct[]>([]);
+  const [heroCarouselApi, setHeroCarouselApi] = useState<CarouselApi>();
+  const [heroCarouselIndex, setHeroCarouselIndex] = useState(0);
   const { addItem } = useCart();
 
   const productsRef = useMemoFirebase(() => {
@@ -217,6 +224,12 @@ export default function ShopPage() {
     }, {});
   }, [allProducts]);
 
+  const heroCarouselItems = useMemo(() => {
+    if (allProducts.length === 0) return [];
+    const shuffled = [...allProducts].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(shuffled.length, 8));
+  }, [allProducts]);
+
   const pricingSummary = useMemo(() => {
     if (filteredProducts.length === 0) return { min: 0, max: 0, avg: 0 };
     const prices = filteredProducts.map((product) => product.salePrice);
@@ -225,13 +238,6 @@ export default function ShopPage() {
     const avg = Math.round(prices.reduce((sum, price) => sum + price, 0) / prices.length);
     return { min, max, avg };
   }, [filteredProducts]);
-
-  const activeFilterCount = [
-    selectedCategory !== 'all',
-    priceBand !== 'all',
-    stockFilter !== 'all',
-    debouncedSearchQuery.trim().length > 0,
-  ].filter(Boolean).length;
 
   const clearAllFilters = () => {
     setSearchQuery('');
@@ -251,7 +257,35 @@ export default function ShopPage() {
     });
   };
 
-  const featuredProducts = filteredProducts.slice(0, 3);
+  useEffect(() => {
+    if (!heroCarouselApi) return;
+    const onSelect = () => {
+      setHeroCarouselIndex(heroCarouselApi.selectedScrollSnap());
+    };
+    onSelect();
+    heroCarouselApi.on('select', onSelect);
+    heroCarouselApi.on('reInit', onSelect);
+    return () => {
+      heroCarouselApi.off('select', onSelect);
+      heroCarouselApi.off('reInit', onSelect);
+    };
+  }, [heroCarouselApi]);
+
+  useEffect(() => {
+    if (!heroCarouselApi || heroCarouselItems.length <= 1) return;
+    const autoplay = window.setInterval(() => {
+      heroCarouselApi.scrollNext();
+    }, 4200);
+    return () => window.clearInterval(autoplay);
+  }, [heroCarouselApi, heroCarouselItems.length]);
+
+  const getProductImage = (product: ShopProduct) => {
+    if (!product.images?.length) return '/images/placeholder-part.svg';
+    if (typeof product.images[0] === 'string') {
+      return product.images[0] || '/images/placeholder-part.svg';
+    }
+    return product.images[0]?.urls?.product || product.images[0]?.urls?.thumb || '/images/placeholder-part.svg';
+  };
 
   return (
     <div className="min-h-screen bg-[#F6F8FC] text-slate-900 selection:bg-blue-500/20">
@@ -260,55 +294,97 @@ export default function ShopPage() {
       <section className="border-b border-slate-200 bg-white pt-0">
         <BackToHomeBar className="pt-1 md:pt-2 pb-2" />
         <div className="container mx-auto px-4 pb-6 md:pb-8">
-          <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2F5FA7]">
-                  <Store className="mr-1.5 h-3 w-3" />
-                  MechHub Registry
-                </Badge>
-                <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
-                  <CheckCircle2 className="mr-1.5 h-3 w-3" />
-                  Verified Supply
-                </Badge>
-              </div>
-              <div className="max-w-3xl space-y-3">
-                <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
-                  Shop parts like a fast industrial marketplace, not a brochure.
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                  Search by SKU, compare options, filter by stock and price, and add verified
-                  mechanical components to cart in a few clicks while keeping the MechHub product
-                  trust layer intact.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              {[
-                {
-                  icon: ShieldCheck,
-                  label: 'Supplier Verified',
-                  value: `${allProducts.length || 0}+ SKUs`,
-                },
-                { icon: Truck, label: 'Dispatch Window', value: '24-48 Hours' },
-                { icon: BarChart3, label: 'Bulk Price View', value: 'Transparent' },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm"
-                >
-                  <item.icon className="mb-3 h-5 w-5 text-[#2F5FA7]" />
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                    {item.label}
-                  </p>
-                  <p className="mt-1 text-lg font-black tracking-tight text-slate-900">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2F5FA7]">
+              <Store className="mr-1.5 h-3 w-3" />
+              MechHub Registry
+            </Badge>
+            <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">
+              <CheckCircle2 className="mr-1.5 h-3 w-3" />
+              Verified Supply
+            </Badge>
           </div>
+
+          {heroCarouselItems.length > 0 ? (
+            <div className="relative hidden overflow-hidden rounded-[30px] border border-blue-200/60 bg-gradient-to-r from-[#123A74] via-[#1E4B90] to-[#2F5FA7] shadow-[0_24px_60px_rgba(24,58,110,0.30)] md:block">
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-[40%] bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.15),transparent_55%)]" />
+              <Carousel
+                setApi={setHeroCarouselApi}
+                opts={{ align: 'start', loop: true }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-0">
+                  {heroCarouselItems.map((product) => (
+                    <CarouselItem key={product.id} className="pl-0">
+                      <div className="grid min-h-[240px] items-center gap-6 p-6 md:min-h-[290px] md:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-14">
+                        <div className="space-y-3 text-white">
+                          <p className="inline-flex rounded-full border border-white/35 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-blue-50">
+                            Random Pick In Shop
+                          </p>
+                          <h1 className="max-w-2xl text-3xl font-black leading-tight tracking-tight md:text-4xl">
+                            {product.name}
+                          </h1>
+                          <div className="max-w-xl rounded-2xl border border-blue-200/55 bg-[#0B2F63]/70 px-4 py-3 shadow-[0_10px_30px_rgba(5,20,45,0.35)] backdrop-blur-sm">
+                            <div className="mb-2 h-1.5 w-16 rounded-full bg-[#F4B400]" />
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100">
+                              Specification
+                            </p>
+                            <p className="mt-1 text-lg font-black text-white">
+                              {product.specs || product.sku}
+                            </p>
+                          </div>
+                          <Link href={`/shop/${product.id}`}>
+                            <Button className="mt-2 h-11 rounded-full bg-[#F4B400] px-6 text-sm font-black text-[#1A2B0F] hover:bg-[#F9C83A]">
+                              View Product
+                            </Button>
+                          </Link>
+                        </div>
+
+                        <div className="relative mx-auto h-[180px] w-full max-w-[380px] overflow-hidden md:h-[230px]">
+                          <Image
+                            src={getProductImage(product)}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-2 md:p-4 drop-shadow-[0_18px_28px_rgba(0,0,0,0.25)]"
+                            sizes="(max-width: 1024px) 80vw, 30vw"
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {heroCarouselItems.length > 1 && (
+                  <>
+                    <CarouselPrevious className="left-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/12 text-white hover:bg-white/20 disabled:opacity-35 md:left-5" />
+                    <CarouselNext className="right-3 top-1/2 h-10 w-10 -translate-y-1/2 border-white/35 bg-white/12 text-white hover:bg-white/20 disabled:opacity-35 md:right-5" />
+                  </>
+                )}
+              </Carousel>
+
+              {heroCarouselItems.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5">
+                  {heroCarouselItems.map((item, index) => (
+                    <button
+                      key={`${item.id}-dot`}
+                      onClick={() => heroCarouselApi?.scrollTo(index)}
+                      aria-label={`Go to product ${index + 1}`}
+                      className={`h-2.5 rounded-full transition-all ${
+                        heroCarouselIndex === index
+                          ? 'w-8 bg-white'
+                          : 'w-2.5 bg-blue-100/45 hover:bg-blue-100/70'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="hidden rounded-[30px] border border-emerald-200 bg-gradient-to-r from-emerald-100 to-green-100 p-6 md:block">
+              <p className="text-sm font-semibold text-emerald-900">
+                Loading featured shop picks...
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -466,95 +542,6 @@ export default function ShopPage() {
           </aside>
 
           <section className="space-y-6">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                      {filteredProducts.length} results
-                    </Badge>
-                    {activeFilterCount > 0 && (
-                      <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2F5FA7]">
-                        {activeFilterCount} active filters
-                      </Badge>
-                    )}
-                    {selectedCategory !== 'all' && (
-                      <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">
-                        {CATEGORIES.find((item) => item.id === selectedCategory)?.label}
-                      </Badge>
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-black tracking-tight text-slate-950">
-                      Browse industrial components faster
-                    </h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                      Amazon-like scanning, MechHub-grade trust: compact cards, transparent pricing,
-                      stock visibility, and quick cart actions for engineering buyers.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Price range
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">
-                      ₹{pricingSummary.min} - ₹{pricingSummary.max}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Ready stock
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">
-                      {filteredProducts.filter((product) => product.inventory > 0).length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Sort mode
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">{sortBy}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {featuredProducts.length > 0 && !debouncedSearchQuery.trim() && (
-              <div className="rounded-[28px] border border-slate-200 bg-gradient-to-r from-[#16325F] via-[#21457D] to-[#2F5FA7] p-5 text-white shadow-[0_24px_60px_rgba(47,95,167,0.28)]">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="max-w-xl">
-                    <div className="mb-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-blue-100">
-                      <Sparkles className="h-4 w-4" />
-                      Fast-moving picks
-                    </div>
-                    <h3 className="text-2xl font-black tracking-tight">
-                      High-trust components engineers are viewing right now
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-blue-50/90">
-                      Use this strip like an Amazon bestseller lane, but tuned for mechanical parts
-                      and MechHub’s verified procurement workflow.
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {featuredProducts.map((product) => (
-                      <div key={product.id} className="rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
-                          {product.sku}
-                        </p>
-                        <p className="mt-2 line-clamp-2 text-sm font-bold text-white">
-                          {product.name}
-                        </p>
-                        <p className="mt-2 text-lg font-black">₹{product.salePrice.toLocaleString('en-IN')}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {isLoading ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, index) => (

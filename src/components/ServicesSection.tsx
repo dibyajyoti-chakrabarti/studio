@@ -101,7 +101,7 @@ export function ServicesSection() {
             <Link
               key={service.num}
               href={service.href}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)]"
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#2F5FA7] p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)]"
             >
               <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-white/10">
                 <Image

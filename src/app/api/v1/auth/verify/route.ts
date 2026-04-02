@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { isAdmin } from '@/lib/auth-utils';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { getClientIdentifier } from '@/lib/auth-safety';
 
 export async function GET(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const ip = getClientIdentifier(req.headers);
     const limiter = await rateLimit(`auth-verify-attempt:${ip}`, 5, 60000); // 5 attempts per minute
 
     if (!limiter.success) {
@@ -21,6 +22,10 @@ export async function GET(req: Request) {
 
     if (!token) {
       return NextResponse.redirect(`${loginUrl}?error=missing_token`);
+    }
+
+    if (!/^[a-f0-9]{64}$/i.test(token)) {
+      return NextResponse.redirect(`${loginUrl}?error=invalid_token`);
     }
 
     const { adminFirestore, adminAuth } = getFirebaseAdmin();

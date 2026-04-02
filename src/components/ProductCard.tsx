@@ -232,7 +232,7 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
             <Button
               asChild
               variant="outline"
-              className="h-11 flex-1 rounded-2xl border-slate-200 bg-white text-xs font-black uppercase tracking-[0.18em] text-slate-700 hover:bg-slate-50"
+              className="h-11 min-w-0 flex-1 rounded-2xl border-slate-200 bg-white px-3 text-[11px] font-black uppercase tracking-[0.14em] text-slate-700 hover:bg-slate-50"
             >
               <Link href={`/shop/${product.id}`}>
                 View details
@@ -241,7 +241,7 @@ export function ProductCard({ product, isComparing, toggleCompare, addItem }: Pr
 
             {isOutOfStock ? (
               <Button
-                className="h-11 flex-1 rounded-2xl bg-slate-900 text-xs font-black uppercase tracking-[0.18em] text-white hover:bg-slate-800"
+                className="h-11 min-w-0 flex-1 rounded-2xl bg-[#2F5FA7] px-3 text-[11px] font-black uppercase tracking-[0.14em] text-white hover:bg-[#254b86]"
                 onClick={handleRestockRequest}
                 disabled={isRequesting || hasRequested}
               >

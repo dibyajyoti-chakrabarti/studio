@@ -82,7 +82,7 @@ export function LandingNav() {
   const displayName = profile?.fullName || user?.email?.split('@')[0] || 'Account';
   const role = profile?.role || 'customer';
   const dashboardHref = role === 'admin' ? '/admin' : role === 'vendor' ? '/vendor' : '/dashboard';
-  const navLinks = [...NAV_LINKS, { href: dashboardHref, label: 'Dashboard' }];
+  const navLinks = user ? [...NAV_LINKS, { href: dashboardHref, label: 'Dashboard' }] : NAV_LINKS;
 
   const initials = displayName
     .split(' ')
