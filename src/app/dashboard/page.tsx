@@ -38,6 +38,7 @@ import {
   deleteDocumentNonBlocking,
 } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { collection, query, where, doc } from 'firebase/firestore';
 import {
   MechanicalPart,
@@ -1608,7 +1609,25 @@ function UserDashboardContent() {
               </Button>
 
               <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest">
-                By continuing, you agree to our Terms of Service and Privacy Policy.
+                By continuing, you agree to our{' '}
+                <Link
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-500"
+                >
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-500"
+                >
+                  Privacy Policy
+                </Link>
+                .
               </p>
             </form>
           </div>
