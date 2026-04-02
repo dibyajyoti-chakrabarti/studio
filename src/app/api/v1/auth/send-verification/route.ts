@@ -45,6 +45,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
     }
 
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const firebaseUser = await adminAuth.getUser(uid);
+    if ((firebaseUser.email || '').toLowerCase() !== normalizedEmail) {
+      return NextResponse.json({ error: 'Email mismatch' }, { status: 403 });
+    }
+
+    if (firebaseUser.emailVerified) {
+      return NextResponse.json({ success: true, message: 'Email already verified' });
+    }
+
     // 1. Generate a secure random token
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
@@ -53,7 +63,7 @@ export async function POST(req: Request) {
     // 2. Save token to Firestore
     await adminFirestore.collection('verification_tokens').doc(token).set({
       uid,
-      email,
+      email: normalizedEmail,
       token,
       expiresAt: expiresAt.toISOString(),
       createdAt: new Date().toISOString(),
@@ -71,7 +81,7 @@ export async function POST(req: Request) {
 
     const { error } = await resend.emails.send({
       from: 'MechHub <outreach@mechhub.in>',
-      to: [email],
+      to: [normalizedEmail],
       subject,
       text: `Hi ${name?.trim() || 'there'},
 
@@ -280,7 +290,7 @@ ${APP_URL}`,
       logger.error({
         event: 'email_send_failed',
         error: error.message,
-        email,
+        email: normalizedEmail,
       });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

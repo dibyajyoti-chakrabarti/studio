@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/utils/logger';
 import { nanoid } from 'nanoid';
 import { s3Client } from '@/lib/s3-client';
@@ -10,13 +10,22 @@ import { authenticateRequest } from '@/lib/auth-middleware';
 // POST /api/v1/files/upload-intent — Real S3 Presigned URL
 // ═══════════════════════════════════════════════════
 
-export async function POST(request: Request) {
+const MAX_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
+const ALLOWED_CONTENT_TYPES = new Set([
+  'application/dxf',
+  'application/octet-stream',
+  'model/step',
+  'model/stl',
+  'application/sla',
+]);
+
+export async function POST(request: NextRequest) {
   const reqId = nanoid(8);
   logger.info({ event: 'API: POST /api/v1/files/upload-intent started', reqId });
 
   try {
     // 1. Authenticate the request
-    const auth = await authenticateRequest(request as any);
+    const auth = await authenticateRequest(request);
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
@@ -26,6 +35,9 @@ export async function POST(request: Request) {
     if (!fileName || !fileSize) {
       return NextResponse.json({ error: 'Missing file metadata' }, { status: 400 });
     }
+    if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > MAX_UPLOAD_SIZE_BYTES) {
+      return NextResponse.json({ error: 'Invalid file size' }, { status: 400 });
+    }
 
     // 2. Validate file extension (Security Check)
     const allowedExtensions = ['.dxf', '.step', '.stp', '.stl'];
@@ -34,6 +46,10 @@ export async function POST(request: Request) {
     if (!allowedExtensions.includes(ext)) {
       logger.warn({ event: 'API: Invalid file extension rejected', fileName, reqId });
       return NextResponse.json({ error: `File type ${ext} not allowed` }, { status: 400 });
+    }
+    if (contentType && !ALLOWED_CONTENT_TYPES.has(contentType)) {
+      logger.warn({ event: 'API: Invalid content type rejected', contentType, reqId });
+      return NextResponse.json({ error: 'Invalid file content type' }, { status: 400 });
     }
 
     // 3. Generate unique S3 key

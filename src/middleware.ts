@@ -14,7 +14,11 @@ export function middleware(req: NextRequest) {
   const session = req.cookies.get('session');
 
   // Define protected route patterns
-  const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
+  const isProtectedRoute =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/vendor') ||
+    pathname.startsWith('/profile');
   const isAuthRoute = pathname === '/login';
 
   // 1. If trying to access a protected route without a session
