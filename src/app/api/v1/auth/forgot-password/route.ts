@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { Resend } from 'resend';
+import { getClientIdentifier, normalizeEmail, escapeHtml } from '@/lib/auth-safety';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
@@ -18,14 +19,21 @@ import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 export async function POST(req: Request) {
   let currentEmail = 'unknown';
   try {
-    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const ip = getClientIdentifier(req.headers);
     const limiter = await rateLimit(`auth-forgot:${ip}`, 3, 60000);
     if (!limiter.success) {
       return rateLimitResponse(limiter.reset);
     }
 
-    const { email } = await req.json();
-    currentEmail = email;
+    let payload: unknown;
+    try {
+      payload = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+    }
+    const rawEmail = (payload as { email?: unknown })?.email;
+    const email = normalizeEmail(rawEmail);
+    currentEmail = typeof rawEmail === 'string' ? rawEmail : 'unknown';
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -103,7 +111,7 @@ export async function POST(req: Request) {
             </div>
             <div class="content">
               <h2>Password Reset Request</h2>
-              <p>We received a request to reset the password for your MechHub account associated with ${email}. If you made this request, please click the button below to choose a new password.</p>
+              <p>We received a request to reset the password for your MechHub account associated with ${escapeHtml(email)}. If you made this request, please click the button below to choose a new password.</p>
               
               <div class="button-container">
                 <a href="${customResetUrl}" class="button">Reset My Password</a>

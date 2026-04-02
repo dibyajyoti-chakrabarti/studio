@@ -3,6 +3,7 @@ import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { getClientIdentifier, normalizeEmail, escapeHtml } from '@/lib/auth-safety';
 
 let resendInstance: Resend | null = null;
 const getResend = () => {
@@ -16,25 +17,28 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
-const escapeHtml = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-
 export async function POST(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const ip = getClientIdentifier(req.headers);
     const limiter = await rateLimit(`auth-verify:${ip}`, 3, 60000);
     if (!limiter.success) {
       return rateLimitResponse(limiter.reset);
     }
 
-    const { email, name, uid } = await req.json();
+    let payload: unknown;
+    try {
+      payload = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+    }
 
-    if (!email || !uid) {
+    const email = (payload as { email?: unknown })?.email;
+    const name = (payload as { name?: unknown })?.name;
+    const uid = (payload as { uid?: unknown })?.uid;
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedUid = typeof uid === 'string' ? uid.trim() : '';
+
+    if (!normalizedEmail || !normalizedUid || normalizedUid.length < 6 || normalizedUid.length > 128) {
       return NextResponse.json({ error: 'Email and UID are required' }, { status: 400 });
     }
 
@@ -45,10 +49,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const firebaseUser = await adminAuth.getUser(uid);
+    let firebaseUser;
+    try {
+      firebaseUser = await adminAuth.getUser(normalizedUid);
+    } catch (error: any) {
+      if (error?.code === 'auth/user-not-found') {
+        return NextResponse.json({
+          success: true,
+          message: 'If an account needs verification, an email has been sent.',
+        });
+      }
+      throw error;
+    }
+
     if ((firebaseUser.email || '').toLowerCase() !== normalizedEmail) {
-      return NextResponse.json({ error: 'Email mismatch' }, { status: 403 });
+      return NextResponse.json({
+        success: true,
+        message: 'If an account needs verification, an email has been sent.',
+      });
     }
 
     if (firebaseUser.emailVerified) {
@@ -62,7 +80,7 @@ export async function POST(req: Request) {
 
     // 2. Save token to Firestore
     await adminFirestore.collection('verification_tokens').doc(token).set({
-      uid,
+      uid: normalizedUid,
       email: normalizedEmail,
       token,
       expiresAt: expiresAt.toISOString(),
@@ -72,8 +90,8 @@ export async function POST(req: Request) {
 
     // 3. Send email using Resend
     const verificationUrl = `${APP_URL}/api/v1/auth/verify?token=${token}`;
-    const safeName = escapeHtml(name?.trim() || 'there');
-    const safeEmail = escapeHtml(email);
+    const safeName = escapeHtml(typeof name === 'string' ? name.trim() : 'there');
+    const safeEmail = escapeHtml(normalizedEmail);
     const currentYear = new Date().getFullYear();
     const subject = 'Verify your email address for MechHub';
     const previewText = 'Confirm your email to activate your MechHub workspace.';
@@ -83,7 +101,7 @@ export async function POST(req: Request) {
       from: 'MechHub <outreach@mechhub.in>',
       to: [normalizedEmail],
       subject,
-      text: `Hi ${name?.trim() || 'there'},
+      text: `Hi ${typeof name === 'string' ? name.trim() : 'there'},
 
 Welcome to MechHub. Please verify your email address to activate your account.
 
