@@ -19,7 +19,6 @@ import {
   Store,
   Scale,
   X,
-  Sparkles,
   CheckCircle2,
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -226,13 +225,6 @@ export default function ShopPage() {
     return { min, max, avg };
   }, [filteredProducts]);
 
-  const activeFilterCount = [
-    selectedCategory !== 'all',
-    priceBand !== 'all',
-    stockFilter !== 'all',
-    debouncedSearchQuery.trim().length > 0,
-  ].filter(Boolean).length;
-
   const clearAllFilters = () => {
     setSearchQuery('');
     setDebouncedSearchQuery('');
@@ -250,8 +242,6 @@ export default function ShopPage() {
       return [...prev, product];
     });
   };
-
-  const featuredProducts = filteredProducts.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#F6F8FC] text-slate-900 selection:bg-blue-500/20">
@@ -466,95 +456,6 @@ export default function ShopPage() {
           </aside>
 
           <section className="space-y-6">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                      {filteredProducts.length} results
-                    </Badge>
-                    {activeFilterCount > 0 && (
-                      <Badge className="border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2F5FA7]">
-                        {activeFilterCount} active filters
-                      </Badge>
-                    )}
-                    {selectedCategory !== 'all' && (
-                      <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">
-                        {CATEGORIES.find((item) => item.id === selectedCategory)?.label}
-                      </Badge>
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-black tracking-tight text-slate-950">
-                      Browse industrial components faster
-                    </h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                      Amazon-like scanning, MechHub-grade trust: compact cards, transparent pricing,
-                      stock visibility, and quick cart actions for engineering buyers.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Price range
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">
-                      ₹{pricingSummary.min} - ₹{pricingSummary.max}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Ready stock
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">
-                      {filteredProducts.filter((product) => product.inventory > 0).length}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Sort mode
-                    </p>
-                    <p className="mt-1 text-base font-black text-slate-900">{sortBy}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {featuredProducts.length > 0 && !debouncedSearchQuery.trim() && (
-              <div className="rounded-[28px] border border-slate-200 bg-gradient-to-r from-[#16325F] via-[#21457D] to-[#2F5FA7] p-5 text-white shadow-[0_24px_60px_rgba(47,95,167,0.28)]">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="max-w-xl">
-                    <div className="mb-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-blue-100">
-                      <Sparkles className="h-4 w-4" />
-                      Fast-moving picks
-                    </div>
-                    <h3 className="text-2xl font-black tracking-tight">
-                      High-trust components engineers are viewing right now
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-blue-50/90">
-                      Use this strip like an Amazon bestseller lane, but tuned for mechanical parts
-                      and MechHub’s verified procurement workflow.
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {featuredProducts.map((product) => (
-                      <div key={product.id} className="rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
-                          {product.sku}
-                        </p>
-                        <p className="mt-2 line-clamp-2 text-sm font-bold text-white">
-                          {product.name}
-                        </p>
-                        <p className="mt-2 text-lg font-black">₹{product.salePrice.toLocaleString('en-IN')}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {isLoading ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, index) => (
