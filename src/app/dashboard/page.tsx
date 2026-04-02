@@ -391,8 +391,11 @@ function UserDashboardContent() {
   const handleOnboardingLogout = async () => {
     try {
       await signOut(auth);
-      await fetch('/api/v1/auth/session', { method: 'DELETE' });
-      router.push('/login');
+      const response = await fetch('/api/v1/auth/session', { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error(`Session cleanup failed: ${response.status}`);
+      }
+      router.replace('/login');
     } catch (error) {
       logger.error({
         event: 'onboarding_logout_failed',
