@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   useUser,
+  useAuth,
   useFirestore,
   useCollection,
   useDoc,
@@ -38,6 +39,7 @@ import {
   deleteDocumentNonBlocking,
 } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { collection, query, where, doc } from 'firebase/firestore';
 import {
   MechanicalPart,
@@ -75,10 +77,11 @@ import {
   ShieldCheck,
   MessageSquare,
   CreditCard,
+  LogOut,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { checkIsAdmin } from '@/lib/auth-utils';
-import { getIdTokenResult } from 'firebase/auth';
+import { getIdTokenResult, signOut } from 'firebase/auth';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { calculateProjectFinances } from '@/utils/finance';
 
@@ -176,6 +179,7 @@ function getStatusBadgeTone(status: string | undefined) {
 function UserDashboardContent() {
   const { user, isUserLoading } = useUser();
   const [isAdminConfirmed, setIsAdminConfirmed] = useState(false);
+  const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
@@ -382,6 +386,27 @@ function UserDashboardContent() {
     setIsOnboardingOpen(false);
     setIsSubmittingProfile(false);
     toast({ title: 'Profile Completed!', description: `Ready to build, ${profileData.fullName}.` });
+  };
+
+  const handleOnboardingLogout = async () => {
+    try {
+      await signOut(auth);
+      const response = await fetch('/api/v1/auth/session', { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error(`Session cleanup failed: ${response.status}`);
+      }
+      router.replace('/login');
+    } catch (error) {
+      logger.error({
+        event: 'onboarding_logout_failed',
+        error: error instanceof Error ? error.message : String(error),
+      });
+      toast({
+        title: 'Logout failed',
+        description: 'Please try again in a moment.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSelectVendor = (quotation: any) => {
@@ -1520,10 +1545,21 @@ function UserDashboardContent() {
 
           <div className="p-8">
             <DialogHeader className="pt-0">
-              <DialogTitle className="text-2xl tracking-tight font-bold text-slate-900 flex items-center gap-3 uppercase">
-                <UserIcon className="w-6 h-6 text-[#2F5FA7]" />
-                Complete Your Profile
-              </DialogTitle>
+              <div className="flex items-start justify-between gap-4">
+                <DialogTitle className="text-2xl tracking-tight font-bold text-slate-900 flex items-center gap-3 uppercase">
+                  <UserIcon className="w-6 h-6 text-[#2F5FA7]" />
+                  Complete Your Profile
+                </DialogTitle>
+                <button
+                  type="button"
+                  onClick={handleOnboardingLogout}
+                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+                  aria-label="Log out"
+                  title="Log out"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
               <DialogDescription className="text-slate-500 text-[11px] uppercase tracking-widest pt-2 font-bold">
                 Setup your account to start managing high-precision manufacturing projects.
               </DialogDescription>
@@ -1608,7 +1644,25 @@ function UserDashboardContent() {
               </Button>
 
               <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest">
-                By continuing, you agree to our Terms of Service and Privacy Policy.
+                By continuing, you agree to our{' '}
+                <Link
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-500"
+                >
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-500"
+                >
+                  Privacy Policy
+                </Link>
+                .
               </p>
             </form>
           </div>

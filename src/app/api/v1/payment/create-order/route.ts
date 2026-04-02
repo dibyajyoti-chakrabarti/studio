@@ -16,10 +16,17 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
+import { z } from 'zod';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { calculateProjectFinances } from '@/utils/finance';
 import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+
+const CreateOrderSchema = z.object({
+  rfqId: z.string().min(1).max(200),
+  paymentType: z.enum(['advance', 'completion']),
+});
 
 // ── Initialize the Razorpay SDK with your API credentials ───────────────────
 // These keys come from your Razorpay Dashboard → Settings → API Keys
@@ -41,6 +48,12 @@ export async function POST(req: NextRequest) {
   let currentRfqId = 'unknown';
 
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`payment-create-order:${ip}`, 8, 60000);
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
+
     // ── Step 1: Authenticate the request ─────────────────────────────────
     const auth = await authenticateRequest(req);
     if (!auth.success) {
@@ -48,16 +61,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Step 2: Parse and validate the request body ─────────────────────
-    const { rfqId, paymentType } = (await req.json()) as {
-      rfqId: string;
-      paymentType: 'advance' | 'completion';
-    };
-    currentRfqId = rfqId;
-
-    // Make sure all required fields are present
-    if (!rfqId || !paymentType) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const parseResult = CreateOrderSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 });
     }
+    const { rfqId, paymentType } = parseResult.data;
+    currentRfqId = rfqId;
 
     // Use authenticated userId instead of trusting request body
     const userId = auth.uid;

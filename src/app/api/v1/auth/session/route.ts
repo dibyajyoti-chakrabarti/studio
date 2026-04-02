@@ -64,6 +64,9 @@ export async function DELETE() {
   // Clear the session cookie
   response.cookies.set('session', '', {
     maxAge: 0,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
     path: '/',
   });
 

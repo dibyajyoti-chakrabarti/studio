@@ -9,6 +9,7 @@ import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { calculateProjectFinances } from '@/utils/finance';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -26,6 +27,12 @@ export const OrderController = {
     const requestId = req.headers.get('x-request-id') || 'req_internal';
 
     try {
+      const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+      const limiter = await rateLimit(`order-create:${ip}`, 8, 60000);
+      if (!limiter.success) {
+        return rateLimitResponse(limiter.reset);
+      }
+
       // 1. Authenticate the request
       const auth = await authenticateRequest(req);
       if (!auth.success) {
@@ -186,6 +193,12 @@ export const OrderController = {
     const requestId = req.headers.get('x-request-id') || 'req_verify';
 
     try {
+      const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+      const limiter = await rateLimit(`order-verify:${ip}`, 10, 60000);
+      if (!limiter.success) {
+        return rateLimitResponse(limiter.reset);
+      }
+
       // 1. Authenticate the request
       const auth = await authenticateRequest(req);
       if (!auth.success) {
@@ -229,6 +242,17 @@ export const OrderController = {
         if (orderData.userId !== auth.uid) {
           logger.warn({ event: 'API: Unauthorized order verification', requestId, orderId, authUid: auth.uid, orderOwner: orderData.userId });
           return forbiddenResponse('You do not own this order');
+        }
+        if (orderData.razorpayOrderId && orderData.razorpayOrderId !== razorpay_order_id) {
+          logger.warn({
+            event: 'API: Order verify mismatch',
+            requestId,
+            orderId,
+            expectedOrderId: orderData.razorpayOrderId,
+            receivedOrderId: razorpay_order_id,
+            authUid: auth.uid,
+          });
+          return forbiddenResponse('Payment order does not match this order');
         }
       }
 

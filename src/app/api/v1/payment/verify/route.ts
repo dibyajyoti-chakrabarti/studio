@@ -23,9 +23,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto'; // Node.js built-in module for cryptographic operations
+import { z } from 'zod';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { logger } from '@/utils/logger';
 import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+
+const VerifyPaymentSchema = z.object({
+  razorpay_order_id: z.string().min(1),
+  razorpay_payment_id: z.string().min(1),
+  razorpay_signature: z.string().min(1),
+  rfqId: z.string().min(1),
+  paymentType: z.enum(['advance', 'completion']),
+});
 
 /**
  * Handles POST requests to verify a completed Razorpay payment.
@@ -42,6 +52,12 @@ export async function POST(req: NextRequest) {
   let razorpayOrderId = 'unknown';
 
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`payment-verify:${ip}`, 10, 60000);
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
+
     // ── Step 1: Authenticate the request ─────────────────────────────────
     const auth = await authenticateRequest(req);
     if (!auth.success) {
@@ -49,31 +65,13 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Step 2: Parse the request body ───────────────────────────────────
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      rfqId,
-      paymentType,
-    } = (await req.json()) as {
-      razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
-      rfqId: string;
-      paymentType: 'advance' | 'completion';
-    };
-    razorpayOrderId = razorpay_order_id;
-
-    // Make sure nothing is missing
-    if (
-      !razorpay_order_id ||
-      !razorpay_payment_id ||
-      !razorpay_signature ||
-      !rfqId ||
-      !paymentType
-    ) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    const parseResult = VerifyPaymentSchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 });
     }
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, rfqId, paymentType } =
+      parseResult.data;
+    razorpayOrderId = razorpay_order_id;
 
     // Use authenticated userId instead of trusting request body
     const userId = auth.uid;
@@ -115,6 +113,25 @@ export async function POST(req: NextRequest) {
     if (rfq.userId !== userId) {
       logger.warn({ event: 'API: Unauthorized payment verification', rfqId, authUid: userId, rfqOwner: rfq.userId });
       return forbiddenResponse('You do not own this project');
+    }
+
+    const expectedOrderId = rfq.paymentStatus?.[paymentType]?.razorpayOrderId;
+    if (!expectedOrderId) {
+      return NextResponse.json({ error: 'Payment order not initialized' }, { status: 400 });
+    }
+    if (expectedOrderId !== razorpay_order_id) {
+      logger.warn({
+        event: 'payment_order_mismatch',
+        rfqId,
+        paymentType,
+        expectedOrderId,
+        receivedOrderId: razorpay_order_id,
+        uid: userId,
+      });
+      return forbiddenResponse('Payment order does not match this project milestone');
+    }
+    if (rfq.paymentStatus?.[paymentType]?.paid) {
+      return NextResponse.json({ success: true, paymentType, paidAt: rfq.paymentStatus[paymentType]?.paidAt || null });
     }
 
     // Record the exact time of payment for receipts and audit trail

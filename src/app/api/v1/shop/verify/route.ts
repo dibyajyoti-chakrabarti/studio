@@ -1,33 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
 import { logger } from '@/utils/logger';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+
+const ShopVerifySchema = z.object({
+  razorpay_order_id: z.string().min(1),
+  razorpay_payment_id: z.string().min(1),
+  razorpay_signature: z.string().min(1),
+  shopOrderId: z.string().min(1),
+});
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limiter = await rateLimit(`shop-verify:${ip}`, 10, 60000);
+    if (!limiter.success) {
+      return rateLimitResponse(limiter.reset);
+    }
+
     // 1. Authenticate the request
     const auth = await authenticateRequest(req);
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, shopOrderId } =
-      (await req.json()) as {
-        razorpay_order_id: string;
-        razorpay_payment_id: string;
-        razorpay_signature: string;
-        shopOrderId: string;
-      };
-
-    if (
-      !razorpay_order_id ||
-      !razorpay_payment_id ||
-      !razorpay_signature ||
-      !shopOrderId
-    ) {
-      return NextResponse.json({ error: 'Missing verification fields' }, { status: 400 });
+    const parseResult = ShopVerifySchema.safeParse(await req.json());
+    if (!parseResult.success) {
+      return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 });
     }
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, shopOrderId } =
+      parseResult.data;
 
     const { adminFirestore: db } = getFirebaseAdmin();
     if (!db) throw new Error('Firebase Admin not initialized');
@@ -41,6 +46,16 @@ export async function POST(req: NextRequest) {
     if (orderData.userId !== auth.uid) {
       logger.warn({ event: 'API: Unauthorized shop payment verification', shopOrderId, authUid: auth.uid, orderOwner: orderData.userId });
       return forbiddenResponse('You do not own this order');
+    }
+    if (orderData.razorpayOrderId && orderData.razorpayOrderId !== razorpay_order_id) {
+      logger.warn({
+        event: 'shop_payment_order_mismatch',
+        shopOrderId,
+        expectedOrderId: orderData.razorpayOrderId,
+        receivedOrderId: razorpay_order_id,
+        uid: auth.uid,
+      });
+      return forbiddenResponse('Payment order does not match this order');
     }
 
     // 3. Verify HMAC-SHA256 signature
