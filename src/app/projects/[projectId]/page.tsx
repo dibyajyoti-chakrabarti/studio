@@ -742,7 +742,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       toast({
         title: 'Part Deleted',
         description: 'The part has been removed from your project.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } catch (error: any) {
       console.error('Error deleting part:', error);
@@ -1033,6 +1033,17 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                         </CardContent>
                       </Card>
                     ))}
+                    {/* Add Another Part */}
+                    {project.status === 'draft' && projectParts.length > 0 && (
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push(`/projects/${projectId}/add-part`)}
+                        className="w-full h-12 tracking-widest uppercase text-[10px] font-bold border-slate-200 text-slate-700 hover:bg-slate-50"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Another Part
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <Card className="bg-white border-slate-200 border-dashed">
@@ -1765,18 +1776,6 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Add Another Part */}
-            {project.status === 'draft' && projectParts.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/projects/${projectId}/add-part`)}
-                className="w-full h-12 tracking-widest uppercase text-[10px] font-bold border-slate-200 text-slate-700 hover:bg-slate-50"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Another Part
-              </Button>
             )}
           </div>
         </div>

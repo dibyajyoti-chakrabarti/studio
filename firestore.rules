@@ -156,7 +156,8 @@ service cloud.firestore {
         isAdmin()
       );
 
-      allow create: if isAuthenticated();
+      // Creator must identify themselves as the customer in the negotiation document
+      allow create: if isAuthenticated() && request.resource.data.customerId == request.auth.uid;
 
       allow update: if isAuthenticated() && (
         resource.data.customerId == request.auth.uid ||
@@ -266,8 +267,12 @@ service cloud.firestore {
       // Anyone can read blog stats (likes, views)
       allow read: if true;
       
-      // Anyone authenticated can create/update stats (e.g. increment likes)
-      allow create, update: if isAuthenticated();
+      // Authenticated users can create stats and increment specific counters.
+      // Update is restricted to only known counter fields to prevent arbitrary overwrites.
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated()
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['views', 'likes', 'comments', 'updatedAt']);
       
       // Only admin can delete stats
       allow delete: if isAdmin();
