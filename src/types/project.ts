@@ -28,7 +28,8 @@ export type SecondaryProcess =
   | 'chrome_plating'
   | 'sand_blasting'
   | 'heat_treatment'
-  | 'nickel_plating';
+  | 'nickel_plating'
+  | 'tapping';
 
 /** Coating/Anodizing color options */
 export type ColorOption =
@@ -41,8 +42,7 @@ export type ColorOption =
   | 'grey'
   | 'custom'
   | 'clear'
-  | 'gold'
-  | 'bronze';
+  | 'gold';
 
 /** Part status in the workflow */
 export type PartStatus = 'draft' | 'ready_for_quote';
@@ -62,6 +62,11 @@ export type ProjectRFQStatus =
   | 'shipped'
   | 'delivered'
   | 'shipping';
+
+export interface TapSelection {
+  readonly holeIndex: number;
+  readonly tapType: string;
+}
 
 /** Mechanical part in a project */
 export interface MechanicalPart {
@@ -84,6 +89,13 @@ export interface MechanicalPart {
   };
   readonly secondaryProcesses: SecondaryProcess[];
   readonly coatingColor?: ColorOption;
+  readonly taps?: TapSelection[];
+  readonly tappingNotes?: string;
+  readonly dimensions?: {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+  };
   readonly quantity: number;
   readonly unitCost?: number;
   readonly discountTier?: string;

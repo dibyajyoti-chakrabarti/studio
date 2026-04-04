@@ -57,16 +57,16 @@ export function MaterialSelection({
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-bold uppercase tracking-wide text-slate-900 mb-2">
-          Select Material & Specs
+      <div className="mb-6">
+        <h3 className="text-lg font-black uppercase tracking-wide text-slate-900 mb-1">
+          Select Material
         </h3>
-        <p className="text-xs uppercase tracking-widest font-bold text-slate-500">
-          Choose the appropriate material for {selectedService.replace(/_/g, ' ')}
+        <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+          Choose stock for {selectedService.replace(/_/g, ' ')}
         </p>
       </div>
 
-      <div className="space-y-8 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar pb-10">
+      <div className="space-y-8 pb-10">
         {serviceData.categories.map((category) => (
           <div key={category.name} className="space-y-4">
             <div className="flex items-center gap-2 px-1">

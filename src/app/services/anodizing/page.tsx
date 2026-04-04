@@ -104,7 +104,7 @@ export default function AnodizingPage() {
               },
               {
                 title: 'Decorative Color',
-                desc: 'Type II anodizing allows for vibrant, metallic finishes including Black, Clear, Blue, and Red with consistent dye absorption.',
+                desc: 'Type II anodizing allows for vibrant, metallic finishes including Black, Clear, Blue, Gold, and Red with consistent dye absorption.',
                 icon: Zap,
                 img: 'https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80',
                 color: 'bg-blue-400',

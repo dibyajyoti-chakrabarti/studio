@@ -1422,6 +1422,56 @@ export default function AdminPanel() {
                                   </div>
                                 )}
 
+                                {/* Dimensions from CAD Analysis */}
+                                {part.dimensions && (
+                                  <div className="bg-indigo-50/50 rounded-lg p-3 border border-indigo-100">
+                                    <p className="text-[7px] font-bold text-indigo-400 uppercase tracking-widest mb-1">
+                                      CAD Dimensions (mm)
+                                    </p>
+                                    <p className="text-[11px] font-mono font-bold text-indigo-900">
+                                      {Number(part.dimensions.x).toFixed(1)} × {Number(part.dimensions.y).toFixed(1)} × {Number(part.dimensions.z).toFixed(1)} mm
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Tap Selections from auto-detection */}
+                                {part.taps && part.taps.length > 0 && (
+                                  <div className="bg-emerald-50/50 rounded-lg p-3 border border-emerald-100">
+                                    <p className="text-[7px] font-bold text-emerald-500 uppercase tracking-widest mb-2">
+                                      Threading / Tap Configuration ({part.taps.length} Holes)
+                                    </p>
+                                    <div className="space-y-1">
+                                      {part.taps.map((tap: any, tIdx: number) => (
+                                        <div key={tIdx} className="flex items-center justify-between text-[10px]">
+                                          <span className="font-medium text-slate-600">Hole #{tap.holeIndex + 1}</span>
+                                          <Badge className="bg-emerald-100 text-emerald-700 text-[8px] border-none font-bold uppercase">
+                                            {tap.tapType}
+                                          </Badge>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Manual tapping notes from customer */}
+                                {part.tappingNotes && (
+                                  <div className="bg-amber-50/50 rounded-lg p-3 border border-amber-200">
+                                    <p className="text-[7px] font-bold text-amber-500 uppercase tracking-widest mb-1">
+                                      Customer Tapping Instructions
+                                    </p>
+                                    <p className="text-[10px] text-amber-900 leading-relaxed whitespace-pre-wrap">
+                                      {part.tappingNotes}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Discount Tier */}
+                                {part.discountTier && (
+                                  <Badge variant="outline" className="text-[8px] font-bold border-purple-200 text-purple-600 uppercase">
+                                    Discount: {part.discountTier}
+                                  </Badge>
+                                )}
+
                                 {part.cadFile?.fileUrl && (
                                   <Button
                                     size="sm"
@@ -1437,6 +1487,7 @@ export default function AdminPanel() {
                                     <Download className="w-3.5 h-3.5" /> Download Design Data
                                   </Button>
                                 )}
+
                               </div>
                             </div>
                           ))}

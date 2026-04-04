@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { cn } from '@/utils';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -25,13 +26,17 @@ import {
   SecondaryProcess,
   ColorOption,
   MechanicalPart,
+  TapSelection,
 } from '@/types/project';
+import { ConversionResult } from '@/types/viewer';
 import { ServiceSelection } from './ServiceSelection';
 import { FileUploadStep } from './FileUploadStep';
 import { MaterialSelection } from './MaterialSelection';
-import { SecondaryProcessSelection, SECONDARY_PROCESSES } from './SecondaryProcessSelection';
+import { SecondaryProcessSelection, SECONDARY_PROCESSES, COLOR_OPTIONS } from './SecondaryProcessSelection';
 import { QuantityStep } from './QuantityStep';
 import { isPartNameValid } from '@/lib/validation/part-name';
+import { STLViewer } from '@/components/viewer/STLViewer';
+import { convertStepFile, stlBase64ToBuffer } from '@/services/stepConverter.service';
 
 import {
   ChevronLeft,
@@ -44,15 +49,17 @@ import {
   X,
   Plus,
   Loader2,
+  Box,
+  Monitor
 } from 'lucide-react';
 
 type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
 
 const STEPS: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
   { id: 'service', label: 'Service', icon: <Layers className="w-4 h-4" /> },
-  { id: 'file', label: 'CAD File', icon: <Upload className="w-4 h-4" /> },
-  { id: 'material', label: 'Material', icon: <Layers className="w-4 h-4" /> },
-  { id: 'secondary', label: 'Secondary', icon: <Palette className="w-4 h-4" /> },
+  { id: 'file', label: 'Analysis', icon: <Upload className="w-4 h-4" /> },
+  { id: 'material', label: 'Material', icon: <Monitor className="w-4 h-4" /> },
+  { id: 'secondary', label: 'Services', icon: <Palette className="w-4 h-4" /> },
   { id: 'quantity', label: 'Quantity', icon: <Hash className="w-4 h-4" /> },
 ];
 
@@ -61,6 +68,7 @@ interface PartCreationWizardProps {
   onClose: () => void;
   projectId: string;
   onPartCreated: (part: MechanicalPart) => void;
+  standalone?: boolean;
 }
 
 export function PartCreationWizard({
@@ -68,6 +76,7 @@ export function PartCreationWizard({
   onClose,
   projectId,
   onPartCreated,
+  standalone = false,
 }: PartCreationWizardProps) {
   const { user } = useUser();
   const db = useFirestore();
@@ -84,6 +93,12 @@ export function PartCreationWizard({
     fileUrl: string;
     fileSize: number;
   } | null>(null);
+
+  // CAD State (Persistent across steps)
+  const [stlBuffer, setStlBuffer] = useState<ArrayBuffer | null>(null);
+  const [conversionResult, setConversionResult] = useState<ConversionResult | null>(null);
+  const [isConverting, setIsConverting] = useState(false);
+
   const [selectedMaterial, setSelectedMaterial] = useState<{
     id: string;
     name: string;
@@ -92,10 +107,59 @@ export function PartCreationWizard({
   } | null>(null);
   const [secondaryProcesses, setSecondaryProcesses] = useState<SecondaryProcess[]>([]);
   const [coatingColor, setCoatingColor] = useState<ColorOption | null>(null);
+  const [selectedTaps, setSelectedTaps] = useState<TapSelection[]>([]);
+  const [hoveredHoleIndex, setHoveredHoleIndex] = useState<number | undefined>(undefined);
+  const [tappingNotes, setTappingNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [discountTier, setDiscountTier] = useState<string | null>(null);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
+
+  // ── Auto-convert when reaching secondary step without conversion data ──────
+  // This handles the case where the user uploaded a file before auto-conversion
+  // was implemented, or when navigating back and forth through the wizard.
+  useEffect(() => {
+    if (
+      (currentStep === 'secondary' || currentStep === 'material') &&
+      !conversionResult &&
+      !isConverting &&
+      uploadedFile &&
+      uploadedFile.fileName.match(/\.(step|stp)$/i)
+    ) {
+      // We need to fetch the file from S3 and convert it
+      const autoConvert = async () => {
+        try {
+          setIsConverting(true);
+          const token = await user?.getIdToken();
+          if (!token) return;
+
+          // Fetch the file from S3
+          const response = await fetch(
+            `/api/v1/files/retrieve?fileKey=${encodeURIComponent(uploadedFile.fileUrl)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (!response.ok) return;
+
+          const blob = await response.blob();
+          const file = new File([blob], uploadedFile.fileName, { type: 'application/octet-stream' });
+
+          // Convert via CAD service
+          const result = await convertStepFile(file);
+          const buffer = stlBase64ToBuffer(result.stl);
+
+          setConversionResult(result);
+          setStlBuffer(buffer);
+        } catch (err) {
+          console.error('[Wizard] Auto-conversion failed:', err);
+        } finally {
+          setIsConverting(false);
+        }
+      };
+
+      autoConvert();
+    }
+  }, [currentStep, conversionResult, isConverting, uploadedFile, user]);
 
   const canProceed = () => {
     switch (currentStep) {
@@ -178,6 +242,19 @@ export function PartCreationWizard({
     });
   };
 
+  const handleTapSelect = (holeIndex: number, tapType: string | null) => {
+    setSelectedTaps((prev) => {
+      const existing = prev.find((t) => t.holeIndex === holeIndex);
+      if (tapType === null) {
+        return prev.filter((t) => t.holeIndex !== holeIndex);
+      }
+      if (existing) {
+        return prev.map((t) => (t.holeIndex === holeIndex ? { holeIndex, tapType } : t));
+      }
+      return [...prev, { holeIndex, tapType }];
+    });
+  };
+
   const handleSubmit = async () => {
     if (!user || !db || !selectedService || !uploadedFile || !selectedMaterial) {
       toast({
@@ -213,12 +290,16 @@ export function PartCreationWizard({
         material: selectedMaterial,
         secondaryProcesses,
         ...(coatingColor ? { coatingColor } : {}),
+        ...(selectedTaps.length > 0 ? { taps: selectedTaps } : {}),
+        ...(tappingNotes.trim() ? { tappingNotes: tappingNotes.trim() } : {}),
+        ...(conversionResult?.boundingBox ? { dimensions: conversionResult.boundingBox } : {}),
         quantity,
         ...(discountTier ? { discountTier } : {}),
         status: 'ready_for_quote',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
 
       const partRef = await addDocumentNonBlocking(collection(db, 'projectParts'), partData);
 
@@ -262,11 +343,15 @@ export function PartCreationWizard({
       setPartName('');
       setSelectedService(null);
       setUploadedFile(null);
+      setStlBuffer(null);
+      setConversionResult(null);
       setSelectedMaterial(null);
       setSecondaryProcesses([]);
       setCoatingColor(null);
+      setTappingNotes('');
       setQuantity(1);
       setDiscountTier(null);
+
       onClose();
     }
   };
@@ -289,8 +374,18 @@ export function PartCreationWizard({
             onPartNameChange={setPartName}
             uploadedFile={uploadedFile}
             onFileUpload={setUploadedFile}
-            onClearFile={() => setUploadedFile(null)}
+            onClearFile={() => {
+              setUploadedFile(null);
+              setStlBuffer(null);
+              setConversionResult(null);
+            }}
             selectedService={selectedService}
+            onConversionComplete={(buffer: ArrayBuffer, result: ConversionResult) => {
+              setStlBuffer(buffer);
+              setConversionResult(result);
+            }}
+            onConversionStart={() => setIsConverting(true)}
+            onConversionEnd={() => setIsConverting(false)}
           />
         );
       case 'material':
@@ -310,6 +405,12 @@ export function PartCreationWizard({
             coatingColor={coatingColor}
             onProcessToggle={handleSecondaryProcessToggle}
             onColorSelect={setCoatingColor}
+            conversionResult={conversionResult}
+            selectedTaps={selectedTaps}
+            onTapSelect={handleTapSelect}
+            onHoleHover={setHoveredHoleIndex}
+            tappingNotes={tappingNotes}
+            onTappingNotesChange={setTappingNotes}
           />
         ) : null;
       case 'quantity':
@@ -325,106 +426,249 @@ export function PartCreationWizard({
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl bg-white border-slate-200 max-h-[90vh] overflow-hidden">
-        <DialogHeader className="pb-4 border-b border-slate-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
-                <Plus className="w-5 h-5 text-[#2F5FA7]" />
+  const content = (
+    <div className={cn(
+      "flex flex-col bg-white overflow-hidden font-sans text-slate-600",
+      standalone ? "h-screen w-full" : "h-full flex flex-col"
+    )}>
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="h-20 px-8 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/80 backdrop-blur-md z-20">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#2F5FA7] flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Box className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none mb-1">
+                Design Configurator
+              </h2>
+              <p className="text-[10px] font-black text-[#2F5FA7] uppercase tracking-widest leading-none">
+                Industrial Engineering Suite
+              </p>
+            </div>
+          </div>
+
+          <Separator orientation="vertical" className="h-8 bg-slate-200" />
+
+          {/* Stepper HUD - Improved responsiveness */}
+          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar px-4 flex-1">
+            {STEPS.map((step, idx) => (
+              <div
+                key={step.id}
+                className={cn(
+                  'flex items-center gap-2.5 transition-all duration-300',
+                  idx <= currentStepIndex ? 'opacity-100' : 'opacity-30'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black transition-all border shadow-sm',
+                    idx === currentStepIndex
+                      ? 'bg-white border-[#2F5FA7] text-[#2F5FA7] ring-4 ring-blue-50'
+                      : idx < currentStepIndex
+                        ? 'bg-[#2F5FA7] border-[#2F5FA7] text-white'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                  )}
+                >
+                  {idx < currentStepIndex ? <CheckCircle className="w-3.5 h-3.5" /> : idx + 1}
+                </div>
+                <span
+                  className={cn(
+                    'hidden lg:block text-[10px] font-black uppercase tracking-widest transition-colors',
+                    idx === currentStepIndex ? 'text-slate-900' : 'text-slate-400'
+                  )}
+                >
+                  {step.label}
+                </span>
+                {idx < STEPS.length - 1 && (
+                  <div
+                    className={cn(
+                      'ml-2 w-1.5 h-1.5 rounded-full',
+                      idx < currentStepIndex ? 'bg-[#2F5FA7]' : 'bg-slate-200'
+                    )}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClose}
+          disabled={isSubmitting}
+          className="ml-10 h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* ── Main Work Area ──────────────────────────────────────────────── */}
+      <div className="flex-1 flex overflow-hidden force-no-horizontal-scroll">
+        {/* LEFT: Persistent Viewer (If file uploaded) */}
+        <div className="flex-1 bg-slate-50 border-r border-slate-100 relative overflow-hidden flex items-center justify-center">
+          {stlBuffer ? (
+            <div className="w-full h-full relative">
+              {(() => {
+                // Logic to derive 3D viewer color and finish
+                let viewerColor = '#94a3b8'; // Default slate gray
+                let finishType: 'anodizing' | 'powder_coating' | 'raw' = 'raw';
+
+                if (coatingColor) {
+                  const colorOption = COLOR_OPTIONS.find((c) => c.id === coatingColor);
+                  if (colorOption) {
+                    viewerColor = colorOption.color;
+                  }
+
+                  if (secondaryProcesses.includes('anodizing')) {
+                    finishType = 'anodizing';
+                  } else if (secondaryProcesses.includes('powder_coating')) {
+                    finishType = 'powder_coating';
+                  }
+                }
+
+                return (
+                  <STLViewer
+                    buffer={stlBuffer}
+                    className="w-full h-full"
+                    color={viewerColor}
+                    finishType={finishType}
+                    holes={conversionResult?.holes}
+                    bends={conversionResult?.bends}
+                    hoveredHoleIndex={hoveredHoleIndex}
+                    serviceMode={
+                      secondaryProcesses.includes('tapping') ? 'tapping' :
+                        secondaryProcesses.includes('bending') ? 'bending' :
+                          'none'
+                    }
+                  />
+                );
+              })()}
+
+              {/* Floating Model Tags */}
+              <div className="absolute top-6 left-6 flex flex-col gap-2">
+                <div className="px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg shadow-sm">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                    Part Name
+                  </p>
+                  <p className="text-[10px] font-black text-slate-900 uppercase truncate max-w-[200px]">
+                    {partName || 'Unit-01'}
+                  </p>
+                </div>
+                {conversionResult && (
+                  <div className="px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg shadow-sm animate-in fade-in slide-in-from-left-2 duration-500">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                      Dimensions
+                    </p>
+                    <p className="text-[10px] font-black text-slate-900 uppercase">
+                      {conversionResult.boundingBox.x} × {conversionResult.boundingBox.y} ×{' '}
+                      {conversionResult.boundingBox.z} mm
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Industrial Overlays */}
+              <div className="absolute bottom-6 left-6 space-y-2">
+                <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#2F5FA7] animate-pulse" style={{ width: '40%' }} />
+                </div>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  Real-time Configuration Active
+                </p>
+              </div>
+            </div>
+          ) : isConverting ? (
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="w-8 h-8 text-[#2F5FA7] animate-spin" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Processing Geometry...
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+              <div className="w-16 h-16 rounded-3xl bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-200">
+                <Box className="w-6 h-6 text-slate-300" />
               </div>
               <div>
-                <DialogTitle className="text-lg font-bold uppercase tracking-wide text-slate-900">
-                  Add Manufacturing Part
-                </DialogTitle>
-                <DialogDescription className="text-xs uppercase tracking-widest font-bold text-slate-500">
-                  Step {currentStepIndex + 1} of {STEPS.length}: {STEPS[currentStepIndex].label}
-                </DialogDescription>
+                <p className="text-xs font-black text-slate-900 uppercase tracking-widest mb-2">
+                  Model Workspace
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
+                  Your design will appear here once the CAD file is analyzed.
+                </p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </DialogHeader>
-
-        {/* Step Progress */}
-        <div className="flex items-center gap-2 py-2">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center gap-2 flex-1">
-              <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold transition-all ${
-                  index < currentStepIndex
-                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                    : index === currentStepIndex
-                      ? 'bg-[#2F5FA7] text-white'
-                      : 'bg-slate-100 text-slate-400'
-                }`}
-              >
-                {index < currentStepIndex ? <CheckCircle className="w-4 h-4" /> : step.icon}
-              </div>
-              {index < STEPS.length - 1 && (
-                <div
-                  className={`h-1 flex-1 rounded-full transition-all ${
-                    index < currentStepIndex ? 'bg-emerald-200' : 'bg-slate-100'
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Step Content */}
-        <div className="py-4 overflow-y-auto max-h-[calc(90vh-280px)]">{renderStepContent()}</div>
-
-        {/* Navigation */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStepIndex === 0 || isSubmitting}
-            className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold border-slate-200 text-slate-600"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-
-          {currentStepIndex < STEPS.length - 1 ? (
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed() || isSubmitting}
-              className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!canProceed() || isSubmitting}
-              className="h-11 px-6 tracking-widest uppercase text-[10px] font-bold bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-lg transition-all border-none"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Part
-                </>
-              )}
-            </Button>
           )}
         </div>
+
+        {/* RIGHT: Sidebar Configurator */}
+        <div className="w-full md:w-[420px] bg-white flex flex-col shrink-0 border-l border-slate-100 overflow-hidden">
+          <div className="p-6 md:p-8 flex-1 overflow-y-auto custom-scrollbar overflow-x-hidden">
+            {renderStepContent()}
+          </div>
+
+          {/* Navigation Footer (Floating in Sidebar) */}
+          <div className="p-8 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
+            {currentStepIndex > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={isSubmitting}
+                className="h-12 w-12 p-0 flex items-center justify-center border-slate-200 text-slate-600 rounded-xl hover:bg-white transition-all shadow-sm"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            )}
+
+            {currentStepIndex < STEPS.length - 1 ? (
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isSubmitting}
+                className="h-12 flex-1 tracking-widest uppercase text-[10px] font-black bg-[#2F5FA7] hover:bg-[#1E3A66] text-white shadow-xl shadow-blue-500/20 transition-all border-none rounded-xl flex items-center justify-center gap-2 group"
+              >
+                Next Step
+                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={!canProceed() || isSubmitting}
+                className="h-12 flex-1 tracking-widest uppercase text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500/20 transition-all border-none rounded-xl flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Finalizing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Add to Project
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (standalone) {
+    return content;
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="w-full max-w-[95vw] lg:max-w-[1400px] h-[95vh] p-0 overflow-hidden bg-white border-0 shadow-2xl flex flex-col rounded-[32px]">
+        {/* Accessibility Requirements */}
+        <div className="sr-only">
+          <DialogTitle>Part Creation Wizard</DialogTitle>
+          <DialogDescription>Configure your manufacturing part with real-time 3D feedback.</DialogDescription>
+        </div>
+        {content}
       </DialogContent>
     </Dialog>
   );

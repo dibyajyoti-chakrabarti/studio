@@ -49,6 +49,8 @@ import {
   SERVICE_DISPLAY_NAMES,
 } from '@/types/project';
 import { logger } from '@/utils/logger';
+import { CADPreviewModal } from '@/components/viewer/CADPreviewModal';
+import { useStepConverter } from '@/hooks/use-step-converter';
 
 import {
   FileText,
@@ -203,6 +205,16 @@ function UserDashboardContent() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('projects');
   const hasResolvedInitialTab = useRef(false);
   const syncingFromUrl = useRef(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewPartName, setPreviewPartName] = useState('');
+
+  const {
+    isConverting: isConverterLoading,
+    result: conversionResult,
+    stlBuffer,
+    convertFile,
+    reset: resetConverter,
+  } = useStepConverter();
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -610,6 +622,51 @@ function UserDashboardContent() {
     }
   };
 
+  const handlePreviewDesign = async (part: MechanicalPart) => {
+    if (!part.cadFile?.fileUrl) {
+      toast({
+        title: 'Error',
+        description: 'CAD file not found for this part.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setPreviewPartName(part.partName || 'Design Preview');
+    setIsPreviewModalOpen(true);
+
+    try {
+      // 1. Get current user's ID token for authentication
+      const token = await user?.getIdToken();
+      if (!token) throw new Error('Authorization required');
+
+      // 2. Fetch the file directly through our secure S3 proxy
+      // This bypasses CORS and signature issues of direct S3 URLs
+      const response = await fetch(`/api/v1/files/retrieve?fileKey=${encodeURIComponent(part.cadFile.fileUrl)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to retrieve file from storage');
+      }
+
+      const blob = await response.blob();
+      const file = new File([blob], part.cadFile.fileName, { type: 'application/octet-stream' });
+      await convertFile(file);
+    } catch (err: any) {
+      console.error('Preview error:', err);
+      toast({
+        title: 'Access Denied',
+        description: err.message || 'Could not retrieve the design file for preview.',
+        variant: 'destructive',
+      });
+      setIsPreviewModalOpen(false);
+    }
+  };
+
   if (isUserLoading || !user)
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -848,9 +905,22 @@ function UserDashboardContent() {
                                   <p className="font-bold text-slate-900 uppercase tracking-wide text-[11px] truncate">
                                     {part.partName || 'Untitled Part'}
                                   </p>
-                                  <span className="text-[8px] text-slate-400 font-mono italic">
-                                    {part.cadFile?.fileName.slice(-12)}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 px-2 text-[8px] font-black uppercase tracking-widest text-[#2F5FA7] hover:bg-blue-50 border border-blue-100 rounded-md"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePreviewDesign(part);
+                                      }}
+                                    >
+                                      Preview 3D
+                                    </Button>
+                                    <span className="text-[8px] text-slate-400 font-mono italic">
+                                      {part.cadFile?.fileName.slice(-12)}
+                                    </span>
+                                  </div>
                                 </div>
                                 <p className="text-[9px] font-bold text-[#2F5FA7] uppercase tracking-widest mt-0.5">
                                   {SERVICE_DISPLAY_NAMES[part.service] || part.service}
@@ -1839,6 +1909,18 @@ function UserDashboardContent() {
       <CreateProjectModal
         isOpen={isCreateProjectOpen}
         onClose={() => setIsCreateProjectOpen(false)}
+      />
+
+      <CADPreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => {
+          setIsPreviewModalOpen(false);
+          resetConverter();
+        }}
+        stlBuffer={stlBuffer}
+        result={conversionResult}
+        fileName={previewPartName}
+        isConverting={isConverterLoading}
       />
     </div>
   );
