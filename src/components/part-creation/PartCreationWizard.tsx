@@ -33,6 +33,7 @@ import { ServiceSelection } from './ServiceSelection';
 import { FileUploadStep } from './FileUploadStep';
 import { MaterialSelection } from './MaterialSelection';
 import { SecondaryProcessSelection, SECONDARY_PROCESSES, COLOR_OPTIONS } from './SecondaryProcessSelection';
+import { BendingStep } from './BendingStep';
 import { QuantityStep } from './QuantityStep';
 import { isPartNameValid } from '@/lib/validation/part-name';
 import { STLViewer } from '@/components/viewer/STLViewer';
@@ -50,16 +51,18 @@ import {
   Plus,
   Loader2,
   Box,
-  Monitor
+  Monitor,
+  CornerUpRight
 } from 'lucide-react';
 
-type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'quantity';
+type WizardStep = 'service' | 'file' | 'material' | 'secondary' | 'bending' | 'quantity';
 
 const STEPS: { id: WizardStep; label: string; icon: React.ReactNode }[] = [
   { id: 'service', label: 'Service', icon: <Layers className="w-4 h-4" /> },
   { id: 'file', label: 'Analysis', icon: <Upload className="w-4 h-4" /> },
   { id: 'material', label: 'Material', icon: <Monitor className="w-4 h-4" /> },
-  { id: 'secondary', label: 'Services', icon: <Palette className="w-4 h-4" /> },
+  { id: 'secondary', label: 'Finishing', icon: <Palette className="w-4 h-4" /> },
+  { id: 'bending', label: 'Bending', icon: <CornerUpRight className="w-4 h-4" /> },
   { id: 'quantity', label: 'Quantity', icon: <Hash className="w-4 h-4" /> },
 ];
 
@@ -104,6 +107,10 @@ export function PartCreationWizard({
     name: string;
     grade: string;
     thickness?: number;
+    canBend?: boolean;
+    maxThicknessForBending?: number;
+    canPowderCoat?: boolean;
+    canAnodize?: boolean;
   } | null>(null);
   const [secondaryProcesses, setSecondaryProcesses] = useState<SecondaryProcess[]>([]);
   const [coatingColor, setCoatingColor] = useState<ColorOption | null>(null);
@@ -179,6 +186,8 @@ export function PartCreationWizard({
           return coatingColor !== null;
         }
         return true;
+      case 'bending':
+        return true;
       case 'quantity':
         return quantity >= 1;
       default:
@@ -199,6 +208,11 @@ export function PartCreationWizard({
       }
     }
 
+    // Skip bending step for non-sheet-metal services
+    if (STEPS[nextIndex]?.id === 'bending' && selectedService !== 'sheet_metal_cutting') {
+      nextIndex++;
+    }
+
     if (nextIndex < STEPS.length) {
       setCurrentStep(STEPS[nextIndex].id);
     }
@@ -206,6 +220,11 @@ export function PartCreationWizard({
 
   const handleBack = () => {
     let prevIndex = currentStepIndex - 1;
+
+    // Skip bending step for non-sheet-metal services
+    if (STEPS[prevIndex]?.id === 'bending' && selectedService !== 'sheet_metal_cutting') {
+      prevIndex--;
+    }
 
     // Skip secondary process step if it was skipped during 'Next'
     if (STEPS[prevIndex]?.id === 'secondary' && selectedService) {
@@ -427,6 +446,16 @@ export function PartCreationWizard({
             onHoleHover={setHoveredHoleIndex}
             tappingNotes={tappingNotes}
             onTappingNotesChange={setTappingNotes}
+          />
+        ) : null;
+      case 'bending':
+        return selectedService ? (
+          <BendingStep
+            selectedService={selectedService}
+            selectedMaterial={selectedMaterial}
+            isBendingEnabled={secondaryProcesses.includes('bending')}
+            onToggle={() => handleSecondaryProcessToggle('bending')}
+            conversionResult={conversionResult}
           />
         ) : null;
       case 'quantity':

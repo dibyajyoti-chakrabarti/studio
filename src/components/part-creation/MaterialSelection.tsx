@@ -10,8 +10,26 @@ import { ExpertCTA } from './ExpertCTA';
 
 interface MaterialSelectionProps {
   selectedService: ManufacturingService;
-  selectedMaterial: { id: string; name: string; grade?: string; thickness?: number } | null;
-  onSelect: (material: { id: string; name: string; grade: string; thickness?: number }) => void;
+  selectedMaterial: {
+    id: string;
+    name: string;
+    grade?: string;
+    thickness?: number;
+    canBend?: boolean;
+    maxThicknessForBending?: number;
+    canPowderCoat?: boolean;
+    canAnodize?: boolean;
+  } | null;
+  onSelect: (material: {
+    id: string;
+    name: string;
+    grade: string;
+    thickness?: number;
+    canBend?: boolean;
+    maxThicknessForBending?: number;
+    canPowderCoat?: boolean;
+    canAnodize?: boolean;
+  }) => void;
 }
 
 export function MaterialSelection({

@@ -55,13 +55,6 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
     applicableServices: ['sheet_metal_cutting', 'cnc_turning'],
   },
   {
-    id: 'bending',
-    name: 'Bending',
-    description: 'Sheet metal forming and folding',
-    icon: <CornerUpRight className="w-5 h-5" />,
-    applicableServices: ['sheet_metal_cutting'],
-  },
-  {
     id: 'anodizing',
     name: 'Anodizing',
     description: 'Includes free media blasting',
