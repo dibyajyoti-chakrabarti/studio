@@ -199,7 +199,6 @@ function UserDashboardContent() {
   const [negPrice, setNegPrice] = useState('');
   const [negLeadTime, setNegLeadTime] = useState('');
   const [negMessage, setNegMessage] = useState('');
-  const [pendingRejectQuote, setPendingRejectQuote] = useState<any>(null);
   const [pendingDeleteProject, setPendingDeleteProject] = useState<ProjectRFQ | null>(null);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<DashboardTab>('projects');
@@ -535,27 +534,7 @@ function UserDashboardContent() {
     }
   };
 
-  const handleRejectQuotation = (quotation: any) => {
-    if (!db || !selectedOrder) return;
 
-    updateDocumentNonBlocking(doc(db, 'quotations', quotation.id), {
-      status: 'rejected',
-      updatedAt: new Date().toISOString(),
-    });
-
-    const remainingActionableQuotes =
-      (quotations as any[] | undefined)?.filter(
-        (q) => q.id !== quotation.id && q.status !== 'rejected'
-      ) || [];
-    if (remainingActionableQuotes.length === 0) {
-      updateDocumentNonBlocking(doc(db, 'projectRFQs', selectedOrder.id), {
-        status: 'rejected',
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    toast({ title: 'Quotation Rejected', description: 'The offer has been declined.' });
-  };
 
   const handleProposeNegotiation = () => {
     if (!db || !negotiatingQuote) return;
@@ -1261,13 +1240,7 @@ function UserDashboardContent() {
                                           >
                                             <MessageSquare className="w-3 h-3 mr-1" /> Negotiate
                                           </Button>
-                                          <Button
-                                            variant="destructive"
-                                            className="flex-1 tracking-widest h-11 text-[10px] uppercase bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-all shadow-sm"
-                                            onClick={() => setPendingRejectQuote(quote)}
-                                          >
-                                            <AlertCircle className="w-3 h-3 mr-1" /> Reject
-                                          </Button>
+
                                         </div>
                                       </div>
                                     </div>
@@ -1839,33 +1812,7 @@ function UserDashboardContent() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={!!pendingRejectQuote}
-        onOpenChange={(open) => {
-          if (!open) setPendingRejectQuote(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reject Quotation?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This offer will be declined and the project status will be updated.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (!pendingRejectQuote) return;
-                handleRejectQuotation(pendingRejectQuote);
-                setPendingRejectQuote(null);
-              }}
-            >
-              Reject Quote
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
 
       <AlertDialog
         open={!!pendingDeleteProject}
