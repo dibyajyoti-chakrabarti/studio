@@ -114,20 +114,23 @@ function STLModel({
       <mesh ref={meshRef} geometry={geometry} castShadow={!isTechnical} receiveShadow={!isTechnical}>
         {isTechnical ? (
           <meshPhongMaterial
-            color="#f1f5f9" // Solid Technical Material
+            color="#f1f5f9" // Solid Technical Material (Zinc-100) — Essential for line visibility
             shininess={10}
+            specular="#64748b"
             side={THREE.DoubleSide}
             polygonOffset
             polygonOffsetFactor={2}
             polygonOffsetUnits={1}
+            transparent={false}
+            opacity={1}
           />
         ) : viewMode === '2D' ? (
           <meshBasicMaterial color="#334155" />
         ) : (
           <meshStandardMaterial
             color={color}
-            roughness={0.7}
-            metalness={0.1}
+            roughness={roughness}
+            metalness={metalness}
             envMapIntensity={finishType === 'anodizing' ? 1.5 : 0.5}
             transparent={finishType !== 'raw'}
             opacity={opacityRef.current}
@@ -135,7 +138,7 @@ function STLModel({
         )}
 
         {/* Professional CAD Outlines (Fixed 1px style) */}
-        <Edges threshold={20} color="#000000" />
+        <Edges threshold={20} color={isTechnical ? "#475569" : "#000000"} />
       </mesh>
     </group>
   );
@@ -426,6 +429,14 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
     const [viewHandle, setViewHandle] = useState<STLViewerHandle | null>(null);
 
     const activeBendIndex = hoveredBendIndex !== undefined ? hoveredBendIndex : internalHoveredBendIndex;
+
+    // Production Debug: Log feature counts to verify API response integrity
+    useEffect(() => {
+      if (serviceMode !== 'none') {
+        console.log(`[STLViewer] Service Active: ${serviceMode}`);
+        console.log(`[STLViewer] Data Check: ${holes.length} holes, ${bends.length} bending lines found.`);
+      }
+    }, [serviceMode, holes.length, bends.length]);
 
     useImperativeHandle(ref, () => ({
       resetView: () => viewHandle?.resetView(),
