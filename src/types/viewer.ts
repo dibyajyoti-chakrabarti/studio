@@ -21,6 +21,8 @@ export interface HoleFeature {
 export interface BendFeature {
   start: { x: number; y: number; z: number };
   end: { x: number; y: number; z: number };
+  angle: number;
+  direction: 'UP' | 'DOWN';
   radius: number;
 }
 

@@ -11,10 +11,14 @@ import {
   Bounds,
   useBounds,
   ContactShadows,
-  Environment
+  Environment,
+  Html,
+  Line,
+  Edges,
+  GizmoHelper,
+  GizmoViewcube
 } from '@react-three/drei';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
-import { Html } from '@react-three/drei';
 import { HoleFeature, BendFeature } from '@/types/viewer';
 
 /**
@@ -37,10 +41,10 @@ interface STLModelProps {
 
 function STLModel({
   buffer,
-  color = '#94a3b8',
+  color = '#f1f5f9', // Professional CNC Aluminum Matte
   finishType = 'raw',
-  viewMode,
-  serviceMode = 'none'
+  serviceMode = 'none',
+  viewMode = '3D'
 }: STLModelProps & { viewMode: '2D' | '3D' }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const edgesRef = useRef<THREE.LineSegments>(null);
@@ -78,8 +82,9 @@ function STLModel({
 
     if (edgesRef.current) {
       const edgeMat = edgesRef.current.material as THREE.LineBasicMaterial;
-      edgeMat.opacity = isTechnical ? 0.75 : 0;
-      edgesRef.current.visible = isTechnical;
+      // Always show edges subtly for a professional CAD look
+      edgeMat.opacity = isTechnical ? 0.75 : 0.25;
+      edgesRef.current.visible = true;
     }
   });
 
@@ -87,7 +92,8 @@ function STLModel({
     const loader = new STLLoader();
     const geo = loader.parse(buffer);
     geo.computeBoundingBox();
-    geo.center();
+    // Senior Fix: Do NOT center the geometry. Absolute coordinates 
+    // are required for perfect alignment with CAD feature metadata.
     return geo;
   }, [buffer]);
 
@@ -108,11 +114,8 @@ function STLModel({
       <mesh ref={meshRef} geometry={geometry} castShadow={!isTechnical} receiveShadow={!isTechnical}>
         {isTechnical ? (
           <meshPhongMaterial
-            color={0xeeeeee}
-            transparent
-            opacity={0.15}
-            shininess={30}
-            specular={new THREE.Color(0xffffff)}
+            color="#f1f5f9" // Solid Technical Material
+            shininess={10}
             side={THREE.DoubleSide}
             polygonOffset
             polygonOffsetFactor={2}
@@ -123,111 +126,160 @@ function STLModel({
         ) : (
           <meshStandardMaterial
             color={color}
-            roughness={roughness}
-            metalness={metalness}
-            envMapIntensity={finishType === 'anodizing' ? 1.5 : 1}
+            roughness={0.7}
+            metalness={0.1}
+            envMapIntensity={finishType === 'anodizing' ? 1.5 : 0.5}
             transparent={finishType !== 'raw'}
             opacity={opacityRef.current}
           />
         )}
-      </mesh>
 
-      <lineSegments ref={edgesRef} geometry={edgesGeometry}>
-        <lineBasicMaterial color={0x2a2a2a} transparent opacity={0} />
-      </lineSegments>
+        {/* Professional CAD Outlines (Fixed 1px style) */}
+        <Edges threshold={20} color="#000000" />
+      </mesh>
     </group>
   );
 }
 
-function HoleOverlays({ holes, hoveredIndex, isTechnical }: { holes: HoleFeature[], hoveredIndex?: number, isTechnical?: boolean }) {
+function HoleOverlays({ holes, hoveredIndex, isTechnical, maxDimension, selectedIndices = [] }: { holes: HoleFeature[], hoveredIndex?: number, isTechnical?: boolean, maxDimension: number, selectedIndices?: number[] }) {
   return (
     <>
-      {holes.map((hole, idx) => {
-        const isHovered = hoveredIndex === idx;
+      {holes
+        .filter((hole) => (hole.radius * 2) < (maxDimension * 0.15)) // Dynamic Intelligent Filter: Skip blobs
+        .map((hole, idx) => {
+          const isHovered = hoveredIndex === idx;
+          const isSelected = selectedIndices.includes(idx);
+          const isActive = isHovered || isSelected;
 
-        const cylinderDir = new THREE.Vector3(0, 1, 0);
-        const holeNormal = new THREE.Vector3(hole.normal.x, hole.normal.y, hole.normal.z);
-        const quaternion = new THREE.Quaternion().setFromUnitVectors(cylinderDir, holeNormal);
+          const cylinderDir = new THREE.Vector3(0, 1, 0);
+          const holeNormal = new THREE.Vector3(hole.normal.x, hole.normal.y, hole.normal.z);
+          const quaternion = new THREE.Quaternion().setFromUnitVectors(cylinderDir, holeNormal);
 
-        return (
-          <group key={idx} position={[hole.center.x, hole.center.y, hole.center.z]} renderOrder={10}>
-            <group quaternion={quaternion}>
-              {/* Main Hole Cylinder */}
-              <mesh renderOrder={999}>
-                <cylinderGeometry args={[hole.radius, hole.radius, hole.depth, 32]} />
-                <meshStandardMaterial
-                  color={isHovered ? "#3b82f6" : (isTechnical ? "#000000" : "#22d3ee")}
-                  transparent={!isTechnical}
-                  opacity={1}
-                  roughness={0.9}
-                  metalness={0.1}
-                  side={THREE.DoubleSide}
-                  depthTest={false}
-                />
-              </mesh>
+          return (
+            <group key={idx} position={[hole.center.x, hole.center.y, hole.center.z]} renderOrder={10}>
+              <group quaternion={quaternion}>
+                {/* Highlight: show when hovered OR when a tap is selected */}
+                {isActive && (
+                  <>
+                    {/* Main Hole Feature Highlight */}
+                    <mesh renderOrder={999}>
+                      <cylinderGeometry args={[hole.radius * 0.99, hole.radius * 0.99, hole.depth * 1.01, 32]} />
+                      <meshStandardMaterial
+                        color="#1e293b" // Industrial charcoal
+                        roughness={0.9}
+                        metalness={0.1}
+                        side={THREE.DoubleSide}
+                        depthTest={true}
+                        polygonOffset
+                        polygonOffsetFactor={-10}
+                      />
+                    </mesh>
+
+                    {/* Technical Centerline Guide */}
+                    <line>
+                      <bufferGeometry>
+                        <bufferAttribute
+                          attach="attributes-position"
+                          args={[new Float32Array([0, -hole.depth, 0, 0, hole.depth, 0]), 3]}
+                        />
+                      </bufferGeometry>
+                      <lineDashedMaterial
+                        color="#1e293b"
+                        transparent
+                        opacity={0.3}
+                        dashSize={0.5}
+                        gapSize={0.2}
+                        depthTest={false}
+                      />
+                    </line>
+                  </>
+                )}
+              </group>
             </group>
-
-            {isHovered && (
-              <Html distanceFactor={10}>
-                <div className="bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-blue-500/50 shadow-xl shadow-blue-500/20 whitespace-nowrap pointer-events-none select-none animate-in fade-in zoom-in-95 duration-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                    <p className="text-[9px] font-black uppercase tracking-tighter leading-none">Detected Hole {idx + 1}</p>
-                  </div>
-                  <p className="text-[11px] font-mono font-bold">Ø {(hole.radius * 2).toFixed(2)}mm × {hole.depth.toFixed(1)}mm</p>
-                </div>
-              </Html>
-            )}
-          </group>
-        );
-      })}
+          )
+        })}
     </>
   );
 }
 
-function BendOverlays({ bends }: { bends: BendFeature[] }) {
+function BendOverlays({ bends, hoveredIndex, onHoverChange }: { bends: BendFeature[], hoveredIndex?: number, onHoverChange?: (idx: number | undefined) => void }) {
   return (
     <>
       {bends.map((bend, idx) => {
         const start = new THREE.Vector3(bend.start.x, bend.start.y, bend.start.z);
         const end = new THREE.Vector3(bend.end.x, bend.end.y, bend.end.z);
+        const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+
+        const isHovered = hoveredIndex === idx;
+        const color = bend.direction === 'UP' ? '#3B82F6' : '#F97316'; // Blue-500 : Orange-500
+        const isDashed = bend.direction === 'DOWN';
+
+        // Calculate rotation for the interaction cylinder and arrow
+        const direction = new THREE.Vector3().subVectors(end, start).normalize();
+        const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
 
         return (
-          <group key={idx} renderOrder={20}>
-            {/* The Bend Axis Line */}
-            <line>
-              <bufferGeometry>
-                <bufferAttribute
-                  attach="attributes-position"
-                  args={[new Float32Array([...start.toArray(), ...end.toArray()]), 3]}
-                />
-              </bufferGeometry>
-              <lineDashedMaterial
-                color="#f59e0b"
-                dashSize={1}
-                gapSize={0.5}
-                linewidth={3}
-                transparent
-                opacity={0.9}
-                depthTest={false}
-              />
-            </line>
+          <group key={idx} renderOrder={25}>
+            {/* High-Fidelity Technical Bend Line */}
+            <Line
+              points={[start, end]}
+              color={isHovered ? '#FACC15' : color} // Yellow-400 on hover
+              lineWidth={isHovered ? 4 : 2}
+              dashed={isDashed}
+              dashScale={1}
+              gapSize={0.5}
+              dashSize={1}
+              transparent
+              opacity={0.9}
+              depthTest={false}
+            />
 
-            {/* Optional: Glow effect for bend lines */}
-            <line>
-              <bufferGeometry>
-                <bufferAttribute
-                  attach="attributes-position"
-                  args={[new Float32Array([...start.toArray(), ...end.toArray()]), 3]}
-                />
-              </bufferGeometry>
-              <lineBasicMaterial
-                color="#fbbf24"
-                transparent
-                opacity={0.3}
-                depthTest={false}
-              />
-            </line>
+            {/* Interaction Layer (Invisible thick tube for easier hover) */}
+            <mesh
+              position={midPoint}
+              quaternion={quaternion}
+              onPointerOver={(e) => {
+                e.stopPropagation();
+                onHoverChange?.(idx);
+                document.body.style.cursor = 'help';
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation();
+                onHoverChange?.(undefined);
+                document.body.style.cursor = 'auto';
+              }}
+            >
+              <cylinderGeometry args={[2.5, 2.5, start.distanceTo(end), 8]} />
+              <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+            </mesh>
+
+            {/* Directional Indicator (Arrow highlighting fold nature) */}
+            <group position={midPoint} quaternion={quaternion} renderOrder={30}>
+              <mesh position={[0, bend.direction === 'UP' ? 2 : -2, 0]} rotation={[bend.direction === 'UP' ? 0 : Math.PI, 0, 0]}>
+                <coneGeometry args={[0.8, 1.5, 4]} />
+                <meshBasicMaterial color={color} depthTest={false} transparent opacity={0.8} />
+              </mesh>
+            </group>
+
+            {/* Technical Tooltip */}
+            {isHovered && (
+              <Html position={midPoint} center distanceFactor={15}>
+                <div className="bg-slate-900 px-3 py-2 rounded-lg border border-slate-700 shadow-2xl backdrop-blur-md whitespace-nowrap pointer-events-none scale-90 translate-y-[-40px]">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Sheet Metal Bend</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold font-mono text-white tracking-widest">{(bend.angle || 0).toFixed(1)}°</span>
+                      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${bend.direction === 'UP' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                        {bend.direction === 'UP' ? '↑ UP' : '↓ DOWN'}
+                      </div>
+                    </div>
+                    <div className="text-[8px] text-slate-500 font-mono italic">Radius: {(bend.radius || 0).toFixed(1)}mm</div>
+                  </div>
+                </div>
+              </Html>
+            )}
           </group>
         );
       })}
@@ -342,7 +394,10 @@ interface STLViewerProps {
   showHoles?: boolean;
   showBends?: boolean;
   hoveredHoleIndex?: number;
+  hoveredBendIndex?: number;
+  selectedHoleIndices?: number[];
   serviceMode?: 'none' | 'tapping' | 'bending' | 'countersink' | 'engraving';
+  boundingBox?: { x: number, y: number, z: number };
 }
 
 /**
@@ -361,10 +416,16 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
     showHoles = true,
     showBends = true,
     hoveredHoleIndex,
-    serviceMode = 'none'
+    hoveredBendIndex,
+    selectedHoleIndices = [],
+    serviceMode = 'none',
+    boundingBox
   }, ref) => {
     const [viewMode, setViewMode] = useState<'2D' | '3D'>(initialMode);
+    const [internalHoveredBendIndex, setInternalHoveredBendIndex] = useState<number | undefined>(undefined);
     const [viewHandle, setViewHandle] = useState<STLViewerHandle | null>(null);
+
+    const activeBendIndex = hoveredBendIndex !== undefined ? hoveredBendIndex : internalHoveredBendIndex;
 
     useImperativeHandle(ref, () => ({
       resetView: () => viewHandle?.resetView(),
@@ -391,7 +452,7 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
               makeDefault
               position={[0, 10, 0]}
               zoom={50}
-              up={[0, 0, -1]}
+              up={viewMode === '2D' ? [0, 0, -1] : [0, 1, 0]}
             />
           ) : (
             <PerspectiveCamera makeDefault position={[5, 5, 5]} fov={45} />
@@ -404,12 +465,11 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
             castShadow={serviceMode === 'none'}
           />
 
-          <Stage
-            intensity={viewMode === '2D' ? 1 : 0.4}
-            environment={viewMode === '2D' || serviceMode !== 'none' ? undefined : "city"}
-            adjustCamera={false}
-            shadows={viewMode === '2D' || serviceMode !== 'none' ? false : { type: 'contact', opacity: 0.15, blur: 3 }}
-          >
+          {(viewMode === '3D' && serviceMode === 'none') && <Environment preset="city" />}
+
+          {/* CRITICAL: Use Bounds for framing, but disable Stage centering to ensure 
+              absolute coordinate consistency between part and technical overlays. */}
+          <group>
             <Bounds fit clip observe margin={1.2}>
               <STLModel
                 buffer={buffer}
@@ -418,8 +478,21 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
                 finishType={finishType}
                 serviceMode={serviceMode}
               />
-              {showHoles && <HoleOverlays holes={holes} hoveredIndex={hoveredHoleIndex} isTechnical={serviceMode !== 'none'} />}
-              {showBends && <BendOverlays bends={bends} />}
+              {(() => {
+                const maxDim = Math.max(
+                  boundingBox?.x || 100,
+                  boundingBox?.y || 100,
+                  boundingBox?.z || 100
+                );
+                return showHoles && <HoleOverlays holes={holes} hoveredIndex={hoveredHoleIndex} isTechnical={serviceMode !== 'none'} maxDimension={maxDim} selectedIndices={selectedHoleIndices} />;
+              })()}
+              {showBends && (
+                <BendOverlays
+                  bends={bends}
+                  hoveredIndex={activeBendIndex}
+                  onHoverChange={setInternalHoveredBendIndex}
+                />
+              )}
               <ViewHandler
                 onMount={setViewHandle}
                 orthographic={viewMode === '2D' || serviceMode !== 'none'}
@@ -427,7 +500,7 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
                 serviceMode={serviceMode}
               />
             </Bounds>
-          </Stage>
+          </group>
 
           <OrbitControls
             makeDefault
@@ -438,6 +511,18 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
             dampingFactor={0.1}
             rotateSpeed={0.5}
           />
+
+          {/* Professional Orientation Gizmo (Senior Level CAD Widget) */}
+          <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+            <GizmoViewcube
+              font="bold 24px Inter, sans-serif"
+              opacity={0.9}
+              strokeColor="#cbd5e1"
+              textColor="#334155"
+              hoverColor="#2F5FA7"
+              color="#ffffff"
+            />
+          </GizmoHelper>
 
           {viewMode === '3D' && serviceMode === 'none' && (
             <ContactShadows

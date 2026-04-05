@@ -1018,11 +1018,11 @@ export default function AdminPanel() {
               ? selectedRfq.designFiles
               : selectedRfq.designFileUrl
                 ? [
-                    {
-                      name: selectedRfq.designFileName || 'Main_Design_Data',
-                      dataUrl: selectedRfq.designFileUrl,
-                    },
-                  ]
+                  {
+                    name: selectedRfq.designFileName || 'Main_Design_Data',
+                    dataUrl: selectedRfq.designFileUrl,
+                  },
+                ]
                 : []),
             ...partFiles,
           ];
@@ -1092,134 +1092,134 @@ export default function AdminPanel() {
                     {(selectedRfq.paymentStatus?.advance?.paid ||
                       selectedRfq.finalPrice > 0 ||
                       selectedRfq.quotedPrice > 0) && (
-                      <div className="mb-8">
-                        <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-600 mb-4">
-                          <CreditCard className="w-3.5 h-3.5 text-emerald-500" /> Financial &
-                          Milestone Tracking
-                        </h3>
+                        <div className="mb-8">
+                          <h3 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-600 mb-4">
+                            <CreditCard className="w-3.5 h-3.5 text-emerald-500" /> Financial &
+                            Milestone Tracking
+                          </h3>
 
-                        {(() => {
-                          const finances = calculateProjectFinances(
-                            selectedRfq.finalPrice || selectedRfq.quotedPrice || 0
-                          );
+                          {(() => {
+                            const finances = calculateProjectFinances(
+                              selectedRfq.finalPrice || selectedRfq.quotedPrice || 0
+                            );
 
-                          return (
-                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 overflow-hidden text-sm shadow-sm">
-                              <div className="p-4 border-b border-emerald-100 bg-white space-y-2">
-                                <div className="flex justify-between items-center text-xs text-slate-500">
-                                  <span className="flex items-center gap-1.5">
-                                    <Box className="w-3.5 h-3.5 opacity-50" /> Quotation Subtotal
-                                  </span>
-                                  <span className="font-semibold text-slate-700">
-                                    INR {finances.subtotal.toLocaleString('en-IN')}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs text-slate-500">
-                                  <span className="flex items-center gap-1.5">
-                                    <Gavel className="w-3.5 h-3.5 opacity-50" /> GST (18%)
-                                  </span>
-                                  <span className="font-semibold text-slate-700">
-                                    INR {finances.gst.toLocaleString('en-IN')}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs text-slate-500">
-                                  <span className="flex items-center gap-1.5">
-                                    <ShoppingCart className="w-3.5 h-3.5 opacity-50" /> Shipping
-                                    (Ground)
-                                  </span>
-                                  <span className="font-semibold text-slate-700">
-                                    INR {finances.shipping.toLocaleString('en-IN')}
-                                  </span>
-                                </div>
-                                <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
-                                  <span className="text-slate-500 font-bold uppercase text-[10px] tracking-wider">
-                                    Total Order Value
-                                  </span>
-                                  <span className="font-bold text-slate-900 text-lg">
-                                    INR {finances.total.toLocaleString('en-IN')}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-                                {/* Advance Payment Block */}
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">
-                                      50% Advance
+                            return (
+                              <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 overflow-hidden text-sm shadow-sm">
+                                <div className="p-4 border-b border-emerald-100 bg-white space-y-2">
+                                  <div className="flex justify-between items-center text-xs text-slate-500">
+                                    <span className="flex items-center gap-1.5">
+                                      <Box className="w-3.5 h-3.5 opacity-50" /> Quotation Subtotal
                                     </span>
-                                    {selectedRfq.paymentStatus?.advance?.paid ? (
-                                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px]">
-                                        PAID
-                                      </Badge>
-                                    ) : (
-                                      <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px]">
-                                        PENDING
-                                      </Badge>
-                                    )}
+                                    <span className="font-semibold text-slate-700">
+                                      INR {finances.subtotal.toLocaleString('en-IN')}
+                                    </span>
                                   </div>
-                                  <div>
-                                    <p className="text-xl font-bold text-slate-900">
-                                      INR {finances.advance.toLocaleString('en-IN')}
-                                    </p>
+                                  <div className="flex justify-between items-center text-xs text-slate-500">
+                                    <span className="flex items-center gap-1.5">
+                                      <Gavel className="w-3.5 h-3.5 opacity-50" /> GST (18%)
+                                    </span>
+                                    <span className="font-semibold text-slate-700">
+                                      INR {finances.gst.toLocaleString('en-IN')}
+                                    </span>
                                   </div>
-                                  {selectedRfq.paymentStatus?.advance?.paid && (
-                                    <div className="text-[10px] text-slate-500 space-y-1 bg-slate-100 p-2 rounded border border-slate-200">
-                                      <p>
-                                        On:{' '}
-                                        {new Date(
-                                          selectedRfq.paymentStatus.advance.paidAt
-                                        ).toLocaleString('en-IN')}
-                                      </p>
-                                      <p className="font-mono text-[9px] truncate">
-                                        Ref: {selectedRfq.paymentStatus.advance.razorpayPaymentId}
+                                  <div className="flex justify-between items-center text-xs text-slate-500">
+                                    <span className="flex items-center gap-1.5">
+                                      <ShoppingCart className="w-3.5 h-3.5 opacity-50" /> Shipping
+                                      (Ground)
+                                    </span>
+                                    <span className="font-semibold text-slate-700">
+                                      INR {finances.shipping.toLocaleString('en-IN')}
+                                    </span>
+                                  </div>
+                                  <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
+                                    <span className="text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                                      Total Order Value
+                                    </span>
+                                    <span className="font-bold text-slate-900 text-lg">
+                                      INR {finances.total.toLocaleString('en-IN')}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                                  {/* Advance Payment Block */}
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">
+                                        50% Advance
+                                      </span>
+                                      {selectedRfq.paymentStatus?.advance?.paid ? (
+                                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px]">
+                                          PAID
+                                        </Badge>
+                                      ) : (
+                                        <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20 text-[10px]">
+                                          PENDING
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-xl font-bold text-slate-900">
+                                        INR {finances.advance.toLocaleString('en-IN')}
                                       </p>
                                     </div>
-                                  )}
-                                </div>
-
-                                {/* Completion Payment Block */}
-                                <div className="space-y-3 md:pl-4 pt-4 md:pt-0">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">
-                                      50% Balance
-                                    </span>
-                                    {selectedRfq.paymentStatus?.completion?.paid ? (
-                                      <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px]">
-                                        PAID
-                                      </Badge>
-                                    ) : (
-                                      <Badge className="bg-slate-500/10 text-slate-600 border-slate-500/20 text-[10px]">
-                                        PENDING
-                                      </Badge>
+                                    {selectedRfq.paymentStatus?.advance?.paid && (
+                                      <div className="text-[10px] text-slate-500 space-y-1 bg-slate-100 p-2 rounded border border-slate-200">
+                                        <p>
+                                          On:{' '}
+                                          {new Date(
+                                            selectedRfq.paymentStatus.advance.paidAt
+                                          ).toLocaleString('en-IN')}
+                                        </p>
+                                        <p className="font-mono text-[9px] truncate">
+                                          Ref: {selectedRfq.paymentStatus.advance.razorpayPaymentId}
+                                        </p>
+                                      </div>
                                     )}
                                   </div>
-                                  <div>
-                                    <p className="text-xl font-bold text-slate-900">
-                                      INR {finances.balance.toLocaleString('en-IN')}
-                                    </p>
-                                  </div>
-                                  {selectedRfq.paymentStatus?.completion?.paid && (
-                                    <div className="text-[10px] text-slate-500 space-y-1 bg-slate-100 p-2 rounded border border-slate-200">
-                                      <p>
-                                        On:{' '}
-                                        {new Date(
-                                          selectedRfq.paymentStatus.completion.paidAt
-                                        ).toLocaleString('en-IN')}
-                                      </p>
-                                      <p className="font-mono text-[9px] truncate">
-                                        Ref:{' '}
-                                        {selectedRfq.paymentStatus.completion.razorpayPaymentId}
+
+                                  {/* Completion Payment Block */}
+                                  <div className="space-y-3 md:pl-4 pt-4 md:pt-0">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">
+                                        50% Balance
+                                      </span>
+                                      {selectedRfq.paymentStatus?.completion?.paid ? (
+                                        <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px]">
+                                          PAID
+                                        </Badge>
+                                      ) : (
+                                        <Badge className="bg-slate-500/10 text-slate-600 border-slate-500/20 text-[10px]">
+                                          PENDING
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-xl font-bold text-slate-900">
+                                        INR {finances.balance.toLocaleString('en-IN')}
                                       </p>
                                     </div>
-                                  )}
+                                    {selectedRfq.paymentStatus?.completion?.paid && (
+                                      <div className="text-[10px] text-slate-500 space-y-1 bg-slate-100 p-2 rounded border border-slate-200">
+                                        <p>
+                                          On:{' '}
+                                          {new Date(
+                                            selectedRfq.paymentStatus.completion.paidAt
+                                          ).toLocaleString('en-IN')}
+                                        </p>
+                                        <p className="font-mono text-[9px] truncate">
+                                          Ref:{' '}
+                                          {selectedRfq.paymentStatus.completion.razorpayPaymentId}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
+                            );
+                          })()}
+                        </div>
+                      )}
 
                     {/* Pricing Worksheet */}
                     {selectedRfqParts && selectedRfqParts.length > 0 && (
@@ -1441,12 +1441,39 @@ export default function AdminPanel() {
                                       Threading / Tap Configuration ({part.taps.length} Holes)
                                     </p>
                                     <div className="space-y-1">
-                                      {part.taps.map((tap: any, tIdx: number) => (
-                                        <div key={tIdx} className="flex items-center justify-between text-[10px]">
-                                          <span className="font-medium text-slate-600">Hole #{tap.holeIndex + 1}</span>
-                                          <Badge className="bg-emerald-100 text-emerald-700 text-[8px] border-none font-bold uppercase">
-                                            {tap.tapType}
-                                          </Badge>
+                                      {part.taps.map((tap: any, tIdx: number) => {
+                                        const hole = part.analysis?.holes?.[tap.holeIndex];
+                                        return (
+                                          <div key={tIdx} className="flex items-center justify-between text-[10px] bg-white/50 p-1.5 rounded border border-emerald-100/50">
+                                            <div className="flex flex-col">
+                                              <span className="font-bold text-slate-700">Hole #{tap.holeIndex + 1}</span>
+                                              {hole && (
+                                                <span className="text-[8px] text-slate-500 font-mono italic">
+                                                  Design: Ø {(hole.radius * 2).toFixed(2)}mm × {hole.depth.toFixed(1)}mm
+                                                </span>
+                                              )}
+                                            </div>
+                                            <Badge className="bg-emerald-500 text-white text-[9px] border-none font-black uppercase px-2 py-0.5">
+                                              {tap.tapType}
+                                            </Badge>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Bend Analysis Breakdown */}
+                                {part.analysis?.bends && part.analysis.bends.length > 0 && (
+                                  <div className="bg-blue-50/50 rounded-lg p-3 border border-blue-100">
+                                    <p className="text-[7px] font-bold text-blue-500 uppercase tracking-widest mb-2">
+                                      Sheet Metal Bend Analysis ({part.analysis.bends.length} Bends)
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {part.analysis.bends.map((bend: any, bIdx: number) => (
+                                        <div key={bIdx} className="text-[9px] bg-white/50 p-1.5 rounded border border-blue-100/50 flex flex-col gap-0.5">
+                                          <span className="font-bold text-slate-700 uppercase tracking-tighter">Bend #{bIdx + 1}</span>
+                                          <span className="text-[8px] text-slate-500 font-mono">Radius: {bend.radius.toFixed(1)}mm</span>
                                         </div>
                                       ))}
                                     </div>
@@ -2289,11 +2316,10 @@ export default function AdminPanel() {
                     </div>
 
                     <div
-                      className={`grid grid-cols-4 gap-3 p-4 rounded-xl border-2 border-dashed transition-all ${
-                        isDragging
-                          ? 'border-primary bg-primary/5 scale-[1.02]'
-                          : 'border-slate-200 bg-slate-50'
-                      }`}
+                      className={`grid grid-cols-4 gap-3 p-4 rounded-xl border-2 border-dashed transition-all ${isDragging
+                        ? 'border-primary bg-primary/5 scale-[1.02]'
+                        : 'border-slate-200 bg-slate-50'
+                        }`}
                       onDragOver={onDragOver}
                       onDragLeave={onDragLeave}
                       onDrop={onDrop}

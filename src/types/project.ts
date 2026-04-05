@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════════
-// Project RFQ Types for Manufacturing Workflow
-// ═══════════════════════════════════════════════════
+import { HoleFeature, BendFeature } from './viewer';
 
 /** Main manufacturing service types */
 export type ManufacturingService =
@@ -100,6 +98,11 @@ export interface MechanicalPart {
   readonly unitCost?: number;
   readonly discountTier?: string;
   readonly status: PartStatus;
+  readonly analysis?: {
+    readonly holes?: HoleFeature[];
+    readonly bends?: BendFeature[];
+    readonly triangleCount?: number;
+  };
   readonly createdAt: string;
   readonly updatedAt: string;
 }

@@ -224,21 +224,32 @@ export function PartCreationWizard({
 
   const handleSecondaryProcessToggle = (process: SecondaryProcess) => {
     setSecondaryProcesses((prev) => {
+      let updated: SecondaryProcess[];
+
       if (prev.includes(process)) {
         // Remove process
-        const updated = prev.filter((p) => p !== process);
-        // If removing a color-requiring process, and no other color-requiring process remains, clear color
-        const remainingNeedsColor = updated.some(
-          (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
-        );
-        if (!remainingNeedsColor) {
-          setCoatingColor(null);
-        }
-        return updated;
+        updated = prev.filter((p) => p !== process);
       } else {
         // Add process
-        return [...prev, process];
+        updated = [...prev, process];
+
+        // Logical Exclusion: powder_coating and anodizing are mutually exclusive
+        if (process === 'powder_coating') {
+          updated = updated.filter(p => p !== 'anodizing');
+        } else if (process === 'anodizing') {
+          updated = updated.filter(p => p !== 'powder_coating');
+        }
       }
+
+      // Cleanup logic if color is no longer needed
+      const remainingNeedsColor = updated.some(
+        (pid) => (SECONDARY_PROCESSES as any[]).find((p) => p.id === pid)?.requiresColor
+      );
+      if (!remainingNeedsColor) {
+        setCoatingColor(null);
+      }
+
+      return updated;
     });
   };
 
@@ -296,6 +307,11 @@ export function PartCreationWizard({
         quantity,
         ...(discountTier ? { discountTier } : {}),
         status: 'ready_for_quote',
+        analysis: conversionResult ? {
+          holes: conversionResult.holes,
+          bends: conversionResult.bends,
+          triangleCount: conversionResult.triangleCount
+        } : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -536,7 +552,11 @@ export function PartCreationWizard({
                     finishType={finishType}
                     holes={conversionResult?.holes}
                     bends={conversionResult?.bends}
+                    showHoles={secondaryProcesses.includes('tapping')}
+                    showBends={secondaryProcesses.includes('bending')}
                     hoveredHoleIndex={hoveredHoleIndex}
+                    selectedHoleIndices={selectedTaps.map(t => t.holeIndex)}
+                    boundingBox={conversionResult?.boundingBox}
                     serviceMode={
                       secondaryProcesses.includes('tapping') ? 'tapping' :
                         secondaryProcesses.includes('bending') ? 'bending' :
