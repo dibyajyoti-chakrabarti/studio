@@ -11,10 +11,17 @@ import { ConversionResult } from '@/types/viewer';
  *   NEXT_PUBLIC_CONVERT_SERVICE_URL=https://your-app.up.railway.app/convert
  *   NEXT_PUBLIC_CONVERT_FUNCTION_URL=http://127.0.0.1:5001/.../convertStep  (legacy)
  */
-const CONVERT_URL =
+const BASE_URL =
   process.env.NEXT_PUBLIC_CONVERT_SERVICE_URL ??
   process.env.NEXT_PUBLIC_CONVERT_FUNCTION_URL ??
-  'http://localhost:8080/convert';  // local Docker fallback for development
+  'http://localhost:8080/convert';
+
+// Ensure we always hit the /convert endpoint even if the env var is just the base domain
+const CONVERT_URL = BASE_URL.endsWith('/convert') || BASE_URL.endsWith('convertStep')
+  ? BASE_URL
+  : `${BASE_URL.replace(/\/$/, '')}/convert`;
+
+console.log(`[stepConverter] Using CAD Service URL: ${CONVERT_URL}`);
 
 export async function convertStepFile(file: File): Promise<ConversionResult> {
   const form = new FormData();
