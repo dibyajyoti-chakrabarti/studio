@@ -102,7 +102,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
 import { logger } from '@/utils/logger';
-import { checkIsAdmin } from '@/lib/auth-utils';
+import { checkIsAdmin, isAdmin } from '@/lib/auth-utils';
 import { getIdTokenResult } from 'firebase/auth';
 import { STATUS_OPTIONS, SPECIALIZATIONS } from '@/config/constants';
 
@@ -186,19 +186,26 @@ export default function AdminPanel() {
 
   useEffect(() => {
     async function verifyAdmin() {
+      // 1. Wait for Auth and Profile to resolve definitively.
       if (isUserLoading || isProfileLoading || !db || !user) {
+        // Only redirect to login if we're sure there's no user at all.
         if (!isUserLoading && !user) router.push('/login');
         return;
       }
 
       try {
+        // 2. Perform a multi-factor admin check to ensure persistence across refreshes.
         const tokenResult = await getIdTokenResult(user);
         const hasAdminClaim = checkIsAdmin(tokenResult.claims);
         const profileIsAdmin = profile?.role === 'admin';
+        const hasAdminEmail = isAdmin(user.email);
 
-        if (hasAdminClaim || profileIsAdmin) {
+        if (hasAdminClaim || profileIsAdmin || hasAdminEmail) {
           setIsAdminConfirmed(true);
+          // If they were confirmed via email but claim is missing, 
+          // we could trigger a claim refresh here if needed.
         } else {
+          // Only redirect if absolutely all checks fail
           setIsAdminConfirmed(false);
           toast({
             title: 'Access Denied',
@@ -209,7 +216,13 @@ export default function AdminPanel() {
         }
       } catch (err) {
         console.error('Admin verification failed:', err);
-        router.push('/dashboard');
+        // During refresh, network glitches shouldn't immediately kick the admin.
+        // We'll fallback to the email check one last time.
+        if (isAdmin(user.email)) {
+          setIsAdminConfirmed(true);
+        } else {
+          router.push('/dashboard');
+        }
       }
     }
 
