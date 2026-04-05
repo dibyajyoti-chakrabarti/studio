@@ -1,4 +1,4 @@
-import { HoleFeature, BendFeature } from './viewer';
+import { HoleFeature, BendFeature, BoundingBox } from './viewer';
 
 /** Main manufacturing service types */
 export type ManufacturingService =
@@ -102,6 +102,7 @@ export interface MechanicalPart {
     readonly holes?: HoleFeature[];
     readonly bends?: BendFeature[];
     readonly triangleCount?: number;
+    readonly boundingBox?: BoundingBox;
   };
   readonly createdAt: string;
   readonly updatedAt: string;

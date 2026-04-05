@@ -35,6 +35,7 @@ import { MaterialSelection } from './MaterialSelection';
 import { SecondaryProcessSelection, SECONDARY_PROCESSES, COLOR_OPTIONS } from './SecondaryProcessSelection';
 import { BendingStep } from './BendingStep';
 import { QuantityStep } from './QuantityStep';
+import { ThreadConfigSidebar } from './ThreadConfigSidebar';
 import { isPartNameValid } from '@/lib/validation/part-name';
 import { STLViewer } from '@/components/viewer/STLViewer';
 import { convertStepFile, stlBase64ToBuffer } from '@/services/stepConverter.service';
@@ -119,6 +120,7 @@ export function PartCreationWizard({
   const [tappingNotes, setTappingNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [discountTier, setDiscountTier] = useState<string | null>(null);
+  const [showTappingSidebar, setShowTappingSidebar] = useState(false);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
@@ -257,7 +259,14 @@ export function PartCreationWizard({
           updated = updated.filter(p => p !== 'anodizing');
         } else if (process === 'anodizing') {
           updated = updated.filter(p => p !== 'powder_coating');
+        } else if (process === 'tapping') {
+          setShowTappingSidebar(true);
         }
+      }
+      
+      // If tapping was removed
+      if (!updated.includes('tapping')) {
+        setShowTappingSidebar(false);
       }
 
       // Cleanup logic if color is no longer needed
@@ -283,6 +292,11 @@ export function PartCreationWizard({
       }
       return [...prev, { holeIndex, tapType }];
     });
+  };
+
+  const handleResetTaps = () => {
+    setSelectedTaps([]);
+    setTappingNotes('');
   };
 
   const handleSubmit = async () => {
@@ -327,9 +341,10 @@ export function PartCreationWizard({
         ...(discountTier ? { discountTier } : {}),
         status: 'ready_for_quote',
         analysis: conversionResult ? {
-          holes: conversionResult.holes,
-          bends: conversionResult.bends,
-          triangleCount: conversionResult.triangleCount
+          holes: conversionResult.holes || [],
+          bends: conversionResult.bends || [],
+          triangleCount: conversionResult.triangleCount || 0,
+          boundingBox: conversionResult.boundingBox
         } : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -386,6 +401,7 @@ export function PartCreationWizard({
       setTappingNotes('');
       setQuantity(1);
       setDiscountTier(null);
+      setShowTappingSidebar(false);
 
       onClose();
     }
@@ -446,6 +462,8 @@ export function PartCreationWizard({
             onHoleHover={setHoveredHoleIndex}
             tappingNotes={tappingNotes}
             onTappingNotesChange={setTappingNotes}
+            hideTappingPanel={secondaryProcesses.includes('tapping')} // Always true if tapping is enabled
+            onOpenTappingConfig={() => setShowTappingSidebar(true)}
           />
         ) : null;
       case 'bending':
@@ -701,6 +719,20 @@ export function PartCreationWizard({
             )}
           </div>
         </div>
+
+        {/* EXTRA RIGHT: Thread Configuration Panel */}
+        {currentStep === 'secondary' && secondaryProcesses.includes('tapping') && showTappingSidebar && (
+          <ThreadConfigSidebar
+            conversionResult={conversionResult}
+            selectedTaps={selectedTaps}
+            onTapSelect={handleTapSelect}
+            onHoleHover={setHoveredHoleIndex}
+            tappingNotes={tappingNotes}
+            onTappingNotesChange={setTappingNotes}
+            onResetAll={handleResetTaps}
+            onClose={() => setShowTappingSidebar(false)}
+          />
+        )}
       </div>
     </div>
   );
@@ -711,7 +743,12 @@ export function PartCreationWizard({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[95vw] lg:max-w-[1400px] h-[95vh] p-0 overflow-hidden bg-white border-0 shadow-2xl flex flex-col rounded-[32px]">
+      <DialogContent className={cn(
+        "w-full h-[95vh] p-0 overflow-hidden bg-white border-0 shadow-2xl flex flex-col rounded-[32px] transition-all duration-500",
+        currentStep === 'secondary' && secondaryProcesses.includes('tapping')
+          ? "max-w-[95vw] lg:max-w-[1600px]"
+          : "max-w-[95vw] lg:max-w-[1280px]"
+      )}>
         {/* Accessibility Requirements */}
         <div className="sr-only">
           <DialogTitle>Part Creation Wizard</DialogTitle>

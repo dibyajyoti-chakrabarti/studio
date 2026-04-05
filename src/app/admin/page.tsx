@@ -105,6 +105,7 @@ import { logger } from '@/utils/logger';
 import { checkIsAdmin, isAdmin } from '@/lib/auth-utils';
 import { getIdTokenResult } from 'firebase/auth';
 import { STATUS_OPTIONS, SPECIALIZATIONS } from '@/config/constants';
+import { getTapName } from '@/config/manufacturing';
 
 // Modular Components
 import { AdminService } from '@/services/admin.service';
@@ -1054,6 +1055,17 @@ export default function AdminPanel() {
             rejected: 'bg-red-500/15 text-red-400 border-red-500/25',
             cancelled: 'bg-red-500/15 text-red-400 border-red-500/25',
           };
+          const COLOR_HEX_MAP: Record<string, string> = {
+            black: '#121212',
+            white: '#FAFAFA',
+            red: '#D32F2F',
+            blue: '#1E88E5',
+            green: '#388E3C',
+            yellow: '#FBC02D',
+            grey: '#757575',
+            clear: '#E0E0E0',
+            gold: '#FFD700',
+          };
           return (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
               <Card className="w-full max-w-5xl max-h-[92vh] bg-white border-slate-200 shadow-2xl overflow-hidden flex flex-col">
@@ -1407,9 +1419,17 @@ export default function AdminPanel() {
                                     <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
                                       Finish
                                     </p>
-                                    <p className="text-[10px] font-bold text-slate-900 uppercase">
-                                      {part.coatingColor || 'Standard'}
-                                    </p>
+                                    <div className="flex items-center justify-center gap-1.5">
+                                      {part.coatingColor && COLOR_HEX_MAP[part.coatingColor] && (
+                                        <div 
+                                          className="w-2.5 h-2.5 rounded-full border border-slate-200 shadow-sm"
+                                          style={{ backgroundColor: COLOR_HEX_MAP[part.coatingColor] }}
+                                        />
+                                      )}
+                                      <p className="text-[10px] font-bold text-slate-900 uppercase">
+                                        {part.coatingColor || 'Standard'}
+                                      </p>
+                                    </div>
                                   </div>
                                   <div className="text-center">
                                     <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
@@ -1467,7 +1487,7 @@ export default function AdminPanel() {
                                               )}
                                             </div>
                                             <Badge className="bg-emerald-500 text-white text-[9px] border-none font-black uppercase px-2 py-0.5">
-                                              {tap.tapType}
+                                              {getTapName(tap.tapType)}
                                             </Badge>
                                           </div>
                                         );

@@ -99,32 +99,12 @@ export const SECONDARY_PROCESSES: SecondaryProcessOption[] = [
   },
 ];
 
-const METRIC_TAPS = [
-  { id: 'M2x0.4', name: 'M2 × 0.4', drillSize: 1.6, pitch: 0.4 },
-  { id: 'M2.5x0.45', name: 'M2.5 × 0.45', drillSize: 2.1, pitch: 0.45 },
-  { id: 'M3x0.5', name: 'M3 × 0.5', drillSize: 2.5, pitch: 0.5 },
-  { id: 'M4x0.7', name: 'M4 × 0.7', drillSize: 3.3, pitch: 0.7 },
-  { id: 'M5x0.8', name: 'M5 × 0.8', drillSize: 4.2, pitch: 0.8 },
-  { id: 'M6x1.0', name: 'M6 × 1.0', drillSize: 5.0, pitch: 1.0 },
-  { id: 'M8x1.25', name: 'M8 × 1.25', drillSize: 6.8, pitch: 1.25 },
-  { id: 'M10x1.5', name: 'M10 × 1.5', drillSize: 8.5, pitch: 1.5 },
-  { id: 'M12x1.75', name: 'M12 × 1.75', drillSize: 10.3, pitch: 1.75 },
-];
+import {
+  ALL_TAPS,
+  METRIC_TAPS,
+  IMPERIAL_TAPS
+} from '@/config/manufacturing';
 
-const IMPERIAL_TAPS = [
-  { id: '2-56', name: '#2-56 UNC', drillSize: 1.85, isInch: true },
-  { id: '4-40', name: '#4-40 UNC', drillSize: 2.30, isInch: true },
-  { id: '6-32', name: '#6-32 UNC', drillSize: 2.85, isInch: true },
-  { id: '8-32', name: '#8-32 UNC', drillSize: 3.50, isInch: true },
-  { id: '10-24', name: '#10-24 UNC', drillSize: 3.90, isInch: true },
-  { id: '10-32', name: '#10-32 UNF', drillSize: 4.10, isInch: true },
-  { id: '1/4-20', name: '1/4"-20 UNC', drillSize: 5.10, isInch: true },
-  { id: '5/16-18', name: '5/16"-18 UNC', drillSize: 6.60, isInch: true },
-  { id: '3/8-16', name: '3/8"-16 UNC', drillSize: 8.00, isInch: true },
-  { id: '1/2-13', name: '1/2"-13 UNC', drillSize: 10.80, isInch: true },
-];
-
-const ALL_TAPS = [...METRIC_TAPS, ...IMPERIAL_TAPS];
 
 const mmToInch = (mm: number) => mm / 25.4;
 
@@ -188,6 +168,8 @@ interface SecondaryProcessSelectionProps {
   onHoleHover: (holeIndex: number | undefined) => void;
   tappingNotes?: string;
   onTappingNotesChange?: (notes: string) => void;
+  hideTappingPanel?: boolean;
+  onOpenTappingConfig?: () => void;
 }
 
 export function SecondaryProcessSelection({
@@ -203,7 +185,10 @@ export function SecondaryProcessSelection({
   onHoleHover,
   tappingNotes = '',
   onTappingNotesChange,
+  hideTappingPanel = false,
+  onOpenTappingConfig,
 }: SecondaryProcessSelectionProps) {
+  const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
   const filteredProcesses = SECONDARY_PROCESSES.filter((p) => {
     // Basic service check
     if (!p.applicableServices.includes(selectedService)) return false;
@@ -238,6 +223,15 @@ export function SecondaryProcessSelection({
   const availableColors = COLOR_OPTIONS.filter((color) =>
     color.applicableProcesses.some((ap) => activeColorProcesses.includes(ap))
   );
+
+  // Group taps for summary
+  const tapSummary = selectedTaps.reduce((acc, tap) => {
+    acc[tap.tapType] = (acc[tap.tapType] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const hasTaps = Object.keys(tapSummary).length > 0;
+  const hasNotes = tappingNotes && tappingNotes.trim().length > 0;
 
   return (
     <div className="space-y-6">
@@ -276,14 +270,56 @@ export function SecondaryProcessSelection({
                   >
                     {process.icon}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-900 uppercase tracking-wide text-xs">
-                      {process.name}
-                    </p>
-                    <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5">
-                      {process.description}
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-bold text-slate-900 uppercase tracking-wide text-xs">
+                          {process.name}
+                        </p>
+                        {process.id === 'tapping' && isSelected && onOpenTappingConfig && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenTappingConfig();
+                            }}
+                            className="h-6 px-2 text-[8px] font-black uppercase tracking-widest text-[#2F5FA7] hover:bg-blue-100/50 rounded-md"
+                          >
+                            Configure
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5">
+                        {process.description}
+                      </p>
+
+                      {/* Thread Summary List */}
+                      {process.id === 'tapping' && isSelected && (hasTaps || hasNotes) && (
+                        <div className="mt-3 flex flex-wrap gap-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
+                          {Object.entries(tapSummary).map(([type, count]) => (
+                            <div
+                              key={type}
+                              className="flex items-center gap-1.5 px-2 py-1 bg-blue-100/50 border border-blue-200/50 rounded-lg shadow-sm"
+                            >
+                              <span className="text-[9px] font-black text-[#2F5FA7] lining-nums">
+                                {count}x
+                              </span>
+                              <span className="text-[9px] font-black text-slate-700 uppercase tracking-tighter">
+                                {type}
+                              </span>
+                            </div>
+                          ))}
+                          {hasNotes && !hasTaps && (
+                            <div className="px-2 py-1 bg-amber-50 border border-amber-100 rounded-lg flex items-center gap-1.5">
+                              <MousePointer2 className="w-2.5 h-2.5 text-amber-500" />
+                              <span className="text-[8px] font-black text-amber-700 uppercase tracking-widest">
+                                Manual Specs Provided
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                 </div>
               </div>
             </Card>
@@ -334,7 +370,7 @@ export function SecondaryProcessSelection({
         </div>
       )}
 
-      {selectedProcesses.includes('tapping') && (!conversionResult?.holes || conversionResult.holes.length === 0) && (
+      {selectedProcesses.includes('tapping') && !hideTappingPanel && (!conversionResult?.holes || conversionResult.holes.length === 0) && (
         <div className="space-y-4 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
           {/* Header */}
           <div className="flex items-center gap-2">
@@ -417,7 +453,7 @@ export function SecondaryProcessSelection({
         </div>
       )}
 
-      {selectedProcesses.includes('tapping') && conversionResult?.holes && conversionResult.holes.length > 0 && (
+      {selectedProcesses.includes('tapping') && !hideTappingPanel && conversionResult?.holes && conversionResult.holes.length > 0 && (
         <div className="space-y-4 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="flex items-center justify-between">
             <Badge className="bg-[#2F5FA7] text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 border-none">
@@ -468,7 +504,10 @@ export function SecondaryProcessSelection({
                     </div>
 
                     <div className="col-span-2 flex justify-end">
-                      <Popover>
+                      <Popover 
+                        open={openPopoverIndex === idx} 
+                        onOpenChange={(open) => setOpenPopoverIndex(open ? idx : null)}
+                      >
                         <PopoverTrigger asChild>
                           <Button
                             variant={selection ? "default" : "outline"}
@@ -493,7 +532,10 @@ export function SecondaryProcessSelection({
                               recommendedTaps.map(tap => (
                                 <button
                                   key={tap.id}
-                                  onClick={() => onTapSelect(idx, tap.id)}
+                                  onClick={() => {
+                                    onTapSelect(idx, tap.id);
+                                    setOpenPopoverIndex(null);
+                                  }}
                                   className={cn(
                                     "w-full flex items-center justify-between px-3 py-2 text-[10px] font-bold rounded-lg transition-all",
                                     selection?.tapType === tap.id
@@ -516,7 +558,10 @@ export function SecondaryProcessSelection({
                               {ALL_TAPS.filter(t => !recommendedTaps.find(r => r.id === t.id)).map(tap => (
                                 <button
                                   key={tap.id}
-                                  onClick={() => onTapSelect(idx, tap.id)}
+                                  onClick={() => {
+                                    onTapSelect(idx, tap.id);
+                                    setOpenPopoverIndex(null);
+                                  }}
                                   className="w-full text-left px-3 py-1.5 text-[9px] font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all uppercase"
                                 >
                                   {tap.name}
@@ -527,7 +572,10 @@ export function SecondaryProcessSelection({
                             {selection && (
                               <Button
                                 variant="ghost"
-                                onClick={() => onTapSelect(idx, null)}
+                                onClick={() => {
+                                  onTapSelect(idx, null);
+                                  setOpenPopoverIndex(null);
+                                }}
                                 className="w-full h-8 mt-2 text-red-500 hover:text-red-600 hover:bg-red-50 text-[9px] font-black uppercase tracking-tighter rounded-lg"
                               >
                                 Remove Thread Config
