@@ -98,21 +98,21 @@ export default function CountersinkingPage() {
                 title: 'Precision Angularity',
                 desc: 'Maintain strict 82° and 90° angles for perfect fastener alignment and flush seating.',
                 icon: ShieldCheck,
-                img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1582719202015-42a5aecad3af?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-600',
               },
               {
                 title: 'Consistent Depth',
                 desc: 'Automated depth stop controls ensure every countersink is identical across large production runs.',
                 icon: Target,
-                img: 'https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1524514587686-e2909d726e9b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-400',
               },
               {
                 title: 'Burr-Free Finish',
                 desc: 'Optimized tool speeds and feed rates prevent edge rolling and exit burrs on sensitive materials.',
                 icon: Zap,
-                img: 'https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80',
+                img: '/Burr-Free-Finish.png',
                 color: 'bg-[#2F5FA7]',
               },
             ].map((item, index) => (
@@ -208,7 +208,7 @@ export default function CountersinkingPage() {
                 <img
                   src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985400/hole-aluminum-metal-made-chamfer-600nw-2733529461_wrekrv.webp"
                   alt="Countersinking Geometry Guide"
-                  className="w-[240px] h-[180px] object-cover transition-transform duration-700 group-hover:scale-105 mx-auto"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105 mx-auto"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10">
                   <div className="bg-white/95 backdrop-blur-md px-6 py-4 rounded-2xl shadow-xl inline-flex items-center gap-4">

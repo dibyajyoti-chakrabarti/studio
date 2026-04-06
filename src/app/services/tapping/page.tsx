@@ -99,7 +99,7 @@ export default function TappingPage() {
                 title: 'Class 6H / 2B Fit',
                 desc: 'Our threads meet global industrial standards for medium-fit applications, ensuring bolt compatibility.',
                 icon: Target,
-                img: 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1543420629-736d6bc8e85a?q=80&w=1174&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-600',
               },
               {
@@ -113,7 +113,7 @@ export default function TappingPage() {
                 title: 'Material Versatility',
                 desc: 'Available for Aluminum, Mild Steel, Stainless, and Engineering Plastics like Delrin/ABS.',
                 icon: Zap,
-                img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1684858061160-4b3a2ca48fac?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-[#2F5FA7]',
               },
             ].map((item, index) => (
@@ -207,7 +207,7 @@ export default function TappingPage() {
             <div className="relative group">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
                 <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984814/threading-service-600nw-2489824637_onb69h.webp"
+                  src="https://images.unsplash.com/photo-1598302936625-6075fbd98dd7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Tapping Engineering Guide"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
