@@ -449,13 +449,18 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
     return (
       <div className={`relative bg-white rounded-xl overflow-hidden group ${className}`}>
         <Canvas
-          shadows
+          shadows={{ type: THREE.PCFShadowMap }}
           dpr={[1, 2]}
-          gl={{ antialias: true, preserveDrawingBuffer: true, alpha: true }}
+          gl={{
+            antialias: true,
+            preserveDrawingBuffer: true,
+            alpha: true,
+          }}
           onCreated={({ gl }) => {
             gl.setClearColor('#ffffff');
           }}
         >
+
           <color attach="background" args={['#ffffff']} />
 
           {(viewMode === '2D' || serviceMode !== 'none') ? (

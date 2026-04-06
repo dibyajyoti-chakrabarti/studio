@@ -28,7 +28,7 @@ import {
   MechanicalPart,
   TapSelection,
 } from '@/types/project';
-import { ConversionResult } from '@/types/viewer';
+import { ConversionResult, BendAnalysisResult } from '@/types/viewer';
 import { ServiceSelection } from './ServiceSelection';
 import { FileUploadStep } from './FileUploadStep';
 import { MaterialSelection } from './MaterialSelection';
@@ -38,7 +38,8 @@ import { QuantityStep } from './QuantityStep';
 import { ThreadConfigSidebar } from './ThreadConfigSidebar';
 import { isPartNameValid } from '@/lib/validation/part-name';
 import { STLViewer } from '@/components/viewer/STLViewer';
-import { convertStepFile, stlBase64ToBuffer } from '@/services/stepConverter.service';
+import { FlatPatternViewer } from '@/components/viewer/FlatPatternViewer';
+import { convertStepFile, stlBase64ToBuffer, analyzeBends } from '@/services/stepConverter.service';
 
 import {
   ChevronLeft,
@@ -122,6 +123,11 @@ export function PartCreationWizard({
   const [discountTier, setDiscountTier] = useState<string | null>(null);
   const [showTappingSidebar, setShowTappingSidebar] = useState(false);
 
+  // Bend Analysis (V2 — separate /analyze-bends endpoint)
+  const [bendAnalysis, setBendAnalysis] = useState<BendAnalysisResult | null>(null);
+  const [isAnalyzingBends, setIsAnalyzingBends] = useState(false);
+  const [hoveredBendIndex, setHoveredBendIndex] = useState<number | undefined>(undefined);
+
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   // ── Auto-convert when reaching secondary step without conversion data ──────
@@ -169,6 +175,50 @@ export function PartCreationWizard({
       autoConvert();
     }
   }, [currentStep, conversionResult, isConverting, uploadedFile, user]);
+
+  // ── Auto-run V2 bend analysis when entering bending step ────────────────────
+  useEffect(() => {
+    if (
+      currentStep === 'bending' &&
+      !bendAnalysis &&
+      !isAnalyzingBends &&
+      uploadedFile &&
+      uploadedFile.fileName.match(/\.(step|stp)$/i)
+    ) {
+      const runBendAnalysis = async () => {
+        try {
+          setIsAnalyzingBends(true);
+          const token = await user?.getIdToken();
+          if (!token) return;
+
+          // Fetch the STEP file from S3
+          const response = await fetch(
+            `/api/v1/files/retrieve?fileKey=${encodeURIComponent(uploadedFile.fileUrl)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (!response.ok) {
+            console.error('[Wizard] Failed to fetch file for bend analysis');
+            return;
+          }
+
+          const blob = await response.blob();
+          const file = new File([blob], uploadedFile.fileName, { type: 'application/octet-stream' });
+
+          // Call the /analyze-bends endpoint
+          const result = await analyzeBends(file);
+          setBendAnalysis(result);
+          console.log(`[Wizard] Bend analysis complete: ${result.bends.length} bends, thickness=${result.detectedThickness}`);
+        } catch (err) {
+          console.error('[Wizard] Bend analysis failed:', err);
+        } finally {
+          setIsAnalyzingBends(false);
+        }
+      };
+
+      runBendAnalysis();
+    }
+  }, [currentStep, bendAnalysis, isAnalyzingBends, uploadedFile, user]);
 
   const canProceed = () => {
     switch (currentStep) {
@@ -402,6 +452,9 @@ export function PartCreationWizard({
       setQuantity(1);
       setDiscountTier(null);
       setShowTappingSidebar(false);
+      setBendAnalysis(null);
+      setIsAnalyzingBends(false);
+      setHoveredBendIndex(undefined);
 
       onClose();
     }
@@ -474,6 +527,10 @@ export function PartCreationWizard({
             isBendingEnabled={secondaryProcesses.includes('bending')}
             onToggle={() => handleSecondaryProcessToggle('bending')}
             conversionResult={conversionResult}
+            bendAnalysis={bendAnalysis}
+            isAnalyzing={isAnalyzingBends}
+            hoveredBendIndex={hoveredBendIndex}
+            onBendHover={setHoveredBendIndex}
           />
         ) : null;
       case 'quantity':
@@ -571,7 +628,16 @@ export function PartCreationWizard({
       <div className="flex-1 flex overflow-hidden force-no-horizontal-scroll">
         {/* LEFT: Persistent Viewer (If file uploaded) */}
         <div className="flex-1 bg-slate-50 border-r border-slate-100 relative overflow-hidden flex items-center justify-center">
-          {stlBuffer ? (
+          {/* Show FlatPatternViewer on bending step when flat pattern is available */}
+          {currentStep === 'bending' && bendAnalysis?.flatPattern ? (
+            <FlatPatternViewer
+              flatPattern={bendAnalysis.flatPattern}
+              className="w-full h-full"
+              hoveredBendIndex={hoveredBendIndex}
+              onBendHover={setHoveredBendIndex}
+              showBendLines={secondaryProcesses.includes('bending')}
+            />
+          ) : stlBuffer ? (
             <div className="w-full h-full relative">
               {(() => {
                 // Logic to derive 3D viewer color and finish

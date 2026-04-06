@@ -10,9 +10,14 @@ import {
   Info,
   CheckCircle2,
   AlertCircle,
-  Layers
+  Layers,
+  Loader2,
+  ArrowUp,
+  ArrowDown,
+  Ruler,
+  AlertTriangle,
 } from 'lucide-react';
-import { ConversionResult } from '@/types/viewer';
+import { ConversionResult, BendAnalysisResult, BendFeature } from '@/types/viewer';
 import { ManufacturingService } from '@/types/project';
 
 interface BendingStepProps {
@@ -29,6 +34,14 @@ interface BendingStepProps {
     maxThicknessForBending?: number;
     [key: string]: any;
   } | null;
+  /** V2 bend analysis result from /analyze-bends endpoint */
+  bendAnalysis: BendAnalysisResult | null;
+  /** Whether bend analysis is currently loading */
+  isAnalyzing?: boolean;
+  /** Hovered bend index (shared with FlatPatternViewer) */
+  hoveredBendIndex?: number;
+  /** Callback when user hovers a bend in the table */
+  onBendHover?: (index: number | undefined) => void;
 }
 
 export function BendingStep({
@@ -36,9 +49,17 @@ export function BendingStep({
   isBendingEnabled,
   onToggle,
   conversionResult,
-  selectedMaterial
+  selectedMaterial,
+  bendAnalysis,
+  isAnalyzing = false,
+  hoveredBendIndex,
+  onBendHover,
 }: BendingStepProps) {
-  const bendCount = conversionResult?.bends?.length || 0;
+  // Use V2 bends if available, fallback to legacy conversion result
+  const bends: BendFeature[] = bendAnalysis?.bends ?? conversionResult?.bends ?? [];
+  const bendCount = bends.length;
+  const detectedThickness = bendAnalysis?.detectedThickness ?? null;
+  const hasFlatPattern = !!bendAnalysis?.flatPattern;
 
   // Capability check
   const cannotBend = !!(selectedMaterial?.canBend === false || (
@@ -46,6 +67,18 @@ export function BendingStep({
     selectedMaterial?.thickness &&
     selectedMaterial?.thickness > selectedMaterial?.maxThicknessForBending
   ));
+
+  // Thickness mismatch warning
+  const thicknessMismatch = detectedThickness !== null &&
+    selectedMaterial?.thickness !== undefined &&
+    Math.abs(detectedThickness - selectedMaterial.thickness) > 0.3;
+
+  // Bend stats
+  const upBends = bends.filter((b) => b.direction === 'UP');
+  const downBends = bends.filter((b) => b.direction === 'DOWN');
+  const angles = bends.map((b) => b.angle);
+  const minAngle = angles.length > 0 ? Math.min(...angles) : 0;
+  const maxAngle = angles.length > 0 ? Math.max(...angles) : 0;
 
   if (selectedService !== 'sheet_metal_cutting') {
     return (
@@ -109,27 +142,135 @@ export function BendingStep({
 
         {isBendingEnabled && (
           <div className="mt-8 pt-6 border-t border-blue-100 animate-in zoom-in-95 fade-in duration-300">
-            <div className="grid grid-cols-2 gap-4">
+            {/* ── Analysis Status ── */}
+            {isAnalyzing && (
+              <div className="flex items-center gap-3 mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <Loader2 className="w-4 h-4 text-[#2F5FA7] animate-spin" />
+                <p className="text-[10px] font-black text-[#2F5FA7] uppercase tracking-widest">
+                  Running V2 bend topology analysis...
+                </p>
+              </div>
+            )}
+
+            {/* ── Stats Grid ── */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-blue-100 shadow-sm">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Detected Bends</p>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Bends</p>
                 <div className="flex items-end gap-2">
                   <span className="text-2xl font-black text-[#2F5FA7] leading-none">{bendCount}</span>
-                  <span className="text-[9px] font-black text-slate-500 uppercase pb-1">Features</span>
+                  <span className="text-[9px] font-black text-slate-500 uppercase pb-1">Total</span>
                 </div>
               </div>
               <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-blue-100 shadow-sm">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Analysis Mode</p>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Direction</p>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-slate-700 uppercase">Automatic</span>
+                  <div className="flex items-center gap-1">
+                    <ArrowUp className="w-3 h-3 text-blue-500" />
+                    <span className="text-sm font-black text-blue-600">{upBends.length}</span>
+                  </div>
+                  <span className="text-slate-300">/</span>
+                  <div className="flex items-center gap-1">
+                    <ArrowDown className="w-3 h-3 text-orange-500" />
+                    <span className="text-sm font-black text-orange-600">{downBends.length}</span>
+                  </div>
                 </div>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-blue-100 shadow-sm">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                  {detectedThickness ? 'Thickness' : 'Analysis'}
+                </p>
+                {detectedThickness ? (
+                  <div className="flex items-end gap-1">
+                    <span className="text-xl font-black text-slate-900 leading-none">{detectedThickness}</span>
+                    <span className="text-[9px] font-black text-slate-500 uppercase pb-0.5">mm</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-black text-slate-700 uppercase">Auto</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-white/60 border border-blue-100/50 rounded-xl flex items-start gap-3">
+            {/* ── Thickness Mismatch Warning ── */}
+            {thicknessMismatch && (
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+                <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest mb-1">
+                    Thickness Mismatch
+                  </p>
+                  <p className="text-[9px] font-bold text-amber-700 uppercase tracking-widest leading-relaxed">
+                    CAD detected {detectedThickness}mm but material is {selectedMaterial?.thickness}mm.
+                    Verify your material selection matches the design intent.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Bend Details Table ── */}
+            {bendCount > 0 && (
+              <div className="mb-6">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                  Bend Schedule
+                </p>
+                <div className="bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-4 gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">#</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Angle</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Dir</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Radius</span>
+                  </div>
+                  {/* Table Body */}
+                  <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                    {bends.map((bend, idx) => {
+                      const isHovered = hoveredBendIndex === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className={`grid grid-cols-4 gap-2 px-4 py-2.5 border-b border-slate-50 transition-all duration-200 cursor-pointer ${
+                            isHovered
+                              ? 'bg-blue-50 border-blue-100'
+                              : 'hover:bg-slate-50'
+                          }`}
+                          onMouseEnter={() => onBendHover?.(idx)}
+                          onMouseLeave={() => onBendHover?.(undefined)}
+                        >
+                          <span className="text-[10px] font-black text-slate-400">{idx + 1}</span>
+                          <span className="text-[10px] font-black text-slate-900 font-mono">{bend.angle.toFixed(1)}°</span>
+                          <div className="flex items-center gap-1">
+                            {bend.direction === 'UP' ? (
+                              <ArrowUp className="w-3 h-3 text-blue-500" />
+                            ) : (
+                              <ArrowDown className="w-3 h-3 text-orange-500" />
+                            )}
+                            <span className={`text-[9px] font-black uppercase ${
+                              bend.direction === 'UP' ? 'text-blue-600' : 'text-orange-600'
+                            }`}>
+                              {bend.direction}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-600">
+                            {bend.radius > 0 ? `R${bend.radius.toFixed(1)}` : 'Sharp'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Flat Pattern Status ── */}
+            <div className="p-4 bg-white/60 border border-blue-100/50 rounded-xl flex items-start gap-3">
               <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
               <p className="text-[9px] font-bold text-slate-600 uppercase tracking-wider leading-relaxed">
-                Our system has analyzed your STEP file. Blue lines indicate "UP" bends, while orange lines indicate "DOWN" bends in the technical preview.
+                {hasFlatPattern
+                  ? 'A 2D flat pattern preview is shown on the left. Blue lines = UP bends, orange dashed lines = DOWN bends. Hover any line or row for details.'
+                  : 'Our system has analyzed your STEP file. Blue lines indicate "UP" bends, while orange lines indicate "DOWN" bends in the technical preview.'
+                }
               </p>
             </div>
           </div>

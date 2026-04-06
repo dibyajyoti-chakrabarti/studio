@@ -1,4 +1,4 @@
-import { ConversionResult } from '@/types/viewer';
+import { ConversionResult, BendAnalysisResult } from '@/types/viewer';
 
 /**
  * CAD Conversion Service
@@ -21,7 +21,11 @@ const CONVERT_URL = BASE_URL.endsWith('/convert') || BASE_URL.endsWith('convertS
   ? BASE_URL
   : `${BASE_URL.replace(/\/$/, '')}/convert`;
 
+// Derive analyze-bends URL from the base service URL
+const ANALYZE_BENDS_URL = CONVERT_URL.replace(/\/convert$/, '/analyze-bends');
+
 console.log(`[stepConverter] Using CAD Service URL: ${CONVERT_URL}`);
+console.log(`[stepConverter] Using Bend Analysis URL: ${ANALYZE_BENDS_URL}`);
 
 export async function convertStepFile(file: File): Promise<ConversionResult> {
   const form = new FormData();
@@ -52,6 +56,36 @@ export async function convertStepFile(file: File): Promise<ConversionResult> {
   }
 
   return res.json() as Promise<ConversionResult>;
+}
+
+/**
+ * Analyze a STEP file for sheet metal bends, thickness, and flat pattern.
+ * Calls the separate /analyze-bends endpoint for heavy analysis.
+ */
+export async function analyzeBends(file: File): Promise<BendAnalysisResult> {
+  const form = new FormData();
+  form.append('file', file);
+
+  let res: Response;
+  try {
+    res = await fetch(ANALYZE_BENDS_URL, {
+      method: 'POST',
+      body: form,
+    });
+  } catch (networkErr) {
+    throw new Error(
+      'Could not reach the bend analysis service. ' +
+      'Check your internet connection or service URL.'
+    );
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as Record<string, string>;
+    const message = body.detail ?? body.error ?? `Bend analysis failed (${res.status})`;
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<BendAnalysisResult>;
 }
 
 // ── Utility: convert base64 STL → ArrayBuffer (consumed by Three.js) ────────
