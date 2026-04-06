@@ -99,21 +99,21 @@ export default function BendingPage() {
                 title: 'Hydraulic Accuracy',
                 desc: 'Digital angle tracking ensuring ±0.5° precision across full-length bends.',
                 icon: ShieldCheck,
-                img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80',
+                img:'https://images.unsplash.com/photo-1674471361523-195aa08e69b5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-600',
               },
               {
                 title: 'Complex Sequences',
                 desc: 'Multi-stage tooling setups for advanced box geometries and internal offsets.',
                 icon: Settings,
-                img: 'https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1642952469120-eed4b65104be?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-400',
               },
               {
                 title: 'Springback Control',
                 desc: 'Automated compensation algorithms for high-strength alloys and spring steels.',
                 icon: Zap,
-                img: 'https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80',
+                img: 'https://plus.unsplash.com/premium_photo-1774473351894-6aafdc122036?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-[#2F5FA7]',
               },
             ].map((item, index) => (
@@ -207,7 +207,7 @@ export default function BendingPage() {
             <div className="relative group">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
                 <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984577/Sheet-metal-bending-2_mndp2w.jpg"
+                  src="https://images.unsplash.com/photo-1716469802481-4151c0993e91?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Bending Engineering Guide"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

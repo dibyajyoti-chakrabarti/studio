@@ -99,21 +99,21 @@ export default function AnodizingPage() {
                 title: 'Hardcoat Anodizing',
                 desc: 'Type III anodizing provides a thick, dense oxide layer with extreme wear resistance, ideal for mechanical friction parts.',
                 icon: ShieldCheck,
-                img: 'https://images.unsplash.com/photo-1540304453526-423758079a6d?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1625464736004-b51a8d4efc54?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-600',
               },
               {
                 title: 'Decorative Color',
                 desc: 'Type II anodizing allows for vibrant, metallic finishes including Black, Clear, Blue, and Red with consistent dye absorption.',
                 icon: Zap,
-                img: 'https://images.unsplash.com/photo-1581091215367-9b6c0134017d?auto=format&fit=crop&q=80',
+                img: 'https://plus.unsplash.com/premium_photo-1713200811001-af93d0dcdfc2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-400',
               },
               {
                 title: 'Dielectric Strength',
                 desc: 'Anodized layers act as a ceramic insulator, providing high dielectric breakdown strength for electrical components.',
                 icon: Settings,
-                img: 'https://images.unsplash.com/photo-1581093510983-ca501aa99163?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1495976797530-f33e6580e44b?q=80&w=1112&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%',
                 color: 'bg-[#2F5FA7]',
               },
             ].map((item, index) => (
@@ -206,7 +206,7 @@ export default function AnodizingPage() {
             <div className="relative group">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
                 <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773985390/anodized-aluminum-parts-600nw-2489824637_mndp2w.webp"
+                  src="https://images.unsplash.com/photo-1533457620604-acba98a11c60?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Anodizing Engineering Guide"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
