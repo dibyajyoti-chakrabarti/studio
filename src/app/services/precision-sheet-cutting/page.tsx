@@ -280,9 +280,9 @@ export default function PrecisionSheetCuttingPage() {
                 specifications.
               </p>
               <div className="block mt-12">
-                <div className="w-full aspect-[4/5] relative rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl">
+                <div className="w-full aspect-[4/5] relative rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl bg-slate-100">
                   <Image
-                    src="https://images.unsplash.com/photo-1531289172671-1ed49202fb47?auto=format&fit=crop&q=80"
+                    src="/process.png"
                     alt="Process Visualization"
                     fill
                     className="object-cover"

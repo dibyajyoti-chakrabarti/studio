@@ -99,7 +99,7 @@ export default function HardwareInsertionPage() {
                 title: 'Self-Clinching Nuts',
                 desc: 'Permanent high-strength internal threads (PEM style) for thin sheets where tapping is not feasible.',
                 icon: ShieldCheck,
-                img: 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&q=80',
+                img: 'https://plus.unsplash.com/premium_photo-1677612031010-5424f4ea90ff?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-blue-600',
               },
               {
@@ -113,7 +113,7 @@ export default function HardwareInsertionPage() {
                 title: 'Threaded Studs',
                 desc: 'Flush-mount external threaded fasteners for grounding points and component mounting applications.',
                 icon: Zap,
-                img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80',
+                img: 'https://images.unsplash.com/photo-1564226591723-659ff3852b2a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 color: 'bg-[#2F5FA7]',
               },
             ].map((item, index) => (
@@ -207,7 +207,7 @@ export default function HardwareInsertionPage() {
             <div className="relative group">
               <div className="aspect-[4/3] bg-white border-8 border-slate-900 rounded-[3rem] overflow-hidden shadow-2xl relative p-12">
                 <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1773984954/Untitled_design_6_skd97c.webp"
+                  src="https://images.unsplash.com/photo-1653914697498-4d6a0c3d158f?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Hardware Insertion Engineering Guide"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

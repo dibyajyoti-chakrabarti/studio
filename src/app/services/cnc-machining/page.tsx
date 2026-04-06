@@ -31,7 +31,7 @@ const CNC_SERVICES = [
     axis: '3-Axis Vertical',
     icon: Box,
     color: 'bg-blue-600',
-    img: 'https://res.cloudinary.com/dypbvtojf/image/upload/v1773984364/industrial-cnc-milling-machine-working-on-metal-600nw-2187689973_w0vsmb.webp',
+    img: 'https://images.unsplash.com/photo-1602664876866-d3b33b77756b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     title: 'CNC Turning',
@@ -41,7 +41,7 @@ const CNC_SERVICES = [
     axis: '2-Axis Horizontal',
     icon: RefreshCw,
     color: 'bg-[#2F5FA7]',
-    img: 'https://res.cloudinary.com/dypbvtojf/image/upload/v1774120617/b-10_luevga.webp',
+    img: 'https://images.unsplash.com/photo-1666618090858-fbcee636bd3e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     title: 'Live Tooling',
@@ -51,7 +51,7 @@ const CNC_SERVICES = [
     axis: 'Turn-Mill Multi-Tasking',
     icon: Cpu,
     color: 'bg-cyan-600',
-    img: 'https://res.cloudinary.com/dypbvtojf/image/upload/v1774120462/66f6580f55fd95764f69f884_Mechanical_Parts-min_bcyh7a.png',
+    img: 'https://images.unsplash.com/photo-1666634157070-6fd830fb5672?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
 ];
 
@@ -194,11 +194,11 @@ export default function CNCMachiningPage() {
             </div>
 
             <div className="relative group">
-              <div className="aspect-square md:aspect-[4/3] bg-white border-4 md:border-8 border-slate-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl relative p-12 flex items-center justify-center">
+              <div className="aspect-square md:aspect-[4/3] bg-white border-4 md:border-8 border-slate-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl relative">
                 <img
-                  src="https://res.cloudinary.com/dypbvtojf/image/upload/v1774120462/66f6580f55fd95764f69f884_Mechanical_Parts-min_bcyh7a.png"
+                  src="https://images.unsplash.com/photo-1713371398484-cc4e4f6a262a?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="CNC Part Visualization"
-                  className="w-[200px] h-auto transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 md:p-10">
                   <div className="bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl shadow-xl inline-flex items-center gap-3 md:gap-4">
