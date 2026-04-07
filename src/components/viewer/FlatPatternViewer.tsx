@@ -152,31 +152,13 @@ export function FlatPatternViewer({
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) translate(-50%, -120%)`,
             }}
           >
-            <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700 px-2.5 py-2 rounded-lg shadow-xl shadow-black/40 whitespace-nowrap animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <CornerUpRight className="w-3 h-3 text-slate-500" />
-                  <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                    Bend #{idx + 1}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-semibold font-mono text-white">
-                    {line.angle.toFixed(1)}°
-                  </span>
-                  <div
-                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase ${
-                      line.direction === 'UP'
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                    }`}
-                  >
-                    {line.direction === 'UP' ? '↑ UP' : '↓ DOWN'}
-                  </div>
-                </div>
-                <div className="text-[8px] text-slate-500 font-mono">
-                  R {line.radius.toFixed(1)} mm
-                </div>
+            <div className="bg-slate-900/92 border border-slate-700 px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center gap-2 text-[10px]">
+                <span className="font-mono font-semibold text-white">{line.angle.toFixed(1)}°</span>
+                <span className={`${line.direction === 'UP' ? 'text-blue-400' : 'text-orange-400'} font-medium`}>
+                  {line.direction}
+                </span>
+                <span className="font-mono text-slate-400">R{line.radius.toFixed(1)}</span>
               </div>
             </div>
           </div>

@@ -266,19 +266,14 @@ function BendOverlays({ bends, hoveredIndex, onHoverChange }: { bends: BendFeatu
 
             {/* Technical Tooltip */}
             {isHovered && (
-              <Html position={midPoint} center distanceFactor={15}>
-                <div className="bg-slate-900/95 px-2.5 py-1.5 rounded-md border border-slate-700 shadow-xl backdrop-blur-md whitespace-nowrap pointer-events-none scale-75 translate-y-[-28px]">
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">Sheet Metal Bend</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-semibold font-mono text-white">{(bend.angle || 0).toFixed(1)}°</span>
-                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase ${bend.direction === 'UP' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                        {bend.direction === 'UP' ? '↑ UP' : '↓ DOWN'}
-                      </div>
-                    </div>
-                    <div className="text-[8px] text-slate-500 font-mono">R {(bend.radius || 0).toFixed(1)} mm</div>
+              <Html position={midPoint} center>
+                <div className="bg-slate-900/92 px-2 py-1 rounded border border-slate-700 shadow-lg whitespace-nowrap pointer-events-none -translate-y-5">
+                  <div className="flex items-center gap-2 text-[10px]">
+                    <span className="font-mono font-semibold text-white">{(bend.angle || 0).toFixed(1)}°</span>
+                    <span className={`${bend.direction === 'UP' ? 'text-blue-400' : 'text-orange-400'} font-medium`}>
+                      {bend.direction}
+                    </span>
+                    <span className="font-mono text-slate-400">R{(bend.radius || 0).toFixed(1)}</span>
                   </div>
                 </div>
               </Html>
