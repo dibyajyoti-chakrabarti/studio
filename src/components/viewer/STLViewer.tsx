@@ -267,18 +267,18 @@ function BendOverlays({ bends, hoveredIndex, onHoverChange }: { bends: BendFeatu
             {/* Technical Tooltip */}
             {isHovered && (
               <Html position={midPoint} center distanceFactor={15}>
-                <div className="bg-slate-900 px-3 py-2 rounded-lg border border-slate-700 shadow-2xl backdrop-blur-md whitespace-nowrap pointer-events-none scale-90 translate-y-[-40px]">
-                  <div className="flex flex-col gap-1">
+                <div className="bg-slate-900/95 px-2.5 py-1.5 rounded-md border border-slate-700 shadow-xl backdrop-blur-md whitespace-nowrap pointer-events-none scale-75 translate-y-[-28px]">
+                  <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Sheet Metal Bend</span>
+                      <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">Sheet Metal Bend</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold font-mono text-white tracking-widest">{(bend.angle || 0).toFixed(1)}°</span>
-                      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${bend.direction === 'UP' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold font-mono text-white">{(bend.angle || 0).toFixed(1)}°</span>
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase ${bend.direction === 'UP' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'}`}>
                         {bend.direction === 'UP' ? '↑ UP' : '↓ DOWN'}
                       </div>
                     </div>
-                    <div className="text-[8px] text-slate-500 font-mono italic">Radius: {(bend.radius || 0).toFixed(1)}mm</div>
+                    <div className="text-[8px] text-slate-500 font-mono">R {(bend.radius || 0).toFixed(1)} mm</div>
                   </div>
                 </div>
               </Html>
