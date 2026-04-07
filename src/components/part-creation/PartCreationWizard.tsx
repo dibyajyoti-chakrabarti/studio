@@ -39,7 +39,7 @@ import { ThreadConfigSidebar } from './ThreadConfigSidebar';
 import { isPartNameValid } from '@/lib/validation/part-name';
 import { STLViewer } from '@/components/viewer/STLViewer';
 import { FlatPatternViewer } from '@/components/viewer/FlatPatternViewer';
-import { convertStepFile, stlBase64ToBuffer, analyzeBends } from '@/services/stepConverter.service';
+import { convertStepFile, stlBase64ToBuffer } from '@/services/stepConverter.service';
 
 import {
   ChevronLeft,
@@ -123,9 +123,6 @@ export function PartCreationWizard({
   const [discountTier, setDiscountTier] = useState<string | null>(null);
   const [showTappingSidebar, setShowTappingSidebar] = useState(false);
 
-  // Bend Analysis (V2 — separate /analyze-bends endpoint)
-  const [bendAnalysis, setBendAnalysis] = useState<BendAnalysisResult | null>(null);
-  const [isAnalyzingBends, setIsAnalyzingBends] = useState(false);
   const [hoveredBendIndex, setHoveredBendIndex] = useState<number | undefined>(undefined);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
@@ -176,49 +173,6 @@ export function PartCreationWizard({
     }
   }, [currentStep, conversionResult, isConverting, uploadedFile, user]);
 
-  // ── Auto-run V2 bend analysis when entering bending step ────────────────────
-  useEffect(() => {
-    if (
-      currentStep === 'bending' &&
-      !bendAnalysis &&
-      !isAnalyzingBends &&
-      uploadedFile &&
-      uploadedFile.fileName.match(/\.(step|stp)$/i)
-    ) {
-      const runBendAnalysis = async () => {
-        try {
-          setIsAnalyzingBends(true);
-          const token = await user?.getIdToken();
-          if (!token) return;
-
-          // Fetch the STEP file from S3
-          const response = await fetch(
-            `/api/v1/files/retrieve?fileKey=${encodeURIComponent(uploadedFile.fileUrl)}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-
-          if (!response.ok) {
-            console.error('[Wizard] Failed to fetch file for bend analysis');
-            return;
-          }
-
-          const blob = await response.blob();
-          const file = new File([blob], uploadedFile.fileName, { type: 'application/octet-stream' });
-
-          // Call the /analyze-bends endpoint
-          const result = await analyzeBends(file);
-          setBendAnalysis(result);
-          console.log(`[Wizard] Bend analysis complete: ${result.bends.length} bends, thickness=${result.detectedThickness}`);
-        } catch (err) {
-          console.error('[Wizard] Bend analysis failed:', err);
-        } finally {
-          setIsAnalyzingBends(false);
-        }
-      };
-
-      runBendAnalysis();
-    }
-  }, [currentStep, bendAnalysis, isAnalyzingBends, uploadedFile, user]);
 
   const canProceed = () => {
     switch (currentStep) {
@@ -313,7 +267,7 @@ export function PartCreationWizard({
           setShowTappingSidebar(true);
         }
       }
-      
+
       // If tapping was removed
       if (!updated.includes('tapping')) {
         setShowTappingSidebar(false);
@@ -394,7 +348,9 @@ export function PartCreationWizard({
           holes: conversionResult.holes || [],
           bends: conversionResult.bends || [],
           triangleCount: conversionResult.triangleCount || 0,
-          boundingBox: conversionResult.boundingBox
+          boundingBox: conversionResult.boundingBox,
+          detectedThickness: conversionResult.detectedThickness,
+          flatPattern: conversionResult.flatPattern,
         } : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -452,8 +408,6 @@ export function PartCreationWizard({
       setQuantity(1);
       setDiscountTier(null);
       setShowTappingSidebar(false);
-      setBendAnalysis(null);
-      setIsAnalyzingBends(false);
       setHoveredBendIndex(undefined);
 
       onClose();
@@ -527,8 +481,6 @@ export function PartCreationWizard({
             isBendingEnabled={secondaryProcesses.includes('bending')}
             onToggle={() => handleSecondaryProcessToggle('bending')}
             conversionResult={conversionResult}
-            bendAnalysis={bendAnalysis}
-            isAnalyzing={isAnalyzingBends}
             hoveredBendIndex={hoveredBendIndex}
             onBendHover={setHoveredBendIndex}
           />
@@ -629,9 +581,9 @@ export function PartCreationWizard({
         {/* LEFT: Persistent Viewer (If file uploaded) */}
         <div className="flex-1 bg-slate-50 border-r border-slate-100 relative overflow-hidden flex items-center justify-center">
           {/* Show FlatPatternViewer on bending step when flat pattern is available */}
-          {currentStep === 'bending' && bendAnalysis?.flatPattern ? (
+          {currentStep === 'bending' && conversionResult?.flatPattern ? (
             <FlatPatternViewer
-              flatPattern={bendAnalysis.flatPattern}
+              flatPattern={conversionResult.flatPattern}
               className="w-full h-full"
               hoveredBendIndex={hoveredBendIndex}
               onBendHover={setHoveredBendIndex}

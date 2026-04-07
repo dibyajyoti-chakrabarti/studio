@@ -34,10 +34,6 @@ interface BendingStepProps {
     maxThicknessForBending?: number;
     [key: string]: any;
   } | null;
-  /** V2 bend analysis result from /analyze-bends endpoint */
-  bendAnalysis: BendAnalysisResult | null;
-  /** Whether bend analysis is currently loading */
-  isAnalyzing?: boolean;
   /** Hovered bend index (shared with FlatPatternViewer) */
   hoveredBendIndex?: number;
   /** Callback when user hovers a bend in the table */
@@ -50,16 +46,14 @@ export function BendingStep({
   onToggle,
   conversionResult,
   selectedMaterial,
-  bendAnalysis,
-  isAnalyzing = false,
   hoveredBendIndex,
   onBendHover,
 }: BendingStepProps) {
-  // Use V2 bends if available, fallback to legacy conversion result
-  const bends: BendFeature[] = bendAnalysis?.bends ?? conversionResult?.bends ?? [];
+  // Use unified conversion result for bends
+  const bends: BendFeature[] = conversionResult?.bends ?? [];
   const bendCount = bends.length;
-  const detectedThickness = bendAnalysis?.detectedThickness ?? null;
-  const hasFlatPattern = !!bendAnalysis?.flatPattern;
+  const detectedThickness = conversionResult?.detectedThickness ?? null;
+  const hasFlatPattern = !!conversionResult?.flatPattern;
 
   // Capability check
   const cannotBend = !!(selectedMaterial?.canBend === false || (
@@ -142,15 +136,6 @@ export function BendingStep({
 
         {isBendingEnabled && (
           <div className="mt-8 pt-6 border-t border-blue-100 animate-in zoom-in-95 fade-in duration-300">
-            {/* ── Analysis Status ── */}
-            {isAnalyzing && (
-              <div className="flex items-center gap-3 mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <Loader2 className="w-4 h-4 text-[#2F5FA7] animate-spin" />
-                <p className="text-[10px] font-black text-[#2F5FA7] uppercase tracking-widest">
-                  Running V2 bend topology analysis...
-                </p>
-              </div>
-            )}
 
             {/* ── Stats Grid ── */}
             <div className="grid grid-cols-3 gap-3 mb-6">
@@ -278,11 +263,23 @@ export function BendingStep({
       </Card>
 
       {!isBendingEnabled && !cannotBend && (
-        <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl flex items-start gap-3">
+        <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl flex items-start gap-4 transition-all hover:bg-slate-50">
           <AlertCircle className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-relaxed">
-            Note: Bending is optional. If your part is flat, you can skip this step and proceed to quantity selection.
-          </p>
+          <div className="flex-1">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-relaxed mb-2">
+              Note: Bending is optional. If your part is flat, you can skip this step and proceed to quantity selection.
+            </p>
+            {bendCount === 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onToggle}
+                className="h-6 px-2 text-[8px] font-black uppercase text-[#2F5FA7] hover:bg-blue-50"
+              >
+                Manually Enable Bending Config
+              </Button>
+            )}
+          </div>
         </div>
       )}
 

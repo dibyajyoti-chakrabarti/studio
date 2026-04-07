@@ -73,4 +73,6 @@ export interface ConversionResult {
   bends?: BendFeature[];
   /** Detected sheet metal thickness in mm */
   detectedThickness?: number;
+  /** SVG flat pattern with projected bend lines */
+  flatPattern?: FlatPattern;
 }
