@@ -158,7 +158,7 @@ export function BendingStep({
                   <div className="flex items-center justify-between px-2 py-1 rounded-md bg-blue-50">
                     <div className="flex items-center gap-1">
                       <ArrowUp className="w-3 h-3 text-blue-500" />
-                     
+
                     </div>
                     <span className="text-sm font-semibold text-blue-700">{upBends.length}</span>
                   </div>
@@ -226,8 +226,8 @@ export function BendingStep({
                         <div
                           key={idx}
                           className={`grid grid-cols-[40px_1fr_1.2fr_1fr] gap-2 px-4 py-2.5 border-b border-slate-100 transition-all duration-200 cursor-pointer ${isHovered
-                              ? 'bg-blue-50/60 border-blue-100'
-                              : 'hover:bg-slate-50'
+                            ? 'bg-blue-50/60 border-blue-100'
+                            : 'hover:bg-slate-50'
                             }`}
                           onMouseEnter={() => onBendHover?.(idx)}
                           onMouseLeave={() => onBendHover?.(undefined)}

@@ -560,24 +560,6 @@ export const STLViewer = forwardRef<STLViewerHandle, STLViewerProps>(
           </div>
         )}
 
-        {/* Technical Orientation Controls */}
-        <div className="absolute top-4 right-4 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-          <div className="flex flex-col bg-white/90 backdrop-blur-md border border-slate-200 rounded-xl shadow-xl shadow-slate-200/50 overflow-hidden">
-            <button
-              onClick={() => viewHandle?.setOrientation('top')}
-              className="px-3 py-2 hover:bg-blue-50 text-[9px] font-black text-slate-400 hover:text-[#2F5FA7] transition-colors border-b border-slate-100"
-            >
-              TOP
-            </button>
-            <button
-              onClick={() => viewHandle?.setOrientation('iso')}
-              className="px-3 py-2 hover:bg-blue-50 text-[9px] font-black text-slate-400 hover:text-[#2F5FA7] transition-colors"
-            >
-              ISO
-            </button>
-          </div>
-        </div>
-
         {/* Focus Indicator */}
         <div className="absolute bottom-4 left-4 flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[#2F5FA7] animate-pulse" />

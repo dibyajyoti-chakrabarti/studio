@@ -632,7 +632,7 @@ export function PartCreationWizard({
               })()}
 
               {/* Floating Model Tags */}
-              <div className="absolute top-6 left-6 flex flex-col gap-2">
+              <div className="absolute top-14 left-6 flex flex-col gap-2">
                 <div className="px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg shadow-sm">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
                     Part Name
@@ -642,7 +642,7 @@ export function PartCreationWizard({
                   </p>
                 </div>
                 {conversionResult && (
-                  <div className="px-3 py-1.5 bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg shadow-sm animate-in fade-in slide-in-from-left-2 duration-500">
+                  <div className="px-3 py-3bg-white/90 backdrop-blur-md border border-slate-200 rounded-lg shadow-sm animate-in fade-in slide-in-from-left-2 duration-500">
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
                       Dimensions
                     </p>
@@ -655,14 +655,6 @@ export function PartCreationWizard({
               </div>
 
               {/* Industrial Overlays */}
-              <div className="absolute bottom-6 left-6 space-y-2">
-                <div className="h-2 w-32 bg-slate-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#2F5FA7] animate-pulse" style={{ width: '40%' }} />
-                </div>
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Real-time Configuration Active
-                </p>
-              </div>
             </div>
           ) : isConverting ? (
             <div className="flex flex-col items-center gap-4">
