@@ -565,6 +565,35 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Quote Requested!',
         description: 'Your order is being reviewed. You will receive your quotation shortly.',
       });
+
+      // Trigger notifications via internal API (fire-and-forget)
+      const customerName = user?.displayName || userProfile?.fullName || 'Customer';
+      const customerEmail = user?.email || '';
+      const partCount = parts?.length || 0;
+
+      fetch('/api/v1/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          events: [
+            {
+              type: 'rfq_submitted_customer',
+              customer: { email: customerEmail, name: customerName },
+              projectName: project.projectName,
+              projectId: project.id,
+              partCount: partCount,
+            },
+            {
+              type: 'admin_new_rfq',
+              customerName,
+              customerEmail,
+              projectName: project.projectName,
+              projectId: project.id,
+              partCount: partCount,
+            },
+          ],
+        }),
+      }).catch((err) => console.error('Failed to trigger RFQ notifications:', err));
     } catch (error: any) {
       console.error('Error requesting quote:', error);
       const msg = resolveUserFriendlyMessage(error);
@@ -594,6 +623,24 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Counter-offer Sent',
         description: 'Your message has been sent to the Admin for review.',
       });
+
+      // Trigger admin notification (fire-and-forget)
+      const customerName = user?.displayName || userProfile?.fullName || 'Customer';
+      const customerEmail = user?.email || '';
+
+      fetch('/api/v1/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'admin_negotiation_customer_reply',
+          customerName,
+          customerEmail,
+          projectName: project.projectName,
+          projectId: project.id,
+          customerMessage: message,
+          proposedPrice: proposedPrice,
+        }),
+      }).catch((err) => console.error('Failed to trigger negotiation notification:', err));
     } catch (error: any) {
       console.error('Error negotiating:', error);
       const msg = resolveUserFriendlyMessage(error);
@@ -612,6 +659,35 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         title: 'Quote Accepted',
         description: 'Please provide delivery details and pay the advance to start production.',
       });
+
+      // Trigger notifications (fire-and-forget)
+      const customerName = user?.displayName || userProfile?.fullName || 'Customer';
+      const customerEmail = user?.email || '';
+      const acceptedPrice = project.quotedPrice || project.finalPrice || 0;
+
+      fetch('/api/v1/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          events: [
+            {
+              type: 'quote_accepted',
+              customer: { email: customerEmail, name: customerName },
+              projectName: project.projectName,
+              projectId: project.id,
+              finalPrice: acceptedPrice,
+            },
+            {
+              type: 'admin_quote_accepted',
+              customerName,
+              customerEmail,
+              projectName: project.projectName,
+              projectId: project.id,
+              acceptedPrice: acceptedPrice,
+            },
+          ],
+        }),
+      }).catch((err) => console.error('Failed to trigger quote acceptance notifications:', err));
     } catch (err: any) {
       console.error(err);
       const msg = resolveUserFriendlyMessage(err);
@@ -649,7 +725,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         }),
       });
 
-      const { data: order, success, error, razorpayKey } = await orderRes.json();
+      const { data: order, success, error, razorpayKey, customerName, customerEmail, customerPhone, projectName } = await orderRes.json();
       if (!success) {
         throw new Error(error?.message || 'Failed to create order');
       }
@@ -664,6 +740,16 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           ? `50% Advance for Project: ${project.projectName}`
           : `50% Balance for Project: ${project.projectName}`,
         order_id: order.razorpayOrderId,
+        prefill: {
+          name: customerName || '',
+          email: customerEmail || '',
+          contact: customerPhone || '',
+        },
+        notes: {
+          projectId: project.id,
+          projectName: projectName || project.projectName,
+          customerName: customerName || '',
+        },
         handler: async function (response: any) {
           // Verify & Sync
           const verifyRes = await fetch('/api/v1/order/verify', {

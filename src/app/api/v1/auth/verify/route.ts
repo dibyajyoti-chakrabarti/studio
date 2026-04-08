@@ -3,6 +3,7 @@ import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { isAdmin } from '@/lib/auth-utils';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { getClientIdentifier } from '@/lib/auth-safety';
+import { NotificationService } from '@/services/notification.service';
 
 export async function GET(req: Request) {
   try {
@@ -95,7 +96,21 @@ export async function GET(req: Request) {
       verifiedAt: new Date().toISOString(),
     });
 
-    // 6. Redirect to login with success flag
+    // 6. Send welcome email to customer + notify admins
+    const userName = tokenData?.name || email.split('@')[0] || 'there';
+    NotificationService.sendAllAsync([
+      {
+        type: 'welcome',
+        customer: { email, name: userName },
+      },
+      {
+        type: 'admin_new_user',
+        userName,
+        userEmail: email,
+      },
+    ]);
+
+    // 7. Redirect to login with success flag
     return NextResponse.redirect(`${loginUrl}?verified=true`);
   } catch (error: any) {
     console.error('Verification error:', error);

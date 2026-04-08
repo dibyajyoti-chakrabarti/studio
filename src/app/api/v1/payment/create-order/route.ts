@@ -167,6 +167,7 @@ export async function POST(req: NextRequest) {
         paymentType,
         userId,
         projectName: rfq.projectName || 'MechHub Order',
+        customerName: rfq.userName || rfq.contactName || '',
       },
     });
 

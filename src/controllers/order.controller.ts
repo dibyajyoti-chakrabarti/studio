@@ -78,6 +78,9 @@ export const OrderController = {
       // 3. Security: Use authenticated userId, reject body userId tampering
       const userId = auth.uid;
 
+      let projectName = 'MechHub Order';
+      let customerDetails = { name: '', email: '', phone: '' };
+
       // 4. If projectId is provided, verify ownership
       if (projectId) {
         const { adminFirestore } = getFirebaseAdmin();
@@ -89,6 +92,28 @@ export const OrderController = {
               logger.warn({ event: 'API: Unauthorized project access attempt', requestId, projectId, authUid: userId, projectOwner: projectData.userId });
               return forbiddenResponse('You do not own this project');
             }
+            projectName = projectData.projectName || 'MechHub Order';
+            customerDetails = {
+              name: projectData.userName || projectData.contactName || '',
+              email: projectData.userEmail || projectData.contactEmail || '',
+              phone: projectData.userPhone || projectData.contactPhone || '',
+            };
+          }
+        }
+      }
+
+      // If no project, try to get customer details from the user profile
+      if (!customerDetails.name) {
+        const { adminFirestore } = getFirebaseAdmin();
+        if (adminFirestore) {
+          const userSnap = await adminFirestore.collection('users').doc(userId).get();
+          if (userSnap.exists) {
+            const userData = userSnap.data()!;
+            customerDetails = {
+              name: userData.fullName || userData.displayName || '',
+              email: userData.email || '',
+              phone: userData.phone || '',
+            };
           }
         }
       }
@@ -138,6 +163,8 @@ export const OrderController = {
           userId,
           type: isBalance ? 'project_balance' : projectId ? 'project_advance' : 'quote_order',
           projectId: projectId || '',
+          projectName,
+          customerName: customerDetails.name,
         },
       });
 
@@ -168,7 +195,11 @@ export const OrderController = {
       return NextResponse.json({ 
         success: true, 
         data: result.data,
-        razorpayKey: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY 
+        razorpayKey: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+        projectName,
+        customerName: customerDetails.name,
+        customerEmail: customerDetails.email,
+        customerPhone: customerDetails.phone,
       }, { status: 201 });
     } catch (e) {
       logger.error({
