@@ -96,12 +96,12 @@ export function ServicesSection() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="max-w-6xl mx-auto columns-1 md:columns-2 xl:columns-3 gap-4 sm:gap-5">
           {SERVICES.map((service) => (
             <Link
               key={service.num}
               href={service.href}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#2F5FA7] p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)]"
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1E3A66] p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)] block mb-4 sm:mb-5"
             >
               <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-white/10">
                 <Image
@@ -111,10 +111,7 @@ export function ServicesSection() {
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
-                <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/30 px-2.5 py-1 text-[10px] font-bold tracking-[0.2em] text-slate-100">
-                  {service.num}
-                </span>
-              </div>
+               </div>
 
               <h3 className="text-lg font-extrabold tracking-tight text-white group-hover:text-sky-200 transition-colors">
                 {service.title}
