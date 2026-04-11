@@ -65,7 +65,9 @@ export async function GET(req: Request) {
     });
 
     // 4. Update the User profile in Firestore
-    const userRole = isAdmin(email) ? 'admin' : 'customer';
+    const existingUserSnap = await adminFirestore.collection('users').doc(uid).get();
+    const existingRole = existingUserSnap.data()?.role;
+    const userRole = existingRole || (isAdmin(email) ? 'admin' : 'customer');
     
     await adminFirestore
       .collection('users')

@@ -239,7 +239,9 @@ export default function AdminPanel() {
   );
   const vendorsQuery = useMemoFirebase(
     () =>
-      db && isAdminConfirmed ? query(collection(db, 'users'), where('role', '==', 'vendor')) : null,
+      db && isAdminConfirmed
+        ? query(collection(db, 'users'), where('role', 'in', ['vendor', 'mechmaster']))
+        : null,
     [db, isAdminConfirmed]
   );
   const rfqsQuery = useMemoFirebase(
@@ -526,7 +528,7 @@ export default function AdminPanel() {
       portfolio: formData.get('portfolio') as string,
       imageUrl: profileImage,
       specializations: specs,
-      role: 'vendor',
+      role: 'mechmaster',
       status: 'active',
       onboarded: true,
       isActive: formData.get('isActive') === 'on',
