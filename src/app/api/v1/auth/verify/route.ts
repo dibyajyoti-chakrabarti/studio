@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth-utils';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { getClientIdentifier } from '@/lib/auth-safety';
 import { NotificationService } from '@/services/notification.service';
+import crypto from 'crypto';
+import { logger } from '@/utils/logger';
 
 export async function GET(req: Request) {
   try {
@@ -35,15 +37,25 @@ export async function GET(req: Request) {
       return NextResponse.redirect(`${loginUrl}?error=server_error`);
     }
 
-    // 1. Find the token document
-    const tokenRef = adminFirestore.collection('verification_tokens').doc(token);
-    const tokenDoc = await tokenRef.get();
+    // 1. Find the token document by hash (legacy fallback supported)
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    let tokenRef = adminFirestore.collection('verification_tokens').doc(tokenHash);
+    let tokenDoc = await tokenRef.get();
+
+    // Backward compatibility for links generated before token hashing rollout
+    if (!tokenDoc.exists) {
+      tokenRef = adminFirestore.collection('verification_tokens').doc(token);
+      tokenDoc = await tokenRef.get();
+    }
 
     if (!tokenDoc.exists) {
       return NextResponse.redirect(`${loginUrl}?error=invalid_token`);
     }
 
     const tokenData = tokenDoc.data();
+    if (!tokenData?.uid || !tokenData?.email) {
+      return NextResponse.redirect(`${loginUrl}?error=invalid_token`);
+    }
 
     // 2. Check if token is expired or already used
     if (tokenData?.used) {
@@ -88,7 +100,11 @@ export async function GET(req: Request) {
       try {
         await adminAuth.setCustomUserClaims(uid, { admin: true });
       } catch (claimError) {
-        console.error('Failed to set admin claim:', claimError);
+        logger.error({
+          event: 'auth_verify_set_admin_claim_failed',
+          uid,
+          error: (claimError as Error).message,
+        });
       }
     }
 
@@ -115,7 +131,10 @@ export async function GET(req: Request) {
     // 7. Redirect to login with success flag
     return NextResponse.redirect(`${loginUrl}?verified=true`);
   } catch (error: any) {
-    console.error('Verification error:', error);
+    logger.error({
+      event: 'auth_verify_failed',
+      error: error?.message || String(error),
+    });
     const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
     return NextResponse.redirect(`${APP_URL}/login?error=verification_failed`);
   }

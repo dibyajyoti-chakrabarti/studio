@@ -128,13 +128,14 @@ export async function POST(req: Request) {
     );
 
     const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-    batch.set(adminFirestore.collection('verification_tokens').doc(token), {
+    batch.set(adminFirestore.collection('verification_tokens').doc(tokenHash), {
       uid: userRecord.uid,
       email: body.email,
       name: body.ownerName,
-      token,
+      tokenHash,
       expiresAt,
       createdAt: nowIso,
       used: false,
