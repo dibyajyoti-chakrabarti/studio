@@ -96,7 +96,7 @@ export function ServicesSection() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
           {SERVICES.map((service) => (
             <Link
               key={service.num}
@@ -116,9 +116,11 @@ export function ServicesSection() {
               <h3 className="text-lg font-extrabold tracking-tight text-white group-hover:text-sky-200 transition-colors">
                 {service.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">{service.desc}</p>
-              <div className="mt-auto pt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-300">
-                View Capability <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <p className="mt-2 hidden text-sm leading-relaxed text-slate-300 sm:block">{service.desc}</p>
+              <div className="mt-auto pt-4 inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.08em] text-sky-300 sm:text-xs sm:uppercase sm:tracking-[0.14em]">
+                <span className="sm:hidden">More</span>
+                <span className="hidden sm:inline">View Capability</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" />
               </div>
             </Link>
           ))}
