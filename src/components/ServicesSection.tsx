@@ -96,12 +96,12 @@ export function ServicesSection() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto columns-1 md:columns-2 xl:columns-3 gap-4 sm:gap-5">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {SERVICES.map((service) => (
             <Link
               key={service.num}
               href={service.href}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1E3A66] p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)] block mb-4 sm:mb-5"
+              className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-[#1E3A66] p-3 md:p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-300/40 hover:shadow-[0_20px_60px_rgba(14,165,233,0.15)] flex flex-col"
             >
               <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-white/10">
                 <Image
@@ -117,7 +117,7 @@ export function ServicesSection() {
                 {service.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-300">{service.desc}</p>
-              <div className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-300">
+              <div className="mt-auto pt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-300">
                 View Capability <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
             </Link>
