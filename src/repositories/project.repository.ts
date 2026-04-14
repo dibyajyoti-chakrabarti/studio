@@ -70,7 +70,7 @@ export const ProjectRepository = {
       if (adminFirestore) {
         const snapshot = await adminFirestore.collection(COLLECTION_NAME).where('userId', '==', userId).get();
         const rfqs: ProjectRFQ[] = [];
-        snapshot.forEach(doc => rfqs.push({ id: doc.id, ...doc.data() } as ProjectRFQ));
+        snapshot.forEach((doc: any) => rfqs.push({ id: doc.id, ...doc.data() } as ProjectRFQ));
         return ok(rfqs);
       } else {
         const { query, collection, where, getDocs } = await import('firebase/firestore');

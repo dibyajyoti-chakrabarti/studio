@@ -70,7 +70,7 @@ export const UserRepository = {
       if (adminFirestore) {
         const querySnapshot = await adminFirestore.collection(COLLECTION_NAME).where('role', '==', role).get();
         const users: User[] = [];
-        querySnapshot.forEach((doc) => users.push({ id: doc.id, ...doc.data() } as User));
+        querySnapshot.forEach((doc: any) => users.push({ id: doc.id, ...doc.data() } as User));
         return ok(users);
       } else {
         const { query, collection, where, getDocs } = await import('firebase/firestore');

@@ -72,7 +72,7 @@ export const OrderRepository = {
       if (adminFirestore) {
         const snapshot = await adminFirestore.collection(COLLECTION_NAME).where('userId', '==', userId).get();
         const orders: QuoteOrder[] = [];
-        snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() } as QuoteOrder));
+        snapshot.forEach((doc: any) => orders.push({ id: doc.id, ...doc.data() } as QuoteOrder));
         return ok(orders);
       } else {
         const { query, collection, where, getDocs } = await import('firebase/firestore');
