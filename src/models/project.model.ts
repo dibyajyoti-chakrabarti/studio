@@ -1,4 +1,4 @@
-import { HoleFeature, BendFeature, BoundingBox, FlatPattern } from './viewer';
+import { HoleFeature, BendFeature, BoundingBox, FlatPattern } from '@/types/viewer';
 
 /** Main manufacturing service types */
 export type ManufacturingService =
@@ -48,6 +48,7 @@ export type PartStatus = 'draft' | 'ready_for_quote';
 /** Project RFQ status */
 export type ProjectRFQStatus =
   | 'draft'
+  | 'submitted' // Added for consistency with project.service.ts
   | 'quote_requested'
   | 'under_review'
   | 'quotation_sent'
@@ -147,21 +148,4 @@ export interface ProjectRFQ {
     };
   };
   readonly finalPrice?: number;
-}
-
-/** Step in the part creation wizard */
-export type PartCreationStep =
-  | 'service_selection'
-  | 'file_upload'
-  | 'material_selection'
-  | 'secondary_process'
-  | 'quantity_review';
-
-/** Service configuration for UI display */
-export interface ServiceConfig {
-  readonly id: ManufacturingService;
-  readonly name: string;
-  readonly description: string;
-  readonly icon: string;
-  readonly supportedMaterials: string[];
 }

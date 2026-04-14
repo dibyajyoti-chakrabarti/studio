@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ManufacturingService } from '@/types/project';
+import { ManufacturingService } from '@/models/project.model';
 import { Layers3, CheckCircle, Info } from 'lucide-react';
 import { MATERIAL_CATALOG, MaterialOption } from '@/lib/data/material-data';
 import { ExpertCTA } from './ExpertCTA';

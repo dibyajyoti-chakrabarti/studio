@@ -43,14 +43,14 @@ import Link from 'next/link';
 import { collection, query, where, doc } from 'firebase/firestore';
 import {
   MechanicalPart,
-  ProjectRFQ,
   ProjectRFQStatus,
   ManufacturingService,
   SERVICE_DISPLAY_NAMES,
-} from '@/types/project';
-import { logger } from '@/utils/logger';
+} from '@/models/project.model';
+import { ProjectRFQ } from '@/models/project.model';
 import { CADPreviewModal } from '@/components/viewer/CADPreviewModal';
 import { useStepConverter } from '@/hooks/use-step-converter';
+import { logger } from '@/utils/logger';
 
 import {
   FileText,
@@ -91,6 +91,11 @@ const STATUS_MAP: Record<ProjectRFQStatus, { label: string; color: string; icon:
   draft: { label: 'DRAFT', color: 'bg-slate-100 text-slate-600 border-slate-200', icon: FileText },
   quote_requested: {
     label: 'QUOTE REQUESTED',
+    color: 'bg-blue-50 text-blue-700 border-blue-100',
+    icon: Clock,
+  },
+  submitted: {
+    label: 'SUBMITTED',
     color: 'bg-blue-50 text-blue-700 border-blue-100',
     icon: Clock,
   },

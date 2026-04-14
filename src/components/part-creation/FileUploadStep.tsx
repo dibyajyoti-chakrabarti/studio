@@ -20,7 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { MechanicalPart, ManufacturingService } from '@/types/project';
+import { MechanicalPart, ManufacturingService } from '@/models/project.model';
 import { useStepConverter } from '@/hooks/use-step-converter';
 import { CADPreviewModal } from '@/components/viewer/CADPreviewModal';
 import { ConversionResult } from '@/types/viewer';

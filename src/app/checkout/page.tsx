@@ -30,7 +30,7 @@ import { useRouter } from 'next/navigation';
 
 import { useQuoteCart } from '@/hooks/use-quote-cart';
 import { useQuoteCheckout } from '@/hooks/use-quote-checkout';
-import { SHIPPING_OPTIONS } from '@/types/checkout';
+import { SHIPPING_OPTIONS } from '@/models/order.model';
 import { QuoteCart } from '@/components/checkout/QuoteCart';
 import { ShippingForm } from '@/components/checkout/ShippingForm';
 import { PaymentSection } from '@/components/checkout/PaymentSection';

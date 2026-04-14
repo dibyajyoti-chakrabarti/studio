@@ -24,10 +24,10 @@ import { collection, doc } from 'firebase/firestore';
 import {
   ManufacturingService,
   SecondaryProcess,
+  TapSelection,
   ColorOption,
   MechanicalPart,
-  TapSelection,
-} from '@/types/project';
+} from '@/models/project.model';
 import { ConversionResult, BendAnalysisResult } from '@/types/viewer';
 import { ServiceSelection } from './ServiceSelection';
 import { FileUploadStep } from './FileUploadStep';

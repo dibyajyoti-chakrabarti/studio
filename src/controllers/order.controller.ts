@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CheckoutService } from '@/services/checkout.service';
-import { checkoutSchema } from '@/lib/validation/checkout';
+import type { QuoteOrder } from '@/models/order.model';
+import { orderCreateSchema as checkoutSchema } from '@/validators/order.validator';
+import { Result, ok, err } from '@/utils/result';
+import { AppError, validationError, internalError, ErrorCode } from '@/utils/errors';
+import { SHIPPING_OPTIONS } from '@/models/order.model';
 import { logger } from '@/utils/logger';
-import { ErrorCode } from '@/utils/errors';
-import { SHIPPING_OPTIONS } from '@/types/checkout';
+import { CheckoutService } from '@/services/checkout.service';
 import { authenticateRequest, forbiddenResponse } from '@/lib/auth-middleware';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import Razorpay from 'razorpay';
@@ -169,17 +171,17 @@ export const OrderController = {
       });
 
       // 4. Create internal order record via Service
-      const result = await CheckoutService.createOrder(
+      const result = await CheckoutService.createOrder({
         userId,
-        items as any,
-        shopItems as any,
-        shippingAddress as any,
-        shippingOption,
-        razorpayOrder.id,
+        items: items as any,
+        shopItems: shopItems as any,
+        shippingAddress: shippingAddress as any,
+        shippingOptionId: shippingOptionId,
         projectId,
         advancePercentage,
-        isBalance
-      );
+        isBalance,
+        isAdvance,
+      });
 
       if (!result.success) {
         const error = result.error;
