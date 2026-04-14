@@ -1,4 +1,4 @@
-import { ManufacturingService } from '@/types/project';
+import { ManufacturingService } from '@/models/project.model';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';

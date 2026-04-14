@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { ALL_TAPS, METRIC_TAPS, IMPERIAL_TAPS } from '@/config/manufacturing';
 import { ConversionResult } from '@/types/viewer';
-import { TapSelection } from '@/types/project';
+import { TapSelection } from '@/models/project.model';
 import { ExpertCTA } from './ExpertCTA';
 
 // Tapping standards moved to @/config/manufacturing

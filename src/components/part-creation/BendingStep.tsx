@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { ConversionResult, BendFeature } from '@/types/viewer';
-import { ManufacturingService } from '@/types/project';
+import { ManufacturingService } from '@/models/project.model';
 
 interface BendingStepProps {
   selectedService: ManufacturingService;

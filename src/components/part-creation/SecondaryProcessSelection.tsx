@@ -13,11 +13,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  SecondaryProcess,
-  ColorOption,
   ManufacturingService,
-  TapSelection
-} from '@/types/project';
+  SecondaryProcess,
+  TapSelection,
+  ColorOption,
+} from '@/models/project.model';
 import { ConversionResult } from '@/types/viewer';
 import {
   Paintbrush,

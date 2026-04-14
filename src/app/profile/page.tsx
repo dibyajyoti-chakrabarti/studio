@@ -120,26 +120,32 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!db || !user) return;
+    if (!user) return;
     setIsSaving(true);
+    
     try {
-      await updateDocumentNonBlocking(doc(db, 'users', user.uid), {
+      const { UserService } = await import('@/services/user.service');
+      const result = await UserService.updateProfile(user.uid, {
         fullName: form.fullName.trim(),
         phone: form.phone.trim(),
         teamName: form.teamName.trim(),
         designation: form.designation.trim(),
         location: form.location.trim(),
         preferences,
-        updatedAt: new Date().toISOString(),
       });
-      toast({
-        title: 'Profile updated',
-        description: 'Your account settings were saved successfully.',
-      });
-    } catch (error) {
+
+      if (result.success) {
+        toast({
+          title: 'Profile updated',
+          description: 'Your account settings were saved successfully.',
+        });
+      } else {
+        throw new Error(result.error.message);
+      }
+    } catch (error: any) {
       toast({
         title: 'Save failed',
-        description: 'We could not update your profile. Please try again.',
+        description: error.message || 'We could not update your profile. Please try again.',
         variant: 'destructive',
       });
     } finally {

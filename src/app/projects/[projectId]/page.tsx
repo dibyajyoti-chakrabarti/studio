@@ -25,7 +25,7 @@ import {
   ManufacturingService,
   NegotiationMessage,
   SERVICE_DISPLAY_NAMES,
-} from '@/types/project';
+} from '@/models/project.model';
 import { PartCreationWizard } from '@/components/part-creation/PartCreationWizard';
 import {
   ChevronLeft,
@@ -105,6 +105,11 @@ const STATUS_MAP: Record<ProjectRFQStatus, { label: string; color: string; descr
     label: 'QUOTE REQUESTED',
     color: 'bg-blue-50 text-blue-700 border-blue-100',
     description: 'Your order is being reviewed',
+  },
+  submitted: {
+    label: 'SUBMITTED',
+    color: 'bg-blue-50 text-blue-700 border-blue-100',
+    description: 'Your order has been submitted',
   },
   under_review: {
     label: 'UNDER REVIEW',
